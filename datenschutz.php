@@ -174,7 +174,7 @@ $conn = $database->connect();
                 $deleteAccountTimeText = secondsToArrayOrString($deleteAccountTime, "String")."(n)";
             ?>
 
-            <p><b>Ein nichtbestätigtes Konto wird automatisch bei Nichtbenutzung von <?php echo $deleteAccountTimeText?> automatisch gelöscht. Um dies zu verhindern ist es nötig das Konto zu bestätigen. Dies kann über das Hinzufügen einer E-Mail-Adresse geschehen oder über die Anfrage eines Administrators.</b></p>
+            <p><b>Ein nichtbestätigtes Konto wird automatisch bei Nichtbenutzung von <?php echo $deleteAccountTimeText?> gelöscht. Um dies zu verhindern ist es nötig das Konto zu bestätigen. Dies kann über das Hinzufügen einer E-Mail-Adresse geschehen oder über die Anfrage eines Administrators.</b></p>
             <h4>8. Rechte der betroffenen Person</h4>
             <ul style="list-style: none;">
                 <li>
