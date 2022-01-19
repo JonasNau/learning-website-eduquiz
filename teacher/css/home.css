@@ -1,0 +1,17 @@
+.card-box {
+    background-color: white;
+    padding: 5px;
+    border-radius: 15px;
+    text-align: center;
+    margin: 10px;
+    overflow: hidden;
+}
+
+.card-box .heading {
+    font-size: 1.7rem;
+    font-weight: bold;
+}
+
+.card-box .description {
+    font-size: 1.3rem;
+}

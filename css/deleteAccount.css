@@ -1,0 +1,28 @@
+#deleteAccountBtn {
+    min-width: 300px;
+    min-height: 175px;
+    background-color: rgba(255, 8, 0, 0.596);
+    font-size: x-large;
+    border-radius: 10%;
+}
+
+#deleteAccountBtn:hover {
+    background-color: rgba(255, 8, 0, 0.959);
+    font-size: xx-large;
+}
+
+#deleteAccountBtn:active {
+    background-color: black;
+}
+
+body {
+    background-color: black;
+}
+
+.deleteAccountOuter {
+    color: white;
+}
+
+.removeForm #sadEmoji {
+    width: 200px;
+}

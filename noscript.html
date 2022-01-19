@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fehler</title>
+    <style>
+        *,
+        *::after,
+        *::before {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            margin: 50px;
+        }
+
+        img {
+            display: block;
+            margin: auto;
+            max-width: 90vw;
+        }
+
+        img:hover {
+            border: 2px solid gray;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        window.location = "/";
+    </script>
+    <div class="container">
+        <h1>Skripte deaktiviert</h1>
+        <p>Du hast JavaScript in den Browsereinstelltungen deaktiviert. Um diese Webseite zu benutzen musst du
+            JavaScript aktiviert haben.</p>
+    </div>
+    <img src="./images/traurigerEmoji.jpg" alt="Trauriger Emoji">
+    <img src="./images/noscriptfix.png" alt="Anleitung zum Beheben" class="fullscreenToggle" id="img1"
+        data-active="false">
+</body>
+
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+
+    <!--Style-->
+    <style>
+
+        body {
+            font-family: Tahoma, sans-serif;
+            margin: 0;
+        }
+
+       
+
+        .webseite-container{
+            width: 98vw;
+            background-color: brown;
+            margin: 0;
+   
+        }
+
+        .header {
+            position: relative;
+            width: inherit;
+            height: 50vw;
+            background-image: url("images/1.jpg");
+            background-size: cover;
+            margin-bottom: 2vw;
+
+        }
+
+
+        .headerinhalt #Willkommenbei {
+            font-size: 9vw;
+        }
+
+        .headerinhalt #WuschelundFlocke {
+            font-size: 7vw;
+        }
+        
+        .headerinhalt {
+            /* perfekt in der Mitte ausrichten*/
+            position: absolute;
+            width: 80vw;
+           
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%,-50%);
+            
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.61);
+            border-radius: 30px;
+        }
+
+        .navbar {
+            position: absolute;
+            bottom: 0.4vw;
+            right: 10vw;
+        }
+
+        .navbar li  {
+            display: inline-block;
+        }
+
+        .main-content {
+       
+        }
+
+        /* Hover and Click navbar */
+
+        .navbar li a:link, .navbar li a:visited { /* Vor dem Klicken + nach Besucht*/
+            text-decoration: none;
+            margin-left: 5vw;
+            font-size: 4.5vw;
+            
+            text-decoration: underline;
+            color: tomato;
+        }
+
+        .navbar li a:hover{ /* Beim drüberfahren*/
+            color: gray;
+        }
+
+        /* Images */
+        .imageanddescription {
+            background-size: cover;
+            position: relative;
+            left: 50%;
+            transform: translate(-50%, 0);
+        }
+
+        .landscapeformat img {
+            width: 98%;
+            
+        }
+        
+        .portraitmode{
+            position: absolute;
+            background-color: royalblue;
+            width: 98%;
+
+        }
+
+        .portraitmode img {
+            width: 40%;
+        }
+
+        .imagestojustify {
+            width: 98%;
+            display: flex grid;
+
+        }
+
+        
+
+
+    </style>
+
+</head>
+<body>
+    <div class="webseite-container">
+        <header>
+            <div class="header">
+                <div class="headerinhalt">
+                    <h1><span id="Willkommenbei">Willkommen bei</span> <br> <span id="WuschelundFlocke">Wuschel<img src=""> und Flocke<img src="">!</span></h1>
+                </div>
+                <div class="navbar-container">
+                    <ul class="navbar">
+                        <li><a href="bilder.html">Bilder</a></li>
+                        <li><a href="anderes.html">Anderes</a></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+        <div class="main-content">
+            <div class="images">
+                <div class="imageanddescription landscapeformat part">
+                    <img src="images/2.jpg" alt="">
+                </div>
+                <div class="imageanddescription portraitmode">
+                    <div class="imagestojustify">
+                        <img src="images/3.jpg" alt="">
+                        <img src="images/4.jpg" alt="">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    
+</body>
+</html>

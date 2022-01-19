@@ -1,0 +1,27 @@
+::selection {
+  background-color: rgba(0, 252, 147, 1);
+  border-radius: 10px;
+  color: white;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  word-wrap: break-word;
+  word-break: break-all;
+}
+
+.hidden {
+  display: none;
+}
+
+.showDotsIfTooLong {
+  display: inline-block;
+  width: 150px;
+  white-space: nowrap;
+  overflow: hidden !important;
+  text-overflow: ellipsis;
+}

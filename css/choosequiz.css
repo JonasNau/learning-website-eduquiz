@@ -1,0 +1,220 @@
+/* Search Bar */
+
+.search-container {
+    position: relative;
+    width: 100%;
+}
+
+.search-container #searchbox {
+    background-color: aquamarine;
+}
+
+.search-results {
+    z-index: 1010; /* Between dropdown and sticky */
+    position: absolute;
+    width: 100%;
+    background-color: white;
+    border-radius: 0 0 10px 10px;
+    border: 2px solid rgba(0, 0, 0, 0.534);
+    border-top: 0;
+    
+}
+
+/* Animations */
+.fade-in {
+    animation: fadeIn 0.4s;
+    -webkit-animation: fadeIn  0.4s;
+    -moz-animation: fadeIn  0.4s;
+    -o-animation: fadeIn  0.4s;
+    -ms-animation: fadeIn  0.4s;
+  }
+
+
+.search-container .search-results .themen {
+    margin-top: 10px;
+}
+
+.search-container .search-results .quize-ul, .search-container .search-results .themen-ul {
+    position: relative;
+    list-style-type: none;
+}
+
+.search-container .search-results .quize-ul li, .search-container .search-results .themen-ul li {
+    font-size: 1.3rem;
+    line-height: 1.1rem;
+    margin-bottom: 10px;
+}
+
+
+.themen-ul li::before, .quize-ul li::before {
+    position: absolute;
+    content: '';
+    height: 1.3rem;
+    width: 1.3rem;
+    left: 8px;
+    transform: translateY(-5px);
+    background-image: url("../images/list-arrow-1.svg");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.themen-ul span[class='description'], .quize-ul span[class='description'] {
+    font-size: 0.7rem;
+    color: gray;
+}
+
+
+.themen-ul li a, .themen-ul li a:visited  {
+    text-decoration: none;
+    color: blue;
+}
+
+.quize-ul li a, .quize-ul li a:visited {
+    text-decoration: none;
+    color: lightseagreen;
+}
+
+.themen-ul li a:hover {
+    color: greenyellow;
+}
+
+.quize-ul li a:hover {
+    color: rgb(83, 245, 8);
+}
+
+.hidden {
+    display: none;
+}
+.fade-out {
+    animation: fadeOut 0.4s;
+    -webkit-animation: fadeOut  0.4s;
+    -moz-animation: fadeOut  0.4s;
+    -o-animation: fadeOut  0.4s;
+    -ms-animation: fadeOut  0.4s;
+  }
+  
+  @keyframes fadeIn {
+    0% {opacity:0;}
+    100% {opacity:1;
+    
+    }
+  }
+  
+  @-moz-keyframes fadeIn {
+    0% {opacity:0;}
+    100% {opacity:1;}
+  }
+  
+  @-webkit-keyframes fadeIn {
+    0% {opacity:0;}
+    100% {opacity:1;}
+  }
+  
+  @-o-keyframes fadeIn {
+    0% {opacity:0;}
+    100% {opacity:1;}
+  }
+  
+  @-ms-keyframes fadeIn {
+    0% {opacity:0;}
+    100% {opacity:1;}
+  }
+
+  @keyframes fadeOut {
+    0% {opacity:1;}
+    100% {opacity:0;
+    display: none;
+    }
+  }
+  
+  @-moz-keyframes fadeOut {
+    0% {opacity:1;}
+    100% {opacity:0;
+        display: none;
+        }
+  }
+  
+  @-webkit-keyframes fadeOut {
+    0% {opacity:1;}
+    100% {opacity:0;
+        display: none;
+        }
+  }
+  
+  @-o-keyframes fadeOut {
+    0% {opacity:1;}
+    100% {opacity:0;
+        display: none;
+        }
+  }
+  
+  @-ms-keyframes fadeOut {
+    0% {opacity:1;}
+    100% {opacity:0;
+        display: none;
+        }
+  }
+
+/* -Animations- */
+
+
+
+/* Dropdowns */
+.dropdownContainer div[class*="Dropdown"] {
+    margin-bottom: 20px;
+
+}
+
+/* Quiz selection */
+.quizzeContainer {
+    margin-top: 50px;
+    padding: 5px;
+    border-radius: 5px;
+    background-color: lightblue;
+}
+
+.quizzeContainer .results{
+    list-style: none;
+    margin-left: 0;
+    padding-left: 0;
+    margin-bottom: 10px;
+    font-size: 20px;
+}
+
+.quizzeContainer .results li a, .quizzeContainer .results li a:visited{
+    margin-left: 10px;
+    color: black;
+    text-decoration: none;
+    color: black;
+}
+
+.quizLink {
+    margin-bottom: 10px;
+    min-height: 30px;
+    background-color: cadetblue;
+    border: 1px solid gray;
+    border-radius: 5px;
+    font-weight: bold;
+    padding: 5px;
+    word-wrap: break-word;
+    word-break: break-all;
+}
+
+.quizLink:hover {
+    color: black;
+    background-color: darkgray;
+}
+
+
+.list-arrow {
+    position: absolute;
+    height: 30px;
+}
+
+.item-description {
+    position: relative;
+    left: 40px;
+    text-align: left;
+}
+
+

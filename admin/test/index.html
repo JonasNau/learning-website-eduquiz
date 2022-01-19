@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lehrerpanel</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <noscript style="width: 100vw; height: 100vh; z-index: 2;">
+        <p class="noscript">Dein Browser unterstützt kein JavaScript. Um die Webseite zu betreten ist dies aber notwendig. Aktualisiere deinen Browser oder aktiviere JavaScript in den Browsereinstellungen.</p>
+        <style>
+            body .lehrerpanel{
+                display: none;
+            }
+
+            body > .noscript {
+                display: block !important;
+            }
+        </style>
+    </noscript>
+    <div class="lehrerpanel">
+        <div class="navigation">
+            <ul>
+                <li><a href="#" data-toggle="container-start">Startseite</a></li>
+                <li><a href="#" data-toggle="container1">Content 1</a></li>
+                <li><a href="#" data-toggle="container2">Content 2</a></li>
+                <li><a href="#" data-toggle="container3">Content 3</a></li>
+            </ul>
+        </div>
+        <div class="content">
+            <div class="container-start">
+                <p>Hallo, willkommen im Lehrerpanel!</p>
+            </div>
+            <div class="container1 hidden">
+                <p>Füge jetzt ein neues Quiz hinzu!</p>
+            </div>
+            <div class="container2 hidden">
+                <p>Lösche ein vorhandenes Quiz.</p>
+            </div>
+            <div class="container3 hidden">
+                <p>Gebe Nutzern neue Berechtigungen.</p>
+            </div>
+        </div>
+    </div>
+    <script src="script.js" defer></script>
+    
+</body>
+</html>

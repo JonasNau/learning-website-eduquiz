@@ -1,0 +1,124 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    width: 100%;
+    background-color: lightblue;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.addItem_box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    
+    margin-bottom: 30px;
+}
+
+#textInput {
+    width: 500px;
+    height: 60px;
+    padding: 5px;
+    margin-right: 20px;
+    font-size: 30px;
+    border-radius: 10px;
+    border: none;
+
+}
+
+#addButton {
+    width: 50px;
+    height: 60px;
+    border: none;
+    background: green;
+    border-radius: 10px;
+}
+
+#addButton:hover {
+    background-color: black;
+}
+
+
+
+#plusicon {
+    color: white;
+}
+
+.container {
+    width: 70vw;
+    margin: auto;
+    background-color: #302c2c;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    flex-direction: column;
+}
+
+#list {
+    list-style-type: none;
+    width: 100%;
+    margin: 0;
+}
+
+
+.item {
+    width: 100%;
+    overflow: auto;
+    align-items: center;
+    justify-content: center;
+}
+
+.item:hover {
+    background-color: gray;
+}
+
+.item-green {
+    background-color: green;
+}
+
+.inputBox_container {
+    width: 100%;
+}
+
+.doneButton {
+    float: left;
+    height: 20px;
+    width: 20px;
+    background: none;
+    border: 2px solid white;
+    border-radius: 20px;
+    margin-right: 1%;
+    color: white;
+}
+
+.taskDescription{
+    width: 89%;
+    float: left;
+    text-align: left;
+    margin-right: 1%;
+    font-size: x-large;
+    background: none;
+    color: black;
+    color: white;
+}
+
+.deleteButton {
+    float: left;
+    background: none;
+    color: white;
+    padding: 1px;
+    border-radius: 10px;
+}
+
+.deleteButton:hover {
+    background: red;
+}

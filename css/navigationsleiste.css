@@ -1,0 +1,56 @@
+.navigationslink {
+    margin: 0 10px 0 10px;
+}
+
+.right {
+    float: right;
+}
+
+
+.navbar {
+    background: rgb(0,255,179);
+    background: linear-gradient(260deg, rgba(0,255,179,1) 0%, rgba(0,224,255,0.4009978991596639) 100%);
+}
+
+.offcanvasContainer [class*="Dropdown"]{
+    margin-bottom: 20px;
+}
+
+.brand {
+    display: flex;
+    flex-direction: row;
+}
+.brand img{
+    height: 50px;
+}
+
+.brand .goBack {
+    font-size: 1.5rem;
+    text-decoration: none;
+    color: black;
+    font-family: 'Josefin Sans', sans-serif;
+}
+
+.box-2 {
+    display: flex;
+    flex-direction: column;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap');
+
+.zeitAnzeige {
+    font-size: 15px !important;
+    color: gray;
+    text-align: center;
+    font-family: 'Josefin Sans', sans-serif;
+}
+
+.limitWidthOfText {
+    display: inline-block;
+    max-width: 210px;
+    white-space: nowrap;
+    overflow: hidden !important;
+    text-overflow: ellipsis;
+}
