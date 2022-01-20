@@ -22,6 +22,7 @@ require_once("../../global.php");
 mustBeLoggedIn();
 
 $userID = $_SESSION['userID'];
+$username = getValueFromDatabase($conn, "users", "username", "userID", $userID, 1, false);
 
 $database = new dbh();
 $conn = $database->connect();
@@ -570,7 +571,7 @@ if (isset($_POST["benutzerverwaltung"])) {
                 returnMessage("failed", "Nachricht darf nicht leer sein");
                 die();
             }
-            if (addToArrayDatabase($conn, "users", "messageForComeBack", "userID", $sendUserID, $message, true)) {
+            if (addToArrayDatabase($conn, "users", "messageForComeBack", "userID", $sendUserID, $username . ": " . $message, true)) {
                 returnMessage("success", "Nachricht gesendet.");
             } else {
                 returnMessage("failed", "Nachricht konnte nicht gesendet werden.");
@@ -682,7 +683,7 @@ if (isset($_POST["benutzerverwaltung"])) {
             }
             $resultArray = array();
             foreach ($allPermissions as $currentPermission) {
-                if (userHasPermissions($conn, $userID, [$currentPermission=>gnVP($conn, $currentPermission)])) {
+                if (userHasPermissions($conn, $userID, [$currentPermission => gnVP($conn, $currentPermission)])) {
                     $resultArray[] = $currentPermission;
                 }
             }
@@ -888,7 +889,7 @@ if (isset($_POST["benutzerverwaltung"])) {
                 }
                 $resultArray = array();
                 foreach ($allPermissions as $currentPermission) {
-                    if (userHasPermissions($conn, $userID, [$currentPermission=>gnVP($conn, $currentPermission)])) {
+                    if (userHasPermissions($conn, $userID, [$currentPermission => gnVP($conn, $currentPermission)])) {
                         removeFromObjectDatabase($conn, "users", "permissions", "userID", $sendUserID, $currentPermission, true, true, "key");
                     }
                 }
@@ -1107,11 +1108,11 @@ if (isset($_POST["benutzerverwaltung"])) {
             } else if ($secondOperation === "removeAllPermissions") {
                 $allPermissions = getAllValuesFromDatabase($conn, "permissions", "name", 0, true, true);
                 if (!$allPermissions || !count($allPermissions) > 0) {
-                returnMessage("success", "Benutzer hat keine erlaubten Berechtigungen");
+                    returnMessage("success", "Benutzer hat keine erlaubten Berechtigungen");
                 }
                 $resultArray = array();
                 foreach ($allPermissions as $currentPermission) {
-                    if (userHasPermissions($conn, $userID, [$currentPermission=>gnVP($conn, $currentPermission)])) {
+                    if (userHasPermissions($conn, $userID, [$currentPermission => gnVP($conn, $currentPermission)])) {
                         removeFromArrayDatabase($conn, "users", "isForbiddenTo", "userID", $sendUserID, $currentPermission, true, true);
                     }
                 }
@@ -1238,7 +1239,7 @@ if (isset($_POST["benutzerverwaltung"])) {
         $username = $_POST["username"];
         $password = $_POST["password"];
         $email = $_POST["email"];
-    
+
         if (empty($username)) {
             returnMessage("failed", "Der Benutzername darf nicht leer sein.");
             die();
@@ -1247,12 +1248,12 @@ if (isset($_POST["benutzerverwaltung"])) {
             returnMessage("failed", "Das Passwort darf nicht leer sein.");
             die();
         }
-    
+
         if (invalidUid($username)) {
             returnMessage("failed", "Der Benutzername enthält nicht erlaubte Zeichen. Erlaubt sind a-z, A-Z, 0-9 und Unterstriche. Leerzeichen sind nicht erlaubt.");
             die();
         }
-    
+
         if (valueInDatabaseExists($conn, "users", "username", "username", $username)) {
             returnMessage("failed", "Es existiert bereits ein Nutzer mit dem Namen <b>$username</b>");
             die();
@@ -1268,17 +1269,17 @@ if (isset($_POST["benutzerverwaltung"])) {
             returnMessage("failed", "Es existiert bereits ein Nutzer mit der E-Mail <b>$email</b>");
             die();
         }
-    
+
         if (createUserWithoutEmail($conn, $username, false, password_hash($password, PASSWORD_DEFAULT))) {
             $usersUserID = getParameterFromUser($conn, $username, "userID", "username");
             if ($email) {
                 setValueFromDatabase($conn, "users", "email", "userID", $usersUserID, $email);
                 setValueFromDatabase($conn, "users", "authenticated", "userID", $usersUserID, 1);
             }
-            returnMessage("success", "Benutzer <b>$username</b> erfolgreich erstellt.", false, array("createduserID"=>$usersUserID));
+            returnMessage("success", "Benutzer <b>$username</b> erfolgreich erstellt.", false, array("createduserID" => $usersUserID));
             die();
         }
-    
+
         returnMessage("failed", "Benutzer <b>$username</b> konnte nicht erstellt werden.");
         die();
     }
