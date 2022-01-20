@@ -116,6 +116,20 @@ if (isset($_POST["COMEBACK_MESSAGE"])) {
     }
 }
 
+if (isset($_POST["CHECK_LOGIN"])) {
+    session_start();
+    require_once("./dbh.incPDO.php");
+    require_once("./userSystem/functions/generalFunctions.php");
+    require_once("./userSystem/functions/login-functions.php");
+    require_once("./getSettings.php");
+    require_once("./Browser.inc.php");
+    $database = new Dbh();
+    $conn = $database->connect();
+
+    returnMessage("success", false, false, array("loginStatus" => isLoggedIn()));
+    die();
+}
+
 if (isset($_POST["GETsettingVal"])) {
     require_once("./dbh.incPDO.php");
     require_once("./userSystem/functions/generalFunctions.php");
@@ -1014,6 +1028,52 @@ function getValueFromDatabaseMultipleWhere($conn, $table, $column, $whereArray, 
         }
     } catch (Exception $e) {
         return $e;
+    }
+
+    return false;
+}
+
+function getColumsFromDatabaseMultipleWhere($conn, $table, $columns = array(), $whereArray, $limitResults = false, $distinct = false, $returnArray = false, $searchMode = false)
+{
+    $resultArray = array();
+
+    try {
+        $stmt = $conn->prepare("SELECT * FROM $table;");
+        if ($stmt->execute()) {
+            if ($stmt->rowCount()) {
+
+                $count = 0;
+                //While because otherwhise there will be too much traffic (data) if there are more quizzes than 50
+                while ($currentResult = json_validate($stmt->fetch(PDO::FETCH_ASSOC))) {
+                    if (hasAllContidions($conn, $whereArray, $currentResult, $searchMode)) {
+                        //Add
+                        $currentResultArray = array();
+                        foreach ($columns as $column) {
+                            if (isset($currentResult->$column)) {
+                                $currentResultArray[$column] = $currentResult->$column;
+                            }
+                        }
+                        if (!$returnArray) {
+                            if (!count($currentResultArray) > 0) {
+                                return false;
+                            }
+                            return $currentResultArray;
+                        }
+                        $resultArray[] = $currentResultArray;
+                    }
+                    $count++;
+                }
+                if (!count($resultArray) > 0) {
+                    return 1;
+                }
+                if ($distinct) {
+                    return limitArray(array_unique($resultArray, SORT_REGULAR), $limitResults);
+                }
+                return limitArray($resultArray, $limitResults);
+            }
+        }
+    } catch (Exception $e) {
+        return false;
     }
 
     return false;

@@ -1424,3 +1424,11 @@ function repairDatabaseValues($conn, $klassenstufen = true, $faecher = true, $th
         repairGroupNameFromUsers($conn);
     }
 }
+
+
+function quizCanBeAccessed($conn, $quizId) {
+    if (getValueFromDatabaseMultipleWhere($conn, "selectquiz", "quizId", ["quizId" => $quizId, "visibility" => 1])) {
+        return true;
+    }
+    return false;
+}

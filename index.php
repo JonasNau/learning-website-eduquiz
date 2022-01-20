@@ -12,6 +12,7 @@ require_once("./global.php");
 
 require_once 'header-start.php';
 logWrite($conn, "general", "Jemand hat die Webseite betreten! Connected Clients now: ". getNumOnlineClients($conn), true, false, "yellow", ".log", true, false);
+
 ?>
 <link rel="stylesheet" href="css/index.css?v=<?php echo getNewestVersion(); ?>">
 </head>

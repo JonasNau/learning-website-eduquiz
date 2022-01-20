@@ -511,7 +511,8 @@ export function getUserInput(
       myModal.show();
 
       yes.addEventListener("click", (target) => {
-        let value = selectInput[selectInput.selectedIndex].getAttribute("data-value");
+        let value =
+          selectInput[selectInput.selectedIndex].getAttribute("data-value");
         if (canBeEmpty) {
           myModal.hide();
           hideAllModals(closeOthers);
@@ -646,6 +647,13 @@ export function hideAllModals(check) {
     return false;
   }
 }
+export async function popUpStatus(status = true) {
+  if (status) {
+    sessionStorage.setItem("popupOpen", true);
+  } else {
+    sessionStorage.setItem("popupOpen", false);
+  }
+}
 
 export async function holdSererContact(fileGeneralFunctions) {
   async function sendData(request) {
@@ -664,34 +672,52 @@ export async function holdSererContact(fileGeneralFunctions) {
     );
   }
 
+
+
   async function getMessage() {
     try {
-      if (JSON.parse(sessionStorage.getItem("sessionMessageOPEN")) != true) {
+      if (makeJSON(sessionStorage.getItem("popupOpen")) != true) {
         let data = await sendData("SESSION_MESSAGE&operation=get");
         if (data["message"]) {
-          sessionStorage.setItem("sessionMessageOPEN", true);
+         popUpStatus(true);
           async function openAlert() {
             let res = await alertUser("Nachricht", data["message"], true);
             await sendData("SESSION_MESSAGE&operation=delete");
-            sessionStorage.setItem("sessionMessageOPEN", false);
+            popUpStatus(false);
             getMessage();
           }
           openAlert();
         }
       }
-      if (JSON.parse(sessionStorage.getItem("comebackMessageOPEN")) != true) {
+      if (makeJSON(sessionStorage.getItem("popupOpen")) != true) {
         let data = await sendData("COMEBACK_MESSAGE&operation=get");
         if (data["message"]) {
-          sessionStorage.setItem("comebackMessageOPEN", true);
+          popUpStatus(true);
           async function openAlert() {
             await alertUser("Nachricht", data["message"], true);
             await sendData("COMEBACK_MESSAGE&operation=delete");
-            sessionStorage.setItem("comebackMessageOPEN", false);
+            popUpStatus(false);
             getMessage();
           }
           openAlert();
         }
       }
+
+      if (makeJSON(sessionStorage.getItem("popupOpen")) != true) {
+      let oldLogin = makeJSON(sessionStorage.getItem("loggedIn"));
+      let logincheck = await sendData("CHECK_LOGIN");
+      if (logincheck["data"]) {
+        let newStatus =  logincheck["data"]["loginStatus"];
+        sessionStorage.setItem("loggedIn", newStatus);
+        if (oldLogin != newStatus) {
+          window.location.reload();
+        }
+      } else {
+        sessionStorage.setItem("loggedIn", false);
+      }
+    }
+
+
     } catch (e) {
       alertUser("Nachricht", "Verbindung zum Server unterbrochen" + e, true);
     }
@@ -1681,3 +1707,23 @@ export const setToClipboard = async (blob) => {
 //   const blob = new Blob(['Hello World'], { type: 'text/plain' })
 //   await setToClipboard(blob)
 // }
+
+export async function getAttributesFromServer(
+  pathToGetAttributes,
+  type = false,
+  secondOperation = false,
+  otherRequest
+) {
+  return await makeJSON(
+    await sendXhrREQUEST(
+      "POST",
+      `getAttribute&type=${type}&secondOperation=${secondOperation}&${otherRequest}`,
+      pathToGetAttributes,
+      "application/x-www-form-urlencoded",
+      true,
+      true,
+      false,
+      true
+    )
+  );
+}

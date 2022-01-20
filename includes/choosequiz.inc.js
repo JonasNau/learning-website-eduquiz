@@ -604,7 +604,6 @@ function checkAndSetQuiz() {
 
   //Check QuizId
   if (urlParams.has("quizId")) {
-    //Wird eig. schon von selectquiz.inc.js übernommen, aber zur Sicherheit - Stichwort redundanz xD
     if (window.location.pathname != "/quiz.php") {
       window.location.href = `/quiz.php?quizId=${urlParams.get("quizId")}`;
     }

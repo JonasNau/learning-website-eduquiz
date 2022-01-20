@@ -1,127 +1,140 @@
 "use strict";
-import * as Utils from './utils.js';
+import * as Utils from "./utils.js";
 
 function moreThanZeroInArray(array) {
-    let result = false;
-    if (array.length > 0) {
-        result = true;
-    }
-    return result;
+  let result = false;
+  if (array.length > 0) {
+    result = true;
+  }
+  return result;
 }
 
 class SelectQuizNav {
-    constructor(navigationsleiste) {
-        this.navigationsleiste = navigationsleiste;
-        this.ausgewaehlteKlasse = null;
-        this.ausgewaehltesFach = null;
-        this.ausgewaehltesThema = null;
-        this.ausgewaehltesQuiz = null;
+  constructor(navigationsleiste) {
+    this.navigationsleiste = navigationsleiste;
+    this.ausgewaehlteKlasse = null;
+    this.ausgewaehltesFach = null;
+    this.ausgewaehltesThema = null;
+    this.ausgewaehltesQuiz = null;
 
-        this.klassenDropdown = null;
-        this.dropDownLinkContainerKlassen = null;
+    this.klassenDropdown = null;
+    this.dropDownLinkContainerKlassen = null;
 
-        this.faecherDropdown = null;
-        this.dropDownLinkContainerFaecher = null;
+    this.faecherDropdown = null;
+    this.dropDownLinkContainerFaecher = null;
 
-        this.themenDropdown = null;
-        this.dropDownLinkContainerThemen = null;
+    this.themenDropdown = null;
+    this.dropDownLinkContainerThemen = null;
 
-        this.quizzeDropdown = null;
-        this.dropDownLinkContainerQuizze = null;
-    }
+    this.quizzeDropdown = null;
+    this.dropDownLinkContainerQuizze = null;
+  }
 
-    resetChoice(afterContent) {
-        //dev console.log(this.ausgewaehlteKlasse, this.ausgewaehltesFach, this.ausgewaehltesThema, this.ausgewaehltesQuiz);
-        let klassen = this.navigationsleiste.querySelectorAll(".klassenDropdown");
-        let faecher = this.navigationsleiste.querySelectorAll(".faecherDropdown");
-        let themen = this.navigationsleiste.querySelectorAll(".themenDropdown");
-        let quizze = this.navigationsleiste.querySelectorAll(".quizzeDropdown");
+  resetChoice(afterContent) {
+    //dev console.log(this.ausgewaehlteKlasse, this.ausgewaehltesFach, this.ausgewaehltesThema, this.ausgewaehltesQuiz);
+    let klassen = this.navigationsleiste.querySelectorAll(".klassenDropdown");
+    let faecher = this.navigationsleiste.querySelectorAll(".faecherDropdown");
+    let themen = this.navigationsleiste.querySelectorAll(".themenDropdown");
+    let quizze = this.navigationsleiste.querySelectorAll(".quizzeDropdown");
 
-        switch (afterContent) {
-            case "Reload":
-                klassen.forEach(element => {
-                    element.remove();
-                });
-                faecher.forEach(element => {
-                    element.remove();
-                });
-                themen.forEach(element => {
-                    element.remove();
-                });
-                quizze.forEach(element => {
-                    element.remove();
-                });
-                this.klassenDropdown = null;
-                this.faecherDropdown = null;
-                this.themenDropdown = null;
-                this.quizDropdown = null;
-                break;
-            case "Klasse":
-                faecher.forEach(element => {
-                    element.remove();
-                });
-                themen.forEach(element => {
-                    element.remove();
-                });
-                quizze.forEach(element => {
-                    element.remove();
-                });
-                this.faecherDropdown = null;
-                this.themenDropdown = null;
-                this.quizDropdown = null;
-                break;
-            case "Fach":
-                themen.forEach(element => {
-                    element.remove();
-                });
-                quizze.forEach(element => {
-                    element.remove();
-                });
-                this.themenDropdown = null;
-                this.quizDropdown = null;
-                break;
-            case "Thema":
-                quizze.forEach(element => {
-                    element.remove();
-                });
-                this.quizDropdown = null;
-                break;
-        }
-
-
-
-    }
-
-    //Klassenstufen
-    getKlassenstufen() {
-        return new Promise(async(resolve, reject) => {
-           try {
-            let response = Utils.makeJSON(await Utils.sendXhrREQUEST("POST", "getKlassen", "./includes/choosequiz.inc.php", "application/x-www-form-urlencoded", true, false, false));
-            if (response) {this.setKlassenstufen(false, response); resolve(true); return true;} else {this.selectKlassenstufen(true, false); return false;}
-           } catch (e) {
-            this.setKlassenstufen(true, false);
-            resolve(true);
-           }
+    switch (afterContent) {
+      case "Reload":
+        klassen.forEach((element) => {
+          element.remove();
         });
-
+        faecher.forEach((element) => {
+          element.remove();
+        });
+        themen.forEach((element) => {
+          element.remove();
+        });
+        quizze.forEach((element) => {
+          element.remove();
+        });
+        this.klassenDropdown = null;
+        this.faecherDropdown = null;
+        this.themenDropdown = null;
+        this.quizDropdown = null;
+        break;
+      case "Klasse":
+        faecher.forEach((element) => {
+          element.remove();
+        });
+        themen.forEach((element) => {
+          element.remove();
+        });
+        quizze.forEach((element) => {
+          element.remove();
+        });
+        this.faecherDropdown = null;
+        this.themenDropdown = null;
+        this.quizDropdown = null;
+        break;
+      case "Fach":
+        themen.forEach((element) => {
+          element.remove();
+        });
+        quizze.forEach((element) => {
+          element.remove();
+        });
+        this.themenDropdown = null;
+        this.quizDropdown = null;
+        break;
+      case "Thema":
+        quizze.forEach((element) => {
+          element.remove();
+        });
+        this.quizDropdown = null;
+        break;
     }
+  }
 
-    setKlassenstufen(error, data) {
-        return new Promise((resolve, reject) => {
-            this.resetChoice("Reload");
+  //Klassenstufen
+  getKlassenstufen() {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let response = Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "getKlassen",
+            "./includes/choosequiz.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            false,
+            false
+          )
+        );
+        if (response) {
+          this.setKlassenstufen(false, response);
+          resolve(true);
+          return true;
+        } else {
+          this.selectKlassenstufen(true, false);
+          return false;
+        }
+      } catch (e) {
+        this.setKlassenstufen(true, false);
+        resolve(true);
+      }
+    });
+  }
 
-            let DropdownCreate = document.createElement("li");
-            DropdownCreate.className = 'nav-item dropdown klassenDropdown';
-            this.navigationsleiste.appendChild(DropdownCreate);
+  setKlassenstufen(error, data) {
+    return new Promise((resolve, reject) => {
+      this.resetChoice("Reload");
 
-            //Nimmt .klassenDropdown aus dem DOM
-            this.klassenDropdown = this.navigationsleiste.querySelector(".klassenDropdown");
-            // console.log(this.klassenDropdown);
+      let DropdownCreate = document.createElement("li");
+      DropdownCreate.className = "nav-item dropdown klassenDropdown";
+      this.navigationsleiste.appendChild(DropdownCreate);
 
-            if (error) {
-                //Sollte nicht passieren
-                this.klassenDropdown.innerHTML =
-                    `
+      //Nimmt .klassenDropdown aus dem DOM
+      this.klassenDropdown =
+        this.navigationsleiste.querySelector(".klassenDropdown");
+      // console.log(this.klassenDropdown);
+
+      if (error) {
+        //Sollte nicht passieren
+        this.klassenDropdown.innerHTML = `
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="klassenDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <span class='dropdown-description-klassenDropdown'>Keine Klassen gefunden</span>
@@ -133,15 +146,14 @@ class SelectQuizNav {
                         </ul>
                 </li>
                 `;
-                resolve("Keine Klassen gefunden.");
-            } else {
-                //Normal execution --- normal
+        resolve("Keine Klassen gefunden.");
+      } else {
+        //Normal execution --- normal
 
-                let sorted = Utils.sortItems(data, false);
-                // console.log("Diese Klassenstufen sind sortiert verfügbar: ", sorted);
+        let sorted = Utils.sortItems(data, false);
+        // console.log("Diese Klassenstufen sind sortiert verfügbar: ", sorted);
 
-                this.klassenDropdown.innerHTML =
-                    `
+        this.klassenDropdown.innerHTML = `
                <li class="nav-item dropdown">
                    <a class="nav-link dropdown-toggle" href="#" id="klassenDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                    <span class='dropdown-description-klassenDropdown'>Klasse auswählen</span>
@@ -153,79 +165,98 @@ class SelectQuizNav {
                </li>
                `;
 
-                let dropDownLinkContainerKlassen = this.navigationsleiste.querySelector(".klassenDropdown .dropdown-menu");
-                this.dropDownLinkContainerKlassen = dropDownLinkContainerKlassen;
-                // console.log(dropDownLinkContainerKlassen);
+        let dropDownLinkContainerKlassen = this.navigationsleiste.querySelector(
+          ".klassenDropdown .dropdown-menu"
+        );
+        this.dropDownLinkContainerKlassen = dropDownLinkContainerKlassen;
+        // console.log(dropDownLinkContainerKlassen);
 
-                sorted.forEach(element => {
-                    let link = document.createElement("li");
-                    link.innerHTML = `<a class="dropdown-item selectKlasseItem" value="${element}">${element}</a>`;
-                    this.dropDownLinkContainerKlassen.appendChild(link);
-                });
-
-                //Add Eventlistener
-                let selectKlasseItem = this.navigationsleiste.querySelectorAll(".selectKlasseItem");
-                selectKlasseItem.forEach(element => {
-                    element.addEventListener("click", () => {
-                        this.selectKlassenstufe(element.getAttribute("value"));
-                        this.getFaecher();
-                    });
-                });
-                resolve("Klassen gesetzt");
-            }
-        })
-
-    }
-
-    setKlassenstufenCustomName(customName) {
-        if (this.klassenDropdown != null) {
-            let dropdownDescription = this.navigationsleiste.querySelector(".dropdown-description-klassenDropdown");
-            if (dropdownDescription != null) {
-                dropdownDescription.classList.add("limitWidthOfText");dropdownDescription.innerText = customName;
-            } else {
-                console.log("Couldn't set the name of this dropdown")
-            }
-
-        }
-    }
-
-    selectKlassenstufe(klassenstufe) {
-        this.ausgewaehlteKlasse = klassenstufe;
-    }
-
-
-    // Fächer
-    getFaecher() {
-        this.setKlassenstufenCustomName(this.ausgewaehlteKlasse);
-
-        return new Promise(async(resolve, reject) => {
-            try {
-                let response = Utils.makeJSON(await Utils.sendXhrREQUEST("POST", "getFaecher&klassenstufe=" + this.ausgewaehlteKlasse, "./includes/choosequiz.inc.php", "application/x-www-form-urlencoded", true, false, false));
-                if (response) {this.setFaecher(false, response); resolve(true); return true;} else {this.setFaecher(true, false); return false;}
-               } catch (e) {
-                this.setFaecher(true, false);
-                resolve(true);
-               }
-
+        sorted.forEach((element) => {
+          let link = document.createElement("li");
+          link.innerHTML = `<a class="dropdown-item selectKlasseItem" value="${element}">${element}</a>`;
+          this.dropDownLinkContainerKlassen.appendChild(link);
         });
+
+        //Add Eventlistener
+        let selectKlasseItem =
+          this.navigationsleiste.querySelectorAll(".selectKlasseItem");
+        selectKlasseItem.forEach((element) => {
+          element.addEventListener("click", () => {
+            this.selectKlassenstufe(element.getAttribute("value"));
+            this.getFaecher();
+          });
+        });
+        resolve("Klassen gesetzt");
+      }
+    });
+  }
+
+  setKlassenstufenCustomName(customName) {
+    if (this.klassenDropdown != null) {
+      let dropdownDescription = this.navigationsleiste.querySelector(
+        ".dropdown-description-klassenDropdown"
+      );
+      if (dropdownDescription != null) {
+        dropdownDescription.classList.add("limitWidthOfText");
+        dropdownDescription.innerText = customName;
+      } else {
+        console.log("Couldn't set the name of this dropdown");
+      }
     }
+  }
 
-    setFaecher(error, data) {
-        return new Promise((resolve, reject) => {
-            this.resetChoice("Klasse");
+  selectKlassenstufe(klassenstufe) {
+    this.ausgewaehlteKlasse = klassenstufe;
+  }
 
-            let DropdownCreate = document.createElement("li");
-            DropdownCreate.className = 'nav-item dropdown faecherDropdown';
-            this.navigationsleiste.appendChild(DropdownCreate);
+  // Fächer
+  getFaecher() {
+    this.setKlassenstufenCustomName(this.ausgewaehlteKlasse);
 
-            //Nimmt .klassenDropdown aus dem DOM
-            this.faecherDropdown = this.navigationsleiste.querySelector(".faecherDropdown");
-            // console.log(this.klassenDropdown);
+    return new Promise(async (resolve, reject) => {
+      try {
+        let response = Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "getFaecher&klassenstufe=" + this.ausgewaehlteKlasse,
+            "./includes/choosequiz.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            false,
+            false
+          )
+        );
+        if (response) {
+          this.setFaecher(false, response);
+          resolve(true);
+          return true;
+        } else {
+          this.setFaecher(true, false);
+          return false;
+        }
+      } catch (e) {
+        this.setFaecher(true, false);
+        resolve(true);
+      }
+    });
+  }
 
-            if (error) {
-                //Sollte nicht passieren
-                this.faecherDropdown.innerHTML =
-                    `
+  setFaecher(error, data) {
+    return new Promise((resolve, reject) => {
+      this.resetChoice("Klasse");
+
+      let DropdownCreate = document.createElement("li");
+      DropdownCreate.className = "nav-item dropdown faecherDropdown";
+      this.navigationsleiste.appendChild(DropdownCreate);
+
+      //Nimmt .klassenDropdown aus dem DOM
+      this.faecherDropdown =
+        this.navigationsleiste.querySelector(".faecherDropdown");
+      // console.log(this.klassenDropdown);
+
+      if (error) {
+        //Sollte nicht passieren
+        this.faecherDropdown.innerHTML = `
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="faecherDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <span class='dropdown-description-faecherDropdown'>Keine Fächer gefunden</span>
@@ -237,15 +268,14 @@ class SelectQuizNav {
                         </ul>
                 </li>
                 `;
-                resolve("Keine Fächer gefunden.");
-            } else {
-                //Normal execution --- normal
+        resolve("Keine Fächer gefunden.");
+      } else {
+        //Normal execution --- normal
 
-                let sorted = Utils.sortItems(data, false);
-                // console.log("Diese Klassenstufen sind sortiert verfügbar: ", sorted);
+        let sorted = Utils.sortItems(data, false);
+        // console.log("Diese Klassenstufen sind sortiert verfügbar: ", sorted);
 
-                this.faecherDropdown.innerHTML =
-                    `
+        this.faecherDropdown.innerHTML = `
                <li class="nav-item dropdown">
                    <a class="nav-link dropdown-toggle" href="#" id="faecherDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                    <span class='dropdown-description-faecherDropdown'>Fach auswählen</span>
@@ -257,79 +287,101 @@ class SelectQuizNav {
                </li>
                `;
 
-                let dropDownLinkContainerFaecher = this.navigationsleiste.querySelector(".faecherDropdown .dropdown-menu");
-                this.dropDownLinkContainerFaecher = dropDownLinkContainerFaecher;
-                // console.log(dropDownLinkContainerFaecher);
+        let dropDownLinkContainerFaecher = this.navigationsleiste.querySelector(
+          ".faecherDropdown .dropdown-menu"
+        );
+        this.dropDownLinkContainerFaecher = dropDownLinkContainerFaecher;
+        // console.log(dropDownLinkContainerFaecher);
 
-                sorted.forEach(element => {
-                    let link = document.createElement("li");
-                    link.innerHTML = `<a class="dropdown-item selectFachItem" value="${element}">${element}</a>`;
-                    this.dropDownLinkContainerFaecher.appendChild(link);
-                });
-
-                //Add Eventlistener
-                let selectFachItem = this.navigationsleiste.querySelectorAll(".selectFachItem");
-                selectFachItem.forEach(element => {
-                    element.addEventListener("click", () => {
-                        this.selectFach(element.getAttribute("value"));
-                        this.getThemen();
-                    });
-                });
-                resolve("Fächer gesetzt");
-            }
-        })
-
-
-    }
-
-    setFaecherCustomName(customName) {
-        if (this.faecherDropdown != null) {
-            let dropdownDescription = this.navigationsleiste.querySelector(".dropdown-description-faecherDropdown");
-            if (dropdownDescription != null) {
-                dropdownDescription.classList.add("limitWidthOfText");dropdownDescription.innerText = customName;
-            } else {
-                console.log("Couldn't set the name of this dropdown")
-            }
-
-        }
-    }
-
-    selectFach(fach) {
-        this.ausgewaehltesFach = fach;
-    }
-
-    // Themen
-    getThemen() {
-        this.setFaecherCustomName(this.ausgewaehltesFach);
-
-        return new Promise(async(resolve, reject) => {
-            try {
-                let response = Utils.makeJSON(await Utils.sendXhrREQUEST("POST", "getThemen&klassenstufe=" + this.ausgewaehlteKlasse + "&fach=" + this.ausgewaehltesFach, "./includes/choosequiz.inc.php", "application/x-www-form-urlencoded", true, false, false));
-                if (response) {this.setThemen(false, response); resolve(true); return true;} else {this.setThemen(true, false); return false;}
-               } catch (e) {
-                this.setThemen(true, false);
-                resolve(true);
-               }
-
+        sorted.forEach((element) => {
+          let link = document.createElement("li");
+          link.innerHTML = `<a class="dropdown-item selectFachItem" value="${element}">${element}</a>`;
+          this.dropDownLinkContainerFaecher.appendChild(link);
         });
+
+        //Add Eventlistener
+        let selectFachItem =
+          this.navigationsleiste.querySelectorAll(".selectFachItem");
+        selectFachItem.forEach((element) => {
+          element.addEventListener("click", () => {
+            this.selectFach(element.getAttribute("value"));
+            this.getThemen();
+          });
+        });
+        resolve("Fächer gesetzt");
+      }
+    });
+  }
+
+  setFaecherCustomName(customName) {
+    if (this.faecherDropdown != null) {
+      let dropdownDescription = this.navigationsleiste.querySelector(
+        ".dropdown-description-faecherDropdown"
+      );
+      if (dropdownDescription != null) {
+        dropdownDescription.classList.add("limitWidthOfText");
+        dropdownDescription.innerText = customName;
+      } else {
+        console.log("Couldn't set the name of this dropdown");
+      }
     }
+  }
 
-    setThemen(error, data) {
-        return new Promise((resolve, reject) => {
-            this.resetChoice("Fach");
+  selectFach(fach) {
+    this.ausgewaehltesFach = fach;
+  }
 
-            let DropdownCreate = document.createElement("li");
-            DropdownCreate.className = 'nav-item dropdown themenDropdown';
-            this.navigationsleiste.appendChild(DropdownCreate);
+  // Themen
+  getThemen() {
+    this.setFaecherCustomName(this.ausgewaehltesFach);
 
-            //Nimmt .klassenDropdown aus dem DOM
-            this.themenDropdown = this.navigationsleiste.querySelector(".themenDropdown");
-            // console.log(this.klassenDropdown);
+    return new Promise(async (resolve, reject) => {
+      try {
+        let response = Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "getThemen&klassenstufe=" +
+              this.ausgewaehlteKlasse +
+              "&fach=" +
+              this.ausgewaehltesFach,
+            "./includes/choosequiz.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            false,
+            false
+          )
+        );
+        if (response) {
+          this.setThemen(false, response);
+          resolve(true);
+          return true;
+        } else {
+          this.setThemen(true, false);
+          return false;
+        }
+      } catch (e) {
+        this.setThemen(true, false);
+        resolve(true);
+      }
+    });
+  }
 
-            if (error) {
-                //Sollte nicht passieren
-                this.themenDropdown.innerHTML =
-                    `
+  setThemen(error, data) {
+    return new Promise((resolve, reject) => {
+      this.resetChoice("Fach");
+
+      let DropdownCreate = document.createElement("li");
+      DropdownCreate.className = "nav-item dropdown themenDropdown";
+      this.navigationsleiste.appendChild(DropdownCreate);
+
+      //Nimmt .klassenDropdown aus dem DOM
+      this.themenDropdown =
+        this.navigationsleiste.querySelector(".themenDropdown");
+      // console.log(this.klassenDropdown);
+
+      if (error) {
+        //Sollte nicht passieren
+        this.themenDropdown.innerHTML = `
                  <li class="nav-item dropdown">
                      <a class="nav-link dropdown-toggle" href="#" id="themenDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                      <span class='dropdown-description-themenDropdown'>Keine Themen gefunden</span>
@@ -341,15 +393,14 @@ class SelectQuizNav {
                          </ul>
                  </li>
                  `;
-                resolve("Keine Themen gefunden.");
-            } else {
-                //Normal execution --- normal
+        resolve("Keine Themen gefunden.");
+      } else {
+        //Normal execution --- normal
 
-                let sorted = Utils.sortItems(data, false);
-                // console.log("Diese Themen sind sortiert verfügbar: ", sorted);
+        let sorted = Utils.sortItems(data, false);
+        // console.log("Diese Themen sind sortiert verfügbar: ", sorted);
 
-                this.themenDropdown.innerHTML =
-                    `
+        this.themenDropdown.innerHTML = `
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="themenDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <span class='dropdown-description-themenDropdown'>Thema auswählen <span class="badge bg-secondary">${sorted.length}</span></span>
@@ -361,81 +412,104 @@ class SelectQuizNav {
                 </li>
                 `;
 
-                let dropDownLinkContainerThemen = this.navigationsleiste.querySelector(".themenDropdown .dropdown-menu");
-                this.dropDownLinkContainerThemen = dropDownLinkContainerThemen;
-                // console.log(dropDownLinkContainerThemen);
+        let dropDownLinkContainerThemen = this.navigationsleiste.querySelector(
+          ".themenDropdown .dropdown-menu"
+        );
+        this.dropDownLinkContainerThemen = dropDownLinkContainerThemen;
+        // console.log(dropDownLinkContainerThemen);
 
-                sorted.forEach(element => {
-                    let link = document.createElement("li");
-                    link.innerHTML = `<a class="dropdown-item selectThemaItem" value="${element}">${element}</a>`;
-                    this.dropDownLinkContainerThemen.appendChild(link);
-                });
-
-                //Add Eventlistener
-                let selectFachItem = this.navigationsleiste.querySelectorAll(".selectThemaItem");
-                selectFachItem.forEach(element => {
-                    element.addEventListener("click", () => {
-                        this.selectThema(element.getAttribute("value"));
-                        this.getQuizze();
-                    });;
-                });
-                resolve("Themen gesetzt");
-            }
-        })
-
-
-    }
-
-    setThemenCustomName(customName) {
-        if (this.themenDropdown != null) {
-            let dropdownDescription = this.navigationsleiste.querySelector(".dropdown-description-themenDropdown");
-            if (dropdownDescription != null) {
-                dropdownDescription.classList.add("limitWidthOfText");dropdownDescription.innerText = customName;
-            } else {
-                console.log("Couldn't set the name of this dropdown")
-            }
-
-        }
-    }
-
-    selectThema(thema) {
-        this.ausgewaehltesThema = thema;
-    }
-
-
-    // Quizze
-    getQuizze() {
-        this.setThemenCustomName(this.ausgewaehltesThema);
-
-        return new Promise(async(resolve, reject) => {
-            try {
-                let response = Utils.makeJSON(await Utils.sendXhrREQUEST("POST", "getQuizze&klassenstufe=" + this.ausgewaehlteKlasse + "&fach=" + this.ausgewaehltesFach + "&thema=" + this.ausgewaehltesThema, "./includes/choosequiz.inc.php", "application/x-www-form-urlencoded", true, false, false));
-                if (response) {this.setQuizze(false, response); resolve(true); return true;} else {this.setQuizze(true, false); return false;}
-               } catch (e) {
-                this.setQuizze(true, false);
-                resolve(true);
-               }
-
+        sorted.forEach((element) => {
+          let link = document.createElement("li");
+          link.innerHTML = `<a class="dropdown-item selectThemaItem" value="${element}">${element}</a>`;
+          this.dropDownLinkContainerThemen.appendChild(link);
         });
+
+        //Add Eventlistener
+        let selectFachItem =
+          this.navigationsleiste.querySelectorAll(".selectThemaItem");
+        selectFachItem.forEach((element) => {
+          element.addEventListener("click", () => {
+            this.selectThema(element.getAttribute("value"));
+            this.getQuizze();
+          });
+        });
+        resolve("Themen gesetzt");
+      }
+    });
+  }
+
+  setThemenCustomName(customName) {
+    if (this.themenDropdown != null) {
+      let dropdownDescription = this.navigationsleiste.querySelector(
+        ".dropdown-description-themenDropdown"
+      );
+      if (dropdownDescription != null) {
+        dropdownDescription.classList.add("limitWidthOfText");
+        dropdownDescription.innerText = customName;
+      } else {
+        console.log("Couldn't set the name of this dropdown");
+      }
     }
+  }
 
-    //Set Quizze
-    setQuizze(error, data) {
-        return new Promise((resolve, reject) => {
-            this.resetChoice("Thema");
+  selectThema(thema) {
+    this.ausgewaehltesThema = thema;
+  }
 
-            let DropdownCreate = document.createElement("li");
-            DropdownCreate.className = 'nav-item dropdown quizzeDropdown';
-            this.navigationsleiste.appendChild(DropdownCreate);
+  // Quizze
+  getQuizze() {
+    this.setThemenCustomName(this.ausgewaehltesThema);
 
-            //Nimmt .klassenDropdown aus dem DOM
-            this.quizzeDropdown = this.navigationsleiste.querySelector(".quizzeDropdown");
-            // console.log(this.quizzeDropdown);
+    return new Promise(async (resolve, reject) => {
+      try {
+        let response = Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "getQuizze&klassenstufe=" +
+              this.ausgewaehlteKlasse +
+              "&fach=" +
+              this.ausgewaehltesFach +
+              "&thema=" +
+              this.ausgewaehltesThema,
+            "./includes/choosequiz.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            false,
+            false
+          )
+        );
+        if (response) {
+          this.setQuizze(false, response);
+          resolve(true);
+          return true;
+        } else {
+          this.setQuizze(true, false);
+          return false;
+        }
+      } catch (e) {
+        this.setQuizze(true, false);
+        resolve(true);
+      }
+    });
+  }
 
-            if (error) {
-                //Sollte nicht passieren
-                this.quizzeDropdown.innerHTML =
-                    `
+  //Set Quizze
+  setQuizze(error, data) {
+    return new Promise((resolve, reject) => {
+      this.resetChoice("Thema");
+
+      let DropdownCreate = document.createElement("li");
+      DropdownCreate.className = "nav-item dropdown quizzeDropdown";
+      this.navigationsleiste.appendChild(DropdownCreate);
+
+      //Nimmt .klassenDropdown aus dem DOM
+      this.quizzeDropdown =
+        this.navigationsleiste.querySelector(".quizzeDropdown");
+      // console.log(this.quizzeDropdown);
+
+      if (error) {
+        //Sollte nicht passieren
+        this.quizzeDropdown.innerHTML = `
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="quizzeDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <span class='dropdown-description-quizzeDropdown'>Keine Quizze gefunden</span>
@@ -447,14 +521,13 @@ class SelectQuizNav {
                         </ul>
                 </li>
                 `;
-                resolve("Keine Quizze gefunden.");
-            } else {
-                //Normal execution --- normal
+        resolve("Keine Quizze gefunden.");
+      } else {
+        //Normal execution --- normal
 
-                let sorted = Utils.sortItems(data, "quizname");
+        let sorted = Utils.sortItems(data, "quizname");
 
-                this.quizzeDropdown.innerHTML =
-                    `
+        this.quizzeDropdown.innerHTML = `
                <li class="nav-item dropdown">
                    <a class="nav-link dropdown-toggle" href="#" id="quizzeDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                    <span class='dropdown-description-quizzeDropdown'>Quiz auswählen <span class="badge bg-secondary">${sorted.length}</span></span>
@@ -466,200 +539,226 @@ class SelectQuizNav {
                </li>
                `;
 
-                let dropDownLinkContainerQuizze = this.navigationsleiste.querySelector(".quizzeDropdown .dropdown-menu");
-                this.dropDownLinkContainerQuizze = dropDownLinkContainerQuizze;
-                // console.log(dropDownLinkContainerThemen);
+        let dropDownLinkContainerQuizze = this.navigationsleiste.querySelector(
+          ".quizzeDropdown .dropdown-menu"
+        );
+        this.dropDownLinkContainerQuizze = dropDownLinkContainerQuizze;
+        // console.log(dropDownLinkContainerThemen);
 
-                sorted.forEach(element => {
-                    let link = document.createElement("li");
-                    link.innerHTML = `<a class="dropdown-item selectQuizItem" value="${element["quizId"]}">${element["quizname"]}</a>`;
-                    this.dropDownLinkContainerQuizze.appendChild(link);
-                });
+        sorted.forEach((element) => {
+          let link = document.createElement("li");
+          link.innerHTML = `<a class="dropdown-item selectQuizItem" value="${element["quizId"]}">${element["quizname"]}</a>`;
+          this.dropDownLinkContainerQuizze.appendChild(link);
+        });
 
-                //Add Eventlistener
-                let selectQuizItem = this.navigationsleiste.querySelectorAll(".selectQuizItem");
-                selectQuizItem.forEach(element => {
-                    element.addEventListener("click", () => {
-                        this.selectQuiz(element.getAttribute("value"));
-                        window.location.href = `quiz.php?quizId=${element.getAttribute("value")}`;
-                    });;
-                });
-                resolve("Quizze gesetzt");
-            }
-        })
+        //Add Eventlistener
+        let selectQuizItem =
+          this.navigationsleiste.querySelectorAll(".selectQuizItem");
+        selectQuizItem.forEach((element) => {
+          element.addEventListener("click", () => {
+            this.selectQuiz(element.getAttribute("value"));
+            window.location.href = `quiz.php?quizId=${element.getAttribute(
+              "value"
+            )}`;
+          });
+        });
+        resolve("Quizze gesetzt");
+      }
+    });
+  }
 
+  setQuizzeCustomName(customName) {
+    if (this.quizzeDropdown != null) {
+      let dropdownDescription = this.navigationsleiste.querySelector(
+        ".dropdown-description-quizzeDropdown"
+      );
+      if (dropdownDescription != null) {
+        dropdownDescription.classList.add("limitWidthOfText");
+        dropdownDescription.innerText = customName;
+      } else {
+        console.log("Couldn't set the name of this dropdown");
+      }
     }
+  }
 
-
-    setQuizzeCustomName(customName) {
-        if (this.quizzeDropdown != null) {
-            let dropdownDescription = this.navigationsleiste.querySelector(".dropdown-description-quizzeDropdown");
-            if (dropdownDescription != null) {
-                dropdownDescription.classList.add("limitWidthOfText");dropdownDescription.innerText = customName;
-            } else {
-                console.log("Couldn't set the name of this dropdown")
-            }
-
-        }
-    }
-
-    selectQuiz(quiz) {
-        this.ausgewaehltesQuiz = quiz;
-    }
-
-
-
-
+  selectQuiz(quiz) {
+    this.ausgewaehltesQuiz = quiz;
+  }
 }
 
 function getQuizParameter(quizID) {
-    return new Promise(async(resolve, reject) => {
-        try {
-            let response = Utils.makeJSON(await Utils.sendXhrREQUEST("POST", "getAllQuizParms&quizID=" + quizID + "&fach=" + this.ausgewaehltesFach + "&thema=" + this.ausgewaehltesThema, "./includes/choosequiz.inc.php", "application/x-www-form-urlencoded", true, false, false));
-            if (response) {resolve(true); return true;} else {reject("Error"); return false;}
-           } catch (e) {
-            resolve(true);
-           }
-    });
-
+  return new Promise(async (resolve, reject) => {
+    try {
+      let response = Utils.makeJSON(
+        await Utils.sendXhrREQUEST(
+          "POST",
+          "getAllQuizParms&quizID=" +
+            quizID +
+            "&fach=" +
+            this.ausgewaehltesFach +
+            "&thema=" +
+            this.ausgewaehltesThema,
+          "./includes/choosequiz.inc.php",
+          "application/x-www-form-urlencoded",
+          true,
+          false,
+          false
+        )
+      );
+      if (response) {
+        resolve(true);
+        return true;
+      } else {
+        reject("Error");
+        return false;
+      }
+    } catch (e) {
+      resolve(true);
+    }
+  });
 }
 
-let selectQuiznav = new SelectQuizNav(document.querySelector(".navigationsleiste"));
-
+let selectQuiznav = new SelectQuizNav(
+  document.querySelector(".navigationsleiste")
+);
 
 //GET URL DATA
-
-
 
 //Check QuizId
 
 async function checkQuizID() {
-    //Setzt Navigationsleiste auf quizId Parameter, wenn auf quiz.php (andernfalls redirect)
-    const queryString = window.location.search;
-    //dev - console.log("Query String: ", queryString);
-    const urlParams = new URLSearchParams(queryString);
+  //Setzt Navigationsleiste auf quizId Parameter, wenn auf quiz.php (andernfalls redirect)
+  const queryString = window.location.search;
+  //dev - console.log("Query String: ", queryString);
+  const urlParams = new URLSearchParams(queryString);
 
-    if (urlParams.has("quizId")) {
-        if (window.location.pathname != "/quiz.php") {
-            window.location.href = `/quiz.php?quizId=${urlParams.get("quizId")}`;
-        } else {
-            if (urlParams.has("quizId") && window.location.pathname == "/quiz.php") {
-                //Setzt Quizleiste nach QuizID Daten
-                let quizId = urlParams.get("quizId");
-                let quizParameter;
-                let error = true;
-
-                try {
-                    quizParameter = await getQuizParameter(quizId);
-                    error = false;
-                } catch {
-                    error = true;
-                }
-
-                //dev - console.log(`Quizparameter zu QuizId(${quizId}) `,quizParameter);
-                if (error === false) {
-                    if (quizParameter["klassenstufe"] && quizParameter["fach"] && quizParameter["thema"] && quizParameter["quizname"]) {
-                        let klassenstufe = quizParameter["klassenstufe"];
-                        let fach = quizParameter["fach"];
-                        let thema = quizParameter["thema"];
-                        let quizname = quizParameter["quizname"];
-
-                        //Set Parameter to selectQuiznav
-                        selectQuiznav.getKlassenstufen().then(res => {
-                            //dev - console.log(res);
-                            selectQuiznav.selectKlassenstufe(klassenstufe);
-                            selectQuiznav.getFaecher().then(res => {
-                                //dev - console.log(res);
-                                selectQuiznav.selectFach(fach);
-                                selectQuiznav.getThemen().then(res => {
-                                    //dev - console.log(res);
-                                    selectQuiznav.selectThema(thema);
-                                    selectQuiznav.getQuizze().then(res => {
-                                        //dev - console.log(res);
-                                        selectQuiznav.selectQuiz(quizname);
-                                        selectQuiznav.setQuizzeCustomName(quizname);
-                                        $('#quizzeDropdown').trigger('click.bs.dropdown');
-                                    })
-                                })
-                            })
-                        })
-                    } else {
-                        //Wenn ein Fehler bei den bekommenen Daten besteht
-                        selectQuiznav.getKlassenstufen();
-                    }
-                } else {
-                    window.location.href = `choosequiz.php?noquizfound`;
-                }
-
-
-            }
-        }
+  if (urlParams.has("quizId")) {
+    if (window.location.pathname != "/quiz.php") {
+      window.location.href = `/quiz.php?quizId=${urlParams.get("quizId")}`;
     } else {
-        if (urlParams.has("klassenstufe")) {
-            //Klassenstufe, Fach, Thema (QuizID nicht, wegen redirect)
-            if (urlParams.has("klassenstufe") && urlParams.has("fach") && urlParams.has("thema")) {
-                // alert("Klasse, Fach, Thema enthalten");
-                let klassenstufe = urlParams.get("klassenstufe");
-                let fach = urlParams.get("fach");
-                let thema = urlParams.get("thema");
-                console.log("Klasse: " + klassenstufe, "Fach: " + fach, "Thema: " + thema);
+      if (urlParams.has("quizId") && window.location.pathname == "/quiz.php") {
+        //Setzt Quizleiste nach QuizID Daten
+        let quizId = urlParams.get("quizId");
+        let quizParameter = await Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "getAttribute&type=quizverwaltung&secondOperation=getQuizinformationForNav&quizId=" + quizId,
+            "./includes/getAttributes.php",
+            "application/x-www-form-urlencoded",
+            true,
+            true,
+            false,
+            true
+          )
+        );
 
-                selectQuiznav.getKlassenstufen().then(res => {
-                    console.log(res);
-                    selectQuiznav.selectKlassenstufe(klassenstufe);
-                    selectQuiznav.getFaecher().then(res => {
-                        selectQuiznav.selectFach(fach);
-                        selectQuiznav.getThemen().then(res => {
-                            selectQuiznav.selectThema(thema);
-                            selectQuiznav.getQuizze().then(res => {
-                                console.log("Done!");
-                            })
-                        })
-                    })
+        if (
+          quizParameter["klassenstufe"] &&
+          quizParameter["fach"] &&
+          quizParameter["thema"] &&
+          quizParameter["quizname"]
+        ) {
+          let klassenstufe = quizParameter["klassenstufe"];
+          let fach = quizParameter["fach"];
+          let thema = quizParameter["thema"];
+          let quizname = quizParameter["quizname"];
 
-                })
-            } else {
-                if (urlParams.has("klassenstufe") && urlParams.has("fach")) {
-                    // alert("Klasse, Fach enthalten");
-                    let klassenstufe = urlParams.get("klassenstufe");
-                    let fach = urlParams.get("fach");
-                    console.log("Klasse: " + klassenstufe, "Fach: " + fach);
-
-                    selectQuiznav.getKlassenstufen().then(res => {
-                        console.log(res);
-                        selectQuiznav.selectKlassenstufe(klassenstufe);
-                        selectQuiznav.getFaecher().then(res => {
-                            selectQuiznav.selectFach(fach);
-                            selectQuiznav.getThemen().then(res => {
-                                console.log("Done!");
-                            })
-                        })
-                    })
-                } else {
-                    if (urlParams.has("klassenstufe")) {
-                        let klassenstufe = urlParams.get("klassenstufe");
-                        console.log("Klasse enthalten");
-
-                        selectQuiznav.getKlassenstufen().then(res => {
-                            console.log(res);
-                            selectQuiznav.selectKlassenstufe(klassenstufe);
-                            selectQuiznav.getFaecher().then(res => {
-                                console.log("Done!");
-                            })
-                        })
-                    }
-                }
-            }
+          //Set Parameter to selectQuiznav
+          selectQuiznav.getKlassenstufen().then((res) => {
+            //dev - console.log(res);
+            selectQuiznav.selectKlassenstufe(klassenstufe);
+            selectQuiznav.getFaecher().then((res) => {
+              //dev - console.log(res);
+              selectQuiznav.selectFach(fach);
+              selectQuiznav.getThemen().then((res) => {
+                //dev - console.log(res);
+                selectQuiznav.selectThema(thema);
+                selectQuiznav.getQuizze().then((res) => {
+                  //dev - console.log(res);
+                  selectQuiznav.selectQuiz(quizname);
+                  selectQuiznav.setQuizzeCustomName(quizname);
+                });
+              });
+            });
+          });
         } else {
-            selectQuiznav.getKlassenstufen();
+          //Wenn ein Fehler bei den bekommenen Daten besteht
+          selectQuiznav.getKlassenstufen();
         }
+      }
     }
+  } else {
+    if (urlParams.has("klassenstufe")) {
+      //Klassenstufe, Fach, Thema (QuizID nicht, wegen redirect)
+      if (
+        urlParams.has("klassenstufe") &&
+        urlParams.has("fach") &&
+        urlParams.has("thema")
+      ) {
+        // alert("Klasse, Fach, Thema enthalten");
+        let klassenstufe = urlParams.get("klassenstufe");
+        let fach = urlParams.get("fach");
+        let thema = urlParams.get("thema");
+        console.log(
+          "Klasse: " + klassenstufe,
+          "Fach: " + fach,
+          "Thema: " + thema
+        );
 
+        selectQuiznav.getKlassenstufen().then((res) => {
+          console.log(res);
+          selectQuiznav.selectKlassenstufe(klassenstufe);
+          selectQuiznav.getFaecher().then((res) => {
+            selectQuiznav.selectFach(fach);
+            selectQuiznav.getThemen().then((res) => {
+              selectQuiznav.selectThema(thema);
+              selectQuiznav.getQuizze().then((res) => {
+                console.log("Done!");
+              });
+            });
+          });
+        });
+      } else {
+        if (urlParams.has("klassenstufe") && urlParams.has("fach")) {
+          // alert("Klasse, Fach enthalten");
+          let klassenstufe = urlParams.get("klassenstufe");
+          let fach = urlParams.get("fach");
+          console.log("Klasse: " + klassenstufe, "Fach: " + fach);
+
+          selectQuiznav.getKlassenstufen().then((res) => {
+            console.log(res);
+            selectQuiznav.selectKlassenstufe(klassenstufe);
+            selectQuiznav.getFaecher().then((res) => {
+              selectQuiznav.selectFach(fach);
+              selectQuiznav.getThemen().then((res) => {
+                console.log("Done!");
+              });
+            });
+          });
+        } else {
+          if (urlParams.has("klassenstufe")) {
+            let klassenstufe = urlParams.get("klassenstufe");
+            console.log("Klasse enthalten");
+
+            selectQuiznav.getKlassenstufen().then((res) => {
+              console.log(res);
+              selectQuiznav.selectKlassenstufe(klassenstufe);
+              selectQuiznav.getFaecher().then((res) => {
+                console.log("Done!");
+              });
+            });
+          }
+        }
+      }
+    } else {
+      selectQuiznav.getKlassenstufen();
+    }
+  }
 }
 
 checkQuizID();
 
 //Scrolls to the start of the site
 setTimeout(() => {
-    window.scrollTo(0,0);
+  window.scrollTo(0, 0);
 }, 50);
