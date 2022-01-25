@@ -287,12 +287,6 @@ class QuizObj {
     }
     console.log(this.currentQuestion + "|" + this.totalQuestions);
 
-    if (this.questionData[this.questionNumberArray()] === undefined) {
-      alert("Error. There is no question but total questions is higher...");
-      this.showResults();
-      return;
-    }
-
     window.scrollTo(0, 0);
     this.currentCard = new CurrentCard();
 

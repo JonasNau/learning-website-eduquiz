@@ -1,4 +1,4 @@
-.footer {
+section > .footer {
     margin-top: 50px;
     width: 100%;
     min-height: 100px;
@@ -10,7 +10,7 @@
     flex-direction: column;
 }
 
-.footer ul {
+section > .footer ul {
     width: 100%;
     list-style: none;
     display: flex;
@@ -18,22 +18,22 @@
     justify-content: space-evenly;
 }
 
-.footer ul li {
+section > .footer ul li {
     display: inline;
 }
 
-.footer ul li a {
+section > .footer ul li a {
     display: inline-block;
     padding: 10px;
     color: black;
     margin: 20px
 }
 
-.footer ul li a:hover {
+section > .footer ul li a:hover {
     color: yellow;
 }
 
-.footer > * {
+section > .footer > * {
     justify-content: center;
     text-align: center;
 }

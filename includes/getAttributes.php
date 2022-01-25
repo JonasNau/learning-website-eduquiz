@@ -8,10 +8,10 @@ require_once("./getSettings.php");
 $database = new Dbh();
 $conn = $database->connect();
 
-    if (isset($_POST["getAttribute"])) {
-        $type = $_POST["type"];
+if (isset($_POST["getAttribute"])) {
+    $type = $_POST["type"];
 
-       if ($type == "quizverwaltung") {
+    if ($type == "quizverwaltung") {
         $secondOperation = $_POST["secondOperation"];
 
         if ($secondOperation === "GET_uniqueID_FROM_quizId") {
@@ -20,19 +20,22 @@ $conn = $database->connect();
             die();
         } else if ($secondOperation === "getQuizinformationForNav") {
             $quizId = $_POST["quizId"];
-            echo json_encode(getColumsFromDatabaseMultipleWhere($conn , "selectquiz", ["klassenstufe", "fach", "thema", "quizname"], ["quizId"=>$quizId], 1, false, false));
+            echo json_encode(getColumsFromDatabaseMultipleWhere($conn, "selectquiz", ["klassenstufe", "fach", "thema", "quizname"], ["quizId" => $quizId], 1, false, false));
             die();
         }
+    } else if ($type === "userSystem") {
+        $secondOperation = $_POST["secondOperation"];
 
-       } else if ($type === "userSystem") {
-           $secondOperation = $_POST["secondOperation"];
-
-           if ($secondOperation === "userIsLoggedIn") {
+        if ($secondOperation === "userIsLoggedIn") {
             echo json_encode(isLoggedIn());
             die();
-           }
-       }
+        } else if ($secondOperation === "GET_username_FROM_userID") {
+            $userID = $_POST["userID"];
+            echo getValueFromDatabase($conn, "users", "username", "userID", $userID, 1, false);
+            die();
+        }
     }
+}
 
 
-    echo "Nope";
+echo "Nope";

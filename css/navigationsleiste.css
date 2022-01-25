@@ -10,6 +10,7 @@
 .navbar {
     background: rgb(0,255,179);
     background: linear-gradient(260deg, rgba(0,255,179,1) 0%, rgba(0,224,255,0.4009978991596639) 100%);
+    border-radius: 50px 50px 70px 70px;
 }
 
 .offcanvasContainer [class*="Dropdown"]{

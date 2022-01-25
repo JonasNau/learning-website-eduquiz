@@ -11,20 +11,25 @@ require_once("./global.php");
 
 ?>
 <?php
-    require_once 'header-start.php';
+require_once 'header-start.php';
 ?>
 <link rel="stylesheet" href="css/quiz.css">
 </head>
+
 <body>
     <?php
-        require_once 'navigation-bar.php';
+    require_once 'navigation-bar.php';
     ?>
-    <div id="quizContainer">
 
+    <div id="mainContainer" class="main-content">
+        
     </div>
-    <script type="module" src="includes/quizlogik.js?v=?<?php echo  getNewestVersion();?>" defer></script>
+
+    <script type="module" src="includes/quizlogik.js?v=?<?php echo  getNewestVersion(); ?>" defer></script>
     <?php
-        require_once 'body-scripts.php';
+    require_once("./footer.php");
+    require_once 'body-scripts.php';
     ?>
 </body>
+
 </html>

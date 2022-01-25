@@ -1,6 +1,7 @@
 <?php
 
 require_once 'dbh.incPDO.php';
+require_once("./generalFunctions.php");
 
 $database = new Dbh();
 $conn = $database->connect();
@@ -12,16 +13,70 @@ if (isset($_POST['getKlassen'])) {
     die();
 }
 
+if (isset($_POST["getAmountOfQuizzes"])) {
+    $operation = $_POST["operation"];
+
+    if ($operation === "byKlassenstufe") {
+        $klassenstufe = $_POST["klassenstufe"];
+        $resultArray = array();
+
+        if (getValueFromDatabase($conn, "klassenstufenVerwaltung", "showQuizauswahl", "klassenstufe", $klassenstufe, 1, false)) {
+            $availableQuizzesForThatKlassenstufe = getValueFromDatabaseMultipleWhere($conn, "selectquiz", "quizId", ["visibility" => 1, "showQuizauswahl" => 1, "klassenstufe" => $klassenstufe], true, false);
+            if ($availableQuizzesForThatKlassenstufe && count($availableQuizzesForThatKlassenstufe) > 0)
+                foreach ($availableQuizzesForThatKlassenstufe as $currentQuiz) {
+                    $resultArray = addToArray($resultArray, $currentQuiz, false);
+                }
+        }
+
+
+        echo count($resultArray);
+    } else if ($operation === "general") {
+        echo count(getValueFromDatabaseMultipleWhere($conn, "selectquiz", "quizId", ["visibility" => 1, "showQuizauswahl" => 1], true, false));
+    } else if ($operation === "byKlassenstufeandFach") {
+        $klassenstufe = $_POST["klassenstufe"];
+        $fach = $_POST["fach"];
+
+        $resultArray = array();
+
+        if (getValueFromDatabase($conn, "klassenstufenVerwaltung", "showQuizauswahl", "klassenstufe", $klassenstufe, 1, false) && getValueFromDatabase($conn, "faecherVerwaltung", "showQuizauswahl", "fach", $fach, 1, false)) {
+            $availableQuizzesForThatKlassenstufe = getValueFromDatabaseMultipleWhere($conn, "selectquiz", "quizId", ["visibility" => 1, "showQuizauswahl" => 1, "klassenstufe" => $klassenstufe, "fach"=>$fach], true, false);
+            if ($availableQuizzesForThatKlassenstufe && count($availableQuizzesForThatKlassenstufe) > 0)
+                foreach ($availableQuizzesForThatKlassenstufe as $currentQuiz) {
+                    $resultArray = addToArray($resultArray, $currentQuiz, false);
+                }
+        }
+
+
+        echo count($resultArray);
+    } else if ($operation === "byKlassenstufeandFachandThema") {
+        $klassenstufe = $_POST["klassenstufe"];
+        $fach = $_POST["fach"];
+        $thema = $_POST["thema"];
+
+        $resultArray = array();
+
+        if (getValueFromDatabase($conn, "klassenstufenVerwaltung", "showQuizauswahl", "klassenstufe", $klassenstufe, 1, false) && getValueFromDatabase($conn, "faecherVerwaltung", "showQuizauswahl", "fach", $fach, 1, false) && getValueFromDatabase($conn, "themenVerwaltung", "showQuizauswahl", "thema", $thema, 1, false)) {
+            $availableQuizzesForThatKlassenstufe = getValueFromDatabaseMultipleWhere($conn, "selectquiz", "quizId", ["visibility" => 1, "showQuizauswahl" => 1, "klassenstufe" => $klassenstufe, "fach"=>$fach, "thema"=>$thema], true, false);
+            if ($availableQuizzesForThatKlassenstufe && count($availableQuizzesForThatKlassenstufe) > 0)
+                foreach ($availableQuizzesForThatKlassenstufe as $currentQuiz) {
+                    $resultArray = addToArray($resultArray, $currentQuiz, false);
+                }
+        }
+
+
+        echo count($resultArray);
+    }
+}
+
 //Get Fach
 if (isset($_POST['getFaecher'])) {
-    require_once("./generalFunctions.php");
     $klassenstufe = $_POST['klassenstufe'];
     //Check klassenstufe
     if (!boolval(getValueFromDatabase($conn, "klassenstufenVerwaltung", "showQuizauswahl", "klassenstufe", $klassenstufe, 1, false))) {
         echo "klassenstufe not visible or not given";
         die();
     }
-    $faecher = getValueFromDatabaseMultipleWhere($conn, "selectquiz", "fach", ["klassenstufe" => $klassenstufe], true, false);
+    $faecher = getValueFromDatabaseMultipleWhere($conn, "selectquiz", "fach", ["klassenstufe" => $klassenstufe, "visibility" => 1, "showQuizauswahl" => 1], true, false);
     if (!$faecher) {
         echo "no faecher";
         die();
@@ -43,7 +98,6 @@ if (isset($_POST['getFaecher'])) {
 
 //Get Themen
 if (isset($_POST['getThemen'])) {
-    require_once("./generalFunctions.php");
     $klassenstufe = $_POST['klassenstufe'];
     $fach = $_POST["fach"];
 
@@ -57,7 +111,7 @@ if (isset($_POST['getThemen'])) {
         echo "fach not visible or not given";
         die();
     }
-    $themen = getValueFromDatabaseMultipleWhere($conn, "selectquiz", "thema", ["klassenstufe" => $klassenstufe, "fach" => $fach], true, false);
+    $themen = getValueFromDatabaseMultipleWhere($conn, "selectquiz", "thema", ["klassenstufe" => $klassenstufe, "fach" => $fach, "klassenstufe" => $klassenstufe, "visibility" => 1, "showQuizauswahl" => 1], true, false);
     if (!$themen) {
         echo "no themen";
         die();
@@ -79,8 +133,6 @@ if (isset($_POST['getThemen'])) {
 
 //Get Quizname
 if (isset($_POST['getQuizze'])) {
-
-    require_once("./generalFunctions.php");
     //Get Subjects - Datenbankabfrage
     $klassenstufe = $_POST['klassenstufe'];
     $fach = $_POST['fach'];
@@ -103,7 +155,7 @@ if (isset($_POST['getQuizze'])) {
         die();
     }
 
-    $uniqueQuizIDs = getValueFromDatabaseMultipleWhere($conn, "selectquiz", "uniqueID", ["klassenstufe" => $klassenstufe, "fach" => $fach, "thema" => $thema], true, false);
+    $uniqueQuizIDs = getValueFromDatabaseMultipleWhere($conn, "selectquiz", "uniqueID", ["klassenstufe" => $klassenstufe, "fach" => $fach, "thema" => $thema, "visibility" => 1], true, false);
     if (!$uniqueQuizIDs) {
         echo "no quizze";
     }
@@ -131,7 +183,6 @@ if (isset($_POST['getQuizze'])) {
 
 //Search for Subjets
 if (isset($_POST['searchThemen'])) {
-    require_once("./generalFunctions.php");
     $input = $_POST['input'];
     if ($data = getValueFromDatabaseMultipleWhere($conn, "themenVerwaltung", "thema", ["thema" => $input, "showQuizauswahl" => 1], false, true)) {
         $returnArray = array();
@@ -169,7 +220,6 @@ if (isset($_POST['searchQuizze'])) {
 
 //Get all Quiz Parms
 if (isset($_POST['getAllQuizParms'])) {
-    require_once("./generalFunctions.php");
     $quizID = $_POST['quizID'];
     echo json_encode(getAllQuizParams($conn, $quizID));
     die();

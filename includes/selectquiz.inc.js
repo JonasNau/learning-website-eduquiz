@@ -119,8 +119,8 @@ class SelectQuizNav {
     });
   }
 
-  setKlassenstufen(error, data) {
-    return new Promise((resolve, reject) => {
+  async setKlassenstufen(error, data) {
+    return new Promise(async (resolve, reject) => {
       this.resetChoice("Reload");
 
       let DropdownCreate = document.createElement("li");
@@ -153,10 +153,22 @@ class SelectQuizNav {
         let sorted = Utils.sortItems(data, false);
         // console.log("Diese Klassenstufen sind sortiert verfügbar: ", sorted);
 
+        let allAvailable = await Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "getAmountOfQuizzes&operation=general",
+            "./includes/choosequiz.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            false,
+            false
+          )
+        );
+
         this.klassenDropdown.innerHTML = `
                <li class="nav-item dropdown">
                    <a class="nav-link dropdown-toggle" href="#" id="klassenDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                   <span class='dropdown-description-klassenDropdown'>Klasse auswählen</span>
+                   <span class='dropdown-description-klassenDropdown'>Klasse auswählen <span class="badge bg-secondary">${allAvailable}</span></span>
                    </a>
                        <ul class="dropdown-menu" aria-labelledby="klasseDropdown">
                             <h6 class="dropdown-header">Klassenstufe auswählen</h6>
@@ -171,11 +183,24 @@ class SelectQuizNav {
         this.dropDownLinkContainerKlassen = dropDownLinkContainerKlassen;
         // console.log(dropDownLinkContainerKlassen);
 
-        sorted.forEach((element) => {
+      for (const element of sorted) {
           let link = document.createElement("li");
-          link.innerHTML = `<a class="dropdown-item selectKlasseItem" value="${element}">${element}</a>`;
+
+          let availableQuizzes = await Utils.makeJSON(
+            await Utils.sendXhrREQUEST(
+              "POST",
+              "getAmountOfQuizzes&operation=byKlassenstufe&klassenstufe=" + element,
+              "./includes/choosequiz.inc.php",
+              "application/x-www-form-urlencoded",
+              true,
+              false,
+              false
+            )
+          );
+
+          link.innerHTML = `<a class="dropdown-item selectKlasseItem" value="${element}">${element} <span class="badge bg-secondary">${availableQuizzes}</span></a>`;
           this.dropDownLinkContainerKlassen.appendChild(link);
-        });
+        }
 
         //Add Eventlistener
         let selectKlasseItem =
@@ -241,8 +266,8 @@ class SelectQuizNav {
     });
   }
 
-  setFaecher(error, data) {
-    return new Promise((resolve, reject) => {
+  async setFaecher(error, data) {
+    return new Promise(async(resolve, reject) => {
       this.resetChoice("Klasse");
 
       let DropdownCreate = document.createElement("li");
@@ -275,10 +300,23 @@ class SelectQuizNav {
         let sorted = Utils.sortItems(data, false);
         // console.log("Diese Klassenstufen sind sortiert verfügbar: ", sorted);
 
+
+        let allAvailable = await Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "getAmountOfQuizzes&operation=byKlassenstufe&klassenstufe=" + this.ausgewaehlteKlasse,
+            "./includes/choosequiz.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            false,
+            false
+          )
+        );
+
         this.faecherDropdown.innerHTML = `
                <li class="nav-item dropdown">
                    <a class="nav-link dropdown-toggle" href="#" id="faecherDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                   <span class='dropdown-description-faecherDropdown'>Fach auswählen</span>
+                   <span class='dropdown-description-faecherDropdown'>Fach auswählen <span class="badge bg-secondary">${allAvailable}</span></span>
                    </a>
                        <ul class="dropdown-menu" aria-labelledby="faecherDropdown">
                             <h6 class="dropdown-header">Fach auswählen</h6>
@@ -293,11 +331,24 @@ class SelectQuizNav {
         this.dropDownLinkContainerFaecher = dropDownLinkContainerFaecher;
         // console.log(dropDownLinkContainerFaecher);
 
-        sorted.forEach((element) => {
+        for (const element of sorted){
           let link = document.createElement("li");
-          link.innerHTML = `<a class="dropdown-item selectFachItem" value="${element}">${element}</a>`;
+
+          let availableQuizzes = await Utils.makeJSON(
+            await Utils.sendXhrREQUEST(
+              "POST",
+              "getAmountOfQuizzes&operation=byKlassenstufeandFach&klassenstufe=" + this.ausgewaehlteKlasse + "&fach=" + element,
+              "./includes/choosequiz.inc.php",
+              "application/x-www-form-urlencoded",
+              true,
+              false,
+              false
+            )
+          );
+
+          link.innerHTML = `<a class="dropdown-item selectFachItem" value="${element}">${element} <span class="badge bg-secondary">${availableQuizzes}</span></a>`;
           this.dropDownLinkContainerFaecher.appendChild(link);
-        });
+        }
 
         //Add Eventlistener
         let selectFachItem =
@@ -366,8 +417,8 @@ class SelectQuizNav {
     });
   }
 
-  setThemen(error, data) {
-    return new Promise((resolve, reject) => {
+  async setThemen(error, data) {
+    return new Promise(async(resolve, reject) => {
       this.resetChoice("Fach");
 
       let DropdownCreate = document.createElement("li");
@@ -400,10 +451,23 @@ class SelectQuizNav {
         let sorted = Utils.sortItems(data, false);
         // console.log("Diese Themen sind sortiert verfügbar: ", sorted);
 
+
+        let allAvailable = await Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "getAmountOfQuizzes&operation=byKlassenstufeandFach&klassenstufe=" + this.ausgewaehlteKlasse + "&fach=" + this.ausgewaehltesFach,
+            "./includes/choosequiz.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            false,
+            false
+          )
+        );
+
         this.themenDropdown.innerHTML = `
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="themenDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <span class='dropdown-description-themenDropdown'>Thema auswählen <span class="badge bg-secondary">${sorted.length}</span></span>
+                    <span class='dropdown-description-themenDropdown'>Thema auswählen <span class="badge bg-secondary">${allAvailable}</span></span>
                     </a>
                         <ul class="dropdown-menu" aria-labelledby="themenDropdown">
                              <h6 class="dropdown-header">Thema auswählen</h6>
@@ -418,11 +482,24 @@ class SelectQuizNav {
         this.dropDownLinkContainerThemen = dropDownLinkContainerThemen;
         // console.log(dropDownLinkContainerThemen);
 
-        sorted.forEach((element) => {
+        for (const element of sorted) {
           let link = document.createElement("li");
-          link.innerHTML = `<a class="dropdown-item selectThemaItem" value="${element}">${element}</a>`;
+
+          let availableQuizzes = await Utils.makeJSON(
+            await Utils.sendXhrREQUEST(
+              "POST",
+              "getAmountOfQuizzes&operation=byKlassenstufeandFach&klassenstufe=" + this.ausgewaehlteKlasse + "&fach=" + this.ausgewaehltesFach,
+              "./includes/choosequiz.inc.php",
+              "application/x-www-form-urlencoded",
+              true,
+              false,
+              false
+            )
+          );
+
+          link.innerHTML = `<a class="dropdown-item selectThemaItem" value="${element}">${element} <span class="badge bg-secondary">${availableQuizzes}</span></a>`;
           this.dropDownLinkContainerThemen.appendChild(link);
-        });
+        }
 
         //Add Eventlistener
         let selectFachItem =
@@ -642,7 +719,8 @@ async function checkQuizID() {
         let quizParameter = await Utils.makeJSON(
           await Utils.sendXhrREQUEST(
             "POST",
-            "getAttribute&type=quizverwaltung&secondOperation=getQuizinformationForNav&quizId=" + quizId,
+            "getAttribute&type=quizverwaltung&secondOperation=getQuizinformationForNav&quizId=" +
+              quizId,
             "./includes/getAttributes.php",
             "application/x-www-form-urlencoded",
             true,

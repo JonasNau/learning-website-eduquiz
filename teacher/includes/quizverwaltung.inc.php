@@ -631,6 +631,11 @@ if (isset($_POST["quizverwaltung"])) {
                 returnMessage("failed", "Diese Klassenstufe existiert nicht. ($input)");
                 die();
             }
+            //Check if quiz with this klassenstufe can be created
+            if (!getValueFromDatabase($conn, "klassenstufenVerwaltung", "quizCanBeCreated", "klassenstufe", $input, 1, false)) {
+                returnMessage("failed", "Diese Klassenstufe kann nicht zum erstellen von quizzen genutzt werden ($input). Siehe Organisation -> Klassenstufenverwaltung");
+                die();
+            }
 
             $oldValue =  getValueFromDatabase($conn, "selectquiz", "klassenstufe", "uniqueID", $uniqueID, 1, false);
             if (setValueFromDatabase($conn, "selectquiz", "klassenstufe", "uniqueID", $uniqueID, $input, false)) {

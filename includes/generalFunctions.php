@@ -954,7 +954,7 @@ function getValueFromDatabase($conn, $table, $column, $where, $whereEqualTo, $li
     return false;
 }
 
-function hasAllContidions($conn, $needle, $haystack, $searchMode = false)
+function hasAllContidions($conn = false, $needle, $haystack, $searchMode = false)
 {
     foreach ($needle as $currentWhereKey => $currentWhereValue) {
         if (isset($haystack->$currentWhereKey)) {

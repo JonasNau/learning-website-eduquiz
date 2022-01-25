@@ -60,7 +60,7 @@ if (isEmail($userInput)) {
 
 if ($hash === false) {
     logWrite($conn, "login", "Login failed (user does not exist)| username: $userInput-> " . $_SERVER['REMOTE_ADDR']);
-    returnMessage(false, "Falscher Benutzername oder Passwort (oder E-Mail noch nicht aktiviert)", true, false, "yellow");
+    returnMessage(false, "Falscher Benutzername oder Passwort (oder E-Mail noch nicht aktiviert)", false);
     die();
 } else {
     // Überprüfe den gespeicherten Hash gegen das Klartextkennwort

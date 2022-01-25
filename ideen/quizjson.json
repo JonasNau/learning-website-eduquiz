@@ -1,12 +1,67 @@
 {
     "options": {
-        "shuffleCards": true,
-        "limitQuestions": false
+        "shuffleCards": false,
+        "limitQuestions": 2,
+        "showResultDirectly": true,
+        "showTime": false,
+        "timeLimit": false
     },
-    "information": {
-
-    },
-    "quizCards": {
-
-    }
+    "quizCards": [
+        {
+            "id": 3,
+            "type": "textInput",
+            "options": {
+                "caseSensitive": true,
+                "wordJustNeedsToBeIncluded": false,
+                "size": "small"
+            },
+            "task": "Gebe deine Antwort ein.",
+            "question": "Gebe den Namen des Gerätes ein, das du auf dem Bild siehst.",
+            "media": [
+                [
+                    {
+                        "type": "image",
+                        "path": "/media/images/Erlenmyerkolben.jpg",
+                        "sourceType": "image/jpg",
+                        "hidden": false,
+                        "isOnlineSource": false,
+                        "size": "middle"
+                    }
+                ]
+            ],
+            "correctAnswers": [
+                "Erlenmeyerkolben",
+                "Schüttelkolben",
+                "erlenmeyerkolben"
+            ],
+            "points": 1
+        },{
+            "id": 5,
+            "type": "textInput",
+            "options": {
+                "caseSensitive": false,
+                "wordsJustNeedToBeIncluded": ["kek", "stinken"],
+                "size": "middle"
+            },
+            "task": "Gebe deine Antwort ein.",
+            "question": "Gebe den Namen des Gerätes ein, das du auf dem Bild siehst.",
+            "media": [
+                [
+                    {
+                        "type": "image",
+                        "path": "/media/images/Erlenmyerkolben.jpg",
+                        "sourceType": "image/jpg",
+                        "hidden": false,
+                        "isOnlineSource": false,
+                        "size": "small"
+                    }
+                ]
+            ],
+            "correctAnswers": [
+                "Erlenmeyerkolben",
+                "Schüttelkolben"
+            ],
+            "points": 100
+        }
+    ]
 }

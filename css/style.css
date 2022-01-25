@@ -15,6 +15,8 @@ body {
   overflow: auto;
   display: flex;
   flex-flow: column;
+  
+  transition: all .5s linear;
 }
 
 /* .container {
@@ -23,6 +25,15 @@ body {
 
 .dropdown-menu {
   max-width: 90vw;
+  max-height: 80vh;
+}
+
+#quizzeDropdown .dropdown-menu.show {
+  min-width: 100vw;
+}
+
+.dropdown-menu.show {
+  overflow-y: auto;
 }
 
 .dropdown-item {
@@ -42,6 +53,10 @@ body {
 
   .nav-item.dropdown {
     max-width: 20vw;
+  }
+
+  #quizzeDropdown .dropdown-menu.show {
+    min-width: 25vw;
   }
 }
 
@@ -65,12 +80,15 @@ body {
 
 .skip-nav-link {
   position: absolute;
-  transform: translateY(-120%);
+  transform: translateY(-150%);
   background-color: black;
   color: orange;
+  opacity: 0;
 }
 
-.skip-nav-link {
+.skip-nav-link:active {
+  opacity: 1;
+  position: relative;
   transform: translateY(0);
 }
 
@@ -210,4 +228,10 @@ body {
 .styled-table tbody tr.active-row {
   font-weight: bold;
   color: black;
+}
+
+
+/* Make the Website normally 100vh height */
+.main-content {
+  min-height: 100vh;
 }

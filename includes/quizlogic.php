@@ -35,14 +35,29 @@ if (isset($_POST["quiz"])) {
 
         if ($type === "getQuizParameter") {
             $quizId = $_POST["quizId"];
-            if (quizCanBeAccessed($conn, $quizID)) {
+            if (!quizCanBeAccessed($conn, $quizId)) {
                 returnMessage("failed", "Das Quiz ist nicht verfügbar.");
                 die();
             }
             $secondOperation = $_POST["secondOperation"];
 
             if ($secondOperation === "getAllQuizInformation") {
-                echo json_encode(getColumsFromDatabaseMultipleWhere($conn , "selectquiz", ["uniqueID", "showQuizauswahl", "klassenstufe", "fach", "thema", "quizname", "quizId", "created", "createdBy", "changed", "changedBy", "quizData", "description"], ["quizId"=>$quizId], 1, false, false));
+                $quizparams = getColumsFromDatabaseMultipleWhere($conn , "selectquiz", ["uniqueID", "showQuizauswahl", "klassenstufe", "fach", "thema", "quizname", "quizId", "created", "createdBy", "changed", "changedBy", "quizdata", "description"], ["quizId"=>$quizId], 1, false, false);
+                if (!$quizparams) {
+                    returnMessage("failed", "Keine Quizparameter vorhanden");
+                    die();
+                }
+                //Make json from everything that is just a string - FORMAT RESPONSE
+                if (isset($quizparams["quizdata"])) {
+                    $quizparams["quizdata"] = json_validate($quizparams["quizdata"]);
+                    //if no quizCards just make it false
+                    if ($quizparams["quizdata"]) {
+                        if (isset($quizparams["quizdata"]->{"quizCards"}) && (count($quizparams["quizdata"]->{"quizCards"}) > 0) == false) {
+                            $quizparams["quizdata"] = false;
+                        }
+                    }
+                }
+                echo json_encode($quizparams);
                 die();
             }
         } else if ($type === "getMark") {

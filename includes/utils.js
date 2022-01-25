@@ -75,6 +75,7 @@ export function insertAfter(referenceNode, newNode) {
 }
 
 export function shuffle(array) {
+  if (!array) return array;
   let currentIndex = array.length,
     randomIndex;
 
@@ -672,14 +673,12 @@ export async function holdSererContact(fileGeneralFunctions) {
     );
   }
 
-
-
   async function getMessage() {
     try {
       if (makeJSON(sessionStorage.getItem("popupOpen")) != true) {
         let data = await sendData("SESSION_MESSAGE&operation=get");
         if (data["message"]) {
-         popUpStatus(true);
+          popUpStatus(true);
           async function openAlert() {
             let res = await alertUser("Nachricht", data["message"], true);
             await sendData("SESSION_MESSAGE&operation=delete");
@@ -704,20 +703,18 @@ export async function holdSererContact(fileGeneralFunctions) {
       }
 
       if (makeJSON(sessionStorage.getItem("popupOpen")) != true) {
-      let oldLogin = makeJSON(sessionStorage.getItem("loggedIn"));
-      let logincheck = await sendData("CHECK_LOGIN");
-      if (logincheck["data"]) {
-        let newStatus =  logincheck["data"]["loginStatus"];
-        sessionStorage.setItem("loggedIn", newStatus);
-        if (oldLogin != newStatus) {
-          window.location.reload();
+        let oldLogin = makeJSON(sessionStorage.getItem("loggedIn"));
+        let logincheck = await sendData("CHECK_LOGIN");
+        if (logincheck["data"]) {
+          let newStatus = logincheck["data"]["loginStatus"];
+          sessionStorage.setItem("loggedIn", newStatus);
+          if (oldLogin != newStatus) {
+            window.location.reload();
+          }
+        } else {
+          sessionStorage.setItem("loggedIn", false);
         }
-      } else {
-        sessionStorage.setItem("loggedIn", false);
       }
-    }
-
-
     } catch (e) {
       alertUser("Nachricht", "Verbindung zum Server unterbrochen" + e, true);
     }
@@ -810,17 +807,20 @@ export function addToArray(
   return array;
 }
 
+export function toggleValuesInArray(array, ...values) {
+  if (!array) return array;
+  if (!values) return array;
+  for (const currentValue of values) {
+    if (arrayIncludesValue(array, currentValue)) {
+      array = removeFromArray(array, currentValue);
+    } else {
+      array = addToArray(array, currentValue, false);
+    }
+  }
+  return array;
+}
+
 export async function userHasPermissions(
-  //function to check
-  // if (
-  //   !(await userHasPermissions(
-  //     "../../includes/userSystem/checkPermissionsFromFrontend.php",
-  //     ["benutzerverwaltungChangeAuthenticated"]
-  //   ))
-  // ) {
-  //   //alert("You don't have the permission to change Usernames");
-  //   return false;
-  // }
   checkPermissionsFromFrontendPATH,
   permissions = new Array()
 ) {
@@ -1714,16 +1714,101 @@ export async function getAttributesFromServer(
   secondOperation = false,
   otherRequest
 ) {
-  return await makeJSON(
-    await sendXhrREQUEST(
-      "POST",
-      `getAttribute&type=${type}&secondOperation=${secondOperation}&${otherRequest}`,
-      pathToGetAttributes,
-      "application/x-www-form-urlencoded",
-      true,
-      true,
-      false,
-      true
-    )
+  return await sendXhrREQUEST(
+    "POST",
+    `getAttribute&type=${type}&secondOperation=${secondOperation}&${otherRequest}`,
+    pathToGetAttributes,
+    "application/x-www-form-urlencoded",
+    true,
+    true,
+    false,
+    true
   );
+}
+
+export function emptyVariable(input) {
+  if (input === null || input === undefined) {
+    return true;
+  }
+  return false;
+}
+
+export function array_contains_all_values(haystack, needle, olnlyValue = true) {
+  if (!needle) {
+    return false;
+  }
+  if (!haystack) {
+    return false;
+  }
+  for (const [checkKey, checkValue] of needle) {
+    if (olnlyValue) {
+      if (!arrayIncludesValue(checkValue, haystack)) {
+        return false;
+      }
+    } else {
+      if (haystack[checkKey] == checkValue) {
+      } else {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+export function hasAllContidions(needle, haystack, searchMode = false) {
+  for (const [currentWhereKey, currentWhereValue] of needle) {
+    if (!emptyVariable(haystack[currentWhereKey])) {
+      if (searchMode) {
+        if (
+          haystack["currentWhereKey"]
+            .toLowerCase()
+            .includes(currentWhereValue.toLowerCase())
+        ) {
+          return false;
+        }
+      } else {
+        if (
+          arrayIncludesValue(haystack[currentWhereKey] == currentWhereValue)
+        ) {
+        } else {
+          return false;
+        }
+      }
+    } else {
+      return false;
+    }
+  }
+  return true;
+}
+
+export function string_contains_all_values(string, values, caseSensitive = true) {
+  if (caseSensitive) {
+    if (values.every((item) => string.includes(item))) {
+      return true;
+    }
+  } else {
+    if (
+      values.every((item) =>
+        string
+          .toUpperCase()
+          .includes(
+            item.toUpperCase() ||
+              string.toLowerCase().includes(item.toLowerCase())
+          )
+      )
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+
+export function boolToJaOrNein(bool) {
+  if (bool === true) {
+    return "Ja";
+  } else {
+    return "Nein";
+  }
 }
