@@ -198,7 +198,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
         this.filterContainer = null;
         this.selectionFiltersContainer = null;
         this.limiter = null;
-    
+
         //Filters
         this.usernameSelectContainer = null;
         this.emailSelectContainer = null;
@@ -210,56 +210,56 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
         this.rankingSelectContainer = null;
 
         this.hideUsersIDS = null;
-    
+
         this.permissionsAllowedSelectContainer = null;
         this.permissionsAllowedObject = new Object();
         this.permissionsForbiddenSelectContainer = null;
         this.permissionsForbiddenArray = new Array();
-    
+
         this.groupsSearchArray = new Array();
         this.klassenstufenSearchArray = new Array();
-    
+
         //Selection
         this.choosenArray = new Array();
         this.oldCheckedArray = new Array();
-    
+
         //others
         this.searchWhileTyping = false;
         this.resultDescriptionContainer = null;
         this.resultBox = null;
-    
+
         this.searchReloadBtn = null;
         this.editReloadBtn = null;
       }
-    
+
       async prepareSearch() {
         if (!this.container) return "No container";
-    
+
         //StartBtn
         let searchBtn = this.container.querySelector(".filter #search");
         console.log(searchBtn);
         if (!searchBtn) return "No searchBtn";
         this.searchBtn = searchBtn;
-    
+
         //Filter Container (init)
         let filterContainer = this.container.querySelector(".filter");
         if (!filterContainer) return "No filter container";
         this.filterContainer = filterContainer;
-    
+
         //Filter Type Select (init)
         let chooseFilterTypeSelect = filterContainer.querySelector(
           "#chooseFilterTypeContainer #chooseFilter"
         );
         if (!chooseFilterTypeSelect) return "no chooseFilterTypeSelect";
         this.chooseFilterTypeSelect = chooseFilterTypeSelect;
-    
+
         //Selection Filters (init) - Enable or disable filter
         console.log(this.filterContainer);
         let selectionFiltersContainer =
           this.filterContainer.querySelector(".selectionFilters");
         if (!selectionFiltersContainer) return "no selection filters container";
         this.selectionFiltersContainer = selectionFiltersContainer;
-    
+
         //Initialize filters
         let usernameSelectContainer =
           selectionFiltersContainer.querySelector("#username");
@@ -300,12 +300,13 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
         this.isOnlineSelectContainer = isOnlineSelectContainer;
         this.klassenstufeSelectContainer = klassenstufeSelectContainer;
         this.groupsSelectContainer = groupsSelectContainer;
-        this.permissionsAllowedSelectContainer = permissionsAllowedSelectContainer;
+        this.permissionsAllowedSelectContainer =
+          permissionsAllowedSelectContainer;
         this.permissionsForbiddenSelectContainer =
           permissionsForbiddenSelectContainer;
         this.authenticatedSelectContainer = authenticatedSelectContainer;
         this.rankingSelectContainer = rankingSelectContainer;
-    
+
         //hide all
         this.usernameSelectContainer.classList.add("hidden");
         this.userIDSelectContainer.classList.add("hidden");
@@ -316,22 +317,21 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
         this.permissionsAllowedSelectContainer.classList.add("hidden");
         this.authenticatedSelectContainer.classList.add("hidden");
         this.rankingSelectContainer.classList.add("hidden");
-    
+
         //Init limiter
         let limiter = selectionFiltersContainer.querySelector(
           "#limitResults #numberInput"
         );
         if (!limiter) return "no limiter";
         this.limiter = limiter;
-    
+
         //Search While Typing
-        let searchWhileTypingContainer = selectionFiltersContainer.querySelector(
-          "#other #searchWhileTyping"
-        );
-        if (!searchWhileTypingContainer) return "no search while typin container";
-        let searchWhileTypingCheckbox = searchWhileTypingContainer.querySelector(
-          "#allowSearchWhileTyping"
-        );
+        let searchWhileTypingContainer =
+          selectionFiltersContainer.querySelector("#other #searchWhileTyping");
+        if (!searchWhileTypingContainer)
+          return "no search while typin container";
+        let searchWhileTypingCheckbox =
+          searchWhileTypingContainer.querySelector("#allowSearchWhileTyping");
         if (!searchWhileTypingCheckbox) return "no search while typin checkbox";
         searchWhileTypingCheckbox.checked = false;
         this.searchWhileTyping = false;
@@ -344,7 +344,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
             this.searchWhileTyping = false;
           }
         });
-    
+
         let reloadBtn = this.container.querySelector("#reload");
         if (!reloadBtn) return "no reload button";
         reloadBtn.addEventListener("click", () => {
@@ -352,7 +352,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
         });
         this.searchReloadBtn = reloadBtn;
         this.searchReloadBtn.disabled = true;
-    
+
         //Result Table
         let resultTable = this.container.querySelector("#resultTable");
         if (!resultTable) {
@@ -360,27 +360,30 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
         }
         this.resultTable = resultTable;
         this.resultTable.classList.add("hidden");
-    
+
         let tableBody = resultTable.querySelector("tbody");
         if (!tableBody) {
           return "no table body";
         }
         this.tableBody = tableBody;
         this.clear(this.tableBody);
-    
+
         ///ChooseAllBtn
         this.chooseAllBtn = this.resultTable.querySelector("thead #chooseall");
         if (!this.chooseAllBtn) return "No choose all btn";
         //Make Choose All -------
-    
+
         this.chooseAllBtn.addEventListener("change", (event) => {
           if (event.target.checked) {
             console.log("checked");
             this.oldCheckedArray = Utils.copyArray(this.choosenArray);
-            let allCheckBtns = this.resultTable.querySelectorAll(".result #select");
-    
+            let allCheckBtns =
+              this.resultTable.querySelectorAll(".result #select");
+
             allCheckBtns.forEach((element) => {
-              let dataValue = element.closest(".result").getAttribute("data-value");
+              let dataValue = element
+                .closest(".result")
+                .getAttribute("data-value");
               element.checked = true;
               this.choosenArray = Utils.addToArray(
                 this.choosenArray,
@@ -390,11 +393,14 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
             });
           } else {
             console.log("unchecked");
-            let allCheckBtns = this.resultTable.querySelectorAll(".result #select");
-    
+            let allCheckBtns =
+              this.resultTable.querySelectorAll(".result #select");
+
             allCheckBtns.forEach((element) => {
-              let dataValue = element.closest(".result").getAttribute("data-value");
-    
+              let dataValue = element
+                .closest(".result")
+                .getAttribute("data-value");
+
               if (this.oldCheckedArray.includes(dataValue)) {
                 element.checked = true;
                 this.choosenArray = Utils.addToArray(
@@ -413,7 +419,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
           }
           this.updateEditBtn();
         });
-    
+
         //Result Desription
         let resultDescriptionContainer =
           this.container.querySelector(".resultDesciption");
@@ -421,11 +427,11 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
           return "no discription container";
         }
         this.resultDescriptionContainer = resultDescriptionContainer;
-    
+
         searchBtn.addEventListener("click", () => {
           this.search(this.arraySearch);
         });
-    
+
         //Add that user can select type of filter and set normally to username
         this.chooseFilterTypeSelect.addEventListener("change", () => {
           let value =
@@ -435,11 +441,11 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
           console.log(value);
           this.setFilterMode(value);
         });
-    
+
         //First shown mode automatically
         this.setFilterMode("username");
       }
-    
+
       updateEditBtn() {
         console.log(this.choosenArray.length);
         if (this.choosenArray.length > 0) {
@@ -448,7 +454,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
           this.editBtn.disabled = true;
         }
       }
-    
+
       async setFilterMode(value) {
         if (!value) return false;
         this.filterType = value;
@@ -463,7 +469,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
         this.authenticatedSelectContainer.classList.add("hidden");
         this.isOnlineSelectContainer.classList.add("hidden");
         this.rankingSelectContainer.classList.add("hidden");
-    
+
         if (value === "username") {
           this.enableFilter(this.usernameSelectContainer);
         } else if (value === "email") {
@@ -500,10 +506,10 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
           //Nothing to show
         }
       }
-    
+
       async enableFilter(filter) {
         if (!filter) return false;
-    
+
         if (filter === this.usernameSelectContainer) {
           let input = this.usernameSelectContainer.querySelector("#textInput");
           Utils.listenToChanges(input, "input", 450, () => {
@@ -542,10 +548,10 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
         } else if (filter === this.groupsSelectContainer) {
           //Groups
           this.groupsSearchArray = new Array(); //Reset old value
-    
+
           let choosenContainer =
             this.groupsSelectContainer.querySelector("#choosen");
-    
+
           let update = () => {
             //Update Choosen
             choosenContainer.innerHTML = "";
@@ -555,7 +561,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
                 listItem.setAttribute("data-value", element);
                 listItem.innerHTML = `<span>${element}</span><button type="button" id="remove">X</button><span></span`;
                 choosenContainer.appendChild(listItem);
-    
+
                 let removeBtn = listItem.querySelector("#remove");
                 removeBtn.addEventListener("click", (event) => {
                   this.groupsSearchArray = Utils.removeFromArray(
@@ -567,7 +573,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
               });
             }
           };
-    
+
           let addBtn = this.groupsSelectContainer.querySelector("#addBtn");
           addBtn = Utils.removeAllEventlisteners(addBtn);
           addBtn.addEventListener("click", async () => {
@@ -601,7 +607,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
             }
             update();
           });
-    
+
           this.groupsSelectContainer.classList.remove("hidden");
         } else if (filter === this.permissionsAllowedSelectContainer) {
           this.permissionsAllowedObject = new Object();
@@ -612,7 +618,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
           let addBtn =
             this.permissionsAllowedSelectContainer.querySelector("#addBtn");
           addBtn = Utils.removeAllEventlisteners(addBtn);
-    
+
           let add = async () => {
             let toAdd = await addPermission([]);
             if (toAdd && toAdd.length > 0) {
@@ -645,11 +651,11 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
                 this.permissionsAllowedObject
               )) {
                 let listItem = document.createElement("li");
-    
+
                 listItem.setAttribute("data-value", key);
                 listItem.innerHTML = `<span>${key} = ${value}</span><button type="button" id="remove">X</button><span></span>`;
                 choosenContainer.appendChild(listItem);
-    
+
                 let removeBtn = listItem.querySelector("#remove");
                 removeBtn.addEventListener("click", (event) => {
                   delete this.permissionsAllowedObject[key];
@@ -669,7 +675,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
           let addBtn =
             this.permissionsForbiddenSelectContainer.querySelector("#addBtn");
           addBtn = Utils.removeAllEventlisteners(addBtn);
-    
+
           let add = async () => {
             let toAdd = await addPermission([]);
             if (toAdd && toAdd.length > 0) {
@@ -690,11 +696,11 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
             if (this.permissionsForbiddenArray.length > 0) {
               for (const current of this.permissionsForbiddenArray) {
                 let listItem = document.createElement("li");
-    
+
                 listItem.setAttribute("data-value", current);
                 listItem.innerHTML = `<span>${current}</span><button type="button" id="remove">X</button><span></span>`;
                 choosenContainer.appendChild(listItem);
-    
+
                 let removeBtn = listItem.querySelector("#remove");
                 removeBtn.addEventListener("click", (event) => {
                   this.permissionsForbiddenArray = Utils.removeFromArray(
@@ -710,16 +716,16 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
               this.search();
             }
           };
-    
+
           this.permissionsForbiddenSelectContainer.classList.remove("hidden");
         } else if (filter === this.klassenstufeSelectContainer) {
           //Klassenstufen
-    
+
           this.klassenstufenSearchArray = new Array(); //Reset old value
-    
+
           let choosenContainer =
             this.klassenstufeSelectContainer.querySelector("#choosen");
-    
+
           let update = () => {
             //Update Choosen
             choosenContainer.innerHTML = "";
@@ -729,7 +735,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
                 listItem.setAttribute("data-value", element);
                 listItem.innerHTML = `<span>${element}</span><button type="button" id="remove">X</button><span></span`;
                 choosenContainer.appendChild(listItem);
-    
+
                 let removeBtn = listItem.querySelector("#remove");
                 removeBtn.addEventListener("click", (event) => {
                   this.klassenstufenSearchArray = Utils.removeFromArray(
@@ -741,8 +747,9 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
               });
             }
           };
-    
-          let addBtn = this.klassenstufeSelectContainer.querySelector("#addBtn");
+
+          let addBtn =
+            this.klassenstufeSelectContainer.querySelector("#addBtn");
           addBtn = Utils.removeAllEventlisteners(addBtn);
           addBtn.addEventListener("click", async () => {
             let availableKlassenstufen = await Utils.makeJSON(
@@ -775,7 +782,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
             }
             update();
           });
-    
+
           this.klassenstufeSelectContainer.classList.remove("hidden");
         } else if (filter === this.authenticatedSelectContainer) {
           let select =
@@ -787,7 +794,8 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
           });
           this.authenticatedSelectContainer.classList.remove("hidden");
         } else if (filter === this.isOnlineSelectContainer) {
-          let select = this.isOnlineSelectContainer.querySelector("#selectInput");
+          let select =
+            this.isOnlineSelectContainer.querySelector("#selectInput");
           Utils.listenToChanges(select, "change", 200, () => {
             if (this.searchWhileTyping) {
               this.search();
@@ -798,13 +806,13 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
           return false;
         }
       }
-    
+
       async search() {
         this.searchReloadBtn.disabled = true;
         //Utils.toggleLodingAnimation(this.container)
         this.searchBtn.classList.add("loading");
         this.choosenArray = new Array();
-    
+
         if (this.filterType === "username") {
           let input =
             this.usernameSelectContainer.querySelector("#textInput").value;
@@ -828,7 +836,8 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
             )
           );
         } else if (this.filterType === "email") {
-          let input = this.emailSelectContainer.querySelector("#textInput").value;
+          let input =
+            this.emailSelectContainer.querySelector("#textInput").value;
           this.showResults(
             Utils.makeJSON(
               await Utils.makeJSON(
@@ -996,7 +1005,8 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
             )
           );
         } else if (this.filterType === "isOnline") {
-          let select = this.isOnlineSelectContainer.querySelector("#selectInput");
+          let select =
+            this.isOnlineSelectContainer.querySelector("#selectInput");
           let input = select[select.selectedIndex].getAttribute("data-value");
           this.showResults(
             Utils.makeJSON(
@@ -1042,48 +1052,51 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
           if (Utils.isEmptyInput(username)) {
             username = false;
           }
-    
+
           //Email
-          let email = this.emailSelectContainer.querySelector("#textInput").value;
+          let email =
+            this.emailSelectContainer.querySelector("#textInput").value;
           if (Utils.isEmptyInput(email)) {
             email = false;
           }
-    
+
           //userID
           let userID =
             this.userIDSelectContainer.querySelector("#numberInput").value;
           if (Utils.isEmptyInput(userID)) {
             userID = false;
           }
-    
+
           //ranking
           let ranking =
             this.rankingSelectContainer.querySelector("#numberInput").value;
           if (Utils.isEmptyInput(ranking)) {
             ranking = false;
           }
-    
+
           //Groups
           let groups = this.groupsSearchArray;
           if (!groups.length > 0) {
             groups = false;
           }
-    
+
           //Klassenstufe
           let klassenstufen = this.klassenstufenSearchArray;
           if (!klassenstufen.length > 0) {
             klassenstufen = false;
           }
-    
+
           //isOnline
           let isOnlineSelect =
             this.isOnlineSelectContainer.querySelector("#selectInput");
           let isOnline =
-            isOnlineSelect[isOnlineSelect.selectedIndex].getAttribute("data-value");
+            isOnlineSelect[isOnlineSelect.selectedIndex].getAttribute(
+              "data-value"
+            );
           if (Utils.isEmptyInput(isOnline)) {
             isOnline = false;
           }
-    
+
           //authenticated
           let authenticatedSelect =
             this.authenticatedSelectContainer.querySelector("#selectInput");
@@ -1094,19 +1107,19 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
           if (Utils.isEmptyInput(authenticated)) {
             authenticated = false;
           }
-    
+
           //permissionsAllowed
           let permissionsAllowed = this.permissionsAllowedObject;
           if (!Object.keys(permissionsAllowed).length) {
             permissionsAllowed = false;
           }
-    
+
           //permissionsForbidden
           let permissionsForbidden = this.permissionsForbiddenArray;
           if (!permissionsForbidden.length > 0) {
             permissionsForbidden = false;
           }
-    
+
           console.log(
             username,
             email,
@@ -1119,7 +1132,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
             permissionsAllowed,
             permissionsForbidden
           );
-    
+
           this.showResults(
             Utils.makeJSON(
               await Utils.makeJSON(
@@ -1162,7 +1175,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
           return false;
         }
       }
-    
+
       showResults(results) {
         this.searchBtn.classList.remove("loading");
         this.clear(this.tableBody);
@@ -1173,20 +1186,20 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
           return true;
         }
         results = Utils.makeJSON(results);
-    
+
         if (!results.length > 0) {
           this.resultTable.classList.add("hidden");
           this.resultDescriptionContainer.innerHTML = "Keine Ergebnisse...";
           return false;
         }
         this.resultDescriptionContainer.innerHTML = `${results.length} Ergebnisse`;
-    
+
         let tableBody = this.resultTable.querySelector("tbody");
         if (!tableBody) return false;
         this.tableBody = tableBody;
-    
+
         results = Utils.sortItems(results, "username"); //Just sort it to better overview
-    
+
         for (const result of results) {
           if (this.hideUsersIDS && this.hideUsersIDS.length) {
             if (result[typeToHide] == result) {
@@ -1197,12 +1210,12 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
           let tableRow = document.createElement("tr");
           tableRow.classList.add("result");
           tableRow.setAttribute("data-value", result["userID"]);
-    
+
           let showPublicText = "Nein";
           if (Boolean(Utils.makeJSON(result["showPublic"]))) {
             showPublicText = "Ja";
           }
-    
+
           tableRow.innerHTML = `
           <td class="select"><input type="checkbox" id="select"><button id="chooseOnly"><img src="../../images/icons/stift.svg" alt="Auswahl"></button></td>
           <td id="username">${result["username"]}</td>
@@ -1224,11 +1237,11 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
           <td id="showPublic">${showPublicText}</td>
           `;
           this.tableBody.append(tableRow);
-    
+
           let groupsInner = tableRow.querySelector("#groups");
           let usersGroups = Utils.makeJSON(result["groups"]);
           Utils.listOfArrayToHTML(groupsInner, usersGroups, "Keine Gruppen");
-    
+
           //Allowed Permissions
           let permissionsInner = tableRow.querySelector("#permissionsAllowed");
           Utils.objectKEYVALUEToHTML(
@@ -1236,7 +1249,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
             result["permissionsAllowed"],
             "Keine zusätzlichen"
           );
-    
+
           //Forbidden Permissions
           let forbiddenPermissionsInner = tableRow.querySelector(
             "#permissionsForbidden"
@@ -1246,11 +1259,11 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
             result["permissionsForbidden"],
             "Keine zusätzlichen"
           );
-    
+
           //Next Messages
           let nextMessagesInner = tableRow.querySelector("#nextMessages");
           Utils.listOfArrayToHTML(nextMessagesInner, result["nextMessages"]);
-    
+
           let checkBox = tableRow.querySelector(".select #select");
           checkBox.addEventListener("change", (event) => {
             if (event.target.checked) {
@@ -1267,28 +1280,27 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
             }
             this.updateEditBtn();
           });
-    
+
           let chooseThis = tableRow.querySelector(".select #chooseOnly");
           if (!chooseThis) continue;
-    
+
           chooseThis.addEventListener("click", (event) => {
             this.choosenArray = Utils.addToArray(
               this.choosenArray,
               result["userID"],
               false
             );
-           goBackWithValue();
+            goBackWithValue();
           });
         }
         this.searchReloadBtn.disabled = false;
         this.resultTable.classList.remove("hidden");
       }
-    
+
       clear(element) {
         element.innerHTML = "";
       }
     }
-    
 
     var myModal = new bootstrap.Modal(modal);
     myModal.show();
@@ -1327,9 +1339,279 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
     let benutzerververwaltungContainer = modal.querySelector(
       "#benutzerverwaltung"
     );
-    let benutzerverwaltung = new Benutzerverwaltung(benutzerververwaltungContainer);
+    let benutzerverwaltung = new Benutzerverwaltung(
+      benutzerververwaltungContainer
+    );
     console.log(benutzerverwaltung.prepareSearch());
     benutzerverwaltung.hideUsersIDS = hideUsersIDS;
   });
 }
 
+export async function editQuizdata(uniqueID) {
+  return new Promise(async (resolve, reject) => {
+    //Create Modal container if doesnt exist
+    let modalContainer = document.querySelector("#modalContainer");
+
+    if (modalContainer == null) {
+      modalContainer = document.createElement("div");
+      modalContainer.setAttribute("id", "modalContainer");
+      document.body.appendChild(modalContainer);
+    }
+    if (document.querySelector("#modalContainer") == null) {
+      alert("no modal cóntainer found");
+      reject();
+    }
+    let number = 1;
+    let modals = modalContainer.querySelectorAll(".modal");
+    console.log(modals);
+    if (modals.length > 0) {
+      number = modals.length + 1;
+    }
+    console.log("Number of Modals", number);
+
+    let modalOuter = document.createElement("div");
+    modalOuter.classList.add("modal-div");
+    modalOuter.setAttribute("id", number);
+    modalContainer.appendChild(modalOuter);
+
+    let modalHTML = `
+    <!-- Modal -->
+    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="staticBackdropLabel">Quizdaten bearbeiten</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="editQuizdata">
+           <div class="general">
+           
+           </div>
+           <div class="editCards">
+           
+           </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="ok">OK</button>
+        </div>
+      </div>
+    </div>
+    </div>
+     `;
+
+    modalOuter.innerHTML = modalHTML;
+    let modal = modalOuter.querySelector(".modal");
+
+    class EditQuizdata {
+      constructor(container, uniqueID) {
+        this.container = container;
+        this.generalContainer = null;
+        this.editCardsContainer = null;
+
+        this.uniqueID = uniqueID;
+
+        //Data
+        this.quizJSON = {
+          options: {
+            shuffleCards: false,
+            limitQuestions: false,
+            showResultDirectly: true,
+            showTime: false,
+            timeLimit: false,
+          },
+          quizCards: [],
+        };
+      }
+
+      async prepare() {
+        if (!this.container) {
+          return "No container";
+        }
+
+        this.generalContainer = container.querySelector(".general");
+        if (!this.generalContainer) {
+          return "No generalContainer";
+        }
+        this.editCardsContainer = container.querySelector(".editCards");
+        if (!this.generalContainer) {
+          return "No editCardsContainer";
+        }
+
+        //Download quizdata
+        let currentQuizdata = await Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "quizverwaltung&operation=other&type=getQuizdata&uniqueID=" +
+              this.uniqueID,
+            "./includes/quizverwaltung.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            true,
+            false,
+            true
+          )
+        );
+
+        if (currentQuizdata) {
+          this.quizJSON = currentQuizdata;
+        }
+
+        console.log("Quizdata:", this.quizJSON);
+        return "ready";
+      }
+
+      async refresh() {
+        //Set general
+        this.generalContainer.innerHTML = `
+        <div id="shuffleCards">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkBox">
+                <label class="form-check-label" for="checkBox">
+                    Karten durchmischen
+                </label>
+            </div>
+        </div>
+        <div id="limitCards">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkBox">
+                <label class="form-check-label" for="checkBox">
+                    Karten limitieren
+                </label>
+            </div>
+            <div class="inner">
+                <input type="number" id="numberInput" name="numberInput" min="" max="" autocomplete="off" value="">
+            </div>
+        </div>
+        <div id="showResultDirectly">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkBox">
+                <label class="form-check-label" for="checkBox">
+                    Ergebnis direkt anzeigen
+                </label>
+            </div>
+        </div>
+        <div id="showTime">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkBox">
+                <label class="form-check-label" for="checkBox">
+                  Zeitanzeige anzeigen
+                </label>
+            </div>
+        </div>
+        <div id="timeLimit">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkBox">
+                <label class="form-check-label" for="checkBox">
+                    Zeitlimit aktivieren
+                </label>
+            </div>
+            <div class="inner">
+                <input type="number" id="numberInput" name="numberInput" min="" max="" autocomplete="off" value="">
+                <label class="form-check-label" for="numberInput">Angabe in Sekunden</label>
+            </div>
+        </div>
+        `;
+
+        let toggleStateAll = (container, state) => {
+          let inputs = container.querySelectorAll("input");
+          for (const input of inputs) {
+            input.disabled = state;
+          }
+        };
+        let toggleState = (input, state) => {
+          input.disabled = state;
+        };
+
+        let options = this.quizJSON["options"];
+        //Shuffle Cards
+        let shuffleCardsContainer =
+          this.generalContainer.querySelector("#shuffleCards");
+        let shuffleCardsCheckbox =
+          shuffleCardsContainer.querySelector("#checkBox");
+        shuffleCardsCheckbox.checked = options["shuffleCards"];
+        shuffleCardsCheckbox.addEventListener("click", () => {
+          options["shuffleCards"] = shuffleCardsCheckbox.checked;
+          console.log("QuizDaten:", this.quizJSON);
+
+          //Enable or disable limit Cards
+          let limitCardsContainer =
+            this.generalContainer.querySelector("#limitCards");
+            let limitCardsCheckbox = limitCardsContainer.querySelector("#checkBox");
+            toggleState(limitCardsCheckbox, !shuffleCardsCheckbox.checked);
+        });
+
+        //limitCards
+        let limitCardsContainer =
+          this.generalContainer.querySelector("#limitCards");
+        let limitCardsCheckbox = limitCardsContainer.querySelector("#checkBox");
+        limitCardsCheckbox.checked = Boolean(options["limitQuestions"]);
+
+        let limitCardsNumberInput = limitCardsContainer.querySelector(
+          ".inner #numberInput"
+        );
+        limitCardsCheckbox.addEventListener("click", () => {
+          //Disable other inner options
+          limitCardsNumberInput.disabled = !limitCardsCheckbox.checked;
+          if (!limitCardsCheckbox.checked) {
+            options["limitQuestions"] = false;
+          }
+          console.log("QuizDaten:", this.quizJSON);
+        });
+
+        if (Boolean(options["limitQuestions"])) {
+          limitCardsNumberInput.value = Number(options["limitQuestions"]);
+        }
+        limitCardsNumberInput.addEventListener("input", () => {
+          let value = limitCardsNumberInput.value;
+
+          if (Utils.isEmptyInput(value) && !Number(value) > 0) {
+            options["limitQuestions"] = false;
+          } else {
+            options["limitQuestions"] = Number(value);
+          }
+          console.log("QuizDaten:", this.quizJSON);
+        });
+
+        //showResultDirectly
+        //showTime
+        //Timelimit
+      }
+
+      async editMedia() {}
+
+      async editJSONDATA() {}
+
+      async createCard() {}
+
+      async removeCard() {}
+
+      async copyCard() {}
+
+      async submitData() {}
+    }
+
+    let container = modal.querySelector(".editQuizdata");
+    let editQuizdata = new EditQuizdata(container, uniqueID);
+    console.log(await editQuizdata.prepare());
+    console.log(await editQuizdata.refresh());
+
+    let ok = modal.querySelector("#ok");
+    var myModal = new bootstrap.Modal(modal);
+    myModal.show();
+
+    ok.addEventListener("click", async (target) => {
+      await myModal.hide();
+      modalOuter.remove();
+      resolve(true);
+    });
+
+    let close = modal.querySelector("#close");
+    close.addEventListener("click", async (target) => {
+      await myModal.hide();
+      modalOuter.remove();
+      resolve(false);
+    });
+  });
+}

@@ -12,15 +12,55 @@
 </head>
 
 <body>
-    <div class="item">
-        <div id="id"></div>
-        <div id="status"></div>
-        <div id="task"></div>
-        <div id="question"></div>
-        <div id="answers"></div>
-        <div id="usersAnswers"></div>
-        <div id="correctAnswer"></div>
+
+    <div id="shuffleCards">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="checkBox">
+            <label class="form-check-label" for="checkBox">
+                Karten durchmischen
+            </label>
+        </div>
     </div>
+    <div id="limitedCards">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="checkBox">
+            <label class="form-check-label" for="checkBox">
+                Karten limitieren
+            </label>
+        </div>
+        <div class="inner">
+            <input type="number" id="numberInput" name="numberInput" min="" max="" autocomplete="off" value="">
+        </div>
+    </div>
+    <div id="showResultDirectly">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="checkBox">
+            <label class="form-check-label" for="checkBox">
+                Ergebnis direkt anzeigen
+            </label>
+        </div>
+    </div>
+    <div id="showTime">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="checkBox">
+            <label class="form-check-label" for="checkBox">
+               Zeitanzeige anzeigen
+            </label>
+        </div>
+    </div>
+    <div id="timeLimit">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="checkBox">
+            <label class="form-check-label" for="checkBox">
+                Zeitlimit aktivieren
+            </label>
+        </div>
+        <div class="inner">
+            <input type="number" id="numberInput" name="numberInput" min="" max="" autocomplete="off" value="">
+            <label class="form-check-label" for="numberInput">Angabe in Sekunden</label>
+        </div>
+    </div>
+
 </body>
 
 </html>

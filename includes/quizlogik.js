@@ -1609,7 +1609,7 @@ class Quiz {
         <div id="status"><span class="description">Status:</span> ${correctOrWrongToRichtigOrFalsch(
           status
         )}</div>
-        <div id="caseSensitive"><span class="description">Groß und Kleinschreibung missachen:</span> ${Utils.boolToJaOrNein(
+        <div id="caseSensitive"><span class="description">Groß und Kleinschreibung missachen:</span> ${Utils.boolToString(
           quizCard["options"]["caseSensitive"]
         )}</div>
         <div id="task"><span class="description">Aufgabe:</span> ${quizCard["task"]}</div>

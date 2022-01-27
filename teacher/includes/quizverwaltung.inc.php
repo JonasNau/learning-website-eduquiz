@@ -943,6 +943,10 @@ if (isset($_POST["quizverwaltung"])) {
             $searchFor = $_POST['searchFor'];
             echo json_encode(searchQuestionsAll($conn, $searchFor));
             die();
+        } else if ($type === "getQuizdata") {
+            $uniqueID = $_POST["uniqueID"];
+            echo json_encode(getValueFromDatabase($conn, "selectquiz", "quizdata", "uniqueID", $uniqueID, 1, false));
+            die();
         }
     } else if ($operation === "getFullInformation") {
         $id = $_POST['id'];
@@ -1020,5 +1024,7 @@ if (isset($_POST["quizverwaltung"])) {
             returnMessage("success", "Quiz erfolgreich gelöscht");
         }
         die();
+    } else if ($operation === "editQuizdata") {
+
     }
 }

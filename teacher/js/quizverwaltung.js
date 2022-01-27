@@ -1,5 +1,5 @@
 import * as Utils from "../../../includes/utils.js";
-import { pickUsers } from "./quizverwaltung.inc.js";
+import { pickUsers, editQuizdata } from "./quizverwaltung.inc.js";
 
 class Quizverwaltung {
   constructor(container) {
@@ -2289,30 +2289,6 @@ class Quizverwaltung {
       tableRow.classList.add("result");
       tableRow.setAttribute("data-value", result["uniqueID"]);
 
-      let showQuizAuswahlText = "versteckt";
-      if (Utils.makeJSON(result["showQuizAuswahl"])) {
-        showQuizAuswahlText = "angezeigt";
-      }
-      let visibilityText = "ausgeblendet";
-      if (Utils.makeJSON(result["visibility"])) {
-        visibilityText = "angezeigt";
-      }
-      let requireKlassenstufeText = "nicht benötigt";
-      if (Utils.makeJSON(result["requireKlassenstufe"])) {
-        requireKlassenstufeText = "benötigt";
-      }
-      let requireFachText = "nicht benötigt";
-      if (Utils.makeJSON(result["requireFach"])) {
-        requireFachText = "benötigt";
-      }
-      let requireThemaText = "nicht benötigt";
-      if (Utils.makeJSON(result["requireThema"])) {
-        requireThemaText = "benötigt";
-      }
-      let requireNameText = "nicht benötigt";
-      if (Utils.makeJSON(result["requireName"])) {
-        requireNameText = "benötigt";
-      }
 
       tableRow.innerHTML = `
       <td class="select"><input type="checkbox" id="select"><button id="chooseOnly"><img src="../../images/icons/stift.svg" alt="Auswahl"></button></td>
@@ -2323,12 +2299,12 @@ class Quizverwaltung {
       <td id="description" style="min-width: 400px;">${result["description"]}</td>
       <td id="quizId">${result["quizId"]}</td>
       <td id="id">${result["uniqueID"]}</td>
-      <td id="showQuizAuswahl" class="${showQuizAuswahlText}">${showQuizAuswahlText}</td>
-      <td id="visibility" class="${visibilityText}">${visibilityText}</td>
-      <td id="requireKlassenstufe">${requireKlassenstufeText}</td>
-      <td id="requireFach">${requireFachText}</td>
-      <td id="requireThema">${requireThemaText}</td>
-      <td id="requireName">${requireNameText}</td>
+      <td id="showQuizAuswahl" class="${Utils.boolToString(result["showQuizAuswahl"], {"true": "angezeigt", "false": "ausgeblendet"})}">${Utils.boolToString(result["showQuizAuswahl"], {"true": "angezeigt", "false": "ausgeblendet"})}</td>
+      <td id="visibility" class="${Utils.boolToString(result["visibility"], {"true": "angezeigt", "false": "ausgeblendet"})}">${Utils.boolToString(result["visibility"], {"true": "angezeigt", "false": "ausgeblendet"})}</td>
+      <td id="requireKlassenstufe">${Utils.boolToString(result["requireKlassenstufe"], {"true": "benötigt", "false": "nicht benötigt"})}</td>
+      <td id="requireFach">${Utils.boolToString(result["requireFach"], {"true": "benötigt", "false": "nicht benötigt"})}</td>
+      <td id="requireThema">${Utils.boolToString(result["requireThema"], {"true": "benötigt", "false": "nicht benötigt"})}</td>
+      <td id="requireName">${Utils.boolToString(result["requireName"], {"true": "benötigt", "false": "nicht benötigt"})}</td>
       <td id="questions" style="min-width: 500px;"></td>
       <td id="lastUsed">${result["lastUsed"]}</td>
       <td id="created">${result["created"]}</td>
@@ -2433,30 +2409,6 @@ class Quizverwaltung {
         let tableRow = document.createElement("tr");
         tableRow.classList.add("result");
         tableRow.setAttribute("data-value", current["uniqueID"]);
-        let showQuizAuswahlText = "versteckt";
-        if (Utils.makeJSON(current["showQuizAuswahl"])) {
-          showQuizAuswahlText = "angezeigt";
-        }
-        let visibilityText = "ausgeblendet";
-        if (Utils.makeJSON(current["visibility"])) {
-          visibilityText = "angezeigt";
-        }
-        let requireKlassenstufeText = "nicht benötigt";
-        if (Utils.makeJSON(current["requireKlassenstufe"])) {
-          requireKlassenstufeText = "benötigt";
-        }
-        let requireFachText = "nicht benötigt";
-        if (Utils.makeJSON(current["requireFach"])) {
-          requireFachText = "benötigt";
-        }
-        let requireThemaText = "nicht benötigt";
-        if (Utils.makeJSON(current["requireThema"])) {
-          requireThemaText = "benötigt";
-        }
-        let requireNameText = "nicht benötigt";
-        if (Utils.makeJSON(current["requireName"])) {
-          requireNameText = "benötigt";
-        }
 
         tableRow.innerHTML = `
         <td id="name" style="min-width: 400px;"><span>${
@@ -2479,37 +2431,37 @@ class Quizverwaltung {
           current["quizId"]
         }</span><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button><button class="btn btn-sm btn-warning" style="margin: 5px;" id="generateRandomQuizId">Zufall</button></td>
         <td id="id">${current["uniqueID"]}</td>
-        <td id="showQuizAuswahl" class="${showQuizAuswahlText}"><span>${showQuizAuswahlText}
+        <td id="showQuizAuswahl" class="${Utils.boolToString(current["showQuizAuswahl"], {"true": "angezeigt", "false": "ausgeblendet"})}"><span>${Utils.boolToString(current["showQuizAuswahl"], {"true": "angezeigt", "false": "ausgeblendet"})}
         <label class="switch">
               <input type="checkbox" id="checkbox">
               <span class="slider round"></span>
         </label>
         </td>
-        <td id="visibility" class="${visibilityText}"><span>${visibilityText}</span>
+        <td id="visibility" class="${Utils.boolToString(current["visibility"], {"true": "angezeigt", "false": "ausgeblendet"})}"><span>${Utils.boolToString(current["visibility"], {"true": "angezeigt", "false": "ausgeblendet"})}</span>
         <label class="switch">
               <input type="checkbox" id="checkbox">
               <span class="slider round"></span>
         </label>
         </td>
-        <td id="requireKlassenstufe"><span>${requireKlassenstufeText}</span>
+        <td id="requireKlassenstufe"><span>${Utils.boolToString(current["requireKlassenstufe"], {"true": "benötigt", "false": "nicht benötigt"})}</span>
         <label class="switch">
               <input type="checkbox" id="checkbox">
               <span class="slider round"></span>
         </label>
         </td>
-        <td id="requireFach"><span>${requireFachText}</span>
+        <td id="requireFach"><span>${Utils.boolToString(current["requireFach"], {"true": "benötigt", "false": "nicht benötigt"})}</span>
         <label class="switch">
               <input type="checkbox" id="checkbox">
               <span class="slider round"></span>
         </label>
         </td>
-        <td id="requireThema"><span>${requireThemaText}</span>
+        <td id="requireThema"><span>${Utils.boolToString(current["requireThema"], {"true": "benötigt", "false": "nicht benötigt"})}</span>
         <label class="switch">
               <input type="checkbox" id="checkbox">
               <span class="slider round"></span>
         </label>
         </td>
-        <td id="requireName"><span>${requireNameText}</span>
+        <td id="requireName"><span>${Utils.boolToString(current["requireName"], {"true": "benötigt", "false": "nicht benötigt"})}</span>
         <label class="switch">
               <input type="checkbox" id="checkbox">
               <span class="slider round"></span>

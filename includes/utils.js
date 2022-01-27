@@ -1812,3 +1812,14 @@ export function boolToJaOrNein(bool) {
     return "Nein";
   }
 }
+
+export function boolToString(bool, data = {"true": "Ja", "false": "Nein"}) {
+  if (bool != typeof "boolean") {
+    bool = Boolean(bool)
+  }
+  if (bool === true) {
+    return data.true;
+  } else {
+    return data.false;
+  }
+}
