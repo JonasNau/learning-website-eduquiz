@@ -1465,6 +1465,7 @@ export async function editQuizdata(uniqueID) {
       async refresh() {
         //Set general
         this.generalContainer.innerHTML = `
+        <button type="button" class="btn btn-info" id="refreshBtn">Aktualisieren</button>
         <div id="shuffleCards">
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="checkBox">
@@ -1514,69 +1515,240 @@ export async function editQuizdata(uniqueID) {
         </div>
         `;
 
-        let toggleStateAll = (container, state) => {
-          let inputs = container.querySelectorAll("input");
-          for (const input of inputs) {
-            input.disabled = state;
-          }
-        };
-        let toggleState = (input, state) => {
-          input.disabled = state;
-        };
-
         let options = this.quizJSON["options"];
+
+        let refreshBtn = this.generalContainer.querySelector("#refreshBtn");
+        refreshBtn = Utils.removeAllEventlisteners(refreshBtn);
+        refreshBtn.addEventListener("click", () => {
+          this.refresh();
+        });
+
         //Shuffle Cards
         let shuffleCardsContainer =
           this.generalContainer.querySelector("#shuffleCards");
         let shuffleCardsCheckbox =
           shuffleCardsContainer.querySelector("#checkBox");
-        shuffleCardsCheckbox.checked = options["shuffleCards"];
-        shuffleCardsCheckbox.addEventListener("click", () => {
-          options["shuffleCards"] = shuffleCardsCheckbox.checked;
-          console.log("QuizDaten:", this.quizJSON);
 
-          //Enable or disable limit Cards
-          let limitCardsContainer =
-            this.generalContainer.querySelector("#limitCards");
-            let limitCardsCheckbox = limitCardsContainer.querySelector("#checkBox");
-            toggleState(limitCardsCheckbox, !shuffleCardsCheckbox.checked);
-        });
-
-        //limitCards
+        //Limit Cards
         let limitCardsContainer =
           this.generalContainer.querySelector("#limitCards");
         let limitCardsCheckbox = limitCardsContainer.querySelector("#checkBox");
-        limitCardsCheckbox.checked = Boolean(options["limitQuestions"]);
 
         let limitCardsNumberInput = limitCardsContainer.querySelector(
           ".inner #numberInput"
         );
-        limitCardsCheckbox.addEventListener("click", () => {
-          //Disable other inner options
-          limitCardsNumberInput.disabled = !limitCardsCheckbox.checked;
-          if (!limitCardsCheckbox.checked) {
-            options["limitQuestions"] = false;
-          }
-          console.log("QuizDaten:", this.quizJSON);
-        });
-
-        if (Boolean(options["limitQuestions"])) {
-          limitCardsNumberInput.value = Number(options["limitQuestions"]);
-        }
-        limitCardsNumberInput.addEventListener("input", () => {
-          let value = limitCardsNumberInput.value;
-
-          if (Utils.isEmptyInput(value) && !Number(value) > 0) {
-            options["limitQuestions"] = false;
-          } else {
-            options["limitQuestions"] = Number(value);
-          }
-          console.log("QuizDaten:", this.quizJSON);
-        });
 
         //showResultDirectly
+        let showResultDirectlyContainer = this.generalContainer.querySelector(
+          "#showResultDirectly"
+        );
+        let showResultDirectlyCheckbox =
+          showResultDirectlyContainer.querySelector("#checkBox");
+        showResultDirectlyCheckbox.checked = Boolean(
+          options["showResultDirectly"]
+        );
         //showTime
+        let showTimeContainer =
+          this.generalContainer.querySelector("#showTime");
+        let showTimeCheckbox = showTimeContainer.querySelector("#checkBox");
+        showTimeCheckbox.checked = Boolean(options["showTime"]);
         //Timelimit
+        let timeLimitContainer =
+          this.generalContainer.querySelector("#timeLimit");
+        let timeLimitCheckbox = timeLimitContainer.querySelector("#checkBox");
+
+        let timeLimitNumberInput = timeLimitContainer.querySelector(
+          ".inner #numberInput"
+        );
+
+        let toggleShuffleCards = (status = false) => {
+          //set status in JSON
+          options["shuffleCards"] = status;
+
+          if (status) {
+            //Activate LimitCards
+            toggleLimitCards(true);
+          } else {
+            //Deactivate LimitCards
+            toggleLimitCards(false);
+          }
+        };
+
+        let toggleLimitCards = (status = false) => {
+          if (status) {
+            //Activate
+            limitCardsCheckbox.disabled = false;
+            limitCardsNumberInput = Utils.removeAllEventlisteners(
+              limitCardsNumberInput
+            );
+            if (limitCardsCheckbox.checked) {
+              if (options["limitQuestions"]) {
+                limitCardsNumberInput.disabled = false;
+                limitCardsNumberInput.addEventListener("input", () => {
+                  let value = Number(limitCardsNumberInput.value);
+                  if (value && value > 0) {
+                    options["shuffleCards"] = value;
+                  } else {
+                    options["shuffleCards"] = false;
+                  }
+                });
+              }
+            }
+          } else {
+            //Deactivate
+            limitCardsCheckbox.disabled = true;
+            limitCardsNumberInput = Utils.removeAllEventlisteners(
+              limitCardsNumberInput
+            );
+            limitCardsNumberInput.disabled = true;
+          }
+        };
+
+        //Set Values from current data array
+        //shuffle cards
+        shuffleCardsCheckbox.checked = Boolean(options["shuffleCards"]);
+        if (Boolean(options["shuffleCards"])) {
+          toggleLimitCards(true);
+        } else {
+          toggleLimitCards(false);
+        }
+        shuffleCardsCheckbox.addEventListener("input", () => {
+          let status = Boolean(shuffleCardsCheckbox.checked);
+          //set status in JSON
+          options["shuffleCards"] = status;
+          toggleShuffleCards(status);
+          this.logData();
+        });
+        //Limit cards
+        limitCardsCheckbox.checked = Boolean(options["limitQuestions"]);
+        if (Boolean(options["limitQuestions"])) {
+          limitCardsNumberInput.value = Number(options["limitQuestions"]);
+          limitCardsNumberInput = Utils.removeAllEventlisteners(
+            limitCardsNumberInput
+          );
+          limitCardsNumberInput.disabled = false;
+          limitCardsNumberInput.addEventListener("input", () => {
+            let value = Number(limitCardsNumberInput.value);
+            if (value && value > 0) {
+              options["limitQuestions"] = value;
+            } else {
+              options["limitQuestions"] = false;
+            }
+          })
+        } else {
+          options["limitQuestions"] = false;
+          //Deactivate
+          limitCardsNumberInput.disabled = true;
+          limitCardsNumberInput = Utils.removeAllEventlisteners(
+            limitCardsNumberInput
+          );
+        }
+        limitCardsCheckbox.addEventListener("input", () => {
+          let status = Boolean(limitCardsCheckbox.checked);
+          //set status in JSON
+          options["limitQuestions"] = status;
+          if (!status) {
+            //Deactivate
+            limitCardsNumberInput.disabled = true;
+            limitCardsNumberInput = Utils.removeAllEventlisteners(
+              limitCardsNumberInput
+            );
+          } else {
+            //Activate
+            limitCardsNumberInput = Utils.removeAllEventlisteners(
+              limitCardsNumberInput
+            );
+            limitCardsNumberInput.disabled = false;
+            limitCardsNumberInput.addEventListener("input", () => {
+              let value = Number(limitCardsNumberInput.value);
+              if (value && value > 0) {
+                options["limitQuestions"] = value;
+              } else {
+                options["limitQuestions"] = false;
+              }
+              this.logData();
+            });
+          }
+          this.logData();
+        });
+        //show results directly
+        showResultDirectlyCheckbox.checked = Boolean(
+          options["showResultDirectly"]
+        );
+        showResultDirectlyCheckbox.addEventListener("input", () => {
+          let status = Boolean(showResultDirectlyCheckbox.checked);
+          //set status in JSON
+          options["showResultDirectly"] = status;
+          this.logData();
+        });
+        //showTime
+        showTimeCheckbox.checked = Boolean(options["showTime"]);
+        showTimeCheckbox.addEventListener("input", () => {
+          let status = Boolean(showTimeCheckbox.checked);
+          //set status in JSON
+          options["showTime"] = status;
+          this.logData();
+        });
+
+        //timeLimit
+        timeLimitCheckbox.checked = Boolean(options["timeLimit"]);
+        if (Boolean(options["timeLimit"])) {
+          timeLimitNumberInput.value = Number(options["timeLimit"]);
+        } else {
+          options["timeLimit"] = false;
+        }
+        timeLimitCheckbox.addEventListener("input", () => {
+          let status = Boolean(timeLimitCheckbox.checked);
+          //set status in JSON
+          options["timeLimit"] = status;
+          if (!status) {
+            //Deactivate
+            timeLimitNumberInput.disabled = true;
+            timeLimitNumberInput =
+              Utils.removeAllEventlisteners(timeLimitNumberInput);
+          } else {
+            //Activate
+            timeLimitNumberInput =
+              Utils.removeAllEventlisteners(timeLimitNumberInput);
+            timeLimitNumberInput.disabled = false;
+            timeLimitNumberInput.addEventListener("input", () => {
+              let value = Number(timeLimitNumberInput.value);
+              if (value && value > 0) {
+                options["timeLimit"] = value;
+              } else {
+                options["timeLimit"] = false;
+              }
+              this.logData();
+            });
+          }
+          this.logData();
+        });
+        if (Boolean(options["timeLimit"])) {
+           //Activate
+           timeLimitNumberInput =
+           Utils.removeAllEventlisteners(timeLimitNumberInput);
+         timeLimitNumberInput.disabled = false;
+         timeLimitNumberInput.addEventListener("input", () => {
+           let value = Number(timeLimitNumberInput.value);
+           if (value && value > 0) {
+             options["timeLimit"] = value;
+           } else {
+             options["timeLimit"] = false;
+           }
+         });
+        } else {
+         //Deactivate
+         timeLimitNumberInput.disabled = true;
+         timeLimitNumberInput =
+           Utils.removeAllEventlisteners(timeLimitNumberInput);
+        }
+
+        this.logData();
+        return true;
+      }
+
+      logData() {
+        console.log("Current QuizJSON:", this.quizJSON);
       }
 
       async editMedia() {}

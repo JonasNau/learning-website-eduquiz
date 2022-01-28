@@ -668,6 +668,7 @@ export async function holdSererContact(fileGeneralFunctions) {
         false,
         true,
         true,
+        false,
         false
       )
     );
@@ -722,7 +723,7 @@ export async function holdSererContact(fileGeneralFunctions) {
 
   async function connectToServer() {
     try {
-      console.log(await sendData("HOLDCONTACT"));
+      await sendData("HOLDCONTACT");
     } catch (e) {
       alertUser("Nachricht", "Verbindung zum Server unterbrochen " + e, true);
     }
@@ -924,7 +925,8 @@ export async function sendXhrREQUEST(
   showMessages = false,
   allowRedirect = false,
   showPermissionDenied = true,
-  showErrors = true
+  showErrors = true,
+  logData = true
 ) {
   //contentType = "application/x-www-form-urlencoded"
   return new Promise(async (resolve, reject) => {
@@ -935,7 +937,9 @@ export async function sendXhrREQUEST(
     //Wenn Antwort
     xhr.onload = async () => {
       if (xhr.status == 200) {
-        console.log(xhr.response);
+        if (logData) {
+          console.log(xhr.response);
+        }
         let jsonResponse = makeJSON(xhr.response);
         if (showMessages) {
           try {
@@ -962,7 +966,9 @@ export async function sendXhrREQUEST(
             window.location.href = redirectTo;
           }
         }
-        console.log(makeJSON(xhr.response));
+        if (logData) {
+          console.log(makeJSON(xhr.response));
+        };
         if (showPermissionDenied && jsonResponse) {
           let permissionDenied = jsonResponse["permissionDenied"];
           if (permissionDenied == true) {
@@ -1781,7 +1787,11 @@ export function hasAllContidions(needle, haystack, searchMode = false) {
   return true;
 }
 
-export function string_contains_all_values(string, values, caseSensitive = true) {
+export function string_contains_all_values(
+  string,
+  values,
+  caseSensitive = true
+) {
   if (caseSensitive) {
     if (values.every((item) => string.includes(item))) {
       return true;
@@ -1804,7 +1814,6 @@ export function string_contains_all_values(string, values, caseSensitive = true)
   return false;
 }
 
-
 export function boolToJaOrNein(bool) {
   if (bool === true) {
     return "Ja";
@@ -1813,9 +1822,9 @@ export function boolToJaOrNein(bool) {
   }
 }
 
-export function boolToString(bool, data = {"true": "Ja", "false": "Nein"}) {
+export function boolToString(bool, data = { true: "Ja", false: "Nein" }) {
   if (bool != typeof "boolean") {
-    bool = Boolean(bool)
+    bool = Boolean(bool);
   }
   if (bool === true) {
     return data.true;
