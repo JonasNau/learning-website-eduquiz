@@ -1385,11 +1385,31 @@ export async function editQuizdata(uniqueID) {
         </div>
         <div class="modal-body">
           <div class="editQuizdata">
+          <h2>Globale Einstellungen</h2>
            <div class="general">
            
            </div>
            <div class="editCards">
-           
+            <div class="options">
+              <div>
+              
+              </div>
+              <div class="dropdown" id="furtherOptions">
+                  <button class="btn btn-secondary dropdown-toggle" type="button" id="optionsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    Weitere Optionen
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="optionsDropdown">
+                    <li><a class="dropdown-item" data-action="createCard">Karte hinzufügen</a></li>
+                    <li><a class="dropdown-item" data-action="insertQuizdta">Änderungen rückgänging machen</a></li>
+                    <li><a class="dropdown-item" data-action="removeAll">Alle Karten entfernen</a></li>
+                    <li><a class="dropdown-item" data-action="copyQuizdata">Daten in die Zwischenablage kopieren (exportieren)</a></li>
+                    <li><a class="dropdown-item" data-action="insertQuizdta">Daten einfügen (importieren)</a></li>
+                  </ul>
+              </div>
+            </div>
+            <div class="cardList">
+            
+            </div>
            </div>
           </div>
         </div>
@@ -1423,6 +1443,7 @@ export async function editQuizdata(uniqueID) {
           },
           quizCards: [],
         };
+        this.originalData = false;
       }
 
       async prepare() {
@@ -1455,7 +1476,9 @@ export async function editQuizdata(uniqueID) {
         );
 
         if (currentQuizdata) {
-          this.quizJSON = currentQuizdata;
+          this.quizJSON = {...currentQuizdata};
+          this.originalData = {...currentQuizdata};
+          console.log("Original Data:", this.originalData);
         }
 
         console.log("Quizdata:", this.quizJSON);
@@ -1743,12 +1766,17 @@ export async function editQuizdata(uniqueID) {
            Utils.removeAllEventlisteners(timeLimitNumberInput);
         }
 
+        //Set Quiz cards
+
+
+
         this.logData();
         return true;
       }
 
       logData() {
         console.log("Current QuizJSON:", this.quizJSON);
+        console.log("Original Data:", this.originalData);
       }
 
       async editMedia() {}

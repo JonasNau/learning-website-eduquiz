@@ -166,3 +166,11 @@ td.select #chooseOnly img {
 .versteckt, .ausgeblendet {
   background-color: red;
 }
+
+
+/* EditQuiz */
+
+.editQuizdata .general {
+  border: 2px dotted red;
+  padding: 10px;
+}

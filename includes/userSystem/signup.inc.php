@@ -13,9 +13,8 @@ require_once("functions/email-functions.php");
 require_once("activateAccount.inc.php");
 
 require_once("../sendmail.php");
-require_once '../PHPmailer/PHPMailer.php';
-require_once '../PHPmailer/Exception.php';
-require_once '../PHPmailer/SMTP.php';
+require_once("../../vendor/autoload.php");
+
 
 if (isset($_SESSION["loggedin"])) {
     returnMessage("failed", "Du bist schon angemeldet, also musst du keinen neuen Accout erstellen. Wenn doch melde dich bitte ab.", "index.php");

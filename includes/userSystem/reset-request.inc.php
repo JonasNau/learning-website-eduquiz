@@ -10,10 +10,7 @@ require_once("../getSettings.php");
 require_once("./resetPassword.inc.php");
 
 require_once("../sendmail.php");
-
-require_once '../PHPmailer/PHPMailer.php';
-require_once '../PHPmailer/Exception.php';
-require_once '../PHPmailer/SMTP.php';
+require_once("../../vendor/autoload.php");
 
 
 $database = new Dbh();

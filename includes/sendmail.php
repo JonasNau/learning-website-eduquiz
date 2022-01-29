@@ -3,10 +3,6 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
 
-// require './PHPmailer/PHPMailer.php';
-// require './PHPmailer/Exception.php';
-// require './PHPmailer/SMTP.php';
-
 function sendEmail($to, $subject, $msgHTML, $altBody) {
     $result = false;
     try {
