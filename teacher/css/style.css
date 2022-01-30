@@ -25,3 +25,8 @@ h6 {
   overflow: hidden !important;
   text-overflow: ellipsis;
 }
+
+.icon-auto {
+  height: 99%;
+  width: auto;
+}

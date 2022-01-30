@@ -199,7 +199,7 @@ export function getUserInput(
   textContent = false,
   canBeEmpty = false,
   optionsToChooseFrom = new Array(),
-  auswahlItem = false
+  auswahlItem = false, fullscreen = false
 ) {
   return new Promise((resolve, reject) => {
     //Create Modal container if doesnt exist
@@ -241,7 +241,7 @@ export function getUserInput(
       let modalHTML = `
   <!-- Modal -->
   <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog ${boolToString(fullscreen, {true: "modal-fullscreens", false: ""})}">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="staticBackdropLabel">${title}</h5>
@@ -315,7 +315,7 @@ export function getUserInput(
       let modalHTML = `
       <!-- Modal -->
       <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-      <div class="modal-dialog">
+      <div class="modal-dialog ${boolToString(fullscreen, {true: "modal-fullscreens", false: ""})}">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="staticBackdropLabel">${title}</h5>
@@ -386,7 +386,7 @@ export function getUserInput(
       let modalHTML = `
       <!-- Modal -->
       <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-      <div class="modal-dialog">
+      <div class="modal-dialog ${boolToString(fullscreen, {true: "modal-fullscreens", false: ""})}">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="staticBackdropLabel">${title}</h5>
@@ -458,7 +458,7 @@ export function getUserInput(
       let modalHTML = `
       <!-- Modal -->
       <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-      <div class="modal-dialog">
+      <div class="modal-dialog ${boolToString(fullscreen, {true: "modal-fullscreens", false: ""})}">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="staticBackdropLabel">${title}</h5>
@@ -542,6 +542,79 @@ export function getUserInput(
         hideAllModals(closeOthers);
         resolve(false);
       });
+    } else if (type === "textArea") {
+      let modalHTML = `
+      <!-- Modal -->
+      <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+      <div class="modal-dialog ${boolToString(fullscreen, {true: "modal-fullscreens", false: ""})}">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="staticBackdropLabel">${title}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="description">
+              <p>${text}</p>
+              <textarea class="form-control" id="textInput" rows="3"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger" id="no">Nein</button>
+            <button type="button" class="btn btn-success" id="yes">Ja</button>
+          </div>
+        </div>
+      </div>
+      </div>
+       `;
+          modalOuter.innerHTML = modalHTML;
+          let modal = modalOuter.querySelector(".modal");
+    
+          let textInput = modal.querySelector("#textInput");
+    
+          if (textContent) {
+            textInput.setAttribute("value", textContent);
+          }
+          if (placeholder) {
+            textInput.setAttribute("placeholder", placeholder);
+          }
+    
+          let close = modal.querySelector("#close");
+          let yes = modal.querySelector("#yes");
+          let no = modal.querySelector("#no");
+    
+          var myModal = new bootstrap.Modal(modal);
+          myModal.show();
+    
+          yes.addEventListener("click", (target) => {
+            let value = textInput.value;
+            if (canBeEmpty) {
+              myModal.hide();
+              hideAllModals(closeOthers);
+              modalOuter.remove();
+              resolve(value);
+            } else {
+              if (!isEmptyInput(value, true)) {
+                myModal.hide();
+                hideAllModals(closeOthers);
+                modalOuter.remove();
+                resolve(value);
+              }
+            }
+          });
+    
+          no.addEventListener("click", (target) => {
+            myModal.hide();
+            hideAllModals(closeOthers);
+            modalOuter.remove();
+            resolve(false);
+          });
+    
+          close.addEventListener("click", (target) => {
+            myModal.hide();
+            hideAllModals(closeOthers);
+            modalOuter.remove();
+            resolve(false);
+          });
     }
   });
 }
@@ -795,7 +868,7 @@ export function addToArray(
   value,
   includeMultiple = false
 ) {
-  if (!array || !value) return false;
+  if (!array || emptyVariable(value)) return array;
 
   if (includeMultiple) {
     array.push(value);
@@ -968,7 +1041,7 @@ export async function sendXhrREQUEST(
         }
         if (logData) {
           console.log(makeJSON(xhr.response));
-        };
+        }
         if (showPermissionDenied && jsonResponse) {
           let permissionDenied = jsonResponse["permissionDenied"];
           if (permissionDenied == true) {
@@ -1650,26 +1723,35 @@ export function fallbackCopyTextToClipboard(text) {
     var successful = document.execCommand("copy");
     var msg = successful ? "successful" : "unsuccessful";
     console.log("Fallback: Copying text command was " + msg);
+    return true;
   } catch (err) {
+    document.body.removeChild(textArea);
+    document.body.removeChild(textArea);
     console.error("Fallback: Oops, unable to copy", err);
   }
-
-  document.body.removeChild(textArea);
+  return false;
 }
 
 export function copyTextToClipboard(text) {
-  if (!navigator.clipboard) {
-    fallbackCopyTextToClipboard(text);
-    return;
-  }
-  navigator.clipboard.writeText(text).then(
-    function () {
-      console.log("Async: Copying to clipboard was successful!");
-    },
-    function (err) {
-      console.error("Async: Could not copy text: ", err);
+  return new Promise((resolve, reject) => {
+    if (!navigator.clipboard) {
+      if (fallbackCopyTextToClipboard(text)) {
+        resolve(true);
+      } else {
+        resolve(false);
+      }
     }
-  );
+    navigator.clipboard.writeText(text).then(
+      function () {
+        console.log("Async: Copying to clipboard was successful!");
+        resolve(true);
+      },
+      function (err) {
+        console.error("Async: Could not copy text: ", err);
+        resolve(false);
+      }
+    );
+  });
 }
 
 //Ask for Permissions to write Clipboard
@@ -1832,3 +1914,18 @@ export function boolToString(bool, data = { true: "Ja", false: "Nein" }) {
     return data.false;
   }
 }
+
+export function valueToString(value, data = { true: "Ja", false: "Nein" }) {
+  return data?.value ?? value;
+}
+
+
+export function swapArrayElements(arr, indexA, indexB) {
+  var temp = arr[indexA];
+  arr[indexA] = arr[indexB];
+  arr[indexB] = temp;
+};
+
+Array.prototype.swap = function(indexA, indexB) {
+  swapArrayElements(this, indexA, indexB);
+};

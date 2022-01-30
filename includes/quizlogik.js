@@ -18,7 +18,15 @@ class Quiz {
     this.currentCardData = false;
     this.currentCardType = false;
 
-    this.totalPoints = 0;
+    this.totalPoints = () => {
+      let allCards = this.quizdata?.["quizCards"] ?? new Array();
+      let points = 0;
+      for (const currentCard of allCards) {
+        points += Number(currentCard["points"]) ?? 0;
+      }
+      return points;
+    };
+    
     this.currentTotalPoints = 0;
 
     //User Information and Scores
@@ -259,15 +267,6 @@ class Quiz {
     //Set Total
     this.totalCards = this.quizCards.length;
 
-    //Calculate Total Points
-    for (const currentCard of this.quizCards) {
-      let points = currentCard["points"];
-      if (Utils.emptyVariable(points)) {
-        points = 0;
-      }
-      this.totalPoints += points;
-    }
-
     //Set Containers - Reset Container
     this.container.innerHTML = `
      <div class="controls">
@@ -295,7 +294,7 @@ class Quiz {
 
   calculateMarkByTotalPoints() {
     this.usersMark =
-      Math.round((6 - 5 * (this.usersPoints / this.totalPoints)) * 100) / 100;
+      Math.round((6 - 5 * (this.usersPoints / this.totalPoints())) * 100) / 100;
   }
 
   playSound(type) {
@@ -372,8 +371,8 @@ class Quiz {
       }
 
       this.cardMain.innerHTML = `
-          <div class="task">${task}</div>
-            <div class="question">${question}</div>
+          <div class="task">${task || ""}</div>
+            <div class="question">${question || ""}</div>
             <div class="media">
                
             </div>
@@ -445,8 +444,8 @@ class Quiz {
       }
 
       this.cardMain.innerHTML = `
-          <div class="task">${task}</div>
-            <div class="question">${question}</div>
+          <div class="task">${task || ""}</div>
+            <div class="question">${question || ""}</div>
             <div class="media">
                
             </div>
@@ -524,8 +523,8 @@ class Quiz {
       let media = this.currentCardData["media"];
 
       this.cardMain.innerHTML = `
-          <div class="task">${task}</div>
-            <div class="question">${question}</div>
+          <div class="task">${task || ""}</div>
+            <div class="question">${question || ""}</div>
             <div class="media">
                
             </div>
@@ -575,7 +574,7 @@ class Quiz {
     if (!this.cardHeader) return false;
     this.cardHeader.innerHTML = `
     <div id="questionNumber"><span class="descrition">Aufgabe:</span> <span class="content">${this.currentQuestionNumber} / ${this.totalCards}</span></div>
-    <div id="score"><span class="descrition">Punkte:</span> <span class="content">${this.usersPoints} / ${this.totalPoints}</span></div>
+    <div id="score"><span class="descrition">Punkte:</span> <span class="content">${this.usersPoints} / ${this.totalPoints()}</span></div>
     <div id="score"><span class="descrition">Richtig:</span> <span class="content">${this.correctCardsNumber}</span> | <span class="descrition">Falsch:</span> <span class="content">${this.wrongCardsNumber}</span></div>
     <div id="mark"><div id="score"><span class="descrition">Note:</span> <span class="content">${this.usersMark}</span></div></div>
     `;
@@ -1372,7 +1371,7 @@ class Quiz {
     <h1 style="text-decoration: underline;">Dein Ergebnis</h1>
     <div class="resultContainer container">
         <div class="results">
-            <div id="points"><b>Punkte:</b> ${this.usersPoints} / ${this.totalPoints}</div>
+            <div id="points"><b>Punkte:</b> ${this.usersPoints} / ${this.totalPoints()}</div>
             <div id="result"><b>Ergebnis:</b> ${this.correctCardsNumber} / ${this.totalCards}</div>
             <div id="mark"><b>Note:</b> ${this.usersMark}</div>
             <div class="details">
@@ -1610,7 +1609,7 @@ class Quiz {
           status
         )}</div>
         <div id="caseSensitive"><span class="description">Groß und Kleinschreibung missachen:</span> ${Utils.boolToString(
-          quizCard["options"]["caseSensitive"]
+          quizCard?.["options"]?.["caseSensitive"]
         )}</div>
         <div id="task"><span class="description">Aufgabe:</span> ${quizCard["task"]}</div>
         <div id="question"><span class="description">Frage:</span> ${quizCard["question"]}</div>

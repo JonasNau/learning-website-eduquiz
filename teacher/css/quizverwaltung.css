@@ -174,3 +174,56 @@ td.select #chooseOnly img {
   border: 2px dotted red;
   padding: 10px;
 }
+
+.editQuizdata .general > button {
+  margin: 2px;
+}
+
+.editQuizdata .editCards .options {
+  background-color: gray;
+}
+
+.editQuizdata .editCards .options #toolbar {
+  background-color: green;
+}
+
+.editQuizdata .editCards .options #toolbar > button {
+  margin: 2px;
+}
+
+.editQuizdata .editCards .options #furtherOptions {
+  background-color: red;
+}
+
+.editQuizdata .editCards .options #furtherOptions {
+  margin: 2px;
+}
+
+.editQuizdata .editCards .cardList {
+  background-color: lightblue;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+
+.editQuizdata .editCards .cardList .item.show {
+  border: 2px dotted black;
+  min-height: 70px;
+  height: auto;
+  overflow-y: show;
+}
+
+.editQuizdata .editCards .cardList .item {
+  height: 50px;
+  overflow-y: hidden;
+  background-color: white;
+  display: block;
+  padding: 10px;
+  padding-top: 35px;
+  margin: 10px 0 10px 0;
+  border-radius: 5px;
+  border: 2px solid black;
+}
+
+

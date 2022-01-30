@@ -943,6 +943,11 @@ if (isset($_POST["quizverwaltung"])) {
             $searchFor = $_POST['searchFor'];
             echo json_encode(searchQuestionsAll($conn, $searchFor));
             die();
+        } else if ($type === "getTasks") {
+            $searchFor = $_POST['searchFor'];
+            $questionType = $_POST['questionType'] ?? false;
+            echo json_encode(searchTasksAll($conn, $searchFor, $questionType));
+            die();
         } else if ($type === "getQuizdata") {
             $uniqueID = $_POST["uniqueID"];
             echo json_encode(getValueFromDatabase($conn, "selectquiz", "quizdata", "uniqueID", $uniqueID, 1, false));
@@ -1025,6 +1030,24 @@ if (isset($_POST["quizverwaltung"])) {
         }
         die();
     } else if ($operation === "editQuizdata") {
+        if (!userHasPermissions($conn, $userID, ["quizverwaltungEditQuizzes" => gnVP($conn, "quizverwaltungEditQuizzes")])) {
+            permissionDenied();
+            die();
+        }
+        $uniqueID = $_POST["uniqueID"];
+        if (!valueInDatabaseExists($conn, "selectquiz", "uniqueID", "uniqueID", $uniqueID)) {
 
+        }
+        $quizdata = json_validate($_POST["quizdata"]);
+        if ($quizdata) {
+           if (setValueFromDatabase($conn, "selectquiz", "quizdata", "uniqueID", $uniqueID, json_encode($quizdata))) {
+            returnMessage("success", "Die Quizdaten wurden erfolgreich geändert");
+           } else {
+            returnMessage("success", "Die Quizdaten wurden nicht geändert.");
+           }
+        } else {
+            returnMessage("failed", "Die Quizdaten sind nicht gültig");
+        }
+        die();   
     }
 }

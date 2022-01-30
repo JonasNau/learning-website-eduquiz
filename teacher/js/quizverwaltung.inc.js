@@ -1391,8 +1391,9 @@ export async function editQuizdata(uniqueID) {
            </div>
            <div class="editCards">
             <div class="options">
-              <div>
-              
+              <div id="toolbar">
+                <button type="button" class="btn btn-success" id="createCard" data-action="createCard">Karte hinzufügen</button>
+                <button type="button" class="btn btn-secondary" id="editChoosenCards" data-action="editChoosenCards" disabled>Ausgewählte Karten bearbeiten</button>
               </div>
               <div class="dropdown" id="furtherOptions">
                   <button class="btn btn-secondary dropdown-toggle" type="button" id="optionsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
@@ -1400,13 +1401,14 @@ export async function editQuizdata(uniqueID) {
                   </button>
                   <ul class="dropdown-menu" aria-labelledby="optionsDropdown">
                     <li><a class="dropdown-item" data-action="createCard">Karte hinzufügen</a></li>
-                    <li><a class="dropdown-item" data-action="insertQuizdta">Änderungen rückgänging machen</a></li>
+                    <li><a class="dropdown-item" data-action="recover">Änderungen rückgänging machen</a></li>
                     <li><a class="dropdown-item" data-action="removeAll">Alle Karten entfernen</a></li>
                     <li><a class="dropdown-item" data-action="copyQuizdata">Daten in die Zwischenablage kopieren (exportieren)</a></li>
-                    <li><a class="dropdown-item" data-action="insertQuizdta">Daten einfügen (importieren)</a></li>
+                    <li><a class="dropdown-item" data-action="insertQuizdata">Daten einfügen (importieren)</a></li>
                   </ul>
               </div>
             </div>
+            <h3>Karten bearbeiten</h3>
             <div class="cardList">
             
             </div>
@@ -1444,6 +1446,17 @@ export async function editQuizdata(uniqueID) {
           quizCards: [],
         };
         this.originalData = false;
+
+        this.choosenCardsArray = new Array();
+
+        this.totalPoints = () => {
+          let allCards = this.quizJSON?.["quizCards"] ?? new Array();
+          let points = 0;
+          for (const currentCard of allCards) {
+            points += Number(currentCard["points"]) ?? 0;
+          }
+          return points;
+        };
       }
 
       async prepare() {
@@ -1476,8 +1489,8 @@ export async function editQuizdata(uniqueID) {
         );
 
         if (currentQuizdata) {
-          this.quizJSON = {...currentQuizdata};
-          this.originalData = {...currentQuizdata};
+          this.quizJSON = Utils.makeJSON(JSON.stringify(currentQuizdata));
+          this.originalData = Utils.makeJSON(JSON.stringify(currentQuizdata));
           console.log("Original Data:", this.originalData);
         }
 
@@ -1485,10 +1498,11 @@ export async function editQuizdata(uniqueID) {
         return "ready";
       }
 
-      async refresh() {
+      async refresh(refreshCards = true) {
         //Set general
         this.generalContainer.innerHTML = `
         <button type="button" class="btn btn-info" id="refreshBtn">Aktualisieren</button>
+        <button type="button" class="btn btn-info" id="confirmBtn">Hochladen / Bestätigen</button>
         <div id="shuffleCards">
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="checkBox">
@@ -1536,7 +1550,18 @@ export async function editQuizdata(uniqueID) {
                 <label class="form-check-label" for="numberInput">Angabe in Sekunden</label>
             </div>
         </div>
+        <div id="information">
+          <div id="points"><b>Gesamtpunktzahl:</b> <span class="content">${this.totalPoints()}</span></div>
+          <div id="amountOfCards"><b>Karten:</b> <span class="content">${
+            this.quizJSON?.["quizCards"].length ?? 0
+          }</span></div>
+        </div>
         `;
+
+        //Fill information
+        let information = this.generalContainer.querySelector("#information");
+        // let pointsTextBox = information.querySelector("#points .content");
+        // let amountTextBox = information.querySelector("#amountOfCards .content");
 
         let options = this.quizJSON["options"];
 
@@ -1544,6 +1569,11 @@ export async function editQuizdata(uniqueID) {
         refreshBtn = Utils.removeAllEventlisteners(refreshBtn);
         refreshBtn.addEventListener("click", () => {
           this.refresh();
+        });
+        let confirmBtn = this.generalContainer.querySelector("#confirmBtn");
+        confirmBtn = Utils.removeAllEventlisteners(confirmBtn);
+        confirmBtn.addEventListener("click", () => {
+          this.submitData();
         });
 
         //Shuffle Cards
@@ -1556,7 +1586,7 @@ export async function editQuizdata(uniqueID) {
         let limitCardsContainer =
           this.generalContainer.querySelector("#limitCards");
         let limitCardsCheckbox = limitCardsContainer.querySelector("#checkBox");
-
+        limitCardsCheckbox = Utils.removeAllEventlisteners(limitCardsCheckbox);
         let limitCardsNumberInput = limitCardsContainer.querySelector(
           ".inner #numberInput"
         );
@@ -1649,15 +1679,17 @@ export async function editQuizdata(uniqueID) {
           limitCardsNumberInput = Utils.removeAllEventlisteners(
             limitCardsNumberInput
           );
-          limitCardsNumberInput.disabled = false;
-          limitCardsNumberInput.addEventListener("input", () => {
-            let value = Number(limitCardsNumberInput.value);
-            if (value && value > 0) {
-              options["limitQuestions"] = value;
-            } else {
-              options["limitQuestions"] = false;
-            }
-          })
+          if (options["shuffleCards"]) {
+            limitCardsNumberInput.disabled = false;
+            limitCardsNumberInput.addEventListener("input", () => {
+              let value = Number(limitCardsNumberInput.value);
+              if (value && value > 0) {
+                options["limitQuestions"] = value;
+              } else {
+                options["limitQuestions"] = false;
+              }
+            });
+          }
         } else {
           options["limitQuestions"] = false;
           //Deactivate
@@ -1747,28 +1779,96 @@ export async function editQuizdata(uniqueID) {
           this.logData();
         });
         if (Boolean(options["timeLimit"])) {
-           //Activate
-           timeLimitNumberInput =
-           Utils.removeAllEventlisteners(timeLimitNumberInput);
-         timeLimitNumberInput.disabled = false;
-         timeLimitNumberInput.addEventListener("input", () => {
-           let value = Number(timeLimitNumberInput.value);
-           if (value && value > 0) {
-             options["timeLimit"] = value;
-           } else {
-             options["timeLimit"] = false;
-           }
-         });
+          //Activate
+          timeLimitNumberInput =
+            Utils.removeAllEventlisteners(timeLimitNumberInput);
+          timeLimitNumberInput.disabled = false;
+          timeLimitNumberInput.addEventListener("input", () => {
+            let value = Number(timeLimitNumberInput.value);
+            if (value && value > 0) {
+              options["timeLimit"] = value;
+            } else {
+              options["timeLimit"] = false;
+            }
+          });
         } else {
-         //Deactivate
-         timeLimitNumberInput.disabled = true;
-         timeLimitNumberInput =
-           Utils.removeAllEventlisteners(timeLimitNumberInput);
+          //Deactivate
+          timeLimitNumberInput.disabled = true;
+          timeLimitNumberInput =
+            Utils.removeAllEventlisteners(timeLimitNumberInput);
         }
-
         //Set Quiz cards
 
+        //Quiz Cards options
+        let toolbar =
+          this.editCardsContainer.querySelector(".options #toolbar");
+        for (let currentBtn of toolbar.querySelectorAll("button")) {
+          currentBtn = Utils.removeAllEventlisteners(currentBtn);
+          currentBtn.addEventListener("click", () => {
+            let action = currentBtn.getAttribute("data-action");
 
+            if (action === "createCard") {
+              this.createCard();
+            } else if (action === "editChoosenCards") {
+              console.log("Edit choosen:", this.choosenCardsArray);
+            }
+          });
+        }
+
+        let furtherOptions = this.editCardsContainer.querySelector(
+          ".options #furtherOptions ul"
+        );
+        for (let currentBtn of furtherOptions.querySelectorAll("li a")) {
+          currentBtn = Utils.removeAllEventlisteners(currentBtn);
+          currentBtn.addEventListener("click", async () => {
+            let action = currentBtn.getAttribute("data-action");
+            if (action === "createCard") {
+              this.createCard();
+            } else if (action === "recover") {
+              await this.prepare();
+              this.refresh();
+            } else if (action === "removeAll") {
+            } else if (action === "copyQuizdata") {
+              if (
+                await Utils.copyTextToClipboard(JSON.stringify(this.quizJSON))
+              ) {
+                Utils.alertUser("Nachricht", "Erfolgreich kopiert.");
+              }
+            } else if (action === "insertQuizdata") {
+              let usersJSON = Utils.makeJSON(
+                await Utils.getUserInput(
+                  "Daten einfügen",
+                  "Hier kannst du im JSON Format den Text des Quizzes einfügen.",
+                  false,
+                  "textArea",
+                  JSON.stringify(this.quizJSON, null, 1),
+                  JSON.stringify(this.quizJSON, null, 1),
+                  false,
+                  false,
+                  false,
+                  true
+                )
+              );
+              console.log("Insert:", usersJSON);
+              console.log("JSON:", Utils.makeJSON(usersJSON));
+              if (usersJSON && usersJSON["options"]) {
+                this.quizJSON = Utils.makeJSON(JSON.stringify(usersJSON));
+                await Utils.alertUser("Nachricht", "Erfolgreich gesetzt.");
+                this.refresh();
+              } else {
+                await Utils.alertUser(
+                  "Nachricht",
+                  "Daten konnten nicht eingefügt werden."
+                );
+                this.refresh();
+              }
+            }
+          });
+        }
+
+        if (refreshCards) {
+          this.refreshCards();
+        }
 
         this.logData();
         return true;
@@ -1776,10 +1876,556 @@ export async function editQuizdata(uniqueID) {
 
       logData() {
         console.log("Current QuizJSON:", this.quizJSON);
+        // alert(this.quizJSON["options"].showTime)
         console.log("Original Data:", this.originalData);
       }
 
-      async editMedia() {}
+      async refreshCards(cardToRefresh = false) {
+        let cardsContainer = this.editCardsContainer.querySelector(".cardList");
+        let quizCards = new Array();
+
+        if (cardToRefresh === false) {
+          cardsContainer.innerHTML = ``;
+
+          quizCards = this.quizJSON["quizCards"];
+  
+          //REPAIR and SORT
+          if (
+            quizCards === false ||
+            quizCards === undefined ||
+            quizCards === null
+          ) {
+            quizCards = new Array();
+          }
+  
+          //sort by id and points
+          quizCards = quizCards.sort((a, b) =>
+            a.id > b.id ? 1 : a.id === b.id ? (a.points > b.points ? 1 : -1) : -1
+          );       
+        } else {
+          quizCards = Utils.addToArray(quizCards, this.quizJSON["quizCards"].find((quizCard) => quizCard.id == cardToRefresh, false));
+          console.log(quizCards);
+        }
+
+        let counter = 1;
+
+        for (const currentCard of quizCards) {
+          let id;
+          let item;
+          if (cardToRefresh == false || cardToRefresh.length == 0) {
+            id = counter;
+            currentCard.id = counter;
+  
+            item = document.createElement("div");
+            item.classList.add("collapse", "item");
+            item.setAttribute("data-cardid", id);
+            let collapse = bootstrap.Collapse.getOrCreateInstance(item);
+            collapse.show();
+            item.addEventListener("click", (event) => {
+              if (event.target === item) {
+                collapse.toggle();
+              }
+            });
+            cardsContainer.appendChild(item);
+          } else {
+            id = currentCard.id;
+            item = this.editCardsContainer.querySelector(`div[data-cardid='${id}']`);
+            item.classList.add("collapse", "item");
+            item.setAttribute("data-cardid", id);
+            let collapse = bootstrap.Collapse.getOrCreateInstance(item);
+            collapse.show();
+            item.addEventListener("click", (event) => {
+              if (event.target === item) {
+                collapse.toggle();
+              }
+            });
+          }
+
+
+          let cardType = currentCard["type"];
+
+          if (cardType === "mchoice") {
+            item.innerHTML = `
+            <div class="header">
+            <div class="form-check" id="choose">
+                <input class="form-check-input" type="checkbox" id="checkbox">
+                <label class="form-check-label">
+                    Karte auswählen
+                </label>
+            </div>
+            <div class="form-control">
+              <input type="number" class="form-control col-3" aria-label="ID festlegen" id="id" placeholder="z.B. 1">
+              <label class="form-check-label">
+                  Id der Karte (Für Sortierung genutzt)
+              </label>
+              </div> 
+
+           
+            <button type="button" class="btn btn-secondary" id="copyCard">Karte kopieren</button>
+            <button type="button" class="btn btn-danger" id="deleteCard">Karte löschen</button>
+        </div>
+        <div class="body">
+            <div id="cardType">Typ: Multiple Choice</div>
+            <div id="options">
+                <button type="button" class="btn btn-secondary" id="toggleOptions"><img src="../images/icons/zahnrad.svg" alt="" class="icon-auto" style="position: relative; width: 20px;"><span>Optionen</span></button>
+                <ul class="collapse" id="optionsList">
+                    <li id="shuffle">
+                        <input class="form-check-input" type="checkbox" value="" id="checkbox">
+                        <label class="form-check-label">
+                            Antworten durchmischen
+                        </label>
+                    </li>
+                    <li id="timeLimit">
+                      <div class="form-check">
+                          <input class="form-check-input" type="checkbox" id="checkBox">
+                          <label class="form-check-label" for="checkBox">
+                              Zeitlimit aktivieren
+                          </label>
+                      </div>
+                      <div class="inner">
+                          <input type="number" id="numberInput" name="numberInput" min="" max="" autocomplete="off" value="">
+                          <label class="form-check-label" for="numberInput">Angabe in Sekunden</label>
+                      </div> 
+                    </li>
+                </ul>
+            </div>
+            <div id="task">
+              <h5>Aufgabe</h5>
+                <div class="input-group mb-3">
+                    <div class="input-group-text">
+                        <input class="form-check-input mt-0" type="checkbox" id="checkBox"
+                            aria-label="Checkbox für Texteingabe">
+                    </div>
+                    <textarea class="form-control" id="textInput" rows="3" aria-label="Aufgabe eingeben" placeholder="Klicke die richtige Antwort an."></textarea>
+                    <button type="button" class="btn btn-sm btn-primary" id="getSuggestions">Vorgefertigte
+                        Aufgaben</button>
+                </div>
+            </div>
+            <div id="question">
+            <h5>Frage</h5>
+                <div class="input-group mb-3" id="task">
+                    <div class="input-group-text">
+                        <input class="form-check-input mt-0" type="checkbox" id="checkBox"
+                            aria-label="Checkbox für Texteingabe">
+                    </div>
+                    <textarea class="form-control" id="textInput" rows="3" aria-label="Frage eingeben" placeholder="Was ist die Hauptstadt von Brasilien?"></textarea>
+                    <button type="button" class="btn btn-sm btn-primary" id="getSuggestions">Vorgefertigte
+                        Fragen</button>
+                </div>
+            </div>
+            <button type="button" class="btn btn-secondary" id="changeMedia">Medien hinzufügen / bearbeiten</button>
+            <div id="answers">
+                <div class="change"><button type="button" class="btn btn-secondary" id="changeAnswers">Antwort hinzufügen / löschen</button></div>
+                <div class="body">
+
+                </div>
+            </div>
+            <div id="correctAnswer">
+                <div class="change"><button type="button" class="btn btn-secondary" id="changeCorrectAnswer">Richtige Antwort auswählen</button></div>
+                <div class="body">
+
+                </div> 
+            </div>
+            <h5>Punkte</h5>
+            <div id="points">
+                <input type="number" class="form-control" aria-label="Punkte festlegen" id="numberInput" placeholder="z.B. 1 oder 4,5">
+            </div>
+        </div>
+            `;
+            let itemHeader = item.querySelector(".header");
+            let itemBody = item.querySelector(".body");
+
+            //Choose logic
+            let chooseCheckbox = itemHeader.querySelector("#choose #checkbox");
+            chooseCheckbox.addEventListener("click", () => {
+              if (chooseCheckbox.checked) {
+                this.choosenCardsArray = Utils.addToArray(
+                  this.choosenCardsArray,
+                  id,
+                  false
+                );
+              } else {
+                this.choosenCardsArray = Utils.removeFromArray(
+                  this.choosenCardsArray,
+                  id
+                );
+              }
+              console.log(this.choosenCardsArray);
+            });
+
+            let idNumberInput = itemHeader.querySelector("#id");
+            idNumberInput.value = id;
+            idNumberInput.addEventListener("input", () => {
+              if (!Utils.isEmptyInput(idNumberInput.value)) {
+                currentCard["id"] = Number(idNumberInput.value);
+              }
+              this.logData();
+            });
+
+            let copyCardBtn = itemHeader.querySelector("#copyCard");
+            copyCardBtn.addEventListener("click", () => {
+              this.copyCard(id);
+            });
+            let deleteCardBtn = itemHeader.querySelector("#deleteCard");
+            deleteCardBtn.addEventListener("click", () => {
+              this.removeCard(id);
+            });
+
+            let optionsContainer = itemBody.querySelector("#options");
+            let toggleOptionsBtn =
+              optionsContainer.querySelector("#toggleOptions");
+            toggleOptionsBtn.addEventListener("click", () => {
+              let collapse = bootstrap.Collapse.getOrCreateInstance(
+                optionsContainer.querySelector("#optionsList")
+              );
+              collapse.toggle();
+            });
+
+            //Options
+            let options = currentCard["options"];
+            //shuffleCards
+            let shuffleCardsCheckbox =
+              optionsContainer.querySelector("#shuffle #checkbox");
+            shuffleCardsCheckbox.checked = options["shuffle"];
+            shuffleCardsCheckbox.addEventListener("click", () => {
+              options["shuffle"] = shuffleCardsCheckbox.checked;
+              this.logData();
+            });
+
+            //Timelimit
+            let timeLimitContainer =
+              optionsContainer.querySelector("#timeLimit");
+            let timeLimitCheckbox =
+              timeLimitContainer.querySelector("#checkBox");
+
+            let timeLimitNumberInput = timeLimitContainer.querySelector(
+              ".inner #numberInput"
+            );
+            //timeLimit
+            timeLimitCheckbox.checked = Boolean(options["timeLimit"]);
+            if (Boolean(options["timeLimit"])) {
+              timeLimitNumberInput.value = Number(options["timeLimit"]);
+            } else {
+              options["timeLimit"] = false;
+            }
+            timeLimitCheckbox.addEventListener("input", () => {
+              let status = Boolean(timeLimitCheckbox.checked);
+              //set status in JSON
+              options["timeLimit"] = status;
+              if (!status) {
+                //Deactivate
+                timeLimitNumberInput.disabled = true;
+                timeLimitNumberInput =
+                  Utils.removeAllEventlisteners(timeLimitNumberInput);
+              } else {
+                //Activate
+                timeLimitNumberInput =
+                  Utils.removeAllEventlisteners(timeLimitNumberInput);
+                timeLimitNumberInput.disabled = false;
+                timeLimitNumberInput.addEventListener("input", () => {
+                  let value = Number(timeLimitNumberInput.value);
+                  if (value && value > 0) {
+                    options["timeLimit"] = value;
+                  } else {
+                    options["timeLimit"] = false;
+                  }
+                  this.logData();
+                });
+              }
+              this.logData();
+            });
+            if (Boolean(options["timeLimit"])) {
+              //Activate
+              timeLimitNumberInput =
+                Utils.removeAllEventlisteners(timeLimitNumberInput);
+              timeLimitNumberInput.disabled = false;
+              timeLimitNumberInput.addEventListener("input", () => {
+                let value = Number(timeLimitNumberInput.value);
+                if (value && value > 0) {
+                  options["timeLimit"] = value;
+                } else {
+                  options["timeLimit"] = false;
+                }
+              });
+            } else {
+              //Deactivate
+              timeLimitNumberInput.disabled = true;
+              timeLimitNumberInput =
+                Utils.removeAllEventlisteners(timeLimitNumberInput);
+            }
+
+            //Task
+            let taskContainer = itemBody.querySelector("#task");
+            let taskCheckbox = taskContainer.querySelector("#checkBox");
+            let taskTextInput = taskContainer.querySelector("#textInput");
+            let suggestTaskButton =
+              taskContainer.querySelector("#getSuggestions");
+            taskCheckbox.checked = Boolean(currentCard["task"]);
+            if (Boolean(currentCard["task"])) {
+              taskTextInput.value = String(currentCard["task"]);
+            } else {
+              currentCard["task"] = false;
+            }
+            taskCheckbox.addEventListener("input", () => {
+              let status = Boolean(taskCheckbox.checked);
+              //set status in JSON
+              currentCard["task"] = status;
+              if (!status) {
+                //Deactivate
+                taskTextInput.disabled = true;
+                taskTextInput = Utils.removeAllEventlisteners(taskTextInput);
+                suggestTaskButton.disabled = true;
+                suggestTaskButton =
+                  Utils.removeAllEventlisteners(suggestTaskButton);
+              } else {
+                //Activate
+                taskTextInput = Utils.removeAllEventlisteners(taskTextInput);
+                taskTextInput.disabled = false;
+                taskTextInput.addEventListener("input", () => {
+                  let value = String(taskTextInput.value);
+                  if (!Utils.isEmptyInput(value)) {
+                    currentCard["task"] = value;
+                    taskTextInput.value = value;
+                  } else {
+                    currentCard["task"] = false;
+                    taskTextInput.value = "";
+                  }
+                  this.logData();
+                });
+                suggestTaskButton.disabled = false;
+                suggestTaskButton.addEventListener("click", async () => {
+                  let selectedTask = await Utils.chooseFromArrayWithSearch(
+                    this.questionsSelectArray,
+                    true,
+                    "Aufgabe auswählen",
+                    false,
+                    false,
+                    true,
+                    "quizverwaltung&operation=other&type=getTasks&searchFor=",
+                    "../teacher/includes/quizverwaltung.inc.php"
+                  );
+                  if (selectedTask || selectedTask[0]) {
+                    currentCard["task"] = selectedTask[0];
+                    taskTextInput.value = selectedTask[0];
+                  } else {
+                    currentCard["task"] = false;
+                    taskTextInput.value = "";
+                  }
+                  this.logData();
+                });
+              }
+              this.logData();
+            });
+            if (Boolean(currentCard["task"])) {
+              //Activate
+              taskTextInput = Utils.removeAllEventlisteners(taskTextInput);
+              taskTextInput.disabled = false;
+              taskTextInput.addEventListener("input", () => {
+                let value = String(taskTextInput.value);
+                if (!Utils.isEmptyInput(value)) {
+                  currentCard["task"] = value;
+                  taskTextInput.value = value;
+                } else {
+                  currentCard["task"] = false;
+                  taskTextInput.value = "";
+                }
+                this.logData();
+              });
+              suggestTaskButton.disabled = false;
+              suggestTaskButton.addEventListener("click", async () => {
+                let selectedTask = await Utils.chooseFromArrayWithSearch(
+                  this.questionsSelectArray,
+                  true,
+                  "Aufgabe auswählen",
+                  false,
+                  false,
+                  true,
+                  "quizverwaltung&operation=other&type=getTasks&searchFor=",
+                  "../teacher/includes/quizverwaltung.inc.php"
+                );
+                if (selectedTask || selectedTask[0]) {
+                  currentCard["task"] = selectedTask[0];
+                  taskTextInput.value = selectedTask[0];
+                }
+                this.logData();
+              });
+            } else {
+              //Deactivate
+              taskTextInput.disabled = true;
+              taskTextInput = Utils.removeAllEventlisteners(taskTextInput);
+              suggestTaskButton.disabled = true;
+              suggestTaskButton =
+                Utils.removeAllEventlisteners(suggestTaskButton);
+            }
+
+            //Question
+            let questionContainer = itemBody.querySelector("#question");
+            let questionCheckbox = questionContainer.querySelector("#checkBox");
+            let questionTextInput =
+              questionContainer.querySelector("#textInput");
+            let suggestQuestionButton =
+              questionContainer.querySelector("#getSuggestions");
+            questionCheckbox.checked = Boolean(currentCard["question"]);
+            if (Boolean(currentCard["question"])) {
+              questionTextInput.value = String(currentCard["question"]);
+            } else {
+              currentCard["question"] = false;
+              questionTextInput.value = "";
+            }
+            questionCheckbox.addEventListener("input", () => {
+              let status = Boolean(questionCheckbox.checked);
+              //set status in JSON
+              currentCard["question"] = status;
+              if (!status) {
+                //Deactivate
+                questionTextInput.disabled = true;
+                questionTextInput =
+                  Utils.removeAllEventlisteners(questionTextInput);
+                suggestQuestionButton.disabled = true;
+                suggestQuestionButton = Utils.removeAllEventlisteners(
+                  suggestQuestionButton
+                );
+              } else {
+                //Activate
+                questionTextInput =
+                  Utils.removeAllEventlisteners(questionTextInput);
+                questionTextInput.disabled = false;
+                questionTextInput.addEventListener("input", () => {
+                  let value = String(questionTextInput.value);
+                  if (!Utils.isEmptyInput(value)) {
+                    currentCard["question"] = value;
+                    questionTextInput.value = value;
+                  } else {
+                    currentCard["question"] = false;
+                    questionTextInput.value = "";
+                  }
+                  this.logData();
+                });
+                suggestQuestionButton.disabled = false;
+                suggestQuestionButton.addEventListener("click", async () => {
+                  let selectedQuestion = await Utils.chooseFromArrayWithSearch(
+                    this.questionsSelectArray,
+                    true,
+                    "Frage auswählen",
+                    false,
+                    false,
+                    true,
+                    "quizverwaltung&operation=other&type=getQuestions&searchFor=",
+                    "../teacher/includes/quizverwaltung.inc.php"
+                  );
+                  if (selectedQuestion || selectedQuestion[0]) {
+                    currentCard["question"] = selectedQuestion[0];
+                    questionTextInput.value = selectedQuestion[0];
+                  }
+                  this.logData();
+                });
+              }
+              this.logData();
+            });
+            if (Boolean(currentCard["question"])) {
+              //Activate
+              questionTextInput =
+                Utils.removeAllEventlisteners(questionTextInput);
+              questionTextInput.disabled = false;
+              questionTextInput.addEventListener("input", () => {
+                let value = String(questionTextInput.value);
+                if (!Utils.isEmptyInput(value)) {
+                  currentCard["question"] = value;
+                  questionTextInput.value = value;
+                } else {
+                  currentCard["question"] = false;
+                }
+                this.logData();
+              });
+              suggestQuestionButton.disabled = false;
+              suggestQuestionButton.addEventListener("click", async () => {
+                let selectedQuestion = await Utils.chooseFromArrayWithSearch(
+                  this.questionsSelectArray,
+                  true,
+                  "Frage auswählen",
+                  false,
+                  false,
+                  true,
+                  "quizverwaltung&operation=other&type=getQuestions&searchFor=",
+                  "../teacher/includes/quizverwaltung.inc.php"
+                );
+                if (selectedQuestion || selectedQuestion[0]) {
+                  currentCard["question"] = selectedQuestion[0];
+                  questionTextInput.value = selectedQuestion[0];
+                }
+                this.logData();
+              });
+            } else {
+              //Deactivate
+              questionTextInput.disabled = true;
+              questionTextInput =
+                Utils.removeAllEventlisteners(questionTextInput);
+              suggestQuestionButton.disabled = true;
+              suggestQuestionButton = Utils.removeAllEventlisteners(
+                suggestQuestionButton
+              );
+            }
+
+            //points
+            let pointsNumberInput = itemBody.querySelector(
+              "#points #numberInput"
+            );
+            pointsNumberInput.value = Number(currentCard["points"]);
+            pointsNumberInput.addEventListener("input", () => {
+              if (!Utils.isEmptyInput(pointsNumberInput.value)) {
+                let number = Number(pointsNumberInput.value);
+                if (number < 0) {
+                  pointsNumberInput.value = 0;
+                  currentCard["points"] = 0;
+                } else {
+                  currentCard["points"] = number;
+                }
+              } else {
+                currentCard["points"] = 0;
+              }
+              this.logData();
+            });
+
+
+            //Change Media
+            let changeMediaBtn = itemBody.querySelector("#changeMedia");
+            changeMediaBtn.addEventListener("click", async () => {
+              await this.editMedia(id);
+            })
+
+            //Answers
+            let changeAnswersBtn = itemBody.querySelector("#changeAnswers");
+            changeAnswersBtn.addEventListener("click", async () => {
+              await this.changeAnswersMulitpleChoice(id);
+              this.refreshCards(id);
+            })
+
+
+            //Correct Answer
+
+
+
+          } else if (cardType === "mchoice-multi") {
+          } else if (cardType === "textInput") {
+          } else {
+            console.log("Unknown cardType:", currentCard);
+          }
+
+          counter++;
+        }
+      }
+
+      async changeAnswersMulitpleChoice(cardID) {
+        return new Promise(async (resolve, reject) => {
+          
+        })
+      }
+
+      async editMedia(cardID) {
+        return new Promise(async (resolve, reject) => {
+
+        })
+      }
 
       async editJSONDATA() {}
 
@@ -1789,7 +2435,26 @@ export async function editQuizdata(uniqueID) {
 
       async copyCard() {}
 
-      async submitData() {}
+      async submitData() {
+        console.log("Submit:", this.quizJSON);
+        await Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "quizverwaltung&operation=editQuizdata&uniqueID=" +
+              this.uniqueID +
+              "&quizdata=" +
+              JSON.stringify(this.quizJSON),
+            "./includes/quizverwaltung.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            true,
+            false,
+            true
+          )
+        );
+        await this.prepare();
+        this.refresh();
+      }
     }
 
     let container = modal.querySelector(".editQuizdata");

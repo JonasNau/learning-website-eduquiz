@@ -10,7 +10,7 @@ function searchQuestionsAll($conn, $searchFor)
             $quizData = json_validate(getValueFromDatabase($conn, "selectquiz", "quizdata", "uniqueID", $currentQuiz, 1, false));
 
             if (!$quizData) continue;
-            $quizCards = $quizData->{"Quiz"};
+            $quizCards = $quizData?->{"quizCards"} ?? false;
             if (!$quizCards) continue;
             foreach ($quizCards as $currentQuizCard) {
                 $question = $currentQuizCard->{"question"};
@@ -34,7 +34,7 @@ function searchQuestionsOneQuiz($conn, $searchFor, $quizUniqueID)
         $quizData = json_validate(getValueFromDatabase($conn, "selectquiz", "quizdata", "uniqueID", $quizUniqueID, 1, false));
 
         if (!$quizData) return false;
-        $quizCards = $quizData->{"Quiz"};
+        $quizCards = $quizData?->{"quizCards"} ?? false;
         if (!$quizCards) return false;
         foreach ($quizCards as $currentQuizCard) {
             $question = $currentQuizCard->{"question"};
@@ -48,4 +48,43 @@ function searchQuestionsOneQuiz($conn, $searchFor, $quizUniqueID)
         }
         return $resultArray;
     }
+}
+
+function searchTasksAll($conn, $searchFor, $questionType = false)
+{
+    $resultArray = array();
+    $allquizze = getAllValuesFromDatabase($conn, "selectquiz", "uniqueID", 0, true, true);
+
+    if ($allquizze) {
+        foreach ($allquizze as $currentQuiz) {
+            $quizData = json_validate(getValueFromDatabase($conn, "selectquiz", "quizdata", "uniqueID", $currentQuiz, 1, false));
+            if (!$quizData) continue;
+            $quizCards = $quizData?->{"quizCards"} ?? false;
+            if (!$quizCards) continue;
+            foreach ($quizCards as $currentQuizCard) {
+                if ($questionType != false || !empty($questionType)) {
+                    if ($questionType != $currentQuiz->{"type"}) continue;
+                    $task = $currentQuizCard->{"task"};
+                    if (!$searchFor) {
+                        $resultArray = addToArray($resultArray, $task, false);
+                    } else {
+                        if (str_contains(strtoLower($task), strtoLower($searchFor)) || str_contains(strtoupper($task), strtoupper($searchFor))) {
+                            $resultArray = addToArray($resultArray, $task, false);
+                        }
+                    }
+                } else {
+                    $task = $currentQuizCard->{"task"};
+                    if (!$searchFor) {
+                        $resultArray = addToArray($resultArray, $task, false);
+                    } else {
+                        if (str_contains(strtoLower($task), strtoLower($searchFor)) || str_contains(strtoupper($task), strtoupper($searchFor))) {
+                            $resultArray = addToArray($resultArray, $task, false);
+                        }
+                    }
+                }
+               
+            }
+        }
+    }
+    return $resultArray;
 }
