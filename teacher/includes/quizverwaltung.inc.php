@@ -291,9 +291,8 @@ if (isset($_POST["quizverwaltung"])) {
             }
             foreach ($allQuizzes as $currentQuizUniqueID) {
                 $allQuestions = searchQuestionsOneQuiz($conn, false, $currentQuizUniqueID);
-                if (!$allQuestions) {
-                    returnFoundQuizzes($conn, false, $limitResults);
-                    die();
+                if ($allQuestions == false || !count($allQuestions) > 0) {
+                   continue;
                 }
                 if (array_contains_all_values($allQuestions, $input, true)) {
                     $resultArray[] = $currentQuizUniqueID;
@@ -515,10 +514,10 @@ if (isset($_POST["quizverwaltung"])) {
             if ($questions !== false && count($allQuizzes) > 0 && $questions != "false") {
                 foreach ($allQuizzes as $currentQuizUniqueID) {
                     $allQuestions = searchQuestionsOneQuiz($conn, false, $currentQuizUniqueID);
-                    if (!$allQuestions) {
+                    if ($allQuestions == false || !count($allQuestions) > 0) {
                         $allQuizzes = removeFromArray($allQuizzes, $currentQuizUniqueID, "value", true, true);
                     }
-                    if (!array_contains_all_values($allQuestions, $questions, true)) {
+                    if (!array_contains_all_values($allQuestions, $questions)) {
                         $allQuizzes = removeFromArray($allQuizzes, $currentQuizUniqueID, "value", true, true);
                     }
                 }
@@ -946,7 +945,7 @@ if (isset($_POST["quizverwaltung"])) {
         } else if ($type === "getTasks") {
             $searchFor = $_POST['searchFor'];
             $questionType = $_POST['questionType'] ?? false;
-            echo json_encode(searchTasksAll($conn, $searchFor, $questionType));
+            echo json_encode(searchTasksAll($conn, $searchFor));
             die();
         } else if ($type === "getQuizdata") {
             $uniqueID = $_POST["uniqueID"];

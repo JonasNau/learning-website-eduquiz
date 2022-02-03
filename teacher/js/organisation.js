@@ -1499,7 +1499,7 @@ class Klassenstufenverwaltung {
           }
           let userInput = await Utils.getUserInput(
             "Eingabefeld",
-            "Neuer Name für die Klassenstufe " + current["klassenstufe"] + "?",
+            "Diese Klassenstufe bei der Quizauswahl anzeigen " + current["klassenstufe"] + "?",
             false,
             "yes/no"
           );
@@ -1536,7 +1536,7 @@ class Klassenstufenverwaltung {
           }
           let userInput = await Utils.getUserInput(
             "Eingabefeld",
-            "Neuer Name für die Klassenstufe " + current["klassenstufe"] + "?",
+            "Nutzer können diese Klassenstufe annehmen " + current["klassenstufe"] + "?",
             false,
             "yes/no"
           );
@@ -1573,7 +1573,7 @@ class Klassenstufenverwaltung {
           }
           let userInput = await Utils.getUserInput(
             "Eingabefeld",
-            "Neuer Name für die Klassenstufe " + current["klassenstufe"] + "?",
+            "Ein Quiz mit der Klassenstufe kann erstellt werden " + current["klassenstufe"] + "?",
             false,
             "yes/no"
           );

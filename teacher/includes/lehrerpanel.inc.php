@@ -53,6 +53,13 @@ function processRoute($route, $conn, $userID)
             }
             echo "Keine Berechtigung";
             break;
+        case ("medienverwaltung"):
+            if (userHasPermissions($conn, $userID, ["accessMediaVerwaltung" => gnVP($conn, "accessMediaVerwaltung")])) {
+                include_once("./sites/medienverwaltung.php");
+                return;
+            }
+            echo "Keine Berechtigung";
+            break;
         default:
 
             include_once("./sites/home.php");

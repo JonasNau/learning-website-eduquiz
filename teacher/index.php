@@ -37,7 +37,7 @@ if (!secureConnection()) {
   GoToNow("/");
   die();
 }
-logWrite($conn, "general", "$username hat das Lehrerpanel betreten -> " . $_SERVER["REMOTE_ADDR"], true, false, "white");
+logWrite($conn, "general", "$username hat das Lehrerpanel betreten -> " . PHP_EOL . $_SERVER["REMOTE_ADDR"] . " | SESSION_ID: ". session_id(), true, false, "white");
 
 
 
@@ -105,7 +105,22 @@ logWrite($conn, "general", "$username hat das Lehrerpanel betreten -> " . $_SERV
       }
       ?>
       <?php
-      if (userHasPermissions($conn, $userID, ["accessQuizverwaltung" => gnVP($conn, "accessQuizverwaltung")])) {
+      if (userHasPermissions($conn, $userID, ["accessMediaVerwaltung" => gnVP($conn, "accessMediaVerwaltung")])) {
+      ?>
+        <li class="navigationsLink">
+          <a href="?route=/medienverwaltung">
+            <img src="../images/icons/media.svg" class="navImage invertWhite" alt="Users">
+            <span class="link_name">Medien verwalten</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li><a class="link_name" href="?route=/quizverwaltung">Medien verwalten</a></li>
+          </ul>
+        </li>
+      <?php
+      }
+      ?>
+       <?php
+     if (userHasPermissions($conn, $userID, ["accessQuizverwaltung" => gnVP($conn, "accessQuizverwaltung")])) {
       ?>
         <li class="navigationsLink">
           <a href="?route=/quizverwaltung">

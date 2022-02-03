@@ -34,6 +34,51 @@ if (isset($_POST["getAttribute"])) {
             echo getValueFromDatabase($conn, "users", "username", "userID", $userID, 1, false);
             die();
         }
+    } else if ($type === "medienverwaltung") {
+        $secondOperation = $_POST["secondOperation"];
+        if ($secondOperation === "getMediaData") {
+            $mediaID = $_POST["mediaID"];
+            if (!valueInDatabaseExists($conn, "medienVerwaltung", "id", "mediaID", $mediaID)) {
+                echo json_encode(false);
+                die();
+            }
+    
+            $mediaFolderPath = getSettingVal($conn, "mediaPATH");
+    
+            $isOnlineSource = boolval(getValueFromDatabase($conn, "medienVerwaltung", "isOnlineSource", "mediaID", $mediaID, 1, false));
+            $isBlob = boolval(getValueFromDatabase($conn, "medienVerwaltung", "isBlob", "mediaID", $mediaID, 1, false));
+            $inMediaFolder = boolval(getValueFromDatabase($conn, "medienVerwaltung", "inMediaFolder", "mediaID", $mediaID, 1, false));
+            $uploaded = getValueFromDatabase($conn, "medienVerwaltung", "uploaded", "mediaID", $mediaID, 1, false);
+            $filename = getValueFromDatabase($conn, "medienVerwaltung", "filename", "mediaID", $mediaID, 1, false);
+            $mimeType = getValueFromDatabase($conn, "medienVerwaltung", "mimeType", "mediaID", $mediaID, 1, false);
+            $type = getValueFromDatabase($conn, "medienVerwaltung", "type", "mediaID", $mediaID, 1, false);
+            $path = getValueFromDatabase($conn, "medienVerwaltung", "path", "mediaID", $mediaID, 1, false);
+            $thumbnail = boolval(getValueFromDatabase($conn, "medienVerwaltung", "thumbnail", "mediaID", $mediaID, 1, false));
+            $thumbnailIsBlob = boolval(getValueFromDatabase($conn, "medienVerwaltung", "thumbnailIsBlob", "mediaID", $mediaID, 1, false));
+            $thumbnailIsOnlineSource = boolval(getValueFromDatabase($conn, "medienVerwaltung", "thumbnailIsOnlineSource", "mediaID", $mediaID, 1, false));
+            $thumbnailFileName = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailFileName", "mediaID", $mediaID, 1, false);
+            $thumbnailInMediaFolder = boolval(getValueFromDatabase($conn, "medienVerwaltung", "thumbnailInMediaFolder", "mediaID", $mediaID, 1, false));
+            $thumbnailMimeType = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailMimeType", "mediaID", $mediaID, 1, false);
+            $thumbnailPath = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailPath", "mediaID", $mediaID, 1, false);
+            
+            $description = getValueFromDatabase($conn, "medienVerwaltung", "description", "mediaID", $mediaID, 1, false);
+            $keywords = json_validate(getValueFromDatabase($conn, "medienVerwaltung", "description", "mediaID", $mediaID, 1, false));
+            $fileSize = getValueFromDatabase($conn, "medienVerwaltung", "fileSize", "mediaID", $mediaID, 1, false);
+    
+            echo json_encode(array("thumbnailIsBlob" => $thumbnailIsBlob, "thumbnailIsOnlineSource" => $thumbnailIsOnlineSource, "thumbnail" => $thumbnail, "isBlob" => $isBlob, "isOnlineSource" => $isOnlineSource, "inMediaFolder" => $inMediaFolder, "uploaded" => $uploaded, "filename" => $filename, "mimeType" => $mimeType, "type" => $type, "path" => $path, "thumbnailFileName" => $thumbnailFileName, "thumbnailMimeType" => $thumbnailMimeType, "thumbnailPath" => $thumbnailPath, "description" => $description, "keywords" => $keywords, "onFileSystem" => $onFileSystem, "fileSize" => $fileSize, "mediaFolderPath" => $mediaFolderPath));
+            die();
+        } else if ($secondOperation === "getBlob") {
+            $thirdOperation = $_POST["thirdOperation"];
+            if ($thirdOperation === "primary") {
+                $mediaID = $_POST["mediaID"];
+                echo getValueFromDatabase($conn, "medienVerwaltung", "blobData", "mediaID", $mediaID, 1, false);
+            } else if ($thirdOperation === "thumbnail") {
+                $mediaID = $_POST["mediaID"];
+                echo getValueFromDatabase($conn, "medienVerwaltung", "blobData", "mediaID", $mediaID, 1, false);
+            }
+            die();
+        }
+       
     }
 }
 

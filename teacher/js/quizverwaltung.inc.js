@@ -1450,7 +1450,7 @@ export async function editQuizdata(uniqueID) {
         this.choosenCardsArray = new Array();
 
         this.totalPoints = () => {
-          let allCards = this.quizJSON?.["quizCards"] ?? new Array();
+          let allCards = this.quizJSON["quizCards"] ?? new Array();
           let points = 0;
           for (const currentCard of allCards) {
             points += Number(currentCard["points"]) ?? 0;
@@ -1553,7 +1553,7 @@ export async function editQuizdata(uniqueID) {
         <div id="information">
           <div id="points"><b>Gesamtpunktzahl:</b> <span class="content">${this.totalPoints()}</span></div>
           <div id="amountOfCards"><b>Karten:</b> <span class="content">${
-            this.quizJSON?.["quizCards"].length ?? 0
+            this.quizJSON["quizCards"].length ?? 0
           }</span></div>
         </div>
         `;
@@ -2423,7 +2423,7 @@ export async function editQuizdata(uniqueID) {
 
       async editMedia(cardID) {
         return new Promise(async (resolve, reject) => {
-
+          //TODO: Mediaverwaltung
         })
       }
 

@@ -244,7 +244,7 @@ function setGroupsUser($conn, $userID, $groups)
 
 function userHasPermissions($conn, $userID, $permissionsNeeded, $checkRanking = false)
 {
-    logWrite($conn, "general", "Passed In: ". json_encode($permissionsNeeded));
+    logWrite($conn, "permissions", "userid: $userID => Passed In: ". json_encode($permissionsNeeded). "| SESSION_ID: ". session_id());
     #check for group
     $usersGroups = getAllGroupsFromUser($conn, $userID);
 

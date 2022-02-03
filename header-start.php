@@ -14,6 +14,7 @@
   <link href="/includes/frameworks/bootstrapAndpopper/bootstrap.min.css" rel="stylesheet">
   <!--Custom Global-->
   <link rel="stylesheet" href="css/style.css?v=?<?php echo  getNewestVersion(); ?>">
+  <link rel="stylesheet" href="css/global.css?v=?<?php echo  getNewestVersion(); ?>">
   <link rel="stylesheet" href="css/navigationsleiste.css?v=?<?php echo  getNewestVersion(); ?>">
   <link rel="stylesheet" href="css/utils.css?v=?<?php echo  getNewestVersion(); ?>">
   <link rel="stylesheet" href="css/footer.css?v=?<?php echo  getNewestVersion(); ?>">

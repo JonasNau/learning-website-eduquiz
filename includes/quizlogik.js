@@ -19,7 +19,7 @@ class Quiz {
     this.currentCardType = false;
 
     this.totalPoints = () => {
-      let allCards = this.quizdata?.["quizCards"] ?? new Array();
+      let allCards = this.quizdata["quizCards"] ?? new Array();
       let points = 0;
       for (const currentCard of allCards) {
         points += Number(currentCard["points"]) ?? 0;
@@ -1609,7 +1609,7 @@ class Quiz {
           status
         )}</div>
         <div id="caseSensitive"><span class="description">Groß und Kleinschreibung missachen:</span> ${Utils.boolToString(
-          quizCard?.["options"]?.["caseSensitive"]
+          quizCard["options"]["caseSensitive"]
         )}</div>
         <div id="task"><span class="description">Aufgabe:</span> ${quizCard["task"]}</div>
         <div id="question"><span class="description">Frage:</span> ${quizCard["question"]}</div>

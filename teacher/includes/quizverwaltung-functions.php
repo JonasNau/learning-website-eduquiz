@@ -33,9 +33,9 @@ function searchQuestionsOneQuiz($conn, $searchFor, $quizUniqueID)
         $resultArray = array();
         $quizData = json_validate(getValueFromDatabase($conn, "selectquiz", "quizdata", "uniqueID", $quizUniqueID, 1, false));
 
-        if (!$quizData) return false;
+        if (!$quizData) return array();
         $quizCards = $quizData?->{"quizCards"} ?? false;
-        if (!$quizCards) return false;
+        if (!$quizCards) return array();
         foreach ($quizCards as $currentQuizCard) {
             $question = $currentQuizCard->{"question"};
             if (!$searchFor) {

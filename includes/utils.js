@@ -27,29 +27,32 @@ export function validJSON(json) {
   return false;
 }
 
-export function sortItems(data = new Array(), parameter = false) {
-  //dev console.log(data, parameter)
-  if (!data) {
-    return data;
-  }
-  let sortedData = data.sort((a, b) => {
-    if (a === null || b === null) {
-      return -1;
+export function sortItems(arrayOrObject = new Array(), parameter = false) {
+  try {
+    if (!arrayOrObject) {
+      return arrayOrObject;
     }
-    if (parameter != false) {
-      let a1 = a[parameter];
-      let b1 = b[parameter];
-
-      if (a1 === null || b1 === null) {
+    let sortedData = arrayOrObject.sort((a, b) => {
+      if (a === null || b === null) {
         return -1;
       }
+      if (parameter != false) {
+        let a1 = a[parameter];
+        let b1 = b[parameter];
 
-      return a1.localeCompare(b1, undefined, { numeric: true });
-    } else {
-      return a.localeCompare(b, undefined, { numeric: true });
-    }
-  });
-  return sortedData;
+        if (a1 === null || b1 === null) {
+          return -1;
+        }
+
+        return a1.localeCompare(b1, undefined, { numeric: true });
+      } else {
+        return a.localeCompare(b, undefined, { numeric: true });
+      }
+    });
+    return sortedData;
+  } catch (e) {
+    return arrayOrObject;
+  }
 }
 
 export function moreThanZeroInArray(array) {
@@ -199,7 +202,8 @@ export function getUserInput(
   textContent = false,
   canBeEmpty = false,
   optionsToChooseFrom = new Array(),
-  auswahlItem = false, fullscreen = false
+  auswahlItem = false,
+  fullscreen = false
 ) {
   return new Promise((resolve, reject) => {
     //Create Modal container if doesnt exist
@@ -241,7 +245,10 @@ export function getUserInput(
       let modalHTML = `
   <!-- Modal -->
   <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-  <div class="modal-dialog ${boolToString(fullscreen, {true: "modal-fullscreens", false: ""})}">
+  <div class="modal-dialog ${boolToString(fullscreen, {
+    true: "modal-fullscreens",
+    false: "",
+  })}">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="staticBackdropLabel">${title}</h5>
@@ -315,7 +322,10 @@ export function getUserInput(
       let modalHTML = `
       <!-- Modal -->
       <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-      <div class="modal-dialog ${boolToString(fullscreen, {true: "modal-fullscreens", false: ""})}">
+      <div class="modal-dialog ${boolToString(fullscreen, {
+        true: "modal-fullscreens",
+        false: "",
+      })}">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="staticBackdropLabel">${title}</h5>
@@ -386,7 +396,10 @@ export function getUserInput(
       let modalHTML = `
       <!-- Modal -->
       <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-      <div class="modal-dialog ${boolToString(fullscreen, {true: "modal-fullscreens", false: ""})}">
+      <div class="modal-dialog ${boolToString(fullscreen, {
+        true: "modal-fullscreens",
+        false: "",
+      })}">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="staticBackdropLabel">${title}</h5>
@@ -458,7 +471,10 @@ export function getUserInput(
       let modalHTML = `
       <!-- Modal -->
       <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-      <div class="modal-dialog ${boolToString(fullscreen, {true: "modal-fullscreens", false: ""})}">
+      <div class="modal-dialog ${boolToString(fullscreen, {
+        true: "modal-fullscreens",
+        false: "",
+      })}">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="staticBackdropLabel">${title}</h5>
@@ -546,7 +562,10 @@ export function getUserInput(
       let modalHTML = `
       <!-- Modal -->
       <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-      <div class="modal-dialog ${boolToString(fullscreen, {true: "modal-fullscreens", false: ""})}">
+      <div class="modal-dialog ${boolToString(fullscreen, {
+        true: "modal-fullscreens",
+        false: "",
+      })}">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="staticBackdropLabel">${title}</h5>
@@ -566,55 +585,55 @@ export function getUserInput(
       </div>
       </div>
        `;
-          modalOuter.innerHTML = modalHTML;
-          let modal = modalOuter.querySelector(".modal");
-    
-          let textInput = modal.querySelector("#textInput");
-    
-          if (textContent) {
-            textInput.setAttribute("value", textContent);
-          }
-          if (placeholder) {
-            textInput.setAttribute("placeholder", placeholder);
-          }
-    
-          let close = modal.querySelector("#close");
-          let yes = modal.querySelector("#yes");
-          let no = modal.querySelector("#no");
-    
-          var myModal = new bootstrap.Modal(modal);
-          myModal.show();
-    
-          yes.addEventListener("click", (target) => {
-            let value = textInput.value;
-            if (canBeEmpty) {
-              myModal.hide();
-              hideAllModals(closeOthers);
-              modalOuter.remove();
-              resolve(value);
-            } else {
-              if (!isEmptyInput(value, true)) {
-                myModal.hide();
-                hideAllModals(closeOthers);
-                modalOuter.remove();
-                resolve(value);
-              }
-            }
-          });
-    
-          no.addEventListener("click", (target) => {
+      modalOuter.innerHTML = modalHTML;
+      let modal = modalOuter.querySelector(".modal");
+
+      let textInput = modal.querySelector("#textInput");
+
+      if (textContent) {
+        textInput.setAttribute("value", textContent);
+      }
+      if (placeholder) {
+        textInput.setAttribute("placeholder", placeholder);
+      }
+
+      let close = modal.querySelector("#close");
+      let yes = modal.querySelector("#yes");
+      let no = modal.querySelector("#no");
+
+      var myModal = new bootstrap.Modal(modal);
+      myModal.show();
+
+      yes.addEventListener("click", (target) => {
+        let value = textInput.value;
+        if (canBeEmpty) {
+          myModal.hide();
+          hideAllModals(closeOthers);
+          modalOuter.remove();
+          resolve(value);
+        } else {
+          if (!isEmptyInput(value, true)) {
             myModal.hide();
             hideAllModals(closeOthers);
             modalOuter.remove();
-            resolve(false);
-          });
-    
-          close.addEventListener("click", (target) => {
-            myModal.hide();
-            hideAllModals(closeOthers);
-            modalOuter.remove();
-            resolve(false);
-          });
+            resolve(value);
+          }
+        }
+      });
+
+      no.addEventListener("click", (target) => {
+        myModal.hide();
+        hideAllModals(closeOthers);
+        modalOuter.remove();
+        resolve(false);
+      });
+
+      close.addEventListener("click", (target) => {
+        myModal.hide();
+        hideAllModals(closeOthers);
+        modalOuter.remove();
+        resolve(false);
+      });
     }
   });
 }
@@ -999,13 +1018,15 @@ export async function sendXhrREQUEST(
   allowRedirect = false,
   showPermissionDenied = true,
   showErrors = true,
-  logData = true
+  logData = true,
+  responseType = "text"
 ) {
   //contentType = "application/x-www-form-urlencoded"
   return new Promise(async (resolve, reject) => {
     var xhr = new XMLHttpRequest();
     xhr.open(METHOD, FILEorURL, ascncrounously);
     xhr.setRequestHeader("Content-Type", contentType);
+    xhr.responseType = responseType;
     xhr.send(request);
     //Wenn Antwort
     xhr.onload = async () => {
@@ -1540,10 +1561,13 @@ export async function chooseFromArrayWithSearch(
                 true
               )
             );
+            console.log("Choose From Array:", this.chooseFromArray);
           }
-          for (const current of this.chooseFromArray) {
-            if (current.toLowerCase().includes(input.toLowerCase())) {
-              resultArray = addToArray(resultArray, current, false);
+          if (this.chooseFromArray && this.chooseFromArray.length > 0) {
+            for (const current of this.chooseFromArray) {
+              if (current.toLowerCase().includes(input.toLowerCase())) {
+                resultArray = addToArray(resultArray, current, false);
+              }
             }
           }
           this.showResults(limitArray(resultArray, this.limiter.value));
@@ -1916,16 +1940,565 @@ export function boolToString(bool, data = { true: "Ja", false: "Nein" }) {
 }
 
 export function valueToString(value, data = { true: "Ja", false: "Nein" }) {
-  return data?.value ?? value;
+  return data.value ?? value;
 }
-
 
 export function swapArrayElements(arr, indexA, indexB) {
   var temp = arr[indexA];
   arr[indexA] = arr[indexB];
   arr[indexB] = temp;
+}
+
+Array.prototype.swap = function (indexA, indexB) {
+  swapArrayElements(this, indexA, indexB);
 };
 
-Array.prototype.swap = function(indexA, indexB) {
-  swapArrayElements(this, indexA, indexB);
+export function escapeURI(input) {
+  if (!input) return input;
+  if (typeof input === "string") {
+    return escapeURI(input);
+  } else if (typeof input == typeof new Array()) {
+    for (const [key, value] of input) {
+      input[key] = escapeURI(value);
+    }
+    return input;
+  } else {
+    return input;
+  }
+}
+
+export function setMedia(
+  data = {
+    mediaID: "1",
+    type: "image",
+    isOnlineSource: false,
+  },
+  container,
+  showAnyway = false
+) {
+  return new Promise(async (resolve, reject) => {
+    if (!container) {
+      container = document.createElement("div");
+      container.classList.add("mediaContainer");
+      document.body.appendChild(container);
+    }
+    if (data.mediaID) {
+      //Source is saved in Table: mediaVerwaltung
+      let mediaData = await makeJSON(
+        await sendXhrREQUEST(
+          "POST",
+          "getAttribute&type=medienverwaltung&secondOperation=getMediaData&mediaID=" +
+            data.mediaID,
+          "/includes/getAttributes.php",
+          "application/x-www-form-urlencoded",
+          true,
+          true,
+          false,
+          true
+        )
+      );
+
+      console.log("MEDIA DATA RECIEVED =>", mediaData);
+      if (!mediaData) resolve(false);
+      if (mediaData.type === "image") {
+        let path = mediaData.path;
+        if (!mediaData.isOnlineSource) {
+          //SELF HOSTED IMAGES
+          if (mediaData.inMediaFolder) {
+            path = `${mediaData.mediaFolderPath}${path}/${mediaData.filename}`;
+          } else {
+            path = `${path}/${mediaData.filename}`;
+          }
+          console.log("THE PATH FOR THE IMAGE IS:", path);
+          if (mediaData.isBlob) {
+            await setImage(
+              mediaData.isOnlineSource,
+              showAnyway,
+              await getBLOBData({
+                serverRequest: {
+                  request:
+                    "getAttribute&type=medienverwaltung&secondOperation=getBlob&thirdOperation=primary&mediaID=" +
+                    data.mediaID,
+                  path: "/includes/getAttributes.php",
+                },
+              }),
+              container
+            );
+          } else {
+            await setImage(
+              mediaData.isOnlineSource,
+              showAnyway,
+              await getBLOBData({ url: path }),
+              container
+            );
+          }
+        } else {
+          //THIRD PARTY HOSTED IMAGES
+          let path = mediaData.path;
+          console.log("THE PATH FOR THE IMAGE IS:", path);
+          await setImage(
+            mediaData.isOnlineSource,
+            showAnyway,
+            { url: path },
+            container
+          );
+        }
+      }
+
+      if (mediaData.type === "video") {
+        let path = mediaData.path;
+        if (!mediaData.isOnlineSource) {
+          //SELF HOSTED IMAGES
+          if (mediaData.inMediaFolder) {
+            path = `${mediaData.mediaFolderPath}${path}/${mediaData.filename}`;
+          } else {
+            path = `${path}/${mediaData.filename}`;
+          }
+          console.log("THE PATH FOR THE VIDEO IS:", path);
+          if (mediaData.isBlob) {
+            //VIDEO is BLOB
+            let dataPrimary = await getBLOBData({
+              serverRequest: {
+                request:
+                  "getAttribute&type=medienverwaltung&secondOperation=getBlob&thirdOperation=primary&mediaID=" +
+                  data.mediaID,
+                path: "/includes/getAttributes.php",
+              },
+            });
+            //GET thumbnail data if enabled
+            let thumbnailURL = false;
+
+            if (mediaData.thumbnail) {
+              if (mediaData.thumbnailIsOnlineSource) {
+                let dataThumbnail = await getBLOBData({
+                  url: mediaData.thumbnailPath,
+                });
+                thumbnailURL = dataThumbnail.url;
+              } else {
+                if (mediaData.thumbnailInMediaFolder) {
+                  let dataThumbnail = await getBLOBData({
+                    url: `${mediaData.mediaFolderPath}${media.thumbnailPath}/${mediaData.thumbnailFileName}`,
+                  });
+                  thumbnailURL = dataThumbnail.url;
+                } else {
+                  if (mediaData.thumbnailIsBlob) {
+                    let dataThumbnail = await getBLOBData({
+                      serverRequest: {
+                        request:
+                          "getAttribute&type=medienverwaltung&secondOperation=getBlob&thirdOperation=thumbnail&mediaID=" +
+                          data.mediaID,
+                        path: "/includes/getAttributes.php",
+                      },
+                    });
+                    thumbnailURL = dataThumbnail.url;
+                  } else {
+                    let dataThumbnail = await getBLOBData({
+                      url: `${mediaData.thumbnailPath}/${mediaData.thumbnailFileName}`,
+                    });
+                    thumbnailURL = dataThumbnail.url;
+                  }
+                }
+              }
+            }
+
+            await setVideo(
+              mediaData.isOnlineSource,
+              showAnyway,
+              {
+                thumbnailURL: thumbnailURL,
+                primaryUrl: dataPrimary.url,
+                primaryBLOB: dataPrimary.blob,
+              },
+              container
+            );
+          } else {
+
+            await setVideo(
+              mediaData.isOnlineSource,
+              showAnyway,
+              {path: path},
+              container, mediaData
+            );
+          }
+        } else {
+          //THIRD PARTY HOSTED VIDEOS
+          let path = mediaData.path;
+          console.log("THE PATH FOR THE VIDEO IS:", path);
+          await setVideo(true, showAnyway, mediaData, container, mediaData);
+        }
+      }
+
+      if (mediaData.type === "audio") {
+        let path = mediaData.path;
+        if (!mediaData.isOnlineSource) {
+          //SELF HOSTED IMAGES
+          if (mediaData.inMediaFolder) {
+            path = `${mediaData.mediaFolderPath}${path}/${mediaData.filename}`;
+          } else {
+            path = `${path}/${mediaData.filename}`;
+          }
+          console.log("THE PATH FOR THE Audio IS:", path);
+          if (mediaData.isBlob) {
+            await setAudio(
+              mediaData.isOnlineSource,
+              showAnyway,
+              await getBLOBData({
+                serverRequest: {
+                  request:
+                    "getAttribute&type=medienverwaltung&secondOperation=getBlob&thirdOperation=primary&mediaID=" +
+                    data.mediaID,
+                  path: "/includes/getAttributes.php",
+                },
+              }),
+              container
+            );
+          } else {
+            await setAudio(
+              mediaData.isOnlineSource,
+              showAnyway,
+              await getBLOBData({ url: path }),
+              container
+            );
+          }
+        } else {
+          //THIRD PARTY HOSTED IMAGES
+          let path = mediaData.path;
+          console.log("THE PATH FOR THE IMAGE IS:", path);
+          await setAudio(
+            mediaData.isOnlineSource,
+            showAnyway,
+            {url: path},
+            container
+          );
+        }
+      }
+    } else {
+      //Source is not saved in Table - Normal Source
+
+      if (data.type === "image") {
+        //THIRD PARTY HOSTED IMAGES
+        await setImage(true, showAnyway, { url: data.url }, container);
+      } else if (data.type === "video") {
+        //THIRD PARTY HOSTED VIDEO
+        await setVideo(
+          true,
+          showAnyway,
+          {path: data.url},
+          container
+        );
+      } else if (data.type === "audio") {
+        //THIRD PARTY HOSTED IMAGES
+        await setAudio(
+          true,
+          showAnyway,
+          {url: data.url},
+          container
+        );
+      }
+    }
+
+    resolve(true);
+  });
+}
+
+function setImage(isOnlineSource, showAnyway, data, container) {
+  return new Promise(async (resolve, reject) => {
+    if (!data) resolve(false);
+    let imageContainer = document.createElement("div");
+    imageContainer.classList.add("mediaContainer", "image");
+
+    if (isOnlineSource && !showAnyway) {
+      let warnContainer = document.createElement("div");
+      warnContainer.classList.add("preventExternalMedia-warning");
+      warnContainer.setAttribute("style", "position: relative;")
+      warnContainer.innerHTML = `
+      <div class="header">Externener Inhalt</div>
+      <div class="content">Hier wird verhindert, dass externener Inhalt geladen wird. Um diesen zu laden klicke auf diese Fläche.</div>
+      <div class="footer">Typ: Bild</div>
+      `;
+
+      //Listen to click
+      warnContainer.addEventListener(
+        "click",
+        async () => {
+          warnContainer.classList.add("loading");
+          data = await getBLOBData({ url: data.url });
+          imageContainer.innerHTML = `<img src="${data.url}" alt="${data.originURL}">`;
+        },
+        { once: true }
+      );
+      imageContainer.appendChild(warnContainer);
+    } else {
+      imageContainer.innerHTML = `<img src="${data.url}" alt="${data.originURL}">`;
+    }
+    container.appendChild(imageContainer);
+    resolve(true);
+  });
+}
+
+function setVideo(
+  isOnlineSource,
+  showAnyway,
+  data,
+  container,
+  mediaData = false
+) {
+  return new Promise(async (resolve, reject) => {
+    if (!data) resolve(false);
+    let videoContainer = document.createElement("div");
+    videoContainer.classList.add("mediaContainer", "video");
+
+    if ((isOnlineSource && !showAnyway) || (mediaData.thumbnailIsOnlineSource && !showAnyway)) {
+      let warnContainer = document.createElement("div");
+      warnContainer.classList.add("preventExternalMedia-warning");
+      warnContainer.setAttribute("style", "position: relative;")
+      warnContainer.innerHTML = `
+      <div class="header">Externener Inhalt</div>
+      <div class="content">Hier wird verhindert, dass externener Inhalt geladen wird. Um diesen zu laden klicke auf diese Fläche.</div>
+      <div class="footer">Typ: Video</div>
+      `;
+
+      //Listen to click
+      warnContainer.addEventListener(
+        "click",
+        async () => {
+          warnContainer.classList.add("loading");
+          let dataPrimary = await getBLOBData({ url: data.path });
+
+          //GET thumbnail data if enabled
+          let thumbnailURL = false;
+
+          if (mediaData) {
+            if (mediaData.thumbnail) {
+              if (mediaData.thumbnailIsOnlineSource) {
+                let dataThumbnail = await getBLOBData({
+                  url: mediaData.thumbnailPath,
+                });
+                thumbnailURL = dataThumbnail.url;
+              } else {
+                if (mediaData.thumbnailInMediaFolder) {
+                  let dataThumbnail = await getBLOBData({
+                    url: `${mediaData.mediaFolderPath}${mediaData.thumbnailPath}/${mediaData.thumbnailFileName}`,
+                  });
+                  thumbnailURL = dataThumbnail.url;
+                } else {
+                  if (mediaData.thumbnailIsBlob) {
+                    let dataThumbnail = await getBLOBData({
+                      serverRequest: {
+                        request:
+                          "getAttribute&type=medienverwaltung&secondOperation=getBlob&thirdOperation=thumbnail&mediaID=" +
+                          data.mediaID,
+                        path: "/includes/getAttributes.php",
+                      },
+                    });
+                    thumbnailURL = dataThumbnail.url;
+                  } else {
+                    let dataThumbnail = await getBLOBData({
+                      url: `${mediaData.thumbnailPath}/${mediaData.thumbnailFileName}`,
+                    });
+                    thumbnailURL = dataThumbnail.url;
+                  }
+                }
+              }
+            }
+          }
+
+          data = {
+            thumbnailURL: thumbnailURL,
+            primaryUrl: dataPrimary.url,
+            primaryBLOB: dataPrimary.blob,
+          };
+
+          videoContainer.innerHTML = `
+          <video controls ${
+            data.thumbnailURL ? `poster="${data.thumbnailURL}"` : ""
+          } preload="metadata">
+            <source src="${data.primaryUrl}" type="${data.primaryBLOB.type}"/>
+            Das Video wird von deinem Browser nicht unterstützt, klicke es stattdessen an: <a href="${
+              data.url
+            }" target="_blank">Zum Video</a>
+          </video>
+          `;
+        },
+        { once: true }
+      );
+      videoContainer.appendChild(warnContainer);
+    } else {
+
+      let dataPrimary = await getBLOBData({url: data.path});
+
+          //GET thumbnail data if enabled
+          let thumbnailURL = false;
+
+          if (mediaData) {
+            if (mediaData.thumbnail) {
+              if (mediaData.thumbnailIsOnlineSource) {
+                let dataThumbnail = await getBLOBData({
+                  url: mediaData.thumbnailPath,
+                });
+                thumbnailURL = dataThumbnail.url;
+              } else {
+                if (mediaData.thumbnailInMediaFolder) {
+                  let dataThumbnail = await getBLOBData({
+                    url: `${mediaData.mediaFolderPath}${mediaData.thumbnailPath}/${mediaData.thumbnailFileName}`,
+                  });
+                  thumbnailURL = dataThumbnail.url;
+                } else {
+                  if (mediaData.thumbnailIsBlob) {
+                    let dataThumbnail = await getBLOBData({
+                      serverRequest: {
+                        request:
+                          "getAttribute&type=medienverwaltung&secondOperation=getBlob&thirdOperation=thumbnail&mediaID=" +
+                          data.mediaID,
+                        path: "/includes/getAttributes.php",
+                      },
+                    });
+                    thumbnailURL = dataThumbnail.url;
+                  } else {
+                    let dataThumbnail = await getBLOBData({
+                      url: `${mediaData.thumbnailPath}/${mediaData.thumbnailFileName}`,
+                    });
+                    thumbnailURL = dataThumbnail.url;
+                  }
+                }
+              }
+            }
+          }
+
+          data = {
+            thumbnailURL: thumbnailURL,
+            primaryUrl: dataPrimary.url,
+            primaryBLOB: dataPrimary.blob,
+          };
+
+
+      videoContainer.innerHTML = ` 
+      <video controls ${
+        data.thumbnailURL ? `poster="${data.thumbnailURL}"` : ""
+      } preload="metadata">
+        <source src="${data.primaryUrl}" type="${data.primaryBLOB.type}"/>
+        Das Video wird von deinem Browser nicht unterstützt, klicke es stattdessen an: <a href="${
+          data.url
+        }" target="_blank">Zum Video</a>
+      </video>
+      `;
+    }
+    container.appendChild(videoContainer);
+    resolve(true);
+  });
+}
+
+function setAudio(isOnlineSource, showAnyway, data, container) {
+  return new Promise(async (resolve, reject) => {
+    if (!data) resolve(false);
+    let audioContainer = document.createElement("div");
+    audioContainer.classList.add("mediaContainer", "audio");
+
+    if (isOnlineSource && !showAnyway) {
+      let warnContainer = document.createElement("div");
+      warnContainer.classList.add("preventExternalMedia-warning");
+      warnContainer.setAttribute("style", "position: relative;")
+      warnContainer.innerHTML = `
+      <div class="header">Externener Inhalt</div>
+      <div class="content">Hier wird verhindert, dass externener Inhalt geladen wird. Um diesen zu laden klicke auf diese Fläche.</div>
+      <div class="footer">Typ: Audio</div>
+      `;
+
+      //Listen to click
+      warnContainer.addEventListener(
+        "click",
+        async() => {
+          warnContainer.classList.add("loading");
+          data = await getBLOBData({url: data.url});
+          audioContainer.innerHTML = `
+          <audio controls>
+            <source src="${data.url}" type="${data.blob.type}">
+          Die Auio wird von deinem Browser nicht unterstützt, klicke sie stattdessen an: <a href="${data.url}" target="_blank">Zur Audio</a>
+            </audio>
+          `;
+        },
+        { once: true }
+      );
+      audioContainer.appendChild(warnContainer);
+    } else {
+      data = await getBLOBData({url: data.url});
+      audioContainer.innerHTML = ` 
+      <audio controls>
+      <source src="${data.url}" type="${data.blob.type}">
+    Die Auio wird von deinem Browser nicht unterstützt, klicke sie stattdessen an: <a href="${data.url}" target="_blank">Zur Audio</a>
+      </audio>
+    `;
+    }
+    container.appendChild(audioContainer);
+    resolve(true);
+  });
+}
+
+export async function getBLOBData(
+  data = {
+    serverRequest: {
+      request: "medienverwaltung&operation=other",
+      path: "/includes/data.php",
+    },
+    url: "",
+  }
+) {
+  return new Promise(async (resolve, reject) => {
+    let blob;
+    if (data.url) {
+      blob = await sendXhrREQUEST(
+        "GET",
+        false,
+        data.url,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        "blob"
+      );
+    } else if (data.serverRequest) {
+      blob = await sendXhrREQUEST(
+        "POST",
+        data.serverRequest.request,
+        data.serverRequest.path,
+        "application/x-www-form-urlencoded",
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        "blob"
+      );
+    }
+
+    let newURL = window.URL.createObjectURL(blob);
+    resolve({
+      url: newURL,
+      blob: blob,
+      originURL: data.url ?? data.serverRequest.path,
+    });
+  });
+}
+
+//online Source - mediaID
+let onlineSrc = {
+  mediaID: "1",
+  type: "image",
+};
+
+//without media ID
+let onlineSrcURL = {
+  url: "https://www.awn.com/sites/default/files/styles/original/public/image/featured/1024396-look-new-images-aardman-s-shaun-sheep-feature.jpg?itok=WFujydwD",
+  type: "image",
+  mimeType: "image/jepg",
+};
+
+//server Source
+let serverSource = {
+  mediaID: "2",
+  type: "image",
 };
