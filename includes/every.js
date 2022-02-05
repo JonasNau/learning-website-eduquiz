@@ -26,8 +26,10 @@ document.addEventListener("click", (event) => {
       let state = passwordField.getAttribute("type");
       if (state == "password" && target.checked == true) {
         passwordField.setAttribute("type", "text");
+        passwordField.classList.add("noselect");
       } else {
         passwordField.setAttribute("type", "password");
+        passwordField.classList.remove("noselect");
       }
       return true;
     }

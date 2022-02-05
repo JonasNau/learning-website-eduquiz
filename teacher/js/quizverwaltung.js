@@ -1,5 +1,5 @@
 import * as Utils from "../../../includes/utils.js";
-import { pickUsers, editQuizdata } from "./quizverwaltung.inc.js";
+import { editQuizdata } from "./quizverwaltung.inc.js";
 
 class Quizverwaltung {
   constructor(container) {
@@ -1529,7 +1529,7 @@ class Quizverwaltung {
       let addBtn = this.createdBySelectContainer.querySelector("#addBtn");
       addBtn = Utils.removeAllEventlisteners(addBtn);
       addBtn.addEventListener("click", async()=> {
-        let choosenUser = await pickUsers();
+        let choosenUser = await Utils.pickUsers();
         if (choosenUser && choosenUser.length > 0) {
           choosenUser = choosenUser[0];
           this.createdByString = choosenUser;
@@ -1546,7 +1546,7 @@ class Quizverwaltung {
         choosen.innerText = "";
       });
 
-      this.createdBySelectContainer.classList.remove("hidden");
+      this.changedBySelectContainer.classList.remove("hidden");
     } else if (filter === this.changedSelectContainer) {
       let input = this.changedSelectContainer.querySelector("#textInput");
       Utils.listenToChanges(input, "input", 450, () => {
@@ -1554,9 +1554,9 @@ class Quizverwaltung {
           this.search();
         }
       });
-      this.changedSelectContainer.classList.remove("hidden");
+      this.changedBySelectContainer.classList.remove("hidden");
     } else if (filter === this.changedBySelectContainer) {
-      let choosen = this.createdBySelectContainer.querySelector("#choosen");
+      let choosen = this.changedBySelectContainer.querySelector("#choosen");
 
       let update = async () => {
         choosen.innerHTML = "";
@@ -1578,10 +1578,10 @@ class Quizverwaltung {
       }
 
       //AddBtn
-      let addBtn = this.createdBySelectContainer.querySelector("#addBtn");
+      let addBtn = this.changedBySelectContainer.querySelector("#addBtn");
       addBtn = Utils.removeAllEventlisteners(addBtn);
       addBtn.addEventListener("click", async()=> {
-        let choosenUsers = await pickUsers();
+        let choosenUsers = await Utils.pickUsers();
         if (choosenUsers && choosenUsers.length > 0) {
           for (const current of choosenUsers) {
             this.changedBySelectArray = Utils.addToArray(this.changedBySelectArray, current, false);
@@ -1593,13 +1593,13 @@ class Quizverwaltung {
         }
       });
       //Remove
-      let removeBtn = this.createdBySelectContainer.querySelector("#removeBtn");
+      let removeBtn = this.changedBySelectContainer.querySelector("#removeBtn");
       removeBtn.addEventListener("click", async ()=> {
         this.changedBySelectArray = new Array();
           choosen.innerHTML = "";
       });
 
-      this.createdBySelectContainer.classList.remove("hidden");
+      this.changedBySelectContainer.classList.remove("hidden");
     } else if (this.filterType === "all") {
       //Nothing to activate
     }
@@ -2431,7 +2431,7 @@ class Quizverwaltung {
           current["quizId"]
         }</span><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button><button class="btn btn-sm btn-warning" style="margin: 5px;" id="generateRandomQuizId">Zufall</button></td>
         <td id="id">${current["uniqueID"]}</td>
-        <td id="showQuizAuswahl" class="${Utils.boolToString(current["showQuizAuswahl"], {"true": "angezeigt", "false": "ausgeblendet"})}"><span>${Utils.boolToString(current["showQuizAuswahl"], {"true": "angezeigt", "false": "ausgeblendet"})}
+        <td id="showQuizAuswahl" class="${Utils.boolToString(current["showQuizAuswahl"], {"true": "angezeigt", "false": "ausgeblendet"})}"><span>${Utils.boolToString(current["showQuizAuswahl"], {"true": "angezeigt", "false": "ausgeblendet"})}</span>
         <label class="switch">
               <input type="checkbox" id="checkbox">
               <span class="slider round"></span>

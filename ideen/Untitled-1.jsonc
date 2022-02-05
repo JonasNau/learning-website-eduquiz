@@ -104,16 +104,21 @@
       "type": "textInput",
       "options": {
         "caseSensitive": false,
-        "wordsJustNeedToBeIncluded": ["Dividieren", "Qual", "dreh", "um", "mal"],
+        "wordsJustNeedToBeIncluded": [
+          "Dividieren",
+          "Qual",
+          "dreh",
+          "um",
+          "mal"
+        ],
         "size": "middle"
       },
       "task": "Gebe deine Antwort ein.",
       "question": "Wie lautet ein Merksatz, um Brüche zu dividieren?",
-      "media": [
-        [
-        ]
+      "media": [[]],
+      "correctAnswers": [
+        "\"Bereitet dir das Dividieren Qual, so spricht der Bruch: ‚Dreh mich um und nimm mich mal.\""
       ],
-      "correctAnswers": ["\"Bereitet dir das Dividieren Qual, so spricht der Bruch: ‚Dreh mich um und nimm mich mal.\""],
       "points": 100
     },
     {
@@ -129,11 +134,11 @@
       "media": [
         [
           {
-            "type": "image",
-            "path": "/media/images/Erlenmyerkolben.jpg",
-            "sourceType": "image/jpg",
-            "hidden": false,
-            "isOnlineSource": false,
+            "mediaID": "1",
+            "size": "small"
+          },
+          {
+            "text": "Ich mag Kekse",
             "size": "small"
           }
         ]
@@ -226,10 +231,7 @@
       },
       "task": "Gebe deine Antwort ein.",
       "question": "Was ergibt 20 / 4",
-      "media": [
-        [
-        ]
-      ],
+      "media": [[]],
       "correctAnswers": ["Erlenmeyerkolben", "Schüttelkolben"],
       "points": 100
     }

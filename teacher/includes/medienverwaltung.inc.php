@@ -183,6 +183,9 @@ if (isset($_POST["medienverwaltung"])) {
         } else if ($type === "getAllAvailablMimeTypes") {
             echo json_encode(getAllValuesFromDatabase($conn, "medienVerwaltung", "mimeType", 0, true, true));
             die();
+        } else if ($type === "getAllAvailablMimeTypesThumbnail") {
+            echo json_encode(getAllValuesFromDatabase($conn, "medienVerwaltung", "thumbnailMimeType", 0, true, true));
+            die();
         } else if ($type === "getKeywords") {
             $searchFor = $_POST['searchFor'];
             echo json_encode(searchForKeywords($conn, $searchFor));

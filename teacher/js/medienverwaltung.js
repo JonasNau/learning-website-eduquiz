@@ -13,17 +13,34 @@ class Medienverwaltung {
 
     //Filters
     this.filterType = null;
-    this.fileNameSelectContainer = null;
+    this.filenameSelectContainer = null;
     this.descriptionSelectContainer = null;
     this.typeSelectContainer = null;
     this.choosenTypesArray = new Array();
     this.mimeTypeSelectContainer = null;
     this.choosenMimeypesArray = new Array();
+    this.pathSelectContainer = null;
     this.idSelectContainer = null;
     this.mediaIDSelectContainer = null;
     this.keyWordsSelectContainer = null;
     this.keyWordsSearchArray = new Array();
-    this.onFilesystemSelectContainer = null;
+    this.isOnlineSourceSelectContainer = null;
+    this.inMediaFolderSelectContainer = null;
+    this.uploadedSelectContainer = null;
+    this.changedSelectContainer = null;
+    this.isBlobSelectContainer = null;
+    this.thumbnailSelectContainer = null;
+    this.thumbnailIsBlobSelectContainer = null;
+    this.thumbnailFileNameSelectContainer = null;
+    this.thumbnailMimeTypeSelectContainer = null;
+    this.thumbnailChoosenMimeypesArray = new Array();
+    this.thumbnailIsOnlineSourceSelectContainer = null;
+    this.thumbnailPathSelectContainer = null;
+    this.thumbnailInMediaFolderSelectContainer = null;
+    this.uploadedBySelectContainer = null;
+    this.uploadedBySelected = false;
+    this.changedBySelectContainer = null;
+    this.changedFromArray = new Array();
 
     this.limiter = null;
 
@@ -101,43 +118,114 @@ class Medienverwaltung {
     let typeSelectContainer = selectionFiltersContainer.querySelector("#type");
     let mimeTypeSelectContainer =
       selectionFiltersContainer.querySelector("#mimeType");
+    let pathSelectContainer = selectionFiltersContainer.querySelector("#path");
     let idSelectContainer = selectionFiltersContainer.querySelector("#id");
     let mediaIDSelectContainer =
       selectionFiltersContainer.querySelector("#mediaID");
     let keyWordsSelectContainer =
       selectionFiltersContainer.querySelector("#keywords");
-    let onFilesystemSelectContainer =
-      selectionFiltersContainer.querySelector("#onFilesystem");
+    let isOnlineSourceSelectContainer =
+      selectionFiltersContainer.querySelector("#isOnlineSource");
+    let inMediaFolderSelectContainer =
+      selectionFiltersContainer.querySelector("#inMediaFolder");
+    let uploadedSelectContainer =
+      selectionFiltersContainer.querySelector("#uploaded");
+    let changedSelectContainer =
+      selectionFiltersContainer.querySelector("#changed");
+    let isBlobSelectContainer =
+      selectionFiltersContainer.querySelector("#isBlob");
+    let thumbnailSelectContainer =
+      selectionFiltersContainer.querySelector("#thumbnail");
+    let thumbnailIsBlobSelectContainer =
+      selectionFiltersContainer.querySelector("#thumbnailIsBlob");
+    let thumbnailFileNameSelectContainer =
+      selectionFiltersContainer.querySelector("#thumbnailFileName");
+    let thumbnailMimeTypeSelectContainer =
+      selectionFiltersContainer.querySelector("#thumbnailMimeType");
+    let thumbnailisOnlineSourceSelectContainer =
+      selectionFiltersContainer.querySelector("#thumbnailIsOnlineSource");
+    let thumbnailPathSelectContainer =
+      selectionFiltersContainer.querySelector("#thumbnailPath");
+    let thumbnailInMediaFolderSelectContainer =
+      selectionFiltersContainer.querySelector("#thumbnailInMediaFolder");
+    let uploadedBySelectContainer =
+      selectionFiltersContainer.querySelector("#uploadedBy");
+    let changedBySelectContainer =
+      selectionFiltersContainer.querySelector("#changedBy");
 
     if (
       !filenameSelectContainer ||
       !descriptionSelectContainer ||
       !typeSelectContainer ||
       !mimeTypeSelectContainer ||
+      !pathSelectContainer ||
       !idSelectContainer ||
       !mediaIDSelectContainer ||
       !keyWordsSelectContainer ||
-      !onFilesystemSelectContainer
+      !isOnlineSourceSelectContainer ||
+      !inMediaFolderSelectContainer ||
+      !uploadedSelectContainer ||
+      !changedSelectContainer ||
+      !isBlobSelectContainer ||
+      !thumbnailSelectContainer ||
+      !thumbnailIsBlobSelectContainer ||
+      !thumbnailFileNameSelectContainer ||
+      !thumbnailMimeTypeSelectContainer ||
+      !thumbnailisOnlineSourceSelectContainer ||
+      !thumbnailPathSelectContainer ||
+      !thumbnailInMediaFolderSelectContainer ||
+      !uploadedBySelectContainer ||
+      !changedBySelectContainer
     )
       return "Error in initializing Filters";
-    this.fileNameSelectContainer = filenameSelectContainer;
+    this.filenameSelectContainer = filenameSelectContainer;
     this.descriptionSelectContainer = descriptionSelectContainer;
     this.typeSelectContainer = typeSelectContainer;
     this.mimeTypeSelectContainer = mimeTypeSelectContainer;
+    this.pathSelectContainer = pathSelectContainer;
     this.idSelectContainer = idSelectContainer;
     this.mediaIDSelectContainer = mediaIDSelectContainer;
     this.keyWordsSelectContainer = keyWordsSelectContainer;
-    this.onFilesystemSelectContainer = onFilesystemSelectContainer;
+    this.isOnlineSourceSelectContainer = isOnlineSourceSelectContainer;
+    this.inMediaFolderSelectContainer = inMediaFolderSelectContainer;
+    this.uploadedSelectContainer = uploadedSelectContainer;
+    this.changedSelectContainer = changedSelectContainer;
+    this.isBlobSelectContainer = isBlobSelectContainer;
+    this.thumbnailSelectContainer = thumbnailSelectContainer;
+    this.thumbnailIsBlobSelectContainer = thumbnailIsBlobSelectContainer;
+    this.thumbnailFileNameSelectContainer = thumbnailFileNameSelectContainer;
+    this.thumbnailMimeTypeSelectContainer = thumbnailMimeTypeSelectContainer;
+    this.thumbnailIsOnlineSourceSelectContainer =
+      thumbnailisOnlineSourceSelectContainer;
+    this.thumbnailPathSelectContainer = thumbnailPathSelectContainer;
+    this.thumbnailInMediaFolderSelectContainer =
+      thumbnailInMediaFolderSelectContainer;
+    this.uploadedBySelectContainer = uploadedBySelectContainer;
+    this.changedBySelectContainer = changedBySelectContainer;
 
     //hide all
-    this.fileNameSelectContainer.classList.add("hidden");
+    this.filenameSelectContainer.classList.add("hidden");
     this.descriptionSelectContainer.classList.add("hidden");
     this.typeSelectContainer.classList.add("hidden");
     this.mimeTypeSelectContainer.classList.add("hidden");
+    this.pathSelectContainer.classList.add("hidden");
     this.idSelectContainer.classList.add("hidden");
     this.mediaIDSelectContainer.classList.add("hidden");
     this.keyWordsSelectContainer.classList.add("hidden");
-    this.onFilesystemSelectContainer.classList.add("hidden");
+    this.isOnlineSourceSelectContainer.classList.add("hidden");
+    this.inMediaFolderSelectContainer.classList.add("hidden");
+    this.uploadedSelectContainer.classList.add("hidden");
+    this.changedSelectContainer.classList.add("hidden");
+    this.isBlobSelectContainer.classList.add("hidden");
+    this.thumbnailSelectContainer.classList.add("hidden");
+    this.thumbnailIsBlobSelectContainer.classList.add("hidden");
+    this.thumbnailFileNameSelectContainer.classList.add("hidden");
+    this.thumbnailMimeTypeSelectContainer.classList.add("hidden");
+    this.thumbnailIsOnlineSourceSelectContainer.classList.add("hidden");
+    this.thumbnailPathSelectContainer.classList.add("hidden");
+    this.thumbnailInMediaFolderSelectContainer.classList.add("hidden");
+    this.uploadedBySelectContainer.classList.add("hidden");
+    this.changedBySelectContainer.classList.add("hidden");
 
     //Init limiter
     let limiter = selectionFiltersContainer.querySelector(
@@ -280,7 +368,7 @@ class Medienverwaltung {
     let addBtn = this.container.querySelector("#addBtn");
     if (!addBtn) return "no addBtn";
 
-    //ADD FILE TO FILESYSTEM
+    //ADD Media
     addBtn.addEventListener("click", async () => {
       if (
         !(await Utils.userHasPermissions(
@@ -323,43 +411,99 @@ class Medienverwaltung {
   setFilterMode(value) {
     this.searchBtn.classList.remove("loading");
     //hide all
-    this.fileNameSelectContainer.classList.add("hidden");
+    this.filenameSelectContainer.classList.add("hidden");
     this.descriptionSelectContainer.classList.add("hidden");
     this.typeSelectContainer.classList.add("hidden");
     this.mimeTypeSelectContainer.classList.add("hidden");
+    this.pathSelectContainer.classList.add("hidden");
     this.idSelectContainer.classList.add("hidden");
     this.mediaIDSelectContainer.classList.add("hidden");
     this.keyWordsSelectContainer.classList.add("hidden");
-    this.onFilesystemSelectContainer.classList.add("hidden");
+    this.isOnlineSourceSelectContainer.classList.add("hidden");
+    this.inMediaFolderSelectContainer.classList.add("hidden");
+    this.uploadedSelectContainer.classList.add("hidden");
+    this.changedSelectContainer.classList.add("hidden");
+    this.isBlobSelectContainer.classList.add("hidden");
+    this.thumbnailSelectContainer.classList.add("hidden");
+    this.thumbnailIsBlobSelectContainer.classList.add("hidden");
+    this.thumbnailFileNameSelectContainer.classList.add("hidden");
+    this.thumbnailMimeTypeSelectContainer.classList.add("hidden");
+    this.thumbnailIsOnlineSourceSelectContainer.classList.add("hidden");
+    this.thumbnailPathSelectContainer.classList.add("hidden");
+    this.thumbnailInMediaFolderSelectContainer.classList.add("hidden");
+    this.uploadedBySelectContainer.classList.add("hidden");
+    this.changedBySelectContainer.classList.add("hidden");
 
     if (!value) return false;
     this.filterType = value;
 
     if (value === "filename") {
-      this.enableFilter(this.fileNameSelectContainer);
+      this.enableFilter(this.filenameSelectContainer);
     } else if (value === "description") {
       this.enableFilter(this.descriptionSelectContainer);
     } else if (value === "type") {
       this.enableFilter(this.typeSelectContainer);
     } else if (value === "mimeType") {
       this.enableFilter(this.mimeTypeSelectContainer);
+    } else if (value === "path") {
+      this.enableFilter(this.pathSelectContainer);
     } else if (value === "id") {
       this.enableFilter(this.idSelectContainer);
     } else if (value === "mediaID") {
       this.enableFilter(this.mediaIDSelectContainer);
     } else if (value === "keywords") {
       this.enableFilter(this.keyWordsSelectContainer);
-    } else if (value === "onFilesystem") {
-      this.enableFilter(this.onFilesystemSelectContainer);
+    } else if (value === "isOnlineSource") {
+      this.enableFilter(this.isOnlineSourceSelectContainer);
+    } else if (value === "inMediaFolder") {
+      this.enableFilter(this.inMediaFolderSelectContainer);
+    } else if (value === "uploaded") {
+      this.enableFilter(this.uploadedSelectContainer);
+    } else if (value === "changed") {
+      this.enableFilter(this.changedSelectContainer);
+    } else if (value === "isBlob") {
+      this.enableFilter(this.isBlobSelectContainer);
+    } else if (value === "thumbnail") {
+      this.enableFilter(this.thumbnailSelectContainer);
+    } else if (value === "thumbnailIsBlob") {
+      this.enableFilter(this.thumbnailIsBlobSelectContainer);
+    } else if (value === "thumbnailFileName") {
+      this.enableFilter(this.thumbnailFileNameSelectContainer);
+    } else if (value === "thumbnailMimeType") {
+      this.enableFilter(this.thumbnailMimeTypeSelectContainer);
+    } else if (value === "thumbnailIsOnlineSource") {
+      this.enableFilter(this.thumbnailIsOnlineSourceSelectContainer);
+    } else if (value === "thumbnailPath") {
+      this.enableFilter(this.thumbnailPathSelectContainer);
+    } else if (value === "thumbnailInMediaFolder") {
+      this.enableFilter(this.thumbnailInMediaFolderSelectContainer);
+    } else if (value === "uploadedBy") {
+      this.enableFilter(this.uploadedBySelectContainer);
+    } else if (value === "changedBy") {
+      this.enableFilter(this.changedBySelectContainer);
     } else if (value === "multiple") {
-      this.enableFilter(this.fileNameSelectContainer);
+      this.enableFilter(this.filenameSelectContainer);
       this.enableFilter(this.descriptionSelectContainer);
       this.enableFilter(this.typeSelectContainer);
       this.enableFilter(this.mimeTypeSelectContainer);
       this.enableFilter(this.idSelectContainer);
       this.enableFilter(this.mediaIDSelectContainer);
       this.enableFilter(this.keyWordsSelectContainer);
-      this.enableFilter(this.onFilesystemSelectContainer);
+      this.enableFilter(this.isOnlineSourceSelectContainer);
+      this.enableFilter(this.inMediaFolderSelectContainer);
+      this.enableFilter(this.uploadedSelectContainer);
+      this.enableFilter(this.changedSelectContainer);
+      this.enableFilter(this.isBlobSelectContainer);
+      this.enableFilter(this.thumbnailSelectContainer);
+      this.enableFilter(this.thumbnailIsBlobSelectContainer);
+      this.enableFilter(this.thumbnailFileNameSelectContainer);
+      this.enableFilter(this.thumbnailMimeTypeSelectContainer);
+      this.enableFilter(this.thumbnailIsOnlineSourceSelectContainer);
+      this.enableFilter(this.thumbnailPathSelectContainer);
+      this.enableFilter(this.thumbnailInMediaFolderSelectContainer);
+      this.enableFilter(this.uploadedBySelectContainer);
+      this.enableFilter(this.changedBySelectContainer);
+    } else if (value === "multiple") {
     } else if (value === "all") {
       //Nothing to show
     } else {
@@ -370,15 +514,15 @@ class Medienverwaltung {
   async enableFilter(filter) {
     if (!filter) return false;
 
-    if (filter === this.fileNameSelectContainer) {
+    if (filter === this.filenameSelectContainer) {
       //name
-      let textInput = this.fileNameSelectContainer.querySelector("#textInput");
+      let textInput = this.filenameSelectContainer.querySelector("#textInput");
       Utils.listenToChanges(textInput, "input", 450, () => {
         if (this.searchWhileTyping) {
           this.search();
         }
       });
-      this.fileNameSelectContainer.classList.remove("hidden");
+      this.filenameSelectContainer.classList.remove("hidden");
     } else if (filter === this.descriptionSelectContainer) {
       //description
       let textInput =
@@ -530,6 +674,15 @@ class Medienverwaltung {
         add();
       });
       this.mimeTypeSelectContainer.classList.remove("hidden");
+    } else if (filter === this.pathSelectContainer) {
+      //path
+      let textInput = this.pathSelectContainer.querySelector("#textInput");
+      Utils.listenToChanges(textInput, "input", 450, () => {
+        if (this.searchWhileTyping) {
+          this.search();
+        }
+      });
+      this.pathSelectContainer.classList.remove("hidden");
     } else if (filter === this.idSelectContainer) {
       //id
       let numberInput = this.idSelectContainer.querySelector("#numberInput");
@@ -605,8 +758,9 @@ class Medienverwaltung {
         add();
       });
       this.keyWordsSelectContainer.classList.remove("hidden");
-    } else if (filter === this.onFilesystemSelectContainer) {
-      let list = this.onFilesystemSelectContainer.querySelector("#selectInput");
+    } else if (filter === this.isOnlineSourceSelectContainer) {
+      let list =
+        this.isOnlineSourceSelectContainer.querySelector("#selectInput");
       list = Utils.removeAllEventlisteners(list);
       list.addEventListener("change", () => {
         if (this.searchWhileTyping) {
@@ -614,8 +768,258 @@ class Medienverwaltung {
         }
       });
 
-      this.onFilesystemSelectContainer.classList.remove("hidden");
+      this.isOnlineSourceSelectContainer.classList.remove("hidden");
+    } else if (filter === this.inMediaFolderSelectContainer) {
+      let list =
+        this.inMediaFolderSelectContainer.querySelector("#selectInput");
+      list = Utils.removeAllEventlisteners(list);
+      list.addEventListener("change", () => {
+        if (this.searchWhileTyping) {
+          this.search();
+        }
+      });
+
+      this.inMediaFolderSelectContainer.classList.remove("hidden");
+    } else if (filter === this.uploadedSelectContainer) {
+      //uploaded
+      let textInput = this.uploadedSelectContainer.querySelector("#textInput");
+      Utils.listenToChanges(textInput, "input", 450, () => {
+        if (this.searchWhileTyping) {
+          this.search();
+        }
+      });
+      this.uploadedSelectContainer.classList.remove("hidden");
+    } else if (filter === this.uploadedBySelectContainer) {
+      let choosen = this.uploadedBySelectContainer.querySelector("#choosen");
+      //AddBtn
+      let addBtn = this.uploadedBySelectContainer.querySelector("#addBtn");
+      addBtn = Utils.removeAllEventlisteners(addBtn);
+      addBtn.addEventListener("click", async () => {
+        let choosenUser = await Utils.pickUsers();
+        if (choosenUser && choosenUser.length > 0) {
+          choosenUser = choosenUser[0];
+          this.uploadedBySelected = choosenUser;
+          choosen.innerHTML = `Nutzer mit der userID: <b>${choosenUser}</b>`;
+        } else {
+          this.uploadedBySelected = false;
+          choosen.innerText = "";
+        }
+      });
+      //Remove
+      let removeBtn =
+        this.uploadedBySelectContainer.querySelector("#removeBtn");
+      removeBtn.addEventListener("click", async () => {
+        this.uploadedBySelected = false;
+        choosen.innerText = "";
+      });
+
+      this.uploadedBySelectContainer.classList.remove("hidden");
+    } else if (filter === this.changedSelectContainer) {
+      //uploaded
+      let textInput = this.uploadedSelectContainer.querySelector("#textInput");
+      Utils.listenToChanges(textInput, "input", 450, () => {
+        if (this.searchWhileTyping) {
+          this.search();
+        }
+      });
+      this.uploadedSelectContainer.classList.remove("hidden");
+    } else if (filter === this.changedBySelectContainer) {
+      let choosen = this.changedBySelectContainer.querySelector("#choosen");
+
+      let update = async () => {
+        choosen.innerHTML = "";
+        if (this.changedBySelectArray && this.changedBySelectArray.length > 0) {
+          let ul = document.createElement("ul");
+          choosen.appendChild(ul);
+          for (const current of this.changedBySelectArray) {
+            let li = document.createElement("li");
+            li.innerHTML = `Benutzer | userID: <b>${current}</b> <button type="button" id="remove">X</button>`;
+            ul.appendChild(li);
+
+            let removeBtn = li.querySelector("#remove");
+            removeBtn.addEventListener("click", async () => {
+              this.changedBySelectArray = Utils.removeFromArray(
+                this.changedBySelectArray,
+                current
+              );
+              update();
+            });
+          }
+        }
+      };
+
+      //AddBtn
+      let addBtn = this.changedBySelectContainer.querySelector("#addBtn");
+      addBtn = Utils.removeAllEventlisteners(addBtn);
+      addBtn.addEventListener("click", async () => {
+        let choosenUsers = await Utils.pickUsers();
+        if (choosenUsers && choosenUsers.length > 0) {
+          for (const current of choosenUsers) {
+            this.changedBySelectArray = Utils.addToArray(
+              this.changedBySelectArray,
+              current,
+              false
+            );
+          }
+          update();
+        } else {
+          this.changedBySelectArray = new Array();
+          choosen.innerHTML = "";
+        }
+      });
+      //Remove
+      let removeBtn = this.changedBySelectContainer.querySelector("#removeBtn");
+      removeBtn.addEventListener("click", async () => {
+        this.changedBySelectArray = new Array();
+        choosen.innerHTML = "";
+      });
+
+      this.changedBySelectContainer.classList.remove("hidden");
+    } else if (filter == this.isBlobSelectContainer) {
+      let list = this.isBlobSelectContainer.querySelector("#selectInput");
+      list = Utils.removeAllEventlisteners(list);
+      list.addEventListener("change", () => {
+        if (this.searchWhileTyping) {
+          this.search();
+        }
+      });
+
+      this.isBlobSelectContainer.classList.remove("hidden");
+    } else if (filter == this.thumbnailSelectContainer) {
+      let list = this.thumbnailSelectContainer.querySelector("#selectInput");
+      list = Utils.removeAllEventlisteners(list);
+      list.addEventListener("change", () => {
+        if (this.searchWhileTyping) {
+          this.search();
+        }
+      });
+
+      this.thumbnailSelectContainer.classList.remove("hidden");
+    } else if (filter == this.thumbnailIsBlobSelectContainer) {
+      let list =
+        this.thumbnailIsBlobSelectContainer.querySelector("#selectInput");
+      list = Utils.removeAllEventlisteners(list);
+      list.addEventListener("change", () => {
+        if (this.searchWhileTyping) {
+          this.search();
+        }
+      });
+
+      this.thumbnailIsBlobSelectContainer.classList.remove("hidden");
+    } else if (filter === this.thumbnailFileNameSelectContainer) {
+      //thumbnail filename
+      let textInput = this.thumbnailFileNameSelectContainer.querySelector("#textInput");
+      Utils.listenToChanges(textInput, "input", 450, () => {
+        if (this.searchWhileTyping) {
+          this.search();
+        }
+      });
+      this.thumbnailFileNameSelectContainer.classList.remove("hidden");
+    } else if (filter === this.thumbnailMimeTypeSelectContainer) {
+      //type select
+      this.thumbnailChoosenMimeypesArray = new Array();
+      let choosenContainer =
+        this.thumbnailMimeTypeSelectContainer.querySelector("#choosen");
+
+      let add = async () => {
+        let types = await Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "medienverwaltung&operation=other&type=getAllAvailablMimeTypesThumbnail",
+            "./includes/medienverwaltung.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            false,
+            true,
+            true
+          )
+        );
+
+        let choosen = await Utils.chooseFromArrayWithSearch(
+          types,
+          false,
+          "Inhaltstyp auswählen",
+          this.thumbnailChoosenMimeypesArray,
+          true
+        );
+        if (choosen && choosen.length > 0) {
+          for (const current of choosen) {
+            this.thumbnailChoosenMimeypesArray = Utils.addToArray(
+              this.thumbnailChoosenMimeypesArray,
+              current,
+              false
+            );
+          }
+          update();
+          if (this.searchWhileTyping) {
+            this.search();
+          }
+        }
+      };
+
+      let update = () => {
+        //Update Choosen
+        choosenContainer.innerHTML = "";
+        if (this.thumbnailChoosenMimeypesArray.length > 0) {
+          this.thumbnailChoosenMimeypesArray.forEach((element) => {
+            let listItem = document.createElement("li");
+
+            listItem.setAttribute("data-value", element);
+            listItem.innerHTML = `<span>${element}</span><button type="button" id="remove">X</button>`;
+            choosenContainer.appendChild(listItem);
+            let removeBtn = listItem.querySelector("#remove");
+            removeBtn.addEventListener("click", (event) => {
+              this.thumbnailChoosenMimeypesArray = Utils.removeFromArray(
+                this.thumbnailChoosenMimeypesArray,
+                element
+              );
+              update();
+              console.log("After", this.thumbnailChoosenMimeypesArray);
+            });
+          });
+        }
+      };
+
+      let addBtn = this.thumbnailMimeTypeSelectContainer.querySelector("#addBtn");
+      addBtn = Utils.removeAllEventlisteners(addBtn);
+      addBtn.addEventListener("click", () => {
+        add();
+      });
+      this.thumbnailMimeTypeSelectContainer.classList.remove("hidden");
+    } else if (filter === this.thumbnailIsOnlineSourceSelectContainer) {
+      let list =
+        this.thumbnailIsOnlineSourceSelectContainer.querySelector("#selectInput");
+      list = Utils.removeAllEventlisteners(list);
+      list.addEventListener("change", () => {
+        if (this.searchWhileTyping) {
+          this.search();
+        }
+      });
+
+      this.thumbnailIsOnlineSourceSelectContainer.classList.remove("hidden");
+    } else if (filter === this.thumbnailPathSelectContainer) {
+      //name
+      let textInput = this.thumbnailPathSelectContainer.querySelector("#textInput");
+      Utils.listenToChanges(textInput, "input", 450, () => {
+        if (this.searchWhileTyping) {
+          this.search();
+        }
+      });
+      this.thumbnailPathSelectContainer.classList.remove("hidden");
+    } else if (filter === this.thumbnailInMediaFolderSelectContainer) {
+      let list =
+        this.thumbnailInMediaFolderSelectContainer.querySelector("#selectInput");
+      list = Utils.removeAllEventlisteners(list);
+      list.addEventListener("change", () => {
+        if (this.searchWhileTyping) {
+          this.search();
+        }
+      });
+
+      this.thumbnailInMediaFolderSelectContainer.classList.remove("hidden");
     }
+
+    console.log(filter)
   }
 
   async search() {

@@ -163,7 +163,7 @@ if (userHasPermissions($conn, $userID, ["accessBerechtigungsverwaltung" => 1])) 
                             </div>
                             <div class="mt-2" id="changed">
                                 <label for="textInput" class="form-label">Filtern nach Änderungsdatum</label>
-                                <input type="text" id="textInput" class="form-control" placeholder="z.B. 12.01.2022" autocomplete="off">
+                                <input type="text" id="textInput" class="form-control" placeholder="z.B. 12-01-2022" autocomplete="off">
                             </div>
                             <div class="mt-2" id="changedBy">
                                 <label for="addBtn" class="form-label">Filtern nach "bearbeitet von"</label>

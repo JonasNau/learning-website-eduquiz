@@ -36,13 +36,26 @@ if (userHasPermissions($conn, $userID, ["accessMediaVerwaltung" => gnVP($conn, "
                                 <option data-value="description">Beschreibung</option>
                                 <option data-value="type">Medientyp (Bild, Video, Audio)</option>
                                 <option data-value="mimeType">Inhaltstyp (Content-Type / MIME-Type)</option>
+                                <option data-value="path">Pfad / URL</option>
                                 <option data-value="id">id</option>
                                 <option data-value="mediaID">MediaID</option>
                                 <option data-value="keywords">Schlüsselwörter</option>
-                                <option data-value="onFilesystem">auf dem Dateisystem (nicht als BLOB in Datenbank)</option>
+                                <option data-value="isOnlineSource">ist eine Onlinequelle</option>
+                                <option data-value="inMediaFolder">Im Media-Ordner</option>
+                                <option data-value="uploaded">Hochgeladen am / um</option>
+                                <option data-value="changed">Geändert am / um</option>
+                                <option data-value="isBlob">ist "BLOB"</option>
+                                <option data-value="thumbnail">Vorschaubild vorhanden (Nur bei Videos)</option>
+                                <option data-value="thumbnailIsBlob">Vorschaubild ist "BLOB"</option>
+                                <option data-value="thumbnailFileName">Vorschaubild - Dateiname</option>
+                                <option data-value="thumbnailMimeType">Vorschaubild - MIME-Type</option>
+                                <option data-value="thumbnailIsOnlineSource">Vorschaubild - ist eine Onlinequelle</option>
+                                <option data-value="thumbnailPath">Vorschaubild - Dateipfad / URL</option>
+                                <option data-value="thumbnailInMediaFolder">Vorschaubild - Im Media-Ordner</option>
+                                <option data-value="uploadedBy">Hochgeladen von</option>
+                                <option data-value="changedBy">Geändert von</option>
                                 <option data-value="multiple">mehreres</option>
                                 <option data-value="all">Alle anzeigen</option>
-                                <!-- Later on add feature to filter by image -->
                             </select>
                         </div>
                         <div class="selectionFilters">
@@ -61,14 +74,18 @@ if (userHasPermissions($conn, $userID, ["accessMediaVerwaltung" => gnVP($conn, "
                                 <input type="text" id="textInput" class="form-control" placeholder="z.B. leerer Erlenmeyerkolben auf einem Tisch" autocomplete="off">
                             </div>
                             <div class="mt-2" id="type">
-                            <label for="addBtn" class="form-label">Filtern nach Typ</label>
+                                <label for="addBtn" class="form-label">Filtern nach Typ</label>
                                 <button type="button" class="btn btn-primary" id="addBtn">Typ hinzufügen</button>
                                 <div id="choosen"></div>
                             </div>
                             <div class="mt-2" id="mimeType">
                                 <label for="selectInput" class="form-label">Filtern nach Inhaltstyp (MIME-Type)</label>
-                                <button type="button" class="btn btn-primary" id="addBtn">Schlüsselwort hinzufügen</button>
+                                <button type="button" class="btn btn-primary" id="addBtn">Inhaltstyp hinzufügen</button>
                                 <div id="choosen"></div>
+                            </div>
+                            <div class="mt-2" id="path">
+                                <label for="textInput" class="form-label">Filtern nach Dateipfad / URL</label>
+                                <input type="text" id="textInput" class="form-control" placeholder="z.B. https://wikipedia.org/..." autocomplete="off">
                             </div>
                             <div class="mt-2" id="id">
                                 <label for="numberInput" class="form-label">Filtern nach id (Fester Wert, der in Aufsteigender Reihenfolge bei Erstellung von Berechtigungen generiert wird.)</label>
@@ -83,12 +100,94 @@ if (userHasPermissions($conn, $userID, ["accessMediaVerwaltung" => gnVP($conn, "
                                 <button type="button" class="btn btn-primary" id="addBtn">Schlüsselwort hinzufügen</button>
                                 <div id="choosen"></div>
                             </div>
-                            <div class="mt-2" id="onFilesystem">
-                                <label for="selectInput" class="form-label">Filtern nach "auf dem Dateisystem"</label>
+                            <div class="mt-2" id="isOnlineSource">
+                                <label for="selectInput" class="form-label">Filtern nach "ist eine Oninequelle"</label>
                                 <select class="form-select" aria-label="Typ Filter Auswahl" id="selectInput">
+                                    <option data-value="">Auswahl</option>
                                     <option data-value="1">Ja</option>
                                     <option data-value="0">Nein</option>
                                 </select>
+                            </div>
+                            <div class="mt-2" id="inMediaFolder">
+                                <label for="selectInput" class="form-label">Filtern nach "Im Media-Ordner"</label>
+                                <select class="form-select" aria-label="Typ Filter Auswahl" id="selectInput">
+                                    <option data-value="">Auswahl</option>
+                                    <option data-value="1">Ja</option>
+                                    <option data-value="0">Nein</option>
+                                </select>
+                            </div>
+                            <div class="mt-2" id="isBlob">
+                                <label for="selectInput" class="form-label">Filtern nach "ist BLOB"</label>
+                                <select class="form-select" aria-label="Typ Filter Auswahl" id="selectInput">
+                                    <option data-value="">Auswahl</option>
+                                    <option data-value="1">Ja</option>
+                                    <option data-value="0">Nein</option>
+                                </select>
+                            </div>
+                            <div class="mt-2" id="thumbnail">
+                                <label for="selectInput" class="form-label">Filtern nach "Vorschaubild vorhanden (Nur bei Videos)"</label>
+                                <select class="form-select" aria-label="Typ Filter Auswahl" id="selectInput">
+                                    <option data-value="">Auswahl</option>
+                                    <option data-value="1">Ja</option>
+                                    <option data-value="0">Nein</option>
+                                </select>
+                            </div>
+                            <div class="mt-2" id="thumbnailIsBlob">
+                                <label for="selectInput" class="form-label">Filtern nach "Vorschaubildist BLOB"</label>
+                                <select class="form-select" aria-label="Typ Filter Auswahl" id="selectInput">
+                                    <option data-value="">Auswahl</option>
+                                    <option data-value="1">Ja</option>
+                                    <option data-value="0">Nein</option>
+                                </select>
+                            </div>
+                            <div class="mt-2" id="thumbnailFileName">
+                                <label for="textInput" class="form-label">Filtern nach "Vorschaubild - Dateiname"</label>
+                                <input type="text" id="textInput" class="form-control" placeholder="z.B. Erlenmeyerkolben-preview.png" autocomplete="off">
+                            </div>
+                            <div class="mt-2" id="thumbnailMimeType">
+                                <label for="selectInput" class="form-label">Filtern nach Vorschaubild - Inhaltstyp (MIME-Type)</label>
+                                <button type="button" class="btn btn-primary" id="addBtn">Inhaltstyp hinzufügen</button>
+                                <div id="choosen"></div>
+                            </div>
+                            <div class="mt-2" id="thumbnailIsOnlineSource">
+                                <label for="selectInput" class="form-label">Filtern nach "Vorschaubild - ist eine Oninequelle"</label>
+                                <select class="form-select" aria-label="Typ Filter Auswahl" id="selectInput">
+                                    <option data-value="">Auswahl</option>
+                                    <option data-value="1">Ja</option>
+                                    <option data-value="0">Nein</option>
+                                </select>
+                            </div>
+                            <div class="mt-2" id="thumbnailPath">
+                                <label for="textInput" class="form-label">Filtern nach Vorschaubild - Dateipfad / URL</label>
+                                <input type="text" id="textInput" class="form-control" placeholder="z.B. https://wikipedia.org/..." autocomplete="off">
+                            </div>
+                            <div class="mt-2" id="thumbnailInMediaFolder">
+                                <label for="selectInput" class="form-label">Filtern nach "Vorschaubild - Im Media-Ordner"</label>
+                                <select class="form-select" aria-label="Typ Filter Auswahl" id="selectInput">
+                                    <option data-value="">Auswahl</option>
+                                    <option data-value="1">Ja</option>
+                                    <option data-value="0">Nein</option>
+                                </select>
+                            </div>
+                            <div class="mt-2" id="uploaded">
+                                <label for="textInput" class="form-label">Filtern nach "Hochgeladen am / um"</label>
+                                <input type="text" id="textInput" class="form-control" placeholder="z.B. 05-02-2022 12:00:21.2432423" autocomplete="off">
+                            </div>
+                            <div class="mt-2" id="uploadedBy">
+                                <label for="addBtn" class="form-label">Filtern nach "erstellt von"</label>
+                                <button class="btn btn-sm btn-primary" id="addBtn">Auswahl</button>
+                                <button class="btn btn-sm btn-danger" id="removeBtn">Entfernen</button>
+                                <div id="choosen"></div>
+                            </div>
+                            <div class="mt-2" id="changed">
+                                <label for="textInput" class="form-label">Filtern nach "Geändert am / um"</label>
+                                <input type="text" id="textInput" class="form-control" placeholder="z.B. 06-02-2022 12:00:21.2432423" autocomplete="off">
+                            </div>
+                            <div class="mt-2" id="changedBy">
+                                <label for="addBtn" class="form-label">Filtern nach "bearbeitet von"</label>
+                                <button class="btn btn-sm btn-primary" id="addBtn">Auswahl</button>
+                                <button class="btn btn-sm btn-danger" id="removeBtn">Entfernen</button>
+                                <div id="choosen"></div>
                             </div>
                             <div class="mt-2" id="limitResults">
                                 <label for="numberInput" class="form-label">Ergebnisse Limitieren</label>
@@ -111,38 +210,55 @@ if (userHasPermissions($conn, $userID, ["accessMediaVerwaltung" => gnVP($conn, "
                                         <div><input type="checkbox" id="chooseall"> Alle auswählen</div>
                                     </th>
                                     <th id="data">Daten</th>
-                                    <th id="fileName" style="min-width: 200px;">Dateiname</th>
                                     <th id="description" style="min-width: 300px;">Beschreibung</td>
+                                    <th id="keywords" style="min-width: 200px;">Schlüsselwörter</th>
+                                    <th id="isOnlineSource">Ist eine Onlinequelle</th>
                                     <th id="type">Typ</th>
                                     <th id="mimeType">Inhaltstyp (MIME-Type)</th>
+                                    <th id="isBlob">Ist BLOB (direkt in der Datenbank)</th>
+                                    <th id="path" style="min-width: 200px;">Pfad / URL</th>
+                                    <th id="inMediaFolder">Im Media-Ordner</th>
+                                    <th id="uploaded">Hochgeladen am / um</th>
+                                    <th id="changed">Geändert am / um</th>
+                                    <th id="filename" style="min-width: 200px;">Dateiname</th>
                                     <th id="id">id</th>
                                     <th id="mediaID">mediaID</th>
-                                    <th id="keywords" style="min-width: 200px;">Schlüsselwörter</th>
-                                    <th id="thumbnail">Miniaturansicht</th>
+                                    <th id="thumbnail">Hat eine Miniaturansicht (Nur bei Videos)</th>
+                                    <th id="thumbnailData">Miniaturansicht</th>
                                     <th id="thumbnailFileName">Miniaturansicht - Dateiname</th>
                                     <th id="thumbnailMimeType">Miniaturansicht - Inhaltstyp (MIME-Type)</th>
-                                    <th id="onFilesystem">Auf dem Dateisystem</th>
+                                    <th id="thumbnailIsOnlineSource">Miniaturansicht - Ist eine Onlinequelle</th>
+                                    <th id="thumbnailIsBlob">Miniaturansicht - Ist BLOB</th>
+                                    <th id="thumbnailPath">Miniaturansicht - Pfad / URL</th>
+                                    <th id="thumbnailInMediaFolder">Miniaturansicht - Pfad / URL</th>
                                     <th id="fileSize">Dateigröße</th>
-                                    <th id="uploaded">Hochgeladen</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td class="select"><input type="checkbox" id="select"><button id="chooseOnly"><img src="../../images/icons/stift.svg" alt="Auswahl"></button></td>
-                                    <td id="data"><img src="../../images/logo.png"></td>
-                                    <td id="fileName">Erlenmeyerkolben-01.jpg</td>
-                                    <td id="description">Erlenmeyerkolben auf einem Tisch.</td>
-                                    <td id="type">Bild</td>
-                                    <td id="mimeType">image/jepg</td>
-                                    <td id="id">1</td>
+                                    <td id="description" style="min-width: 300px;">Beschreibung</td>
+                                    <td id="keywords" style="min-width: 200px;">Schlüsselwörter</td>
+                                    <td id="isOnlineSource">Ist eine Onlinequelle</td>
+                                    <td id="type">Typ</td>
+                                    <td id="mimeType">Inhaltstyp (MIME-Type)</td>
+                                    <td id="isBlob">Ist BLOB (direkt in der Datenbank)</td>
+                                    <td id="path" style="min-width: 200px;">Pfad</td>
+                                    <td id="inMediaFolder">Im Media-Ordner</td>
+                                    <td id="uploaded">Hochgeladen am / um</td>
+                                    <td id="changed">Geändert am / um</td>
+                                    <td id="filename" style="min-width: 200px;">Dateiname</th>
+                                    <td id="id">id</td>
                                     <td id="mediaID">mediaID</td>
-                                    <td id="keywords">Erlenmeyerkolben, Chemie</td>
-                                    <td id="thumbnail">Miniaturansicht</td>
+                                    <td id="thumbnail">Hat eine Miniaturansicht (Nur bei Videos)</th>
+                                    <td id="thumbnailData">Miniaturansicht</td>
                                     <td id="thumbnailFileName">Miniaturansicht - Dateiname</td>
                                     <td id="thumbnailMimeType">Miniaturansicht - Inhaltstyp (MIME-Type)</td>
-                                    <td id="onFilesystem">Ja</td>
-                                    <td id="fileSize">1,7 MB</td>
-                                    <td id="uploaded">22.2.2022</td>
+                                    <td id="thumbnailIsOnlineSource">Miniaturansicht - Ist eine Onlinequelle</td>
+                                    <td id="thumbnailIsBlob">Miniaturansicht - Ist BLOB</td>
+                                    <td id="thumbnailPath">Miniaturansicht - Pfad / URL</td>
+                                    <td id="thumbnailInMediaFolder">Miniaturansicht - Pfad / URL</td>
+                                    <td id="fileSize">Dateigröße</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -159,41 +275,111 @@ if (userHasPermissions($conn, $userID, ["accessMediaVerwaltung" => gnVP($conn, "
                                 <thead>
                                     <tr>
                                         <th id="data">Daten</th>
-                                        <th id="fileName" style="min-width: 200px;">Dateiname</th>
-                                        <th id="description" style="min-width: 300px;">Beschreibung</td>
+                                        <th id="description" style="min-width: 300px;"><span>Beschreibung</span><button type="button" id="changeAll">alle ändern</button></td>
+                                        <th id="keywords" style="min-width: 200px;"><span>Schlüsselwörter</span><button type="button" id="changeAll">alle ändern</button></th>
+                                        <th id="isOnlineSource"><span>Ist eine Onlinequelle</span><button type="button" id="changeAll">alle ändern</button></th>
                                         <th id="type">Typ</th>
                                         <th id="mimeType">Inhaltstyp (MIME-Type)</th>
+                                        <th id="isBlob">Ist BLOB (direkt in der Datenbank)</th>
+                                        <th id="path" style="min-width: 200px;"><span>Pfad / URL</span><button type="button" id="changeAll">alle ändern</button></th>
+                                        <th id="inMediaFolder">Im Media-Ordner</th>
+                                        <th id="uploaded">Hochgeladen am / um</th>
+                                        <th id="changed">Geändert am / um</th>
+                                        <th id="filename" style="min-width: 200px;">Dateiname</th>
                                         <th id="id">id</th>
                                         <th id="mediaID">mediaID</th>
-                                        <th id="keywords" style="min-width: 200px;"><span>Schlüsselwörter</span><button type="button" id="changeAll">alle ändern</button></th>
-                                        <th id="thumbnail">Miniaturansicht</th>
+                                        <th id="thumbnail">Hat eine Miniaturansicht (Nur bei Videos)</th>
+                                        <th id="thumbnailData"><span>Miniaturansicht</span><button type="button" id="changeAll">alle ändern</button></th>
                                         <th id="thumbnailFileName">Miniaturansicht - Dateiname</th>
                                         <th id="thumbnailMimeType">Miniaturansicht - Inhaltstyp (MIME-Type)</th>
-                                        <th id="onFilesystem">Auf dem Dateisystem</th>
+                                        <th id="thumbnailIsOnlineSource"><span>Miniaturansicht - Ist eine Onlinequelle</span><button type="button" id="changeAll">alle ändern</button></th>
+                                        <th id="thumbnailIsBlob">Miniaturansicht - Ist BLOB</th>
+                                        <th id="thumbnailPath"><span>Miniaturansicht - Pfad / URL</span><button type="button" id="changeAll">alle ändern</button></th>
+                                        <th id="thumbnailInMediaFolder"><span>Miniaturansicht - Im Media-Ordner</span><button type="button" id="changeAll">alle ändern</button></th>
                                         <th id="fileSize">Dateigröße</th>
-                                        <th id="uploaded">Hochgeladen</th>
                                         <th id="remove"><span>Entfernen</span><button type="button" id="changeAll">alle
                                                 Entfernen</button></th>
+
+
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td id="data"><img src="../../images/logo.png"></td>
-                                        <td id="fileName"><span>Erlenmeyerkolben-01.jpg</span><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button></td>
-                                        <td id="description"><span>Erlenmeyerkolben auf einem Tisch.</span><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button></td>
-                                        <td id="type">Bild</td>
-                                        <td id="mimeType">image/jepg</td>
-                                        <td id="id">1</td>
-                                        <td id="mediaID">4e5345345eege43t</td>
-                                        <td id="keywords"><span id="list">Chemie, Erlenmeyerkolben</span><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button></td>
-                                        <td id="hinweis"><span>Grundvorraussetzung, um das Lehrerpanel zu betreten.</span><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button></td>
-                                        <td id="id">id</td>
-                                        <td id="customID"><span>customID</span><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button></td>
-                                        <td id="onFilesystem">Ja</td>
-                                        <td id="fileSize">1,7 MB</td>
-                                        <td id="uploaded">22.2.2022</td>
-                                        <td id="remove"><button class="delete-btn"><img src="../../images/icons/delete.svg" alt="Löschen"></button></td>
 
+                                        <td id="data">
+                                            <div class="dataContent"></div>
+                                            <div class="change"><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button></div>
+                                        </td>
+                                        <td id="description"><span>Erlenmeyerkolben auf einem Tisch.</span><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button></td>
+                                        <td id="keywords" style="min-width: 200px;"></td>
+                                        <td id="isOnlineSource">
+                                            <span>Ja</span>
+                                            <label class="switch">
+                                                <input type="checkbox" id="checkbox">
+                                                <span class="slider round"></span>
+                                            </label>
+                                        </td>
+                                        <td id="type">image</td>
+                                        <td id="mimeType">image/jepg</td>
+                                        <td id="isBlob">
+                                            <span>Ja</span>
+                                            <label class="switch">
+                                                <input type="checkbox" id="checkbox">
+                                                <span class="slider round"></span>
+                                            </label>
+                                        </td>
+                                        <td id="path"><span>/media</span><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button></td>
+                                        <td id="inMediaFolder">
+                                            <span>Ja</span>
+                                            <label class="switch">
+                                                <input type="checkbox" id="checkbox">
+                                                <span class="slider round"></span>
+                                            </label>
+                                        </td>
+                                        <td id="uploaded">05-02-2022 22:22:00.2432423</td>
+                                        <td id="changed">06-02-2022 22:22:00.2432423</td>
+                                        <td id="filename" style="min-width: 200px;">
+                                            <span>Erlenmeyerkolben.jpg</span><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button>
+                                        </td>
+                                        <td id="id">id</td>
+                                        <td id="mediaID"> <span>28974932eurkfk3</span><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button></td>
+                                        <td id="thumbnail">
+                                            <span>Ja</span>
+                                            <label class="switch">
+                                                <input type="checkbox" id="checkbox">
+                                                <span class="slider round"></span>
+                                            </label>
+                                        </td>
+                                        <td id="thumbnailData">
+                                            <div class="dataContent"></div>
+                                            <div class="change"><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button></div>
+                                        </td>
+                                        <td id="thumbnailFileName"><span>Erlenmeyerkolben-preview.jpg</span><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button></td>
+                                        <td id="thumbnailMimeType">image/jepg</td>
+                                        <td id="thumbnailIsOnlineSource">
+                                            <span>Ja</span>
+                                            <label class="switch">
+                                                <input type="checkbox" id="checkbox">
+                                                <span class="slider round"></span>
+                                            </label>
+                                        </td>
+                                        <td id="thumbnailIsBlob">
+                                            <span>Ja</span>
+                                            <label class="switch">
+                                                <input type="checkbox" id="checkbox">
+                                                <span class="slider round"></span>
+                                            </label>
+                                        </td>
+                                        <td id="thumbnailPath"><span>/thumbnails</span><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button></td>
+                                        <td id="thumbnailInMediaFolder">
+                                            <span>Ja</span>
+                                            <label class="switch">
+                                                <input type="checkbox" id="checkbox">
+                                                <span class="slider round"></span>
+                                            </label>
+                                        </td>
+                                        <td id="fileSize">22434</td>
+                                        <th id="remove"><button class="delete-btn"><img src="../../images/icons/delete.svg" alt="Löschen"></button></td>
                                     </tr>
 
                                 </tbody>

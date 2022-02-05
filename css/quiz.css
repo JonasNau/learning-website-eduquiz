@@ -95,7 +95,14 @@
   }
 }
 
-#mainContainer .quizCard .main {
+#mainContainer .controls {
+  padding: 5px;
+}
+
+#mainContainer .controls #sounds {
+ width: 20px;
+ height: 20px;
+ margin: 5px;
 }
 
 /* Answers */
