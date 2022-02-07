@@ -488,7 +488,7 @@ class SelectQuizNav {
           let availableQuizzes = await Utils.makeJSON(
             await Utils.sendXhrREQUEST(
               "POST",
-              "getAmountOfQuizzes&operation=byKlassenstufeandFach&klassenstufe=" + this.ausgewaehlteKlasse + "&fach=" + this.ausgewaehltesFach,
+              "getAmountOfQuizzes&operation=byKlassenstufeandFachandThema&klassenstufe=" + this.ausgewaehlteKlasse + "&fach=" + this.ausgewaehltesFach + "&thema=" + element,
               "./includes/choosequiz.inc.php",
               "application/x-www-form-urlencoded",
               true,
@@ -496,7 +496,6 @@ class SelectQuizNav {
               false
             )
           );
-
           link.innerHTML = `<a class="dropdown-item selectThemaItem" value="${element}">${element} <span class="badge bg-secondary">${availableQuizzes}</span></a>`;
           this.dropDownLinkContainerThemen.appendChild(link);
         }

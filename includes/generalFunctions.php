@@ -976,13 +976,17 @@ function hasAllContidions($conn = false, $needle, $haystack, $searchMode = false
     return true;
 }
 
-function array_contains_all_values($haystack, $needle, $olnlyValue = true)
+function array_contains_all_values($haystack, $needle, $olnlyValue = true, $notEmpty = false)
 {
     if (!$needle) {
         return false;
     }
     if (!$haystack) {
         return false;
+    }
+    if ($notEmpty) {
+        if (!count($needle) > 0) return false;
+        if (!count($haystack) > 0) return false;
     }
     foreach ($needle as $checkKey => $checkValue) {
         if ($olnlyValue) {

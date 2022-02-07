@@ -233,6 +233,7 @@ class Medienverwaltung {
     );
     if (!limiter) return "no limiter";
     this.limiter = limiter;
+    limiter.value = 20;
 
     //Search While Typing
     let searchWhileTypingContainer = selectionFiltersContainer.querySelector(
@@ -279,7 +280,9 @@ class Medienverwaltung {
     this.clear(this.tableBody);
 
     //ChooseAllBtn
-    this.chooseAllBtn = this.resultTable.querySelector("thead #chooseall");
+    this.chooseAllBtn = this.resultTable.querySelector(
+      "thead #select #chooseall"
+    );
     if (!this.chooseAllBtn) return "No choose all btn";
     //Make Choose All -------
 
@@ -323,6 +326,17 @@ class Medienverwaltung {
       }
       this.updateEditBtn();
     });
+
+    //Shrink media
+    let shrinkToggleCheckboxes = this.container.querySelectorAll(
+      "thead #data #checkbox"
+    );
+
+    for (const current of shrinkToggleCheckboxes) {
+      current.addEventListener("click", () => {
+        current.closest("table").classList.toggle("shrinkMedia");
+      });
+    }
 
     let editBtn = this.container.querySelector("#edit");
     if (!editBtn) return "no editBtn";
@@ -370,12 +384,7 @@ class Medienverwaltung {
 
     //ADD Media
     addBtn.addEventListener("click", async () => {
-      if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
-          ["medienverwaltungADDandREMOVE"]
-        ))
-      ) {
+      if (!(await Utils.userHasPermissions(["medienverwaltungADDandREMOVE"]))) {
         return false;
       }
 
@@ -875,7 +884,7 @@ class Medienverwaltung {
       });
 
       this.changedBySelectContainer.classList.remove("hidden");
-    } else if (filter == this.isBlobSelectContainer) {
+    } else if (filter === this.isBlobSelectContainer) {
       let list = this.isBlobSelectContainer.querySelector("#selectInput");
       list = Utils.removeAllEventlisteners(list);
       list.addEventListener("change", () => {
@@ -885,7 +894,7 @@ class Medienverwaltung {
       });
 
       this.isBlobSelectContainer.classList.remove("hidden");
-    } else if (filter == this.thumbnailSelectContainer) {
+    } else if (filter === this.thumbnailSelectContainer) {
       let list = this.thumbnailSelectContainer.querySelector("#selectInput");
       list = Utils.removeAllEventlisteners(list);
       list.addEventListener("change", () => {
@@ -895,7 +904,7 @@ class Medienverwaltung {
       });
 
       this.thumbnailSelectContainer.classList.remove("hidden");
-    } else if (filter == this.thumbnailIsBlobSelectContainer) {
+    } else if (filter === this.thumbnailIsBlobSelectContainer) {
       let list =
         this.thumbnailIsBlobSelectContainer.querySelector("#selectInput");
       list = Utils.removeAllEventlisteners(list);
@@ -908,7 +917,8 @@ class Medienverwaltung {
       this.thumbnailIsBlobSelectContainer.classList.remove("hidden");
     } else if (filter === this.thumbnailFileNameSelectContainer) {
       //thumbnail filename
-      let textInput = this.thumbnailFileNameSelectContainer.querySelector("#textInput");
+      let textInput =
+        this.thumbnailFileNameSelectContainer.querySelector("#textInput");
       Utils.listenToChanges(textInput, "input", 450, () => {
         if (this.searchWhileTyping) {
           this.search();
@@ -980,7 +990,8 @@ class Medienverwaltung {
         }
       };
 
-      let addBtn = this.thumbnailMimeTypeSelectContainer.querySelector("#addBtn");
+      let addBtn =
+        this.thumbnailMimeTypeSelectContainer.querySelector("#addBtn");
       addBtn = Utils.removeAllEventlisteners(addBtn);
       addBtn.addEventListener("click", () => {
         add();
@@ -988,7 +999,9 @@ class Medienverwaltung {
       this.thumbnailMimeTypeSelectContainer.classList.remove("hidden");
     } else if (filter === this.thumbnailIsOnlineSourceSelectContainer) {
       let list =
-        this.thumbnailIsOnlineSourceSelectContainer.querySelector("#selectInput");
+        this.thumbnailIsOnlineSourceSelectContainer.querySelector(
+          "#selectInput"
+        );
       list = Utils.removeAllEventlisteners(list);
       list.addEventListener("change", () => {
         if (this.searchWhileTyping) {
@@ -999,7 +1012,8 @@ class Medienverwaltung {
       this.thumbnailIsOnlineSourceSelectContainer.classList.remove("hidden");
     } else if (filter === this.thumbnailPathSelectContainer) {
       //name
-      let textInput = this.thumbnailPathSelectContainer.querySelector("#textInput");
+      let textInput =
+        this.thumbnailPathSelectContainer.querySelector("#textInput");
       Utils.listenToChanges(textInput, "input", 450, () => {
         if (this.searchWhileTyping) {
           this.search();
@@ -1008,7 +1022,9 @@ class Medienverwaltung {
       this.thumbnailPathSelectContainer.classList.remove("hidden");
     } else if (filter === this.thumbnailInMediaFolderSelectContainer) {
       let list =
-        this.thumbnailInMediaFolderSelectContainer.querySelector("#selectInput");
+        this.thumbnailInMediaFolderSelectContainer.querySelector(
+          "#selectInput"
+        );
       list = Utils.removeAllEventlisteners(list);
       list.addEventListener("change", () => {
         if (this.searchWhileTyping) {
@@ -1019,13 +1035,12 @@ class Medienverwaltung {
       this.thumbnailInMediaFolderSelectContainer.classList.remove("hidden");
     }
 
-    console.log(filter)
+    console.log(filter);
   }
 
   async search() {
     console.log("Search...");
     this.searchReloadBtn.disabled = true;
-    //Utils.toggleLodingAnimation(this.container)
     this.searchBtn.classList.add("loading");
     this.choosenArray = new Array();
     this.editContainer.classList.add("hidden");
@@ -1033,12 +1048,12 @@ class Medienverwaltung {
 
     if (this.filterType === "filename") {
       let input =
-        this.fileNameSelectContainer.querySelector("#textInput").value;
+        this.filenameSelectContainer.querySelector("#textInput").value;
       this.showResults(
         await Utils.makeJSON(
           await Utils.sendXhrREQUEST(
             "POST",
-            "medienverwaltung&operation=search&filter=filename&filename=" +
+            "medienverwaltung&operation=search&filter=filename&input=" +
               input +
               "&limit=" +
               this.limiter.value,
@@ -1054,44 +1069,15 @@ class Medienverwaltung {
     } else if (this.filterType === "description") {
       let input =
         this.descriptionSelectContainer.querySelector("#textInput").value;
-      console.log(input);
-      if (Utils.isEmptyInput(input, true)) {
-        this.searchBtn.classList.remove("loading");
-        return false;
-      }
       this.showResults(
         await Utils.makeJSON(
           await Utils.sendXhrREQUEST(
             "POST",
-            "berechtigungsverwaltung&operation=search&filter=filterByDescription&input=" +
+            "medienverwaltung&operation=search&filter=description&input=" +
               input +
               "&limit=" +
               this.limiter.value,
-            "./includes/berechtigungsverwaltung.inc.php",
-            "application/x-www-form-urlencoded",
-            true,
-            false,
-            true,
-            true
-          )
-        )
-      );
-    } else if (this.filterType === "hinweis") {
-      let input = this.hinweisSelectContainer.querySelector("#textInput").value;
-      console.log(input);
-      if (Utils.isEmptyInput(input, true)) {
-        this.searchBtn.classList.remove("loading");
-        return false;
-      }
-      this.showResults(
-        await Utils.makeJSON(
-          await Utils.sendXhrREQUEST(
-            "POST",
-            "berechtigungsverwaltung&operation=search&filter=filterByHinweis&input=" +
-              input +
-              "&limit=" +
-              this.limiter.value,
-            "./includes/berechtigungsverwaltung.inc.php",
+            "./includes/medienverwaltung.inc.php",
             "application/x-www-form-urlencoded",
             true,
             false,
@@ -1101,22 +1087,15 @@ class Medienverwaltung {
         )
       );
     } else if (this.filterType === "type") {
-      let select = this.typeSelectContainer.querySelector("#selectInput");
-      let input = select[select.selectedIndex].getAttribute("data-value");
-      console.log(input);
-      if (Utils.isEmptyInput(input, true)) {
-        this.searchBtn.classList.remove("loading");
-        return false;
-      }
       this.showResults(
         await Utils.makeJSON(
           await Utils.sendXhrREQUEST(
             "POST",
-            "berechtigungsverwaltung&operation=search&filter=filterByType&input=" +
-              input +
+            "medienverwaltung&operation=search&filter=type&input=" +
+              JSON.stringify(this.choosenTypesArray) +
               "&limit=" +
               this.limiter.value,
-            "./includes/berechtigungsverwaltung.inc.php",
+            "./includes/medienverwaltung.inc.php",
             "application/x-www-form-urlencoded",
             true,
             false,
@@ -1125,23 +1104,16 @@ class Medienverwaltung {
           )
         )
       );
-    } else if (this.filterType === "ranking") {
-      let input =
-        this.rankingSelectContainer.querySelector("#numberInput").value;
-      console.log(input);
-      if (Utils.isEmptyInput(input, true)) {
-        this.searchBtn.classList.remove("loading");
-        return false;
-      }
+    } else if (this.filterType === "mimeType") {
       this.showResults(
         await Utils.makeJSON(
           await Utils.sendXhrREQUEST(
             "POST",
-            "berechtigungsverwaltung&operation=search&filter=filterByRanking&input=" +
-              input +
+            "medienverwaltung&operation=search&filter=mimeType&input=" +
+              JSON.stringify(this.choosenMimeypesArray) +
               "&limit=" +
               this.limiter.value,
-            "./includes/berechtigungsverwaltung.inc.php",
+            "./includes/medienverwaltung.inc.php",
             "application/x-www-form-urlencoded",
             true,
             false,
@@ -1150,20 +1122,17 @@ class Medienverwaltung {
           )
         )
       );
-    } else if (this.filterType === "usedAt") {
-      if (!this.usedAtArray.length > 0) {
-        this.searchBtn.classList.remove("loading");
-        return false;
-      }
+    } else if (this.filterType === "path") {
+      let input = this.pathSelectContainer.querySelector("#textInput").value;
       this.showResults(
         await Utils.makeJSON(
           await Utils.sendXhrREQUEST(
             "POST",
-            "berechtigungsverwaltung&operation=search&filter=filterByUsedAt&input=" +
-              JSON.stringify(this.usedAtArray) +
+            "medienverwaltung&operation=search&filter=path&input=" +
+              input +
               "&limit=" +
               this.limiter.value,
-            "./includes/berechtigungsverwaltung.inc.php",
+            "./includes/medienverwaltung.inc.php",
             "application/x-www-form-urlencoded",
             true,
             false,
@@ -1174,20 +1143,15 @@ class Medienverwaltung {
       );
     } else if (this.filterType === "id") {
       let input = this.idSelectContainer.querySelector("#numberInput").value;
-      console.log(input);
-      if (Utils.isEmptyInput(input, true)) {
-        this.searchBtn.classList.remove("loading");
-        return false;
-      }
       this.showResults(
         await Utils.makeJSON(
           await Utils.sendXhrREQUEST(
             "POST",
-            "berechtigungsverwaltung&operation=search&filter=filterByid&input=" +
+            "medienverwaltung&operation=search&filter=id&input=" +
               input +
               "&limit=" +
               this.limiter.value,
-            "./includes/berechtigungsverwaltung.inc.php",
+            "./includes/medienverwaltung.inc.php",
             "application/x-www-form-urlencoded",
             true,
             false,
@@ -1196,23 +1160,320 @@ class Medienverwaltung {
           )
         )
       );
-    } else if (this.filterType === "customID") {
-      let input =
-        this.customIDSelectContainer.querySelector("#textInput").value;
-      console.log(input);
-      if (Utils.isEmptyInput(input, true)) {
-        this.searchBtn.classList.remove("loading");
-        return false;
-      }
+    } else if (this.filterType === "mediaID") {
+      let input = this.mediaIDSelectContainer.querySelector("#textInput").value;
       this.showResults(
         await Utils.makeJSON(
           await Utils.sendXhrREQUEST(
             "POST",
-            "berechtigungsverwaltung&operation=search&filter=filterBycustomID&input=" +
+            "medienverwaltung&operation=search&filter=mediaID&input=" +
               input +
               "&limit=" +
               this.limiter.value,
-            "./includes/berechtigungsverwaltung.inc.php",
+            "./includes/medienverwaltung.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            false,
+            true,
+            true
+          )
+        )
+      );
+    } else if (this.filterType === "keywords") {
+      console.log(this.keyWordsSearchArray);
+      this.showResults(
+        await Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "medienverwaltung&operation=search&filter=keyWords&input=" +
+              JSON.stringify(this.keyWordsSearchArray) +
+              "&limit=" +
+              this.limiter.value,
+            "./includes/medienverwaltung.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            false,
+            true,
+            true
+          )
+        )
+      );
+    } else if (this.filterType === "isOnlineSource") {
+      let select =
+        this.isOnlineSourceSelectContainer.querySelector("#selectInput");
+      let input = select[select.selectedIndex].getAttribute("data-value");
+      this.showResults(
+        await Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "medienverwaltung&operation=search&filter=isOnlineSource&input=" +
+              input +
+              "&limit=" +
+              this.limiter.value,
+            "./includes/medienverwaltung.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            false,
+            true,
+            true
+          )
+        )
+      );
+    } else if (this.filterType === "inMediaFolder") {
+      let select =
+        this.inMediaFolderSelectContainer.querySelector("#selectInput");
+      let input = select[select.selectedIndex].getAttribute("data-value");
+      this.showResults(
+        await Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "medienverwaltung&operation=search&filter=inMediaFolder&input=" +
+              input +
+              "&limit=" +
+              this.limiter.value,
+            "./includes/medienverwaltung.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            false,
+            true,
+            true
+          )
+        )
+      );
+    } else if (this.filterType === "uploaded") {
+      let input =
+        this.uploadedSelectContainer.querySelector("#textInput").value;
+      this.showResults(
+        await Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "medienverwaltung&operation=search&filter=uploaded&input=" +
+              input +
+              "&limit=" +
+              this.limiter.value,
+            "./includes/medienverwaltung.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            false,
+            true,
+            true
+          )
+        )
+      );
+    } else if (this.filterType === "uploadedBy") {
+      console.log(this.keyWordsSearchArray);
+      this.showResults(
+        await Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "medienverwaltung&operation=search&filter=uploadedBy&input=" +
+              this.uploadedBySelected +
+              "&limit=" +
+              this.limiter.value,
+            "./includes/medienverwaltung.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            false,
+            true,
+            true
+          )
+        )
+      );
+    } else if (this.filterType === "changed") {
+      let input = this.changedSelectContainer.querySelector("#textInput").value;
+      this.showResults(
+        await Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "medienverwaltung&operation=search&filter=changed&input=" +
+              input +
+              "&limit=" +
+              this.limiter.value,
+            "./includes/medienverwaltung.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            false,
+            true,
+            true
+          )
+        )
+      );
+    } else if (this.filterType === "changedBy") {
+      console.log(this.keyWordsSearchArray);
+      this.showResults(
+        await Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "medienverwaltung&operation=search&filter=changedBy&input=" +
+              JSON.stringify(this.changedBySelectArray) +
+              "&limit=" +
+              this.limiter.value,
+            "./includes/medienverwaltung.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            false,
+            true,
+            true
+          )
+        )
+      );
+    } else if (this.filterType === "isBlob") {
+      let select = this.isBlobSelectContainer.querySelector("#selectInput");
+      let input = select[select.selectedIndex].getAttribute("data-value");
+      this.showResults(
+        await Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "medienverwaltung&operation=search&filter=isBlob&input=" +
+              input +
+              "&limit=" +
+              this.limiter.value,
+            "./includes/medienverwaltung.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            false,
+            true,
+            true
+          )
+        )
+      );
+    } else if (this.filterType === "thumbnail") {
+      let select = this.thumbnailSelectContainer.querySelector("#selectInput");
+      let input = select[select.selectedIndex].getAttribute("data-value");
+      this.showResults(
+        await Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "medienverwaltung&operation=search&filter=thumbnail&input=" +
+              input +
+              "&limit=" +
+              this.limiter.value,
+            "./includes/medienverwaltung.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            false,
+            true,
+            true
+          )
+        )
+      );
+    } else if (this.filterType === "thumbnailIsBlob") {
+      let select =
+        this.thumbnailIsBlobSelectContainer.querySelector("#selectInput");
+      let input = select[select.selectedIndex].getAttribute("data-value");
+      this.showResults(
+        await Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "medienverwaltung&operation=search&filter=thumbnailIsBlob&input=" +
+              input +
+              "&limit=" +
+              this.limiter.value,
+            "./includes/medienverwaltung.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            false,
+            true,
+            true
+          )
+        )
+      );
+    } else if (this.filterType === "thumbnailFileName") {
+      let input =
+        this.thumbnailFileNameSelectContainer.querySelector("#textInput").value;
+      this.showResults(
+        await Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "medienverwaltung&operation=search&filter=thumbnailFileName&input=" +
+              input +
+              "&limit=" +
+              this.limiter.value,
+            "./includes/medienverwaltung.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            false,
+            true,
+            true
+          )
+        )
+      );
+    } else if (this.filterType === "thumbnailMimeType") {
+      this.showResults(
+        await Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "medienverwaltung&operation=search&filter=thumbnailMimeType&input=" +
+              JSON.stringify(this.thumbnailChoosenMimeypesArray) +
+              "&limit=" +
+              this.limiter.value,
+            "./includes/medienverwaltung.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            false,
+            true,
+            true
+          )
+        )
+      );
+    } else if (this.filterType === "thumbnailIsOnlineSource") {
+      let select =
+        this.thumbnailIsOnlineSourceSelectContainer.querySelector(
+          "#selectInput"
+        );
+      let input = select[select.selectedIndex].getAttribute("data-value");
+      this.showResults(
+        await Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "medienverwaltung&operation=search&filter=thumbnailIsOnlineSource&input=" +
+              input +
+              "&limit=" +
+              this.limiter.value,
+            "./includes/medienverwaltung.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            false,
+            true,
+            true
+          )
+        )
+      );
+    } else if (this.filterType === "thumbnailPath") {
+      let input =
+        this.thumbnailPathSelectContainer.querySelector("#textInput").value;
+      this.showResults(
+        await Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "medienverwaltung&operation=search&filter=thumbnailPath&input=" +
+              input +
+              "&limit=" +
+              this.limiter.value,
+            "./includes/medienverwaltung.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            false,
+            true,
+            true
+          )
+        )
+      );
+    } else if (this.filterType === "thumbnailInMediaFolder") {
+      let select =
+        this.thumbnailInMediaFolderSelectContainer.querySelector(
+          "#selectInput"
+        );
+      let input = select[select.selectedIndex].getAttribute("data-value");
+      this.showResults(
+        await Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "medienverwaltung&operation=search&filter=thumbnailInMediaFolder&input=" +
+              input +
+              "&limit=" +
+              this.limiter.value,
+            "./includes/medienverwaltung.inc.php",
             "application/x-www-form-urlencoded",
             true,
             false,
@@ -1226,13 +1487,265 @@ class Medienverwaltung {
         await Utils.makeJSON(
           await Utils.sendXhrREQUEST(
             "POST",
-            "berechtigungsverwaltung&operation=search&filter=all&limit=" +
+            "medienverwaltung&operation=search&filter=all&limit=" +
               this.limiter.value,
-            "./includes/berechtigungsverwaltung.inc.php",
+            "./includes/medienverwaltung.inc.php",
             "application/x-www-form-urlencoded",
             true,
             false,
             true,
+            true
+          )
+        )
+      );
+    } else if (this.filterType === "multiple") {
+      //filename
+      let filename =
+        this.filenameSelectContainer.querySelector("#textInput").value;
+      if (Utils.isEmptyInput(filename, true)) filename = false;
+
+      //description
+      let description =
+        this.descriptionSelectContainer.querySelector("#textInput").value;
+      if (Utils.isEmptyInput(description, true)) description = false;
+
+      //Type
+      let type = this.choosenTypesArray;
+      if (!this.choosenTypesArray || !this.choosenTypesArray.length > 0)
+        type = false;
+
+      //Mime-Type
+      let mimeType = this.choosenMimeypesArray;
+      if (!this.choosenMimeypesArray || !this.choosenMimeypesArray.length > 0)
+        mimeType = false;
+
+      //path
+      let path = this.pathSelectContainer.querySelector("#textInput").value;
+      if (Utils.isEmptyInput(path, true)) path = false;
+
+      //id
+      let id = this.idSelectContainer.querySelector("#numberInput").value;
+      if (Utils.isEmptyInput(id, true)) id = false;
+
+      //mediaID
+      let mediaID =
+        this.mediaIDSelectContainer.querySelector("#textInput").value;
+      if (Utils.isEmptyInput(mediaID, true)) mediaID = false;
+
+      //keyWords
+      let keyWords = this.keyWordsSearchArray;
+      if (!this.keyWordsSearchArray || !this.keyWordsSearchArray.length > 0)
+        keyWords = false;
+
+      //isOnlineSource
+      let isOnlineSourceSelect =
+        this.isOnlineSourceSelectContainer.querySelector("#selectInput");
+      let isOnlineSource =
+        isOnlineSourceSelect[isOnlineSourceSelect.selectedIndex].getAttribute(
+          "data-value"
+        );
+      if (Utils.isEmptyInput(isOnlineSource, true)) isOnlineSource = false;
+
+      //inMediaFolder
+      let inMediaFolderSelect =
+        this.inMediaFolderSelectContainer.querySelector("#selectInput");
+      let inMediaFolder =
+        inMediaFolderSelect[inMediaFolderSelect.selectedIndex].getAttribute(
+          "data-value"
+        );
+      if (Utils.isEmptyInput(inMediaFolder, true)) inMediaFolder = false;
+
+      //uploaded
+      let uploaded =
+        this.uploadedSelectContainer.querySelector("#textInput").value;
+      if (Utils.isEmptyInput(uploaded, true)) uploaded = false;
+
+      //uploadedBy
+      let uploadedBy = this.uploadedBySelected;
+      if (Utils.isEmptyInput(uploadedBy, true)) uploadedBy = false;
+
+      //changed
+      let changed =
+        this.changedSelectContainer.querySelector("#textInput").value;
+      if (Utils.isEmptyInput(changed, true)) changed = false;
+
+      //changedBy
+      let changedBy = this.changedBySelectArray;
+      if (!this.changedBySelectArray || !this.changedBySelectArray.length > 0)
+        changedBy = false;
+
+      //isBlob
+      let isBlobSelect =
+        this.isBlobSelectContainer.querySelector("#selectInput");
+      let isBlob =
+        isBlobSelect[isBlobSelect.selectedIndex].getAttribute("data-value");
+      if (Utils.isEmptyInput(isBlob, true)) isBlob = false;
+
+      //thumbnail
+      let thumbnailSelect =
+        this.thumbnailSelectContainer.querySelector("#selectInput");
+      let thumbnail =
+        thumbnailSelect[thumbnailSelect.selectedIndex].getAttribute(
+          "data-value"
+        );
+      if (Utils.isEmptyInput(thumbnail, true)) thumbnail = false;
+
+      //thumbnailIsBlob
+      let thumbnailIsBlobSelect =
+        this.thumbnailIsBlobSelectContainer.querySelector("#selectInput");
+      let thumbnailIsBlob =
+        thumbnailIsBlobSelect[thumbnailIsBlobSelect.selectedIndex].getAttribute(
+          "data-value"
+        );
+      if (Utils.isEmptyInput(thumbnailIsBlob, true)) thumbnailIsBlob = false;
+
+      //thumbnailFileName
+      let thumbnailFileName =
+        this.thumbnailFileNameSelectContainer.querySelector("#textInput").value;
+      if (Utils.isEmptyInput(thumbnailFileName, true))
+        thumbnailFileName = false;
+
+      //thumbnailMimeType
+      let thumbnailMimeType = this.thumbnailChoosenMimeypesArray;
+      if (
+        !this.thumbnailChoosenMimeypesArray ||
+        !this.thumbnailChoosenMimeypesArray.length > 0
+      )
+        thumbnailMimeType = false;
+
+      //thumbnailIsOnlineSource
+      let thumbnailIsOnlineSourceSelect =
+        this.thumbnailIsOnlineSourceSelectContainer.querySelector(
+          "#selectInput"
+        );
+      let thumbnailIsOnlineSource =
+        thumbnailIsOnlineSourceSelect[
+          thumbnailIsOnlineSourceSelect.selectedIndex
+        ].getAttribute("data-value");
+      if (Utils.isEmptyInput(thumbnailIsOnlineSource, true))
+        thumbnailIsOnlineSource = false;
+
+      //thumbnailPath
+      let thumbnailPath =
+        this.thumbnailPathSelectContainer.querySelector("#textInput").value;
+      if (Utils.isEmptyInput(thumbnailPath, true)) thumbnailPath = false;
+
+      //thumbnailIsOnlineSource
+      let thumbnailInMediaFolderSelect =
+        this.thumbnailInMediaFolderSelectContainer.querySelector(
+          "#selectInput"
+        );
+      let thumbnailInMediaFolder =
+        thumbnailInMediaFolderSelect[
+          thumbnailInMediaFolderSelect.selectedIndex
+        ].getAttribute("data-value");
+      if (Utils.isEmptyInput(thumbnailInMediaFolder, true))
+        thumbnailInMediaFolder = false;
+
+      //Log out every value
+      console.log(
+        "MULTI SEARCH =>",
+        "filename=>",
+        filename,
+        "description=>",
+        description,
+        "type=>",
+        type,
+        "mimeType=>",
+        mimeType,
+        "path=>",
+        path,
+        "id=>",
+        id,
+        "mediaID=>",
+        mediaID,
+        "keyWords=>",
+        keyWords,
+        "isOnlineSource=>",
+        isOnlineSource,
+        "inMediaFolder=>",
+        inMediaFolder,
+        "uploaded=>",
+        uploaded,
+        "uploadedBy=>",
+        uploadedBy,
+        "changed=>",
+        changed,
+        "changedBy=>",
+        changedBy,
+        "isBlob=>",
+        isBlob,
+        "thumbnail=>",
+        thumbnail,
+        "thumbnailIsBlob=>",
+        thumbnailIsBlob,
+        "thumbnailFileName=>",
+        thumbnailFileName,
+        "thumbnailMimeType=>",
+        thumbnailMimeType,
+        "thumbnailIsOnlineSource=>",
+        thumbnailIsOnlineSource,
+        "thumbnailPath=>",
+        thumbnailPath,
+        "thumbnailInMediaFolder=>",
+        thumbnailInMediaFolder
+      );
+
+      this.showResults(
+        await Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "medienverwaltung&operation=search&filter=multiple&filename=" +
+              filename +
+              "&description=" +
+              description +
+              "&mimeType=" +
+              JSON.stringify(mimeType) +
+              "&path=" +
+              path +
+              "&id=" +
+              id +
+              "&mediaID=" +
+              mediaID +
+              "&keyWords=" +
+              JSON.stringify(keyWords) +
+              "&isOnlineSource=" +
+              isOnlineSource +
+              "&inMediaFolder=" +
+              inMediaFolder +
+              "&uploaded=" +
+              uploaded +
+              "&uploadedBy=" +
+              uploadedBy +
+              "&changed=" +
+              changed +
+              "&changedBy=" +
+              JSON.stringify(changedBy) +
+              "&isBlob=" +
+              isBlob +
+              "&thumbnail=" +
+              thumbnail +
+              "&thumbnailIsBlob=" +
+              thumbnailIsBlob +
+              "&thumbnailFileName=" +
+              thumbnailFileName +
+              "&thumbnailMimeType=" +
+              thumbnailMimeType +
+              "&thumbnailIsOnlineSource=" +
+              thumbnailIsOnlineSource +
+              "&thumbnailPath=" +
+              thumbnailPath +
+              "&thumbnailInMediaFolder=" +
+              thumbnailInMediaFolder +
+              "&limit=" +
+              this.limiter.value,
+            "./includes/medienverwaltung.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            true,
+            false,
+            true,
+            false,
             true
           )
         )
@@ -1265,6 +1778,7 @@ class Medienverwaltung {
     results = Utils.sortItems(results, "id"); //Just sort it to better overview
 
     for (const result of results) {
+      this.resultTable.classList.remove("hidden");
       let tableRow = document.createElement("tr");
       tableRow.classList.add("result");
       tableRow.setAttribute("data-value", result["id"]);
@@ -1272,23 +1786,55 @@ class Medienverwaltung {
       tableRow.innerHTML = `
       <td class="select"><input type="checkbox" id="select"><button id="chooseOnly"><img src="../../images/icons/stift.svg" alt="Auswahl"></button></td>
       <td id="data"></td>
-      <td id="fileName">${result["filename"]}</td>
-      <td id="description">${result["description"]}</td>
-      <td id="type">${result["type"]}</td>
-      <td id="mimeType">${result["mimeType"]}</td>
-      <td id="id">${result["id"]}</td>
-      <td id="mediaID">${result["mediaID"]}</td>
-      <td id="keywords">${JSON.stringify(result["keywords"], null, 2)}</td>
-      <td id="thumbnail"></td>
-      <td id="thumbnailFileName"></td>
-      <td id="thumbnailMimeType"></td>
-      <td id="onFilesystem">${Utils.boolToString(result["onFilesystem"], {
+      <td id="description" style="min-width: 300px;">${
+        result["description"]
+      }</td>
+      <td id="keywords" style="min-width: 200px;">${JSON.stringify(
+        Utils.makeJSON(result["keywords"], null, 2)
+      )}</td>
+      <td id="isOnlineSource">${Utils.valueToString(result["isOnlineSource"], {
         true: "Ja",
         false: "Nein",
       })}</td>
-      <td id="fileSize">${result["fileSize"]}</td>
+      <td id="type">${result["type"]}</td>
+      <td id="mimeType">${result["mimeType"]}</td>
+      <td id="isBlob">${result["isBlob"]}</td>
+      <td id="path" style="min-width: 200px;">${result["path"]}</td>
+      <td id="inMediaFolder">${Utils.valueToString(result["inMediaFolder"], {
+        true: "Ja",
+        false: "Nein",
+      })}</td>
       <td id="uploaded">${result["uploaded"]}</td>
-          `;
+      <td id="changed">${result["changed"]}</td>
+      <td id="filename" style="min-width: 200px;">${result["filename"]}</th>
+      <td id="id">${result["id"]}</td>
+      <td id="mediaID">${result["mediaID"]}</td>
+      <td id="thumbnail">${Utils.valueToString(result["thumbnail"], {
+        true: "Ja",
+        false: "Nein",
+      })}</th>
+      <td id="thumbnailData"></td>
+      <td id="thumbnailFileName">${result["thumbnailFileName"]}</td>
+      <td id="thumbnailMimeType">${result["thumbnailMimeType"]}</td>
+      <td id="thumbnailIsOnlineSource">${Utils.valueToString(
+        result["thumbnailIsOnlineSource"],
+        { true: "Ja", false: "Nein" }
+      )}</td>
+      <td id="thumbnailIsBlob">${Utils.valueToString(
+        result["thumbnailIsBlob"],
+        { true: "Ja", false: "Nein" }
+      )}</td>
+      <td id="thumbnailPath">${result["thumbnailPath"]}</td>
+      <td id="thumbnailInMediaFolder">${Utils.valueToString(
+        result["thumbnailInMediaFolder"],
+        { true: "Ja", false: "Nein" }
+      )}</td>
+      <td id="fileSize">${result["fileSize"]}</td>
+      <td id="uploadedBy">${result["uploadedBy"]}</td>
+      <td id="changedBy">${JSON.stringify(
+        Utils.makeJSON(result["changedBy"], null, 2)
+      )}</td>
+      `;
       this.tableBody.append(tableRow);
 
       let checkBox = tableRow.querySelector(".select #select");
@@ -1309,11 +1855,52 @@ class Medienverwaltung {
         this.updateEditBtn();
       });
 
+      //Keywords
       let keywordsContainer = tableRow.querySelector("#keywords");
       Utils.listOfArrayToHTML(
         keywordsContainer,
         Utils.makeJSON(result["keywords"]),
         "keine"
+      );
+
+      //Disable cache for loading the newest version of media
+      let oldCacheControl = window.localStorage.getItem("cacheControl");
+      window.localStorage.setItem("cacheControl", "no-cache");
+      //Data
+      await Utils.setMedia(
+        { mediaID: result["mediaID"] },
+        tableRow.querySelector("#data")
+      );
+
+      //Thumbnail
+      //GET thumbnail data if enabled
+
+      if (result["thumbnail"]) {
+        let thumbnailData = await Utils.getThumbnailURL(result);
+        console.log(thumbnailData);
+        if (thumbnailData.url) {
+          await Utils.setMedia(
+            {
+              type: "image",
+              url: thumbnailData.url,
+              isOnlineSource: false,
+              urlIsBLOB: true,
+              blobData: thumbnailData,
+            },
+            tableRow.querySelector("#thumbnailData"),
+            true
+          );
+        }
+      }
+
+      //set cacheControl to old value
+      window.localStorage.setItem("cacheControl", oldCacheControl);
+
+      //ChangedBy
+      Utils.listOfArrayToHTML(
+        tableRow.querySelector("#changedBy"),
+        result["changedBy"],
+        "Noch nie"
       );
 
       let chooseThis = tableRow.querySelector(".select #chooseOnly");
@@ -1329,8 +1916,6 @@ class Medienverwaltung {
       });
     }
     this.searchReloadBtn.disabled = false;
-
-    this.resultTable.classList.remove("hidden");
   }
 
   updateEditBtn() {
@@ -1341,29 +1926,29 @@ class Medienverwaltung {
     }
   }
 
-  async edit(choosen) {
+  async edit(choosen, reloadOnlyOne = false) {
     if (!choosen || !choosen.length > 0) {
       this.editContainer.classList.add("hidden");
       this.clear(this.editTableBody);
       return false;
     }
     this.editReloadBtn.disabled = true;
-    this.editContainer.classList.add("hidden");
     console.log("Edit:", choosen);
 
-    this.resultTable.classList.add("hidden");
-    this.clear(this.tableBody);
-
-    this.clear(this.editTableBody);
+    if (!reloadOnlyOne) {
+      this.resultTable.classList.add("hidden");
+      this.clear(this.tableBody);
+      this.editContainer.classList.add("hidden");
+      this.clear(this.editTableBody);
+    }
 
     for (const currentRaw of choosen) {
       //Get Data
       let current = await Utils.makeJSON(
         await Utils.sendXhrREQUEST(
           "POST",
-          "berechtigungsverwaltung&operation=getFullInfromation&id=" +
-            currentRaw,
-          "./includes/berechtigungsverwaltung.inc.php",
+          "medienverwaltung&operation=getFullInfromation&id=" + currentRaw,
+          "./includes/medienverwaltung.inc.php",
           "application/x-www-form-urlencoded",
           true,
           true,
@@ -1378,382 +1963,212 @@ class Medienverwaltung {
       console.log(current);
 
       if (current["id"]) {
-        let tableRow = document.createElement("tr");
+        let tableRow;
+        if (!reloadOnlyOne) {
+          tableRow = document.createElement("tr");
+          this.editTableBody.appendChild(tableRow);
+        } else {
+          try {
+            tableRow = this.editTable.querySelector(
+              `tbody .result[data-value="${current["id"]}"]`
+            );
+            console.log(tableRow);
+          } catch {
+            tableRow = document.createElement("tr");
+            this.editTableBody.appendChild(tableRow);
+          }
+        }
         tableRow.classList.add("result");
         tableRow.setAttribute("data-value", current["id"]);
-
         tableRow.innerHTML = `
-        <td id="name"><span>${
-          current["name"]
-        }</span><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button></td>
-        <td id="type"><span>${
-          current["type"]
-        }</span><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button></td>
+        <td id="data">
+            <div class="content"></div>
+            <div class="change"><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button></div>
+        </td>
         <td id="description"><span>${
-          current["description"]
+          current["description"] ?? "keine"
         }</span><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button></td>
-        <td id="ranking"><span>${
-          current["ranking"]
+        <td id="keywords" style="min-width: 200px;">
+        <div class="content"></div>
+        <div class="change"><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button></div>
+        </td>
+        <td id="isOnlineSource">
+            <span>${Utils.valueToString(current["isOnlineSource"], {
+              true: "Ja",
+              false: "Nein",
+            })}</span>
+            <label class="switch">
+                <input type="checkbox" id="checkbox">
+                <span class="slider round"></span>
+            </label>
+        </td>
+        <td id="type">image</td>
+        <td id="mimeType">image/jepg</td>
+        <td id="isBlob">
+            ${Utils.valueToString(current["isBlob"], {
+              true: "Ja",
+              false: "Nein",
+            })}
+        </td>
+        <td id="path"><span>${
+          current["path"] ?? ""
         }</span><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button></td>
-        <td id="normalValue"><span>${
-          current["normalValue"]
-        }</span><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button></td>
-        <td id="usedAt"><span id="list">${JSON.stringify(
-          current["usedAt"]
-        )}</span><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button></td>
-        <td id="hinweis"><span>${
-          current["hinweis"]
-        }</span><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button></td>
+        <td id="inMediaFolder">
+            <span>${Utils.valueToString(current["inMediaFolder"], {
+              true: "Ja",
+              false: "Nein",
+            })}</span>
+            <label class="switch">
+                <input type="checkbox" id="checkbox">
+                <span class="slider round"></span>
+            </label>
+        </td>
+        <td id="uploaded">${current["uploaded"]}</td>
+        <td id="changed">${current["changed"]}</td>
+        <td id="filename" style="min-width: 200px;">
+            <span>${
+              current["filename"]
+            }</span><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button>
+        </td>
         <td id="id">${current["id"]}</td>
-        <td id="customID"><span>${
-          current["customID"]
+        <td id="mediaID"><span>${
+          current["mediaID"]
         }</span><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button></td>
-        <td id="remove"><button class="delete-btn"><img src="../../images/icons/delete.svg" alt="Löschen"></button></td>
+        <td id="thumbnail">
+            <span>${Utils.valueToString(current["thumbnail"], {
+              true: "Ja",
+              false: "Nein",
+            })}</span>
+            <label class="switch">
+                <input type="checkbox" id="checkbox">
+                <span class="slider round"></span>
+            </label>
+        </td>
+        <td id="thumbnailData">
+            <div class="content"></div>
+            <div class="change"><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button></div>
+        </td>
+        <td id="thumbnailFileName"><span>${
+          current["thumbnailFileName"] ?? ""
+        }</span><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button></td>
+        <td id="thumbnailMimeType">${current["thumbnailMimeType"] ?? ""}</td>
+        <td id="thumbnailIsOnlineSource">
+            <span>${Utils.valueToString(current["thumbnailIsOnlineSource"], {
+              true: "Ja",
+              false: "Nein",
+            })}</span>
+            <label class="switch">
+                <input type="checkbox" id="checkbox">
+                <span class="slider round"></span>
+            </label>
+        </td>
+        <td id="thumbnailIsBlob">
+          ${Utils.valueToString(current["thumbnailIsBlob"], {
+            true: "Ja",
+            false: "Nein",
+          })}
+        </td>
+        <td id="thumbnailPath"><span>${
+          current["thumbnailPath"] ?? ""
+        }</span><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button></td>
+        <td id="thumbnailInMediaFolder">
+            <span>${Utils.valueToString(current["thumbnailInMediaFolder"], {
+              true: "Ja",
+              false: "Nein",
+            })}</span>
+            <label class="switch">
+                <input type="checkbox" id="checkbox">
+                <span class="slider round"></span>
+            </label>
+        </td>
+        <td id="fileSize">${current["fileSize"] ?? 0}</td>
+        <th id="remove"><button class="delete-btn"><img src="../../images/icons/delete.svg" alt="Löschen"></button></td>
   `;
-        this.editTableBody.appendChild(tableRow);
 
-        let usedAtContainer = tableRow.querySelector("#usedAt #list");
+        //Keywords
+        let keywordsContainer = tableRow.querySelector("#keywords .content");
         Utils.listOfArrayToHTML(
-          usedAtContainer,
-          Utils.makeJSON(current["usedAt"]),
-          "Nirgendwo"
+          keywordsContainer,
+          Utils.makeJSON(current["keywords"]),
+          "keine"
         );
-        //Name
-        let changeNameBtn = tableRow.querySelector("#name #change");
-        changeNameBtn.addEventListener("click", async () => {
-          if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
-              ["berechtigungsVerwaltungEditPermissions"]
-            ))
-          ) {
-            return false;
-          }
-          if (
-            !(await Utils.askUser(
-              "Warnung",
-              "Beim ändern des Namens der Berechtigung funktioniert die Seite möglicherweise nicht mehr richtig, da im Programmcode mit den Namen getestet wird, ob der Benutzer die Berechtigung hat. Bist du dir wirklich sicher?",
-              false
-            ))
-          ) {
-            await Utils.alertUser(
-              "Nachricht",
-              "Keine Aktion unternommen",
-              false
+        //Disable cache for loading the newest version of media
+        let oldCacheControl = window.localStorage.getItem("cacheControl");
+        window.localStorage.setItem("cacheControl", "no-cache");
+
+        //Data
+        await Utils.setMedia(
+          { mediaID: current["mediaID"] },
+          tableRow.querySelector("#data .content")
+        );
+        //Thumbnail
+        //GET thumbnail data if enabled
+        if (current["thumbnail"]) {
+          let thumbnailData = await Utils.getThumbnailURL(current);
+          console.log(thumbnailData);
+          if (thumbnailData.url) {
+            await Utils.setMedia(
+              {
+                type: "image",
+                url: thumbnailData.url,
+                isOnlineSource: false,
+                urlIsBLOB: true,
+                blobData: thumbnailData,
+              },
+              tableRow.querySelector("#thumbnailData .content"),
+              true
             );
+          }
+        }
+        //set cacheControl to old value
+        window.localStorage.setItem("cacheControl", oldCacheControl);
+
+        //Change
+
+        //data
+        let changeDataBtn = tableRow.querySelector("#data .change #change");
+        changeDataBtn.addEventListener("click", async () => {
+          if (!Utils.userHasPermissions(["medienverwaltungChangeValues"])) {
+            Utils.permissionDENIED();
             return false;
           }
-          let userInput = await Utils.getUserInput(
-            "Eingabefeld",
-            "Neuer Name für die Berechtigung " + current["name"] + "?",
+          let type = await Utils.getUserInput(
+            "Aktion auswählen",
+            "Wie willst du die Mediendaten ändern?",
+            false,
+            "select",
+            false,
+            false,
+            false,
+            {
+              "Datei hochladen (Dateisystem)": "uploadToFileSystem",
+              "Datei geschützt in die Datenbank hochladen (BLOB, bis 4GB)":
+                "uploadAsBlob",
+              "Eine Onlinequelle hinzufügen": "addOnlineSource",
+            },
+            true,
             false
           );
-          if (userInput === false) {
-            Utils.alertUser("Nachricht", "Keine Aktion unternommen", false);
-            return false;
+          if (type === "uploadToFileSystem") {
+          } else if (type === "uploadAsBlobuploadAsBlob") {
+          } else if (type === "addOnlineSource") {
           }
-          await Utils.makeJSON(
-            await Utils.sendXhrREQUEST(
-              "POST",
-              "berechtigungsverwaltung&operation=changeValue&type=changeName&id=" +
-                currentRaw +
-                "&input=" +
-                userInput,
-              "./includes/berechtigungsverwaltung.inc.php",
-              "application/x-www-form-urlencoded",
-              true,
-              true,
-              false
-            )
-          );
-          this.edit(this.choosenArray);
+          this.edit([current["id"]], true);
         });
-        //Type
-        let changeTypeBtn = tableRow.querySelector("#type #change");
-        changeTypeBtn.addEventListener("click", async () => {
-          if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
-              ["berechtigungsVerwaltungEditPermissions"]
-            ))
-          ) {
-            return false;
-          }
-          let userInput = await changeType(current["id"]);
-          if (!Utils.isEmptyInput(userInput, false)) {
-            let res = await Utils.sendXhrREQUEST(
-              "POST",
-              "berechtigungsverwaltung&operation=changeValue&type=changeType&id=" +
-                current["id"] +
-                "&input=" +
-                userInput,
-              "./includes/berechtigungsverwaltung.inc.php",
-              "application/x-www-form-urlencoded",
-              true,
-              true,
-              false,
-              true
-            );
-          }
-          this.edit(this.choosenArray);
-        });
-        //Description
-        let changeDescriptionBtn = tableRow.querySelector(
-          "#description #change"
-        );
-        changeDescriptionBtn.addEventListener("click", async () => {
-          if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
-              ["berechtigungsVerwaltungEditPermissions"]
-            ))
-          ) {
-            return false;
-          }
-          let userInput = await Utils.getUserInput(
-            "Beschreibung ändern",
-            `Ändere hier die Beschreibung der Berechtigung <b>${current["name"]}</b>.`,
-            false,
-            "text",
-            "Wird benötigt, um ....",
-            current["description"],
-            true
-          );
-          console.log(userInput);
-          if (userInput !== false) {
-            let res = await Utils.sendXhrREQUEST(
-              "POST",
-              "berechtigungsverwaltung&operation=changeValue&type=changeDescription&id=" +
-                current["id"] +
-                "&input=" +
-                userInput,
-              "./includes/berechtigungsverwaltung.inc.php",
-              "application/x-www-form-urlencoded",
-              true,
-              true,
-              false,
-              true
-            );
-          }
-
-          this.edit(this.choosenArray);
-        });
-        //Ranking
-        let changeRankingBtn = tableRow.querySelector("#ranking #change");
-        changeRankingBtn.addEventListener("click", async () => {
-          if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
-              ["berechtigungsVerwaltungEditPermissions"]
-            ))
-          ) {
-            return false;
-          }
-          let userInput = await Utils.getUserInput(
-            "Beschreibung ändern",
-            `Welchen Rang soll die Berechtigung <b>${current["name"]}</b> haben?`,
-            false,
-            "number",
-            current["ranking"],
-            current["ranking"],
-            true
-          );
-          console.log(userInput);
-
-          if (!Utils.isEmptyInput(userInput, true)) {
-            let res = await Utils.sendXhrREQUEST(
-              "POST",
-              "berechtigungsverwaltung&operation=changeValue&type=changeRank&id=" +
-                current["id"] +
-                "&rank=" +
-                userInput,
-              "./includes/berechtigungsverwaltung.inc.php",
-              "application/x-www-form-urlencoded",
-              true,
-              true,
-              false,
-              true
-            );
-          }
-          this.edit(this.choosenArray);
-        });
-        //Normal Value
-        let changeNormalValueBtn = tableRow.querySelector(
-          "#normalValue #change"
-        );
-        changeNormalValueBtn.addEventListener("click", async () => {
-          if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
-              ["berechtigungsVerwaltungEditPermissions"]
-            ))
-          ) {
-            return false;
-          }
-          let userInput = await Utils.getUserInput(
-            "Eingabefeld",
-            "Normaler Wert für die Berechtigung " + current["name"] + "?",
-            false,
-            "text",
-            current["normalValue"],
-            current["normalValue"],
-            false
-          );
-          if (userInput === false) {
-            Utils.alertUser("Nachricht", "Keine Aktion unternommen", false);
-            return false;
-          }
-          await await Utils.makeJSON(
-            await Utils.sendXhrREQUEST(
-              "POST",
-              "berechtigungsverwaltung&operation=changeValue&type=changeNormalValue&id=" +
-                current["id"] +
-                "&input=" +
-                userInput,
-              "./includes/berechtigungsverwaltung.inc.php",
-              "application/x-www-form-urlencoded",
-              true,
-              true,
-              false
-            )
-          );
-          this.edit(this.choosenArray);
-        });
-        //Used at
-        let changeUsedAtBtn = tableRow.querySelector("#usedAt #change");
-        changeUsedAtBtn.addEventListener("click", async () => {
-          if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
-              ["berechtigungsVerwaltungEditPermissions"]
-            ))
-          ) {
-            return false;
-          }
-          let res = await changeUsedAt(current["id"]);
-          this.edit(this.choosenArray);
-        });
-
-        //Hinweis
-        let changeHinweisBtn = tableRow.querySelector("#hinweis #change");
-        changeHinweisBtn.addEventListener("click", async () => {
-          if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
-              ["berechtigungsVerwaltungEditPermissions"]
-            ))
-          ) {
-            return false;
-          }
-          let userInput = await Utils.getUserInput(
-            "Hinweis ändern",
-            `Gebe ändere hier den Hinweis der Berechtigung <b>${current["name"]}</b>.`,
-            false,
-            "text",
-            "Nur mit Bedacht...",
-            current["hinweis"],
-            true
-          );
-          console.log(userInput);
-          if (userInput !== false) {
-            let res = await Utils.sendXhrREQUEST(
-              "POST",
-              "berechtigungsverwaltung&operation=changeValue&type=changeHinweis&id=" +
-                current["id"] +
-                "&input=" +
-                userInput,
-              "./includes/berechtigungsverwaltung.inc.php",
-              "application/x-www-form-urlencoded",
-              true,
-              true,
-              false,
-              true
-            );
-          }
-
-          this.edit(this.choosenArray);
-        });
-
-        //Change customID
-        let changeCustomID = tableRow.querySelector("#customID #change");
-        changeCustomID.addEventListener("click", async () => {
-          if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
-              ["berechtigungsVerwaltungEditPermissions"]
-            ))
-          ) {
-            return false;
-          }
-          let userInput = await Utils.getUserInput(
-            "Eingabefeld",
-            "Neue customID für die Berechtigung " + current["name"] + "?",
-            false,
-            "text",
-            current["customID"],
-            current["customID"],
-            true
-          );
-          await Utils.makeJSON(
-            await Utils.sendXhrREQUEST(
-              "POST",
-              "berechtigungsverwaltung&operation=changeValue&type=changecustomID&id=" +
-                current["id"] +
-                "&input=" +
-                userInput,
-              "./includes/berechtigungsverwaltung.inc.php",
-              "application/x-www-form-urlencoded",
-              true,
-              true,
-              false
-            )
-          );
-          this.edit(this.choosenArray);
-        });
-
-        //Delete Permission - If delete it will not be deletet from users until repair process
-        let deletePermissionBtn = tableRow.querySelector("#remove .delete-btn");
-        deletePermissionBtn.addEventListener("click", async () => {
-          if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
-              ["berechtigungsVerwaltungEditPermissions"]
-            ))
-          ) {
-            return false;
-          }
-          if (
-            !(await Utils.askUser(
-              "Warnung",
-              "Beim Löschen der Berechtigung könnte die Webseite nicht mehr richtig funktionieren. Bist du dir wirklich sicher? (Wenn nicht frage einen Administrator)",
-              false
-            ))
-          ) {
-            await Utils.alertUser(
-              "Nachricht",
-              "Keine Aktion unternommen",
-              false
-            );
-            return false;
-          }
-          await Utils.makeJSON(
-            await Utils.sendXhrREQUEST(
-              "POST",
-              "berechtigungsverwaltung&operation=changeValue&type=deletePermission&id=" +
-                current["id"],
-              "./includes/berechtigungsverwaltung.inc.php",
-              "application/x-www-form-urlencoded",
-              true,
-              true,
-              false
-            )
-          );
-          this.choosenArray = Utils.removeFromArray(
-            this.choosenArray,
-            current["id"]
-          );
-          this.edit(this.choosenArray);
-        });
+        //description
+        //keywords
+        //isOnlineSource
+        //path
+        //inMediaFolder
+        //filename
+        //mediaID
+        //thumbnail
+        //dataThumbnail
+        //thumbnailFilename
+        //thumbnailIsOnlineSource
+        //thumbnailPath
+        //thumbnailInMediaFolder
+        //delete
 
         this.editContainer.classList.remove("hidden");
       }

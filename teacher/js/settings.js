@@ -214,12 +214,7 @@ class SETTINGS {
     let addBtn = this.container.querySelector("#addBtn");
     if (!addBtn) return "no addBtn";
     addBtn.addEventListener("click", async () => {
-      if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
-          ["SettingsADDandREMOVE"]
-        ))
-      ) {
+      if (!(await Utils.userHasPermissions(["SettingsADDandREMOVE"]))) {
         return false;
       }
       let userInput = await Utils.getUserInput(
@@ -235,8 +230,7 @@ class SETTINGS {
       let res = await Utils.makeJSON(
         await Utils.sendXhrREQUEST(
           "POST",
-          "settings&operation=createSetting&&name=" +
-            userInput,
+          "settings&operation=createSetting&&name=" + userInput,
           "./includes/settings.inc.php",
           "application/x-www-form-urlencoded",
           true,
@@ -624,8 +618,7 @@ class SETTINGS {
     element.innerHTML = "";
   }
 
-  async edit(choosen) {
-    this.searchBtn.classList.remove("loading");
+  async edit(choosen, reloadOnlyOne = false) {
     if (!choosen || !choosen.length > 0) {
       this.editContainer.classList.add("hidden");
       this.clear(this.editTableBody);
@@ -633,17 +626,57 @@ class SETTINGS {
     }
     console.log("Edit:", choosen);
 
-    this.clear(this.editTableBody);
+    if (!reloadOnlyOne) {
+      this.editContainer.classList.add("hidden");
+      this.clear(this.editTableBody);
+    }
 
-    for (const current of choosen) {
+    for (let current of choosen) {
+      if (reloadOnlyOne) {
+        current = await Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "settings&operation=search&filter=filterByid&input=" +
+              current +
+              "&limit=" +
+              this.limiter.value,
+            "./includes/settings.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            false,
+            true,
+            true
+          )
+        );
+        if (current && current.length > 0) {
+          current = current[0];
+        } else {
+          this.edit();
+        }
+      }
+
       //Get Data
-      console.log(current);
+      console.log(current, current["id"]);
 
       if (current["id"]) {
-        let tableRow = document.createElement("tr");
+        let tableRow;
+        if (!reloadOnlyOne) {
+          tableRow = document.createElement("tr");
+          this.editTableBody.appendChild(tableRow);
+        } else {
+          try {
+            tableRow = this.editTable.querySelector(
+              `tbody .result[data-value="${current["id"]}"]`
+            );
+            console.log(tableRow);
+          } catch {
+            alert("Error");
+            tableRow = document.createElement("tr");
+            this.editTableBody.appendChild(tableRow);
+          }
+        }
         tableRow.classList.add("result");
         tableRow.setAttribute("data-value", current["id"]);
-        this.editTableBody.appendChild(tableRow);
 
         if (current["userIsAllowed"]) {
           tableRow.innerHTML = `
@@ -734,7 +767,7 @@ class SETTINGS {
                   true
                 )
               );
-              this.search();
+              this.edit([current["id"]], true);
             });
           } else if (current["type"] === "switch") {
             settingBox.innerHTML = `
@@ -766,7 +799,7 @@ class SETTINGS {
                   true
                 )
               );
-              this.search();
+              this.edit([current["id"]], true);
             };
 
             Utils.listenToChanges(switchInput, "change", 0, changeValue);
@@ -827,7 +860,7 @@ class SETTINGS {
                   true
                 )
               );
-              this.search();
+              this.edit([current["id"]], true);
             });
           } else if (current["type"] === "executeSystem") {
             settingBox.innerHTML = `
@@ -852,7 +885,7 @@ class SETTINGS {
                   true
                 )
               );
-              this.search();
+              this.edit([current["id"]], true);
             });
           } else if (current["type"] === "task") {
             settingBox.innerHTML = `
@@ -877,35 +910,54 @@ class SETTINGS {
                   true
                 )
               );
-              this.search();
+              this.edit([current["id"]], true);
             });
           } else {
             let changeTypeBtn = tableRow.querySelector("#setting #changeType");
             changeTypeBtn.setAttribute("style", "opacity: 1;");
           }
 
-
           let changeNameBtn = tableRow.querySelector("#name #change");
-          let changeDescriptionBtn = tableRow.querySelector("#description #change");
-          let changeNormalValue = tableRow.querySelector("#normalValue #change");
-          let changeNeededPermissionBtn = tableRow.querySelector("#permissionNeeded #change");
+          let changeDescriptionBtn = tableRow.querySelector(
+            "#description #change"
+          );
+          let changeNormalValue = tableRow.querySelector(
+            "#normalValue #change"
+          );
+          let changeNeededPermissionBtn = tableRow.querySelector(
+            "#permissionNeeded #change"
+          );
           let changeUsedAtBtn = tableRow.querySelector("#usedAt #change");
           let deleteSettingBtn = tableRow.querySelector("#remove .delete-btn");
           let changeTypeBtn = tableRow.querySelector("#setting #changeType");
           let changeMinBtn = tableRow.querySelector("#min #change");
           let changeMaxBtn = tableRow.querySelector("#max #change");
 
-          changeNameBtn.addEventListener("click", async() => {
-            let input = await Utils.getUserInput("Namen ändern", "Beim ändern des Namens der Einstellungen können Fehler in der Anwendung entstehen. Nur ändern, wenn du dir auch wirklich sicher bist.", false, "text", current["name"], current["name"], false);
+          changeNameBtn.addEventListener("click", async () => {
+            let input = await Utils.getUserInput(
+              "Namen ändern",
+              "Beim ändern des Namens der Einstellungen können Fehler in der Anwendung entstehen. Nur ändern, wenn du dir auch wirklich sicher bist.",
+              false,
+              "text",
+              current["name"],
+              current["name"],
+              false
+            );
             if (Utils.isEmptyInput(input)) {
-              await Utils.alertUser("Nachricht", "Keine Aktion unternommen.", false);
+              await Utils.alertUser(
+                "Nachricht",
+                "Keine Aktion unternommen.",
+                false
+              );
               return false;
             }
-            await Utils.makeJSON(
+            let res = await Utils.makeJSON(
               await Utils.sendXhrREQUEST(
                 "POST",
                 "settings&operation=changeOtherValues&type=changeName&id=" +
-                  current["id"] + "&newValue=" + input,
+                  current["id"] +
+                  "&newValue=" +
+                  input,
                 "./includes/settings.inc.php",
                 "application/x-www-form-urlencoded",
                 true,
@@ -914,16 +966,29 @@ class SETTINGS {
                 true
               )
             );
-            this.search();
-
+            if (res["status"] == "success") {
+              this.search();
+            } else {
+              this.edit([current["id"]], true);
+            }
           });
-          changeDescriptionBtn.addEventListener("click", async() => {
-            let input = await Utils.getUserInput("Beschreibung", "Ändern der Beschreibung:", false, "text", current["description"], current["description"], true);
+          changeDescriptionBtn.addEventListener("click", async () => {
+            let input = await Utils.getUserInput(
+              "Beschreibung",
+              "Ändern der Beschreibung:",
+              false,
+              "text",
+              current["description"],
+              current["description"],
+              true
+            );
             await Utils.makeJSON(
               await Utils.sendXhrREQUEST(
                 "POST",
                 "settings&operation=changeOtherValues&type=changeDescription&id=" +
-                  current["id"] + "&newValue=" + input,
+                  current["id"] +
+                  "&newValue=" +
+                  input,
                 "./includes/settings.inc.php",
                 "application/x-www-form-urlencoded",
                 true,
@@ -932,16 +997,25 @@ class SETTINGS {
                 true
               )
             );
-            this.search();
-
+            this.edit([current["id"]], true);
           });
-          changeNormalValue.addEventListener("click", async() => {
-            let input = await Utils.getUserInput("Beschreibung", "Ändern des normalen Wertes:", false, "text", current["normalValue"], current["normalValue"], true);
+          changeNormalValue.addEventListener("click", async () => {
+            let input = await Utils.getUserInput(
+              "Beschreibung",
+              "Ändern des normalen Wertes:",
+              false,
+              "text",
+              current["normalValue"],
+              current["normalValue"],
+              true
+            );
             await Utils.makeJSON(
               await Utils.sendXhrREQUEST(
                 "POST",
                 "settings&operation=changeOtherValues&type=changeNormalValue&id=" +
-                  current["id"] + "&newValue=" + input,
+                  current["id"] +
+                  "&newValue=" +
+                  input,
                 "./includes/settings.inc.php",
                 "application/x-www-form-urlencoded",
                 true,
@@ -950,20 +1024,25 @@ class SETTINGS {
                 true
               )
             );
-            this.search();
-
+            this.edit([current["id"]], true);
           });
-          changeNeededPermissionBtn.addEventListener("click", async() => {
+          changeNeededPermissionBtn.addEventListener("click", async () => {
             let input = await addPermission([current["permissionNeeded"]]);
             if (input == false || !input.length > 0) {
-              await Utils.alertUser("Nachricht", "Keine Aktion unternommen.", false);
+              await Utils.alertUser(
+                "Nachricht",
+                "Keine Aktion unternommen.",
+                false
+              );
               return false;
             }
             await Utils.makeJSON(
               await Utils.sendXhrREQUEST(
                 "POST",
                 "settings&operation=changeOtherValues&type=changeNeededPermission&id=" +
-                  current["id"] + "&newValue=" + input[0],
+                  current["id"] +
+                  "&newValue=" +
+                  input[0],
                 "./includes/settings.inc.php",
                 "application/x-www-form-urlencoded",
                 true,
@@ -972,24 +1051,28 @@ class SETTINGS {
                 true
               )
             );
-            this.search();
-
+            this.edit([current["id"]], true);
           });
-          changeUsedAtBtn.addEventListener("click", async() => {
+          changeUsedAtBtn.addEventListener("click", async () => {
             let input = await changeUsedAt(current["id"]);
-            this.search();
           });
-          changeTypeBtn.addEventListener("click", async() => {
+          changeTypeBtn.addEventListener("click", async () => {
             let input = await changeType([current["id"]]);
             if (Utils.isEmptyInput(input)) {
-              await Utils.alertUser("Nachricht", "Keine Aktion unternommen.", false);
+              await Utils.alertUser(
+                "Nachricht",
+                "Keine Aktion unternommen.",
+                false
+              );
               return false;
             }
             await Utils.makeJSON(
               await Utils.sendXhrREQUEST(
                 "POST",
                 "settings&operation=changeOtherValues&type=changeType&id=" +
-                  current["id"] + "&newValue=" + input,
+                  current["id"] +
+                  "&newValue=" +
+                  input,
                 "./includes/settings.inc.php",
                 "application/x-www-form-urlencoded",
                 true,
@@ -998,10 +1081,9 @@ class SETTINGS {
                 true
               )
             );
-            this.search();
-
+            this.edit([current["id"]], true);
           });
-          deleteSettingBtn.addEventListener("click", async() => {
+          deleteSettingBtn.addEventListener("click", async () => {
             if (
               !(await Utils.userHasPermissions(
                 "../../includes/userSystem/checkPermissionsFromFrontend.php",
@@ -1023,8 +1105,7 @@ class SETTINGS {
             await Utils.makeJSON(
               await Utils.sendXhrREQUEST(
                 "POST",
-                "settings&operation=deleteSetting&id=" +
-                  current["id"],
+                "settings&operation=deleteSetting&id=" + current["id"],
                 "./includes/settings.inc.php",
                 "application/x-www-form-urlencoded",
                 true,
@@ -1034,19 +1115,32 @@ class SETTINGS {
               )
             );
             this.search();
-
           });
-          changeMinBtn.addEventListener("click", async() => {
-            let input = await Utils.getUserInput("Minimalwert ändern", "Minimalwert der Einstellung ändern.", false, "text", current["min"], current["min"], false);
+          changeMinBtn.addEventListener("click", async () => {
+            let input = await Utils.getUserInput(
+              "Minimalwert ändern",
+              "Minimalwert der Einstellung ändern.",
+              false,
+              "text",
+              current["min"],
+              current["min"],
+              false
+            );
             if (Utils.isEmptyInput(input)) {
-              await Utils.alertUser("Nachricht", "Keine Aktion unternommen.", false);
+              await Utils.alertUser(
+                "Nachricht",
+                "Keine Aktion unternommen.",
+                false
+              );
               return false;
             }
             await Utils.makeJSON(
               await Utils.sendXhrREQUEST(
                 "POST",
                 "settings&operation=changeOtherValues&type=changeMin&id=" +
-                  current["id"] + "&newValue=" + input,
+                  current["id"] +
+                  "&newValue=" +
+                  input,
                 "./includes/settings.inc.php",
                 "application/x-www-form-urlencoded",
                 true,
@@ -1057,17 +1151,31 @@ class SETTINGS {
             );
             this.search();
           });
-          changeMaxBtn.addEventListener("click", async() => {
-            let input = await Utils.getUserInput("Maximalwert ändern", "Maximalwert der Einstellung ändern.", false, "text", current["max"], current["max"], false);
+          changeMaxBtn.addEventListener("click", async () => {
+            let input = await Utils.getUserInput(
+              "Maximalwert ändern",
+              "Maximalwert der Einstellung ändern.",
+              false,
+              "text",
+              current["max"],
+              current["max"],
+              false
+            );
             if (Utils.isEmptyInput(input)) {
-              await Utils.alertUser("Nachricht", "Keine Aktion unternommen.", false);
+              await Utils.alertUser(
+                "Nachricht",
+                "Keine Aktion unternommen.",
+                false
+              );
               return false;
             }
             await Utils.makeJSON(
               await Utils.sendXhrREQUEST(
                 "POST",
                 "settings&operation=changeOtherValues&type=changeMax&id=" +
-                  current["id"] + "&newValue=" + input,
+                  current["id"] +
+                  "&newValue=" +
+                  input,
                 "./includes/settings.inc.php",
                 "application/x-www-form-urlencoded",
                 true,
@@ -1078,9 +1186,6 @@ class SETTINGS {
             );
             this.search();
           });
-
-
-          
         } else {
           tableRow.classList.add("forbidden");
           tableRow.innerHTML = `
@@ -1109,7 +1214,7 @@ class SETTINGS {
         this.editContainer.classList.remove("hidden");
       }
     }
-   this.searchReloadBtn.disabled = false;
+    this.searchReloadBtn.disabled = false;
   }
 }
 

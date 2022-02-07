@@ -62,8 +62,6 @@ if (isset($_POST["getAmountOfQuizzes"])) {
                     $resultArray = addToArray($resultArray, $currentQuiz, false);
                 }
         }
-
-
         echo count($resultArray);
     }
 }

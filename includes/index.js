@@ -101,7 +101,53 @@ let klassenstufenBoxesStartseite = new KlassenstufenBoxesStartseite(
 klassenstufenBoxesStartseite.insertBoxes();
 
 let mediaContainer = document.querySelector("#mediaContainer");
-console.log("IMAGE RESPONSE =>", await Utils.setMedia({mediaID: "1"}, mediaContainer));
-console.log("IMAGE RESPONSE =>", await Utils.setMedia({mediaID: "3"}, mediaContainer));
-console.log("IMAGE RESPONSE =>", await Utils.setMedia({mediaID: "5"}, mediaContainer));
-console.log("IMAGE RESPONSE =>", await Utils.setMedia({url: "https://eduquiz.ddns.net/media/videos/wiesand.mp4", type: "video", showAnyway: false}, mediaContainer, false));
+console.log(
+  "IMAGE RESPONSE =>",
+  await Utils.setMedia({ mediaID: "1" }, mediaContainer)
+);
+console.log(
+  "IMAGE RESPONSE =>",
+  await Utils.setMedia({ mediaID: "3" }, mediaContainer)
+);
+console.log(
+  "IMAGE RESPONSE =>",
+  await Utils.setMedia({ mediaID: "5" }, mediaContainer)
+);
+console.log(
+  "IMAGE RESPONSE =>",
+  await Utils.setMedia(
+    {
+      url: "https://eduquiz.ddns.net/media/videos/wiesand.mp4",
+      type: "video",
+      isOnlineSource: true,
+    },
+    mediaContainer,
+    false
+  )
+);
+console.log(
+  "PDF RESPONSE =>",
+  await Utils.setMedia(
+    {
+      url: "https://wuschelcloud.synology.me/media/other/webdesign.pdf",
+      type: "pdf",
+      isOnlineSource: true,
+    },
+    mediaContainer,
+    false
+  )
+);
+
+console.log(
+  "PDF RESPONSE =>",
+  await Utils.setMedia(
+    {
+      url: "https://diezauberscheren.de/42327/applikation-short-stop-lol-surprise-serie-3.jpg",
+      type: "image",
+      isOnlineSource: true,
+    },
+    mediaContainer,
+    false
+  )
+);
+

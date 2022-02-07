@@ -18,7 +18,6 @@ $database = new dbh();
 $conn = $database->connect();
 
 
-
 if (isset($_POST["medienverwaltung"])) {
     require_once("../../includes/organisationFunctions.inc.php");
     require_once("../includes/medienverwaltung-functions.php");
@@ -38,141 +37,534 @@ if (isset($_POST["medienverwaltung"])) {
                 echo "no results";
                 die();
             }
-
+            $results = limitArray($results, $limitResults);
             $resultArray = array();
 
             foreach ($results as $result) {
-               $fileName = getValueFromDatabase($conn, "medienVerwaltung", "filename", "id", $result, 1, false);
-               $description = getValueFromDatabase($conn, "medienVerwaltung", "description", "id", $result, 1, false);
-               $type = getValueFromDatabase($conn, "medienVerwaltung", "type", "id", $result, 1, false);
-               $mimeType = getValueFromDatabase($conn, "medienVerwaltung", "mimeType", "id", $result, 1, false);
-               $mediaID = getValueFromDatabase($conn, "medienVerwaltung", "mediaID", "id", $result, 1, false);
-               $keywords = json_validate(getValueFromDatabase($conn, "medienVerwaltung", "keywords", "id", $result, 1, false));
-               $onFilesystem = boolval(getValueFromDatabase($conn, "medienVerwaltung", "mediaID", "id", $result, 1, false));
-               $fileSize = getValueFromDatabase($conn, "medienVerwaltung", "fileSize", "id", $result, 1, false);
-               $uploaded = getValueFromDatabase($conn, "medienVerwaltung", "uploaded", "id", $result, 1, false);
-            
 
-                $resultArray[] = array("id" => intval($result), "filename" => $fileName, "description" => $description, "type" => $type, "description" => $description, "mimeType" => $mimeType, "mediaID" => $mediaID, "keywords" => $keywords, "onFilesystem" => $onFilesystem, "fileSize" => $fileSize, "uploaded" => $uploaded);
+                $mediaID = getValueFromDatabase($conn, "medienVerwaltung", "mediaID", "id", $result, 1, false);
+                $isOnlineSource = boolval(getValueFromDatabase($conn, "medienVerwaltung", "isOnlineSource", "id", $result, 1, false));
+                $isBlob = boolval(getValueFromDatabase($conn, "medienVerwaltung", "isBlob", "id", $result, 1, false));
+                $inMediaFolder = boolval(getValueFromDatabase($conn, "medienVerwaltung", "inMediaFolder", "id", $result, 1, false));
+                $uploaded = getValueFromDatabase($conn, "medienVerwaltung", "uploaded", "id", $result, 1, false);
+                $filename = getValueFromDatabase($conn, "medienVerwaltung", "filename", "id", $result, 1, false);
+                $mimeType = getValueFromDatabase($conn, "medienVerwaltung", "mimeType", "id", $result, 1, false);
+                $type = getValueFromDatabase($conn, "medienVerwaltung", "type", "id", $result, 1, false);
+                $path = getValueFromDatabase($conn, "medienVerwaltung", "path", "id", $result, 1, false);
+                $thumbnail = boolval(getValueFromDatabase($conn, "medienVerwaltung", "thumbnail", "id", $result, 1, false));
+                $thumbnailIsBlob = boolval(getValueFromDatabase($conn, "medienVerwaltung", "thumbnailIsBlob", "id", $result, 1, false));
+                $thumbnailIsOnlineSource = boolval(getValueFromDatabase($conn, "medienVerwaltung", "thumbnailIsOnlineSource", "id", $result, 1, false));
+                $thumbnailFileName = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailFileName", "id", $result, 1, false);
+                $thumbnailInMediaFolder = boolval(getValueFromDatabase($conn, "medienVerwaltung", "thumbnailInMediaFolder", "id", $result, 1, false));
+                $thumbnailMimeType = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailMimeType", "id", $result, 1, false);
+                $thumbnailPath = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailPath", "mediaID", $result, 1, false);
+                $description = getValueFromDatabase($conn, "medienVerwaltung", "description", "mediaID", $result, 1, false);
+                $keywords = json_validate(getValueFromDatabase($conn, "medienVerwaltung", "keywords", "mediaID", $result, 1, false));
+                $fileSize = getValueFromDatabase($conn, "medienVerwaltung", "fileSize", "mediaID", $result, 1, false);
+                $changed = getValueFromDatabase($conn, "medienVerwaltung", "changed", "mediaID", $result, 1, false);
+                $uploaded = getValueFromDatabase($conn, "medienVerwaltung", "uploaded", "mediaID", $result, 1, false);
+                $uploadedBy = getValueFromDatabase($conn, "medienVerwaltung", "uploadedBy", "mediaID", $result, 1, false);
+                $changedBy = json_validate(getValueFromDatabase($conn, "medienVerwaltung", "changedBy", "mediaID", $result, 1, false));
+
+                $resultArray[] = array("id" => $result, "mediaID" => $mediaID, "uploadedBy" => $uploadedBy, "changedBy" => $changedBy, "uploaded" => $uploaded, "changed" => $changed, "thumbnailIsBlob" => $thumbnailIsBlob, "thumbnailIsOnlineSource" => $thumbnailIsOnlineSource, "thumbnail" => $thumbnail, "isBlob" => $isBlob, "isOnlineSource" => $isOnlineSource, "inMediaFolder" => $inMediaFolder, "uploaded" => $uploaded, "filename" => $filename, "mimeType" => $mimeType, "type" => $type, "path" => $path, "thumbnailFileName" => $thumbnailFileName, "thumbnailMimeType" => $thumbnailMimeType, "thumbnailPath" => $thumbnailPath, "description" => $description, "keywords" => $keywords, "fileSize" => $fileSize, "thumbnailInMediaFolder" => $thumbnailInMediaFolder);
             }
-            $resultArray = limitArray($resultArray, $limitResults);
             echo json_encode($resultArray);
         }
 
-        $limitResults = isset($_POST["limit"]) ? intval($_POST["limit"]): 0;
+        $limitResults = isset($_POST["limit"]) ? intval($_POST["limit"]) : 0;
 
         if ($filter === "filename") {
-            $input = $_POST["filename"];
+            $input = $_POST["input"];
             $allMediaIDs = getAllValuesFromDatabase($conn, "medienVerwaltung", "id", 0, true);
             if (!$allMediaIDs) returnResults($conn, false, $limitResults);
             $resultArray = array();
-            foreach ($allMediaIDs as $currentMediaID) {
-                $fileName = getValueFromDatabase($conn, "medienVerwaltung", "filename", "id", $currentMediaID, 1, false);
-                if (str_contains(strtolower($fileName), strtolower($input)) || str_contains(strToUpper($fileName), strToUpper($input))) {
-                    $resultArray[] = $currentMediaID;
+            foreach ($allMediaIDs as $currentID) {
+                $filename = getValueFromDatabase($conn, "medienVerwaltung", "filename", "id", $currentID, 1, false);
+                if (str_contains(strtolower($filename), strtolower($input)) || str_contains(strToUpper($filename), strToUpper($input))) {
+                    $resultArray[] = $currentID;
                 }
             }
             returnResults($conn, $resultArray, $limitResults);
             die();
-        } else if ($filter === "filterByDescription") {
+        } else if ($filter === "description") {
             $input = $_POST["input"];
-            $permissions = getAllValuesFromDatabase($conn, "permissions", "id", 0, true);
-            if (!$permissions) returnResults($conn, false, $limitResults);
+            $allMediaIDs = getAllValuesFromDatabase($conn, "medienVerwaltung", "id", 0, true);
+            if (!$allMediaIDs) returnResults($conn, false, $limitResults);
             $resultArray = array();
-            foreach ($permissions as $permission) {
-                $permissionDescription = getValueFromDatabase($conn, "permissions", "description", "id", $permission, 1, false);
-                if (str_contains(strtolower($permissionDescription), strtolower($input))) {
-                    $resultArray[] = $permission;
+            foreach ($allMediaIDs as $currentID) {
+                $filename = getValueFromDatabase($conn, "medienVerwaltung", "description", "id", $currentID, 1, false);
+                if (str_contains(strtolower($filename), strtolower($input)) || str_contains(strToUpper($filename), strToUpper($input))) {
+                    $resultArray[] = $currentID;
                 }
             }
             returnResults($conn, $resultArray, $limitResults);
             die();
-        } else if ($filter === "filterByType") {
-            $input = $_POST["input"];
-            $permissions = getAllValuesFromDatabase($conn, "permissions", "id", 0, true);
-            if (!$permissions) returnResults($conn, false, $limitResults);
-            $resultArray = array();
-            foreach ($permissions as $permission) {
-                $permissionType = getValueFromDatabase($conn, "permissions", "type", "id", $permission, 1, false);
-                if ($permissionType == $input) {
-                    $resultArray[] = $permission;
-                }
-            }
-            returnResults($conn, $resultArray, $limitResults);
-            die();
-        } else if ($filter === "filterByRanking") {
-            $input = intval($_POST["input"]);
-            $permissions = getAllValuesFromDatabase($conn, "permissions", "id", 0, true);
-            if (!$permissions) returnResults($conn, false, $limitResults);
-            $resultArray = array();
-            foreach ($permissions as $permission) {
-                $permissionRanking = intval(getValueFromDatabase($conn, "permissions", "ranking", "id", $permission, 1, false));
-                if ($permissionRanking == $input) {
-                    $resultArray[] = $permission;
-                }
-            }
-            returnResults($conn, $resultArray, $limitResults);
-            die();
-        } else if ($filter === "filterByid") {
-            $input = intval($_POST["input"]);
-            $permissions = getAllValuesFromDatabase($conn, "permissions", "id", 0, true);
-            if (!$permissions) returnResults($conn, false, $limitResults);
-            $resultArray = array();
-            foreach ($permissions as $permission) {
-                if (intval($permission) == intval($input)) {
-                    $resultArray[] = $permission;
-                }
-            }
-            returnResults($conn, $resultArray, $limitResults);
-            die();
-        } else if ($filter === "filterBycustomID") {
-            $input = $_POST["input"];
-            $permissions = getAllValuesFromDatabase($conn, "permissions", "id", 0, true);
-            if (!$permissions) returnResults($conn, false, $limitResults);
-            $resultArray = array();
-            foreach ($permissions as $permission) {
-                $permissionCustomID = getValueFromDatabase($conn, "permissions", "customID", "id", $permission, 1, false);
-                if ($permissionCustomID == $input) {
-                    $resultArray[] = $permission;
-                }
-            }
-            returnResults($conn, $resultArray, $limitResults);
-            die();
-        } else if ($filter === "filterByUsedAt") {
+        } else if ($filter === "mimeType") {
             $input = json_validate($_POST["input"]);
-            if (!$input) {
-                echo 0;
-                die();
-            }
-            $permissions = getAllValuesFromDatabase($conn, "permissions", "id", 0, true);
-            if (!$permissions) returnResults($conn, false, $limitResults);
+            $allMediaIDs = getAllValuesFromDatabase($conn, "medienVerwaltung", "id", 0, true);
+            if (!$allMediaIDs) returnResults($conn, false, $limitResults);
             $resultArray = array();
-            foreach ($permissions as $permission) {
-                $usedAt = json_validate(getValueFromDatabase($conn, "permissions", "usedAt", "id", $permission, 1, false));
-                if (!$usedAt) {
-                    continue;
-                }
-                if (array_contains_all_values($usedAt, $input)) {
-                    $resultArray[] = $permission;
+            foreach ($allMediaIDs as $currentID) {
+                $mimeType = getValueFromDatabase($conn, "medienVerwaltung", "mimeType", "id", $currentID, 1, false);
+                if (in_array($mimeType, $input)) {
+                    $resultArray[] = $currentID;
                 }
             }
             returnResults($conn, $resultArray, $limitResults);
             die();
-        } else if ($filter === "filterByHinweis") {
-            $input = $_POST["input"];
-            $permissions = getAllValuesFromDatabase($conn, "permissions", "id", 0, true);
-            if (!$permissions) returnResults($conn, false, $limitResults);
+        } else if ($filter === "type") {
+            $input = json_validate($_POST["input"]);
+            $allMediaIDs = getAllValuesFromDatabase($conn, "medienVerwaltung", "id", 0, true);
+            if (!$allMediaIDs) returnResults($conn, false, $limitResults);
             $resultArray = array();
-            foreach ($permissions as $permission) {
-                $permissionHinweis = getValueFromDatabase($conn, "permissions", "hinweis", "id", $permission, 1, false);
-                if (str_contains(strtolower($permissionHinweis), strtolower($input))) {
-                    $resultArray[] = $permission;
+            foreach ($allMediaIDs as $currentID) {
+                $type = getValueFromDatabase($conn, "medienVerwaltung", "type", "id", $currentID, 1, false);
+                if (in_array($type, $input)) {
+                    $resultArray[] = $currentID;
+                }
+            }
+            returnResults($conn, $resultArray, $limitResults);
+            die();
+        } else if ($filter === "path") {
+            $input = $_POST["input"];
+            $allMediaIDs = getAllValuesFromDatabase($conn, "medienVerwaltung", "id", 0, true);
+            if (!$allMediaIDs) returnResults($conn, false, $limitResults);
+            $resultArray = array();
+            foreach ($allMediaIDs as $currentID) {
+                $path = getValueFromDatabase($conn, "medienVerwaltung", "path", "id", $currentID, 1, false);
+                if (str_contains(strtolower($path), strtolower($input)) || str_contains(strToUpper($path), strToUpper($input))) {
+                    $resultArray[] = $currentID;
+                }
+            }
+            returnResults($conn, $resultArray, $limitResults);
+            die();
+        } else if ($filter === "id") {
+            $input = $_POST["input"];
+            $allMediaIDs = getAllValuesFromDatabase($conn, "medienVerwaltung", "id", 0, true);
+            if (!$allMediaIDs) returnResults($conn, false, $limitResults);
+            $resultArray = array();
+            foreach ($allMediaIDs as $currentID) {
+                if ($currentID == $input) {
+                    $resultArray[] = $currentID;
+                }
+            }
+            returnResults($conn, $resultArray, $limitResults);
+            die();
+        } else if ($filter === "mediaID") {
+            $input = $_POST["input"];
+            $allMediaIDs = getAllValuesFromDatabase($conn, "medienVerwaltung", "id", 0, true);
+            if (!$allMediaIDs) returnResults($conn, false, $limitResults);
+            $resultArray = array();
+            foreach ($allMediaIDs as $currentID) {
+                $mediaID = getValueFromDatabase($conn, "medienVerwaltung", "mediaID", "id", $currentID, 1, false);
+                if (str_contains(strtolower($mediaID), strtolower($input)) || str_contains(strToUpper($mediaID), strToUpper($input))) {
+                    $resultArray[] = $currentID;
+                }
+            }
+            returnResults($conn, $resultArray, $limitResults);
+            die();
+        } else if ($filter === "keyWords") {
+            $input = json_validate($_POST["input"]);
+            $allMediaIDs = getAllValuesFromDatabase($conn, "medienVerwaltung", "id", 0, true);
+            if (!$allMediaIDs) returnResults($conn, false, $limitResults);
+            $resultArray = array();
+            foreach ($allMediaIDs as $currentID) {
+                $keywords = json_validate(getValueFromDatabase($conn, "medienVerwaltung", "keyWords", "id", $currentID, 1, false));
+                if (array_contains_all_values($keywords, $input, true)) {
+                    $resultArray[] = $currentID;
+                }
+            }
+            returnResults($conn, $resultArray, $limitResults);
+            die();
+        } else if ($filter === "isOnlineSource") {
+            $input = $_POST["input"];
+            $allMediaIDs = getAllValuesFromDatabase($conn, "medienVerwaltung", "id", 0, true);
+            if (!$allMediaIDs) returnResults($conn, false, $limitResults);
+            $resultArray = array();
+            foreach ($allMediaIDs as $currentID) {
+                $isOnlineSource = boolval(getValueFromDatabase($conn, "medienVerwaltung", "isOnlineSource", "id", $currentID, 1, false));
+                if ($isOnlineSource == boolval(intval($input))) {
+                    $resultArray[] = $currentID;
+                }
+            }
+            returnResults($conn, $resultArray, $limitResults);
+            die();
+        } else if ($filter === "inMediaFolder") {
+            $input = $_POST["input"];
+            $allMediaIDs = getAllValuesFromDatabase($conn, "medienVerwaltung", "id", 0, true);
+            if (!$allMediaIDs) returnResults($conn, false, $limitResults);
+            $resultArray = array();
+            foreach ($allMediaIDs as $currentID) {
+                $inMediaFolder = boolval(getValueFromDatabase($conn, "medienVerwaltung", "inMediaFolder", "id", $currentID, 1, false));
+                if ($inMediaFolder == boolval(intval($input))) {
+                    $resultArray[] = $currentID;
+                }
+            }
+            returnResults($conn, $resultArray, $limitResults);
+            die();
+        } else if ($filter === "uploaded") {
+            $input = $_POST["input"];
+            $allMediaIDs = getAllValuesFromDatabase($conn, "medienVerwaltung", "id", 0, true);
+            if (!$allMediaIDs) returnResults($conn, false, $limitResults);
+            $resultArray = array();
+            foreach ($allMediaIDs as $currentID) {
+                $uploaded = getValueFromDatabase($conn, "medienVerwaltung", "uploaded", "id", $currentID, 1, false);
+                if (str_contains(strtolower($uploaded), strtolower($input)) || str_contains(strToUpper($uploaded), strToUpper($input))) {
+                    $resultArray[] = $currentID;
+                }
+            }
+            returnResults($conn, $resultArray, $limitResults);
+            die();
+        } else if ($filter === "uploadedBy") {
+            $input = $_POST["input"];
+            $allMediaIDs = getAllValuesFromDatabase($conn, "medienVerwaltung", "id", 0, true);
+            if (!$allMediaIDs) returnResults($conn, false, $limitResults);
+            $resultArray = array();
+            foreach ($allMediaIDs as $currentID) {
+                $uploadedBy = getValueFromDatabase($conn, "medienVerwaltung", "uploadedBy", "id", $currentID, 1, false);
+                if ($uploadedBy == $input) {
+                    $resultArray[] = $currentID;
+                }
+            }
+            returnResults($conn, $resultArray, $limitResults);
+            die();
+        } else if ($filter === "changed") {
+            $input = $_POST["input"];
+            $allMediaIDs = getAllValuesFromDatabase($conn, "medienVerwaltung", "id", 0, true);
+            if (!$allMediaIDs) returnResults($conn, false, $limitResults);
+            $resultArray = array();
+            foreach ($allMediaIDs as $currentID) {
+                $changed = getValueFromDatabase($conn, "medienVerwaltung", "changed", "id", $currentID, 1, false);
+                if (str_contains(strtolower($changed), strtolower($input)) || str_contains(strToUpper($changed), strToUpper($input))) {
+                    $resultArray[] = $currentID;
+                }
+            }
+            returnResults($conn, $resultArray, $limitResults);
+            die();
+        } else if ($filter === "changedBy") {
+            $input = json_validate($_POST["input"]);
+            $allMediaIDs = getAllValuesFromDatabase($conn, "medienVerwaltung", "id", 0, true);
+            if (!$allMediaIDs) returnResults($conn, false, $limitResults);
+            $resultArray = array();
+            foreach ($allMediaIDs as $currentID) {
+                $changedBy = json_validate(getValueFromDatabase($conn, "medienVerwaltung", "changedBy", "id", $currentID, 1, false));
+                if (array_contains_all_values($changedBy, $input)) {
+                    $resultArray[] = $currentID;
+                }
+            }
+            returnResults($conn, $resultArray, $limitResults);
+            die();
+        } else if ($filter === "isBlob") {
+            $input = $_POST["input"];
+            $allMediaIDs = getAllValuesFromDatabase($conn, "medienVerwaltung", "id", 0, true);
+            if (!$allMediaIDs) returnResults($conn, false, $limitResults);
+            $resultArray = array();
+            foreach ($allMediaIDs as $currentID) {
+                $isBlob = boolval(intval(getValueFromDatabase($conn, "medienVerwaltung", "isBlob", "id", $isBlob, 1, false)));
+                if ($isBlob == boolval(intval($input))) {
+                    $resultArray[] = $isBlob;
+                }
+            }
+            returnResults($conn, $resultArray, $limitResults);
+            die();
+        } else if ($filter === "thumbnail") {
+            $input = $_POST["input"];
+            $allMediaIDs = getAllValuesFromDatabase($conn, "medienVerwaltung", "id", 0, true);
+            if (!$allMediaIDs) returnResults($conn, false, $limitResults);
+            $resultArray = array();
+            foreach ($allMediaIDs as $currentID) {
+                $thumbnail = getValueFromDatabase($conn, "medienVerwaltung", "thumbnail", "id", $currentID, 1, false);
+                if (boolval(intval($thumbnail)) == boolval(intval($input))) {
+                    $resultArray[] = $currentID;
+                }
+            }
+            returnResults($conn, $resultArray, $limitResults);
+            die();
+        } else if ($filter === "thumbnailIsBlob") {
+            $input = $_POST["input"];
+            $allMediaIDs = getAllValuesFromDatabase($conn, "medienVerwaltung", "id", 0, true);
+            if (!$allMediaIDs) returnResults($conn, false, $limitResults);
+            $resultArray = array();
+            foreach ($allMediaIDs as $currentID) {
+                $thumbnailIsBlob = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailIsBlob", "id", $currentID, 1, false);
+                if (boolval(intval($thumbnailIsBlob)) == boolval(intval($input))) {
+                    $resultArray[] = $currentID;
+                }
+            }
+            returnResults($conn, $resultArray, $limitResults);
+            die();
+        } else if ($filter === "thumbnailFileName") {
+            $input = $_POST["input"];
+            $allMediaIDs = getAllValuesFromDatabase($conn, "medienVerwaltung", "id", 0, true);
+            if (!$allMediaIDs) returnResults($conn, false, $limitResults);
+            $resultArray = array();
+            foreach ($allMediaIDs as $currentID) {
+                $thumbnailFileName = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailFileName", "id", $currentID, 1, false);
+                if (str_contains(strtolower($thumbnailFileName), strtolower($input)) || str_contains(strToUpper($thumbnailFileName), strToUpper($input))) {
+                    $resultArray[] = $currentID;
+                }
+            }
+            returnResults($conn, $resultArray, $limitResults);
+            die();
+        } else if ($filter === "thumbnailMimeType") {
+            $input = json_validate($_POST["input"]);
+            $allMediaIDs = getAllValuesFromDatabase($conn, "medienVerwaltung", "id", 0, true);
+            if (!$allMediaIDs) returnResults($conn, false, $limitResults);
+            $resultArray = array();
+            foreach ($allMediaIDs as $currentID) {
+                $thumbnailMimeType = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailMimeType", "id", $currentID, 1, false);
+                if (in_array($thumbnailMimeType, $input)) {
+                    $resultArray[] = $currentID;
+                }
+            }
+            returnResults($conn, $resultArray, $limitResults);
+            die();
+        } else if ($filter === "thumbnailIsOnlineSource") {
+            $input = $_POST["input"];
+            $allMediaIDs = getAllValuesFromDatabase($conn, "medienVerwaltung", "id", 0, true);
+            if (!$allMediaIDs) returnResults($conn, false, $limitResults);
+            $resultArray = array();
+            foreach ($allMediaIDs as $currentID) {
+                $thumbnailIsOnlineSource = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailIsOnlineSource", "id", $currentID, 1, false);
+                if (boolval(intval($thumbnailIsOnlineSource)) == boolval(intval($input))) {
+                    $resultArray[] = $currentID;
+                }
+            }
+            returnResults($conn, $resultArray, $limitResults);
+            die();
+        } else if ($filter === "thumbnailPath") {
+            $input = $_POST["input"];
+            $allMediaIDs = getAllValuesFromDatabase($conn, "medienVerwaltung", "id", 0, true);
+            if (!$allMediaIDs) returnResults($conn, false, $limitResults);
+            $resultArray = array();
+            foreach ($allMediaIDs as $currentID) {
+                $thumbnailPath = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailPath", "id", $currentID, 1, false);
+                if (str_contains(strtolower($thumbnailPath), strtolower($input)) || str_contains(strToUpper($thumbnailPath), strToUpper($input))) {
+                    $resultArray[] = $currentID;
+                }
+            }
+            returnResults($conn, $resultArray, $limitResults);
+            die();
+        } else if ($filter === "thumbnailInMediaFolder") {
+            $input = $_POST["input"];
+            $allMediaIDs = getAllValuesFromDatabase($conn, "medienVerwaltung", "id", 0, true);
+            if (!$allMediaIDs) returnResults($conn, false, $limitResults);
+            $resultArray = array();
+            foreach ($allMediaIDs as $currentID) {
+                $thumbnailInMediaFolder = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailInMediaFolder", "id", $currentID, 1, false);
+                if (boolval(intval($thumbnailInMediaFolder)) == boolval(intval($input))) {
+                    $resultArray[] = $currentID;
                 }
             }
             returnResults($conn, $resultArray, $limitResults);
             die();
         } else if ($filter === "all") {
-            returnResults($conn, getAllValuesFromDatabase($conn, "permissions", "id", 0, true), $limitResults);
+            returnResults($conn, getAllValuesFromDatabase($conn, "medienVerwaltung", "id", 0, true), $limitResults);
+            die();
+        } else if ($filter === "multiple") {
+            $filename = $_POST["filename"];
+            $description = $_POST["description"];
+            $type = $_POST["type"];
+            $mimeType = json_validate($_POST["mimeType"]);
+            $path = $_POST["path"];
+            $id = $_POST["id"];
+            $mediaID = $_POST["mediaID"];
+            $keyWords = json_validate($_POST["keyWords"]);
+            $isOnlineSource = $_POST["isOnlineSource"];
+            $inMediaFolder = $_POST["inMediaFolder"];
+            $uploaded = $_POST["uploaded"];
+            $uploadedBy = $_POST["uploadedBy"];
+            $changed = $_POST["changed"];
+            $changedBy = json_validate($_POST["changedBy"]);
+            $isBlob = $_POST["isBlob"];
+            $thumbnail = $_POST["thumbnail"];
+            $thumbnailIsBlob = $_POST["thumbnailIsBlob"];
+            $thumbnailFileName = $_POST["thumbnailFileName"];
+            $thumbnailMimeType = $_POST["thumbnailMimeType"];
+            $thumbnailIsOnlineSource = $_POST["thumbnailIsOnlineSource"];
+            $thumbnailPath = $_POST["thumbnailPath"];
+            $thumbnailInMediaFolder = $_POST["thumbnailInMediaFolder"];
+
+            $allMediaIDs = getAllValuesFromDatabase($conn, "medienVerwaltung", "id", 0, true);
+            if (!$allMediaIDs) returnResults($conn, false, $limitResults);
+
+            if ($filename !== false && count($allMediaIDs) > 0 && $filename != "false") {
+                foreach ($allMediaIDs as $currentID) {
+                    $filenameCurrent = getValueFromDatabase($conn, "medienVerwaltung", "filename", "id", $currentID, 1, false);
+                    if (!str_contains(strtolower($filenameCurrent), strtolower($filename)) && !str_contains(strToUpper($filenameCurrent), strToUpper($filename))) {
+                        $allMediaIDs = removeFromArray($allMediaIDs, $currentID);
+                    }
+                }
+            }
+            if ($description !== false && count($allMediaIDs) > 0 && $description != "false") {
+                foreach ($allMediaIDs as $currentID) {
+                    $descriptionCurrent = getValueFromDatabase($conn, "medienVerwaltung", "description", "id", $currentID, 1, false);
+                    if (!str_contains(strtolower($descriptionCurrent), strtolower($description)) && !str_contains(strToUpper($descriptionCurrent), strToUpper($description))) {
+                        $allMediaIDs = removeFromArray($allMediaIDs, $currentID);
+                    }
+                }
+            }
+            if ($type !== false && count($type) && count($allMediaIDs) > 0 && $type != "false") {
+                foreach ($allMediaIDs as $currentID) {
+                    $typeCurrent = getValueFromDatabase($conn, "medienVerwaltung", "type", "id", $currentID, 1, false);
+                    if (!in_array($type, $typeCurrent)) {
+                        $allMediaIDs = removeFromArray($allMediaIDs, $currentID);
+                    }
+                }
+            }
+            if ($mimeType !== false && count($mimeType) && count($allMediaIDs) > 0 && $description != "false") {
+                foreach ($allMediaIDs as $currentID) {
+                    $mimeTypeCurrent = getValueFromDatabase($conn, "medienVerwaltung", "mimeType", "id", $currentID, 1, false);
+                    if (!in_array($mimeType, $mimeTypeCurrent)) {
+                        $allMediaIDs = removeFromArray($allMediaIDs, $currentID);
+                    }
+                }
+            }
+            if ($path !== false && count($allMediaIDs) > 0 && $path != "false") {
+                foreach ($allMediaIDs as $currentID) {
+                    $pathCurrent = getValueFromDatabase($conn, "medienVerwaltung", "path", "id", $currentID, 1, false);
+                    if (!str_contains(strtolower($pathCurrent), strtolower($path)) && !str_contains(strToUpper($pathCurrent), strToUpper($path))) {
+                        $allMediaIDs = removeFromArray($allMediaIDs, $currentID);
+                    }
+                }
+            }
+            if ($id !== false && count($allMediaIDs) > 0 && $id != "false") {
+                foreach ($allMediaIDs as $currentID) {
+                    if (!$currentID == $id) {
+                        $allMediaIDs = removeFromArray($allMediaIDs, $currentID);
+                    }
+                }
+            }
+            if ($mediaID !== false && count($allMediaIDs) > 0 && $mediaID != "false") {
+                foreach ($allMediaIDs as $currentID) {
+                    $mediaIDCurrent = getValueFromDatabase($conn, "medienVerwaltung", "mediaID", "id", $currentID, 1, false);
+                    if (!str_contains(strtolower($mediaIDCurrent), strtolower($mediaID)) && !str_contains(strToUpper($mediaIDCurrent), strToUpper($mediaID))) {
+                        $allMediaIDs = removeFromArray($allMediaIDs, $currentID);
+                    }
+                }
+            }
+            if ($keyWords !== false && count($keyWords) && count($allMediaIDs) > 0 && $keyWords != "false") {
+                foreach ($allMediaIDs as $currentID) {
+                    $keywordsCurrent = json_validate(getValueFromDatabase($conn, "medienVerwaltung", "keywords", "id", $currentID, 1, false));
+                    if (!array_contains_all_values($keywordsCurrent, $keyWords, true, true)) {
+                        $allMediaIDs = removeFromArray($allMediaIDs, $currentID);
+                    }
+                }
+            }
+            if ($isOnlineSource !== false && count($allMediaIDs) > 0 && $isOnlineSource != "false") {
+                foreach ($allMediaIDs as $currentID) {
+                    $isOnlineSourceCurrent = boolval(getValueFromDatabase($conn, "medienVerwaltung", "isOnlineSource", "id", $currentID, 1, false));
+                    if ($isOnlineSourceCurrent != boolval(intval($isOnlineSource))) {
+                        $allMediaIDs = removeFromArray($allMediaIDs, $currentID);
+                    }
+                }
+            }
+            if ($inMediaFolder !== false && count($allMediaIDs) > 0 && $inMediaFolder != "false") {
+                foreach ($allMediaIDs as $currentID) {
+                    $inMediaFolderCurrent = boolval(getValueFromDatabase($conn, "medienVerwaltung", "inMediaFolder", "id", $currentID, 1, false));
+                    if ($inMediaFolderCurrent != boolval(intval($inMediaFolder))) {
+                        $allMediaIDs = removeFromArray($allMediaIDs, $currentID);
+                    }
+                }
+            }
+            if ($uploaded !== false && count($allMediaIDs) > 0 && $uploaded != "false") {
+                foreach ($allMediaIDs as $currentID) {
+                    $uploadedCurrent = getValueFromDatabase($conn, "medienVerwaltung", "uploaded", "id", $currentID, 1, false);
+                    if (!str_contains(strtolower($uploadedCurrent), strtolower($uploaded)) && !str_contains(strToUpper($uploadedCurrent), strToUpper($uploaded))) {
+                        $allMediaIDs = removeFromArray($allMediaIDs, $currentID);
+                    }
+                }
+            }
+            if ($uploadedBy !== false && count($allMediaIDs) > 0 && $uploadedBy != "false") {
+                foreach ($allMediaIDs as $currentID) {
+                    $uploadedByCurrent = getValueFromDatabase($conn, "medienVerwaltung", "uploadedBy", "id", $currentID, 1, false);
+                    if ($uploadedByCurrent != $uploadedBy) {
+                        $allMediaIDs = removeFromArray($allMediaIDs, $currentID);
+                    }
+                }
+            }
+            if ($changed !== false && count($allMediaIDs) > 0 && $changed != "false") {
+                foreach ($allMediaIDs as $currentID) {
+                    $changedCurrent = getValueFromDatabase($conn, "medienVerwaltung", "changed", "id", $currentID, 1, false);
+                    if (!str_contains(strtolower($changedCurrent), strtolower($changed)) && !str_contains(strToUpper($changedCurrent), strToUpper($changed))) {
+                        $allMediaIDs = removeFromArray($allMediaIDs, $currentID);
+                    }
+                }
+            }
+            if ($changedBy !== false && count($uploadedBy) && count($allMediaIDs) > 0 && $changedBy != "false") {
+                foreach ($allMediaIDs as $currentID) {
+                    $changedByCurrent = json_validate(getValueFromDatabase($conn, "medienVerwaltung", "changedBy", "id", $currentID, 1, false));
+                    if (!array_contains_all_values($changedByCurrent, $changedBy, true, true)) {
+                        $allMediaIDs = removeFromArray($allMediaIDs, $currentID);
+                    }
+                }
+            }
+            if ($isBlob !== false && count($allMediaIDs) > 0 && $isBlob != "false") {
+                foreach ($allMediaIDs as $currentID) {
+                    $isBlobCurrent = getValueFromDatabase($conn, "medienVerwaltung", "isBlob", "id", $isBlob, 1, false);
+                    if (boolval(intval($isBlobCurrent)) != boolval(intval($isBlob))) {
+                        $resultArray[] = $isBlob;
+                    }
+                }
+            }
+            if ($thumbnail !== false && count($allMediaIDs) > 0 && $thumbnail != "false") {
+                foreach ($allMediaIDs as $currentID) {
+                    $thumbnailCurrent = getValueFromDatabase($conn, "medienVerwaltung", "thumbnail", "id", $currentID, 1, false);
+                    if (boolval(intval($thumbnailCurrent)) != boolval(intval($thumbnail))) {
+                        $allMediaIDs = removeFromArray($allMediaIDs, $currentID);
+                    }
+                }
+            }
+            if ($thumbnailIsBlob !== false && count($allMediaIDs) > 0 && $thumbnailIsBlob != "false") {
+                foreach ($allMediaIDs as $currentID) {
+                    $thumbnailIsBlobCurrent = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailIsBlob", "id", $currentID, 1, false);
+                    if (boolval(intval($thumbnailIsBlobCurrent)) != boolval(intval($thumbnailIsBlob))) {
+                        $allMediaIDs = removeFromArray($allMediaIDs, $currentID);
+                    }
+                }
+            }
+            if ($thumbnailFileName !== false && count($allMediaIDs) > 0 && $thumbnailFileName != "false") {
+                foreach ($allMediaIDs as $currentID) {
+                    $thumbnailFileNameCurrent = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailFileName", "id", $currentID, 1, false);
+                    if (!str_contains(strtolower($thumbnailFileNameCurrent), strtolower($thumbnailFileName)) && !str_contains(strToUpper($thumbnailFileNameCurrent), strToUpper($thumbnailFileName))) {
+                        $allMediaIDs = removeFromArray($allMediaIDs, $currentID);
+                    }
+                }
+            }
+            if ($thumbnailMimeType !== false && count($allMediaIDs) > 0 && $thumbnailMimeType != "false") {
+                foreach ($allMediaIDs as $currentID) {
+                    $thumbnailMimeTypeCurrent = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailMimeType", "id", $currentID, 1, false);
+                    if (!in_array($thumbnailMimeTypeCurrent, $thumbnailMimeType)) {
+                        $allMediaIDs = removeFromArray($allMediaIDs, $currentID);
+                    }
+                }
+            }
+            if ($thumbnailIsOnlineSource !== false && count($allMediaIDs) > 0 && $thumbnailIsOnlineSource != "false") {
+                foreach ($allMediaIDs as $currentID) {
+                    $thumbnailIsOnlineSourceCurrent = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailIsOnlineSource", "id", $currentID, 1, false);
+                    if (boolval(intval($thumbnailIsOnlineSourceCurrent)) != boolval(intval($thumbnailIsOnlineSource))) {
+                        $allMediaIDs = removeFromArray($allMediaIDs, $currentID);
+                    }
+                }
+            }
+            if ($thumbnailPath !== false && count($allMediaIDs) > 0 && $thumbnailPath != "false") {
+                foreach ($allMediaIDs as $currentID) {
+                    $thumbnailPath = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailPath", "id", $currentID, 1, false);
+                    if (!str_contains(strtolower($thumbnailPath), strtolower($input)) && !str_contains(strToUpper($thumbnailPath), strToUpper($input))) {
+                        $allMediaIDs = removeFromArray($allMediaIDs, $currentID);
+                    }
+                }
+            }
+            if ($thumbnailPath !== false && count($allMediaIDs) > 0 && $thumbnailPath != "false") {
+                foreach ($allMediaIDs as $currentID) {
+                    $thumbnailInMediaFolderCurrent = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailInMediaFolder", "id", $currentID, 1, false);
+                    if (boolval(intval($thumbnailInMediaFolderCurrent)) != boolval(intval($thumbnailPath))) {
+                        $allMediaIDs = removeFromArray($allMediaIDs, $currentID);
+                    }
+                }
+            }
+
+            returnResults($conn, $allMediaIDs, $limitResults);
             die();
         }
     } else if ($operation === "other") {
@@ -375,21 +767,36 @@ if (isset($_POST["medienverwaltung"])) {
     } else if ($operation === "getFullInfromation") {
 
         $id = $_POST['id'];
-        if (!valueInDatabaseExists($conn, "permissions", "id", "id", $id)) {
-            returnMessage("success", "Diese Berechtigung (id: $id) existiert nicht.");
+        if (!valueInDatabaseExists($conn, "medienVerwaltung", "id", "id", $id)) {
+            returnMessage("success", "Es existiert kein Medieneintrag mit der id '$id'.");
             die();
         }
 
-        $customID = getValueFromDatabase($conn, "permissions", "customID", "id", $id, 1, false);
-        $name = getValueFromDatabase($conn, "permissions", "name", "id", $id, 1, false);
-        $type = getValueFromDatabase($conn, "permissions", "type", "id", $id, 1, false);
-        $description = getValueFromDatabase($conn, "permissions", "description", "id", $id, 1, false);
-        $ranking = getValueFromDatabase($conn, "permissions", "ranking", "id", $id, 1, false);
-        $normalValue = getValueFromDatabase($conn, "permissions", "normalValue", "id", $id, 1, false);
-        $usedAt = getValueFromDatabase($conn, "permissions", "usedAt", "id", $id, 1, false);
-        $hinweis = getValueFromDatabase($conn, "permissions", "hinweis", "id", $id, 1, false);
+        $mediaID = getValueFromDatabase($conn, "medienVerwaltung", "mediaID", "id", $id, 1, false);
+        $isOnlineSource = boolval(getValueFromDatabase($conn, "medienVerwaltung", "isOnlineSource", "id", $id, 1, false));
+        $isBlob = boolval(getValueFromDatabase($conn, "medienVerwaltung", "isBlob", "id", $id, 1, false));
+        $inMediaFolder = boolval(getValueFromDatabase($conn, "medienVerwaltung", "inMediaFolder", "id", $id, 1, false));
+        $uploaded = getValueFromDatabase($conn, "medienVerwaltung", "uploaded", "id", $id, 1, false);
+        $filename = getValueFromDatabase($conn, "medienVerwaltung", "filename", "id", $id, 1, false);
+        $mimeType = getValueFromDatabase($conn, "medienVerwaltung", "mimeType", "id", $id, 1, false);
+        $type = getValueFromDatabase($conn, "medienVerwaltung", "type", "id", $id, 1, false);
+        $path = getValueFromDatabase($conn, "medienVerwaltung", "path", "id", $id, 1, false);
+        $thumbnail = boolval(getValueFromDatabase($conn, "medienVerwaltung", "thumbnail", "id", $id, 1, false));
+        $thumbnailIsBlob = boolval(getValueFromDatabase($conn, "medienVerwaltung", "thumbnailIsBlob", "id", $id, 1, false));
+        $thumbnailIsOnlineSource = boolval(getValueFromDatabase($conn, "medienVerwaltung", "thumbnailIsOnlineSource", "id", $id, 1, false));
+        $thumbnailFileName = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailFileName", "id", $id, 1, false);
+        $thumbnailInMediaFolder = boolval(getValueFromDatabase($conn, "medienVerwaltung", "thumbnailInMediaFolder", "id", $id, 1, false));
+        $thumbnailMimeType = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailMimeType", "id", $id, 1, false);
+        $thumbnailPath = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailPath", "mediaID", $id, 1, false);
+        $description = getValueFromDatabase($conn, "medienVerwaltung", "description", "mediaID", $id, 1, false);
+        $keywords = json_validate(getValueFromDatabase($conn, "medienVerwaltung", "keywords", "mediaID", $id, 1, false));
+        $fileSize = getValueFromDatabase($conn, "medienVerwaltung", "fileSize", "mediaID", $id, 1, false);
+        $changed = getValueFromDatabase($conn, "medienVerwaltung", "changed", "mediaID", $id, 1, false);
+        $uploaded = getValueFromDatabase($conn, "medienVerwaltung", "uploaded", "mediaID", $id, 1, false);
+        $uploadedBy = getValueFromDatabase($conn, "medienVerwaltung", "uploadedBy", "mediaID", $id, 1, false);
+        $changedBy = json_validate(getValueFromDatabase($conn, "medienVerwaltung", "changedBy", "mediaID", $id, 1, false));
 
-        echo json_encode(array("id" => intval($id), "customID" => $customID, "name" => $name, "type" => $type, "description" => $description, "ranking" => $ranking, "normalValue" => $normalValue, "usedAt" => $usedAt, "hinweis" => $hinweis));
+        echo json_encode(array("id" => $id, "mediaID" => $mediaID, "uploadedBy" => $uploadedBy, "changedBy" => $changedBy, "uploaded" => $uploaded, "changed" => $changed, "thumbnailIsBlob" => $thumbnailIsBlob, "thumbnailIsOnlineSource" => $thumbnailIsOnlineSource, "thumbnail" => $thumbnail, "isBlob" => $isBlob, "isOnlineSource" => $isOnlineSource, "inMediaFolder" => $inMediaFolder, "uploaded" => $uploaded, "filename" => $filename, "mimeType" => $mimeType, "type" => $type, "path" => $path, "thumbnailFileName" => $thumbnailFileName, "thumbnailMimeType" => $thumbnailMimeType, "thumbnailPath" => $thumbnailPath, "description" => $description, "keywords" => $keywords, "fileSize" => $fileSize, "thumbnailInMediaFolder" => $thumbnailInMediaFolder));
         die();
     } else if ($operation === "getValues") {
         $id = $_POST["id"];

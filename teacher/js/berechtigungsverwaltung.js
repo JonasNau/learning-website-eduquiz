@@ -77,8 +77,7 @@ class Berechtigungsverwaltung {
     let changeAllType = thead.querySelector("#type #changeAll");
     changeAllType.addEventListener("click", async () => {
       if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
+       !(await Utils.userHasPermissions(
           ["berechtigungsVerwaltungEditPermissions"]
         ))
       ) {
@@ -108,8 +107,7 @@ class Berechtigungsverwaltung {
     let changeAllRanking = thead.querySelector("#ranking #changeAll");
     changeAllRanking.addEventListener("click", async () => {
       if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
+       !(await Utils.userHasPermissions(
           ["berechtigungsVerwaltungEditPermissions"]
         ))
       ) {
@@ -148,8 +146,7 @@ class Berechtigungsverwaltung {
     let changeAllNormalValue = thead.querySelector("#normalValue #changeAll");
     changeAllNormalValue.addEventListener("click", async () => {
       if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
+       !(await Utils.userHasPermissions(
           ["berechtigungsVerwaltungEditPermissions"]
         ))
       ) {
@@ -254,8 +251,7 @@ class Berechtigungsverwaltung {
     let removeAll = thead.querySelector("#remove #changeAll");
     removeAll.addEventListener("click", async () => {
       if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
+       !(await Utils.userHasPermissions(
           ["berechtigungsVerwaltungEditPermissions"]
         ))
       ) {
@@ -516,8 +512,7 @@ class Berechtigungsverwaltung {
     if (!addBtn) return "no addBtn";
     addBtn.addEventListener("click", async () => {
       if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
+       !(await Utils.userHasPermissions(
           ["berechtigungsVerwaltungEditPermissions"]
         ))
       ) {
@@ -1037,20 +1032,21 @@ class Berechtigungsverwaltung {
     }
   }
 
-  async edit(choosen) {
+  async edit(choosen, reloadOnlyOne = false) {
     if (!choosen || !choosen.length > 0) {
       this.editContainer.classList.add("hidden");
       this.clear(this.editTableBody);
       return false;
     }
     this.editReloadBtn.disabled = true;
-    this.editContainer.classList.add("hidden");
     console.log("Edit:", choosen);
 
-    this.resultTable.classList.add("hidden");
-    this.clear(this.tableBody);
-
-    this.clear(this.editTableBody);
+    if (!reloadOnlyOne) {
+      this.resultTable.classList.add("hidden");
+      this.clear(this.tableBody);
+      this.editContainer.classList.add("hidden");
+      this.clear(this.editTableBody);
+    }
 
     for (const currentRaw of choosen) {
       //Get Data
@@ -1074,7 +1070,21 @@ class Berechtigungsverwaltung {
       console.log(current);
 
       if (current["id"]) {
-        let tableRow = document.createElement("tr");
+        let tableRow;
+        if (!reloadOnlyOne) {
+          tableRow = document.createElement("tr");
+          this.editTableBody.appendChild(tableRow);
+        } else {
+          try {
+            tableRow = this.editTable.querySelector(
+              `tbody .result[data-value="${current["id"]}"]`
+            );
+            console.log(tableRow);
+          } catch {
+            tableRow = document.createElement("tr");
+            this.editTableBody.appendChild(tableRow);
+          }
+        }
         tableRow.classList.add("result");
         tableRow.setAttribute("data-value", current["id"]);
 
@@ -1106,7 +1116,6 @@ class Berechtigungsverwaltung {
         }</span><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button></td>
         <td id="remove"><button class="delete-btn"><img src="../../images/icons/delete.svg" alt="Löschen"></button></td>
   `;
-        this.editTableBody.appendChild(tableRow);
 
         let usedAtContainer = tableRow.querySelector("#usedAt #list");
         Utils.listOfArrayToHTML(
@@ -1118,8 +1127,7 @@ class Berechtigungsverwaltung {
         let changeNameBtn = tableRow.querySelector("#name #change");
         changeNameBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["berechtigungsVerwaltungEditPermissions"]
             ))
           ) {
@@ -1162,14 +1170,13 @@ class Berechtigungsverwaltung {
               false
             )
           );
-          this.edit(this.choosenArray);
+          this.edit([current["id"]], true);
         });
         //Type
         let changeTypeBtn = tableRow.querySelector("#type #change");
         changeTypeBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["berechtigungsVerwaltungEditPermissions"]
             ))
           ) {
@@ -1191,7 +1198,7 @@ class Berechtigungsverwaltung {
               true
             );
           }
-          this.edit(this.choosenArray);
+          this.edit([current["id"]], true);
         });
         //Description
         let changeDescriptionBtn = tableRow.querySelector(
@@ -1199,8 +1206,7 @@ class Berechtigungsverwaltung {
         );
         changeDescriptionBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["berechtigungsVerwaltungEditPermissions"]
             ))
           ) {
@@ -1232,14 +1238,13 @@ class Berechtigungsverwaltung {
             );
           }
 
-          this.edit(this.choosenArray);
+          this.edit([current["id"]], true);
         });
         //Ranking
         let changeRankingBtn = tableRow.querySelector("#ranking #change");
         changeRankingBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["berechtigungsVerwaltungEditPermissions"]
             ))
           ) {
@@ -1271,7 +1276,7 @@ class Berechtigungsverwaltung {
               true
             );
           }
-          this.edit(this.choosenArray);
+          this.edit([current["id"]], true);
         });
         //Normal Value
         let changeNormalValueBtn = tableRow.querySelector(
@@ -1279,8 +1284,7 @@ class Berechtigungsverwaltung {
         );
         changeNormalValueBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["berechtigungsVerwaltungEditPermissions"]
             ))
           ) {
@@ -1313,29 +1317,27 @@ class Berechtigungsverwaltung {
               false
             )
           );
-          this.edit(this.choosenArray);
+          this.edit([current["id"]], true);
         });
         //Used at
         let changeUsedAtBtn = tableRow.querySelector("#usedAt #change");
         changeUsedAtBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["berechtigungsVerwaltungEditPermissions"]
             ))
           ) {
             return false;
           }
           let res = await changeUsedAt(current["id"]);
-          this.edit(this.choosenArray);
+          this.edit([current["id"]], true);
         });
 
         //Hinweis
         let changeHinweisBtn = tableRow.querySelector("#hinweis #change");
         changeHinweisBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["berechtigungsVerwaltungEditPermissions"]
             ))
           ) {
@@ -1367,15 +1369,14 @@ class Berechtigungsverwaltung {
             );
           }
 
-          this.edit(this.choosenArray);
+          this.edit([current["id"]], true);
         });
 
         //Change customID
         let changeCustomID = tableRow.querySelector("#customID #change");
         changeCustomID.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["berechtigungsVerwaltungEditPermissions"]
             ))
           ) {
@@ -1404,15 +1405,14 @@ class Berechtigungsverwaltung {
               false
             )
           );
-          this.edit(this.choosenArray);
+          this.edit([current["id"]], true);
         });
 
         //Delete Permission - If delete it will not be deletet from users until repair process
         let deletePermissionBtn = tableRow.querySelector("#remove .delete-btn");
         deletePermissionBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["berechtigungsVerwaltungEditPermissions"]
             ))
           ) {
@@ -1448,7 +1448,7 @@ class Berechtigungsverwaltung {
             this.choosenArray,
             current["id"]
           );
-          this.edit(this.choosenArray);
+          this.edit([current["id"]], true);
         });
 
         this.editContainer.classList.remove("hidden");
@@ -1855,8 +1855,7 @@ class Gruppenverwaltung {
     let deleteAllChoosenGroupsBtn = thead.querySelector("#remove #changeAll");
     deleteAllChoosenGroupsBtn.addEventListener("click", async () => {
       if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
+       !(await Utils.userHasPermissions(
           ["berechtigungsverwaltungADDandRemove"]
         ))
       ) {
@@ -2114,8 +2113,7 @@ class Gruppenverwaltung {
     let createGroupBtn = this.container.querySelector("#addBtn");
     createGroupBtn.addEventListener("click", async () => {
       if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
+       !(await Utils.userHasPermissions(
           ["berechtigungsverwaltungADDandRemove"]
         ))
       ) {
@@ -2590,20 +2588,21 @@ class Gruppenverwaltung {
     }
   }
 
-  async edit(choosen) {
+  async edit(choosen, reloadOnlyOne = false) {
     if (!choosen || !choosen.length > 0) {
       this.editContainer.classList.add("hidden");
       this.clear(this.editTableBody);
       return false;
     }
     this.editReloadBtn.disabled = true;
-    this.editContainer.classList.add("hidden");
     console.log("Edit:", choosen);
 
-    this.resultTable.classList.add("hidden");
-    this.clear(this.tableBody);
-
-    this.clear(this.editTableBody);
+    if (!reloadOnlyOne) {
+      this.resultTable.classList.add("hidden");
+      this.clear(this.tableBody);
+      this.editContainer.classList.add("hidden");
+      this.clear(this.editTableBody);
+    }
 
     for (const currentRaw of choosen) {
       //Get Data
@@ -2626,7 +2625,21 @@ class Gruppenverwaltung {
       console.log(current);
 
       if (current["id"]) {
-        let tableRow = document.createElement("tr");
+        let tableRow;
+        if (!reloadOnlyOne) {
+          tableRow = document.createElement("tr");
+          this.editTableBody.appendChild(tableRow);
+        } else {
+          try {
+            tableRow = this.editTable.querySelector(
+              `tbody .result[data-value="${current["id"]}"]`
+            );
+            console.log(tableRow);
+          } catch {
+            tableRow = document.createElement("tr");
+            this.editTableBody.appendChild(tableRow);
+          }
+        }
         tableRow.classList.add("result");
         tableRow.setAttribute("data-value", current["id"]);
 
@@ -2647,7 +2660,6 @@ class Gruppenverwaltung {
         <td id="id">${current["id"]}</td>
         <td id="remove"><button class="delete-btn"><img src="../../images/icons/delete.svg" alt="Löschen"></button></td>
   `;
-        this.editTableBody.appendChild(tableRow);
 
         let permissionsAllowedContainer = tableRow.querySelector(
           "#permissionsAllowed #list"
@@ -2671,8 +2683,7 @@ class Gruppenverwaltung {
         let changeNameBtn = tableRow.querySelector("#name #change");
         changeNameBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["berechtigungsVerwaltungEditGroups"]
             ))
           ) {
@@ -2709,7 +2720,7 @@ class Gruppenverwaltung {
               false
             )
           );
-          this.edit(this.choosenArray);
+          this.edit([current["id"]], true);
         });
         //Description
         let changeDescriptionBtn = tableRow.querySelector(
@@ -2717,8 +2728,7 @@ class Gruppenverwaltung {
         );
         changeDescriptionBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["berechtigungsVerwaltungEditGroups"]
             ))
           ) {
@@ -2750,12 +2760,12 @@ class Gruppenverwaltung {
             );
           }
 
-          this.edit(this.choosenArray);
+          this.edit([current["id"]], true);
         });
 
         let editPermissions = async () => {
           let res = await changePermissions(current["id"]);
-          this.edit(this.choosenArray);
+          this.edit([current["id"]], true);
         };
 
         //Edit Permissions - Copy from "Benutzerverwaltung"
@@ -2773,8 +2783,7 @@ class Gruppenverwaltung {
         let deleteBtn = tableRow.querySelector("#remove .delete-btn");
         deleteBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["berechtigungsverwaltungADDandRemove"]
             ))
           ) {
@@ -2811,8 +2820,7 @@ class Gruppenverwaltung {
               current["id"]
             );
           }
-
-          this.edit(this.choosenArray);
+          this.edit([current["id"]], true);
         });
 
         this.editContainer.classList.remove("hidden");

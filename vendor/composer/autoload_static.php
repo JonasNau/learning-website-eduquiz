@@ -16,6 +16,10 @@ class ComposerStaticInite5a0c645acb94674250ede4d2880aeab
             'Psr\\Http\\Message\\' => 17,
             'PHPMailer\\PHPMailer\\' => 20,
         ),
+        'L' => 
+        array (
+            'League\\MimeTypeDetection\\' => 25,
+        ),
         'I' => 
         array (
             'Intervention\\Image\\' => 19,
@@ -29,12 +33,16 @@ class ComposerStaticInite5a0c645acb94674250ede4d2880aeab
     public static $prefixDirsPsr4 = array (
         'Psr\\Http\\Message\\' => 
         array (
-            0 => __DIR__ . '/..' . '/psr/http-message/src',
-            1 => __DIR__ . '/..' . '/psr/http-factory/src',
+            0 => __DIR__ . '/..' . '/psr/http-factory/src',
+            1 => __DIR__ . '/..' . '/psr/http-message/src',
         ),
         'PHPMailer\\PHPMailer\\' => 
         array (
             0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
+        ),
+        'League\\MimeTypeDetection\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/league/mime-type-detection/src',
         ),
         'Intervention\\Image\\' => 
         array (

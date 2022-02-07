@@ -46,7 +46,7 @@ if (isset($_POST["klassenstufenverwaltung"])) {
                 echo "no results";
                 die();
             }
-
+            $results = limitArray($results, $limitResults);
             $resultArray = array();
 
             foreach ($results as $result) {
@@ -55,7 +55,6 @@ if (isset($_POST["klassenstufenverwaltung"])) {
                 $quizCanBeCreated = getValueFromKlassenstufenInDatabase($conn, $result, "quizCanBeCreated");
                 $resultArray[] = array("klassenstufe" => $result, "showQuizauswahl" => $showQuizAuswahl, "userCanBe" => $userCanBe, "quizCanBeCreated" => $quizCanBeCreated);
             }
-            $resultArray = limitArray($resultArray, $limitResults);
             echo json_encode($resultArray);
         }
 

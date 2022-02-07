@@ -45,71 +45,70 @@ if (isset($_POST["benutzerverwaltung"])) {
 
         function returnFoundUsers($conn, $users, $limitResults)
         {
-            if (!$users) {
+            if (!$users || !count($users)) {
                 returnMessage("failed", "Keine Ergebnisse");
                 die();
             }
 
-            if (count($users) > 0) {
-                $resultArray = array();
+            $users = limitArray($users, $limitResults);
+            $resultArray = array();
 
-                foreach ($users as $user) {
-                    if ($user == null) continue;
-                    $username = getValueFromDatabase($conn, "users", "username", "userID", $user, 1, false);
-                    $email = getValueFromDatabase($conn, "users", "email", "userID", $user, 1, false);
-                    $klassenstufe = getValueFromDatabase($conn, "users", "klassenstufe", "userID", $user, 1, false);
-                    $isOnline = getValueFromDatabase($conn, "users", "isOnline", "userID", $user, 1, false);
-                    $authenticated = getValueFromDatabase($conn, "users", "authenticated", "userID", $user, 1, false);
-                    $groups = json_validate(getValueFromDatabase($conn, "users", "groups", "userID", $user, 1, false));
+            foreach ($users as $user) {
+                if ($user == null) continue;
+                $username = getValueFromDatabase($conn, "users", "username", "userID", $user, 1, false);
+                $email = getValueFromDatabase($conn, "users", "email", "userID", $user, 1, false);
+                $klassenstufe = getValueFromDatabase($conn, "users", "klassenstufe", "userID", $user, 1, false);
+                $isOnline = getValueFromDatabase($conn, "users", "isOnline", "userID", $user, 1, false);
+                $authenticated = getValueFromDatabase($conn, "users", "authenticated", "userID", $user, 1, false);
+                $groups = json_validate(getValueFromDatabase($conn, "users", "groups", "userID", $user, 1, false));
 
-                    //Create Readable feedback like lastLogin etc
-                    $now = new DateTime(getCurrentDateAndTime(1));
+                //Create Readable feedback like lastLogin etc
+                $now = new DateTime(getCurrentDateAndTime(1));
 
 
-                    $lastLoginString = "Noch Nie";
-                    $lastLoginRaw = getValueFromDatabase($conn,  "users", "lastLogin", "userID", $user, 1, false);
-                    if ($lastLoginRaw != null && $lastLoginRaw != "never") {
-                        $lastLogin = new DateTime($lastLoginRaw);
-                        $lastLogin = differenceOfTime($lastLogin, $now);
-                        $lastLoginString = secondsToArrayOrString($lastLogin, "String");
-                    }
-
-                    $createdString = "";
-                    $createdRaw = getValueFromDatabase($conn,  "users", "created", "userID", $user, 1, false);
-                    if ($createdRaw != null && !empty($createdRaw)) {
-                        $created = new DateTime($createdRaw);
-                        $created = differenceOfTime($created, $now);
-                        $createdString = secondsToArrayOrString($created, "String");
-                    }
-
-                    $lastPwdChangeString = "Noch nie";
-                    $lastPwdChangeRaw = getValueFromDatabase($conn,  "users", "lastPwdChange", "userID", $user, 1, false);
-                    if ($lastPwdChangeRaw != null && !empty($lastPwdChangeRaw)) {
-                        $lastPwdChange = new DateTime($lastPwdChangeRaw);
-                        $lastPwdChange = differenceOfTime($lastPwdChange, $now);
-                        $lastPwdChangeString = secondsToArrayOrString($lastPwdChange, "String");
-                    }
-
-                    $lastActivityString = "Noch Nie";
-                    $lastActivityRaw = getValueFromDatabase($conn,  "users", "lastActivity", "userID", $user, 1, false);
-                    if ($lastActivityRaw != null && !empty($lastActivityRaw)) {
-                        $lastActivity = new DateTime($lastActivityRaw);
-                        $lastActivity = differenceOfTime($lastActivity, $now);
-                        $lastActivityString = secondsToArrayOrString($lastActivity, "String");
-                    }
-
-                    $permissionsAllowed = json_validate(getValueFromDatabase($conn, "users", "permissions", "userID", $user, 1, false));
-                    $permissionsForbidden = json_validate(getValueFromDatabase($conn, "users", "isForbiddenTo", "userID", $user, 1, false));
-                    $ranking = getPermissionRanking($conn, $user);
-                    $usersnextMessages = json_validate(getValueFromDatabase($conn, "users", "messageForComeBack", "userID", $user, 1, false));
-                    $showPublic = getValueFromDatabase($conn, "users", "showPublic", "userID", $user, 1, false);
-                    //Insert new Group and Permissions and deniedPermissions if these values are null in DB set it to valid json
-
-                    array_push($resultArray, array("userID" => $user, "username" => $username, "email" => $email, "klassenstufe" => $klassenstufe, "created" => $createdRaw, "lastLogin" => $lastLoginRaw, "lastPwdChange" => $lastPwdChange, "authenticated" => $authenticated, "groups" => $groups, "permissionsAllowed" => $permissionsAllowed, "permissionsForbidden" => $permissionsForbidden, "lastActivity" => $lastActivityRaw, "isOnline" => $isOnline, "lastLoginString" => $lastLoginString, "createdString" => $createdString, "lastPwdChangeString" => $lastPwdChangeString, "lastActivityString" => $lastActivityString, "nextMessages" => $usersnextMessages, "ranking" => $ranking, "showPublic" => $showPublic));
+                $lastLoginString = "Noch Nie";
+                $lastLoginRaw = getValueFromDatabase($conn,  "users", "lastLogin", "userID", $user, 1, false);
+                if ($lastLoginRaw != null && $lastLoginRaw != "never") {
+                    $lastLogin = new DateTime($lastLoginRaw);
+                    $lastLogin = differenceOfTime($lastLogin, $now);
+                    $lastLoginString = secondsToArrayOrString($lastLogin, "String");
                 }
-                echo json_encode(limitArray($resultArray, intval($limitResults)));
-                return true;
+
+                $createdString = "";
+                $createdRaw = getValueFromDatabase($conn,  "users", "created", "userID", $user, 1, false);
+                if ($createdRaw != null && !empty($createdRaw)) {
+                    $created = new DateTime($createdRaw);
+                    $created = differenceOfTime($created, $now);
+                    $createdString = secondsToArrayOrString($created, "String");
+                }
+
+                $lastPwdChangeString = "Noch nie";
+                $lastPwdChangeRaw = getValueFromDatabase($conn,  "users", "lastPwdChange", "userID", $user, 1, false);
+                if ($lastPwdChangeRaw != null && !empty($lastPwdChangeRaw)) {
+                    $lastPwdChange = new DateTime($lastPwdChangeRaw);
+                    $lastPwdChange = differenceOfTime($lastPwdChange, $now);
+                    $lastPwdChangeString = secondsToArrayOrString($lastPwdChange, "String");
+                }
+
+                $lastActivityString = "Noch Nie";
+                $lastActivityRaw = getValueFromDatabase($conn,  "users", "lastActivity", "userID", $user, 1, false);
+                if ($lastActivityRaw != null && !empty($lastActivityRaw)) {
+                    $lastActivity = new DateTime($lastActivityRaw);
+                    $lastActivity = differenceOfTime($lastActivity, $now);
+                    $lastActivityString = secondsToArrayOrString($lastActivity, "String");
+                }
+
+                $permissionsAllowed = json_validate(getValueFromDatabase($conn, "users", "permissions", "userID", $user, 1, false));
+                $permissionsForbidden = json_validate(getValueFromDatabase($conn, "users", "isForbiddenTo", "userID", $user, 1, false));
+                $ranking = getPermissionRanking($conn, $user);
+                $usersnextMessages = json_validate(getValueFromDatabase($conn, "users", "messageForComeBack", "userID", $user, 1, false));
+                $showPublic = getValueFromDatabase($conn, "users", "showPublic", "userID", $user, 1, false);
+                //Insert new Group and Permissions and deniedPermissions if these values are null in DB set it to valid json
+
+                array_push($resultArray, array("userID" => $user, "username" => $username, "email" => $email, "klassenstufe" => $klassenstufe, "created" => $createdRaw, "lastLogin" => $lastLoginRaw, "lastPwdChange" => $lastPwdChange, "authenticated" => $authenticated, "groups" => $groups, "permissionsAllowed" => $permissionsAllowed, "permissionsForbidden" => $permissionsForbidden, "lastActivity" => $lastActivityRaw, "isOnline" => $isOnline, "lastLoginString" => $lastLoginString, "createdString" => $createdString, "lastPwdChangeString" => $lastPwdChangeString, "lastActivityString" => $lastActivityString, "nextMessages" => $usersnextMessages, "ranking" => $ranking, "showPublic" => $showPublic));
             }
+            echo json_encode($resultArray);
+            return true;
         }
 
         if ($type === "username") {

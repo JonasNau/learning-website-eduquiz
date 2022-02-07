@@ -59,7 +59,7 @@ logWrite($conn, "general", "$username hat das Lehrerpanel betreten -> " . PHP_EO
   <link href="/includes/frameworks/bootstrapAndpopper/bootstrap.min.css" rel="stylesheet">
 
   <link rel="stylesheet" href="./css/lehrerpanel.css?v=<?php echo getNewestVersion(); ?>">
-  <!-- <script id="Cookiebot" src="https://consent.cookiebot.com/uc.js" data-cbid="ede9af5a-1cf5-444a-a4fb-222d2abfcec6" data-blockingmode="auto" type="text/javascript"></script> -->
+  <link rel="stylesheet" href="/css/global.css?v=?<?php echo  getNewestVersion(); ?>">
   <link rel="stylesheet" href="./css/style.css?v=<?php echo getNewestVersion(); ?>">
   <link rel="stylesheet" href="../css/utils.css?v=<?php echo getNewestVersion(); ?>">
   <noscript>

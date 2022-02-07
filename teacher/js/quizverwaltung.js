@@ -79,8 +79,7 @@ class Quizverwaltung {
     let changeNameAll = thead.querySelector("#name #changeAll");
     changeNameAll.addEventListener("click", async () => {
       if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
+       !(await Utils.userHasPermissions(
           ["quizverwaltungEditQuizzes"]
         ))
       ) {
@@ -133,8 +132,7 @@ class Quizverwaltung {
     let changeAllKlassenstufe = thead.querySelector("#klassenstufe #changeAll");
     changeAllKlassenstufe.addEventListener("click", async () => {
       if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
+       !(await Utils.userHasPermissions(
           ["quizverwaltungEditQuizzes"]
         ))
       ) {
@@ -190,8 +188,7 @@ class Quizverwaltung {
     let changeAllFach = thead.querySelector("#fach #changeAll");
     changeAllFach.addEventListener("click", async () => {
       if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
+       !(await Utils.userHasPermissions(
           ["quizverwaltungEditQuizzes"]
         ))
       ) {
@@ -246,8 +243,7 @@ class Quizverwaltung {
     let changeAllThema = thead.querySelector("#thema #changeAll");
     changeAllThema.addEventListener("click", async () => {
       if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
+       !(await Utils.userHasPermissions(
           ["quizverwaltungEditQuizzes"]
         ))
       ) {
@@ -303,8 +299,7 @@ class Quizverwaltung {
     let changeAllDescription = thead.querySelector("#description #changeAll");
     changeAllDescription.addEventListener("click", async () => {
       if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
+       !(await Utils.userHasPermissions(
           ["quizverwaltungEditQuizzes"]
         ))
       ) {
@@ -763,8 +758,7 @@ class Quizverwaltung {
     let deleteAllQuizBtn = thead.querySelector("#remove #changeAll");
     deleteAllQuizBtn.addEventListener("click", async () => {
       if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
+       !(await Utils.userHasPermissions(
           ["quizverwaltungADDandRemove"]
         ))
       ) {
@@ -1080,8 +1074,7 @@ class Quizverwaltung {
     if (!addBtn) return "no addBtn";
     addBtn.addEventListener("click", async () => {
       if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
+       !(await Utils.userHasPermissions(
           ["quizverwaltungADDandRemove"]
         ))
       ) {
@@ -2485,8 +2478,7 @@ class Quizverwaltung {
         let changeNameBtn = tableRow.querySelector("#name #change");
         changeNameBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["quizverwaltungEditQuizzes"]
             ))
           ) {
@@ -2528,8 +2520,7 @@ class Quizverwaltung {
         let changeQuizdataBtn = tableRow.querySelector("#quizData #change");
         changeQuizdataBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["quizverwaltungEditQuizzes"]
             ))
           ) {
@@ -2548,8 +2539,7 @@ class Quizverwaltung {
         );
         changeKlassenstufeBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["quizverwaltungEditQuizzes"]
             ))
           ) {
@@ -2603,8 +2593,7 @@ class Quizverwaltung {
         let changeFachBtn = tableRow.querySelector("#fach #change");
         changeFachBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["quizverwaltungEditQuizzes"]
             ))
           ) {
@@ -2658,8 +2647,7 @@ class Quizverwaltung {
         let changeThemaBtn = tableRow.querySelector("#thema #change");
         changeThemaBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["quizverwaltungEditQuizzes"]
             ))
           ) {
@@ -2715,8 +2703,7 @@ class Quizverwaltung {
         );
         changeDescriptionBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["quizverwaltungEditQuizzes"]
             ))
           ) {
@@ -2758,8 +2745,7 @@ class Quizverwaltung {
         let changeQuizIdBtn = tableRow.querySelector("#quizId #change");
         changeQuizIdBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["quizverwaltungEditQuizzes"]
             ))
           ) {
@@ -2803,8 +2789,7 @@ class Quizverwaltung {
         );
         changeQuizIdRandomBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["quizverwaltungEditQuizzes"]
             ))
           ) {
@@ -3183,8 +3168,7 @@ class Quizverwaltung {
         let deleteQuizBtn = tableRow.querySelector("#remove .delete-btn");
         deleteQuizBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["quizverwaltungADDandRemove"]
             ))
           ) {

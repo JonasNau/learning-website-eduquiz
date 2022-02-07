@@ -115,16 +115,26 @@ if ($gruppen && count($gruppen) > 0) {
                         <li><b>Bestätigt</b>: <?php echo $confirmed ?></li>
                         <li><b>Klassenstufe</b>:
                             <span class="usersGrade">
-                                <!-- Set Select Field by JavaScript -->
-                                <!-- <select id="cars" class="form-control" sytyle="display: inline-block !important;">
-                                    <option value="volvo">Volvo</option>
-                                    <option value="saab">Saab</option>
-                                    <option value="vw">VW</option>
-                                    <option value="audi" selected>Audi</option>
-                                </select> -->
+                                
                             </span>
                         </li>
                         <li><b>Berechtigung</b>: <?php echo $gruppenText ?></li>
+                        <li id="saveData">
+                            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Damit werden Medien nur nach bestätigung heruntergeladen." tabindex="0"><b>Datensparmodus:</b></span> 
+                            <label class="switch">
+                                <input type="checkbox" id="checkbox">
+                                <span class="slider round"></span>
+                            </label>
+                            <div class="container">
+                            <script type="module" defer>
+                                import {makeJSON} from "/includes/utils.js";
+                                let saveDataSwitch = document.querySelector("#saveData #checkbox");
+                                saveDataSwitch.checked = makeJSON(window.localStorage.getItem("SETTING_lightDataUsage"));
+                                saveDataSwitch.addEventListener("change", () => {
+                                    window.localStorage.setItem("SETTING_lightDataUsage", saveDataSwitch.checked);
+                                });
+                            </script>
+                        </li>
                     </ul>
                     <div class="otherOptions">
                         <a href="changePassword.php" class="link">Passwort ändern</a>
@@ -138,13 +148,14 @@ if ($gruppen && count($gruppen) > 0) {
     </div>
 
 </body>
+
 </html>
 
-    <?php
-    require_once 'footer.php';
-    require_once 'body-scripts.php';
-    ?>
-    <script src="includes/account.inc.js?v=?<?php echo  getNewestVersion();?>" type="module" defer></script>
+<?php
+require_once 'footer.php';
+require_once 'body-scripts.php';
+?>
+<script src="includes/account.inc.js?v=?<?php echo  getNewestVersion(); ?>" type="module" defer></script>
 </body>
 
 </html>

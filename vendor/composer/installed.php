@@ -5,7 +5,7 @@
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => 'e9c38b21ed94db226cba01c8af99a1386ae9afe4',
+        'reference' => 'bfc97461073f6bdff8e8d5b825022dfd73c4f7f1',
         'name' => '__root__',
         'dev' => true,
     ),
@@ -16,7 +16,7 @@
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => 'e9c38b21ed94db226cba01c8af99a1386ae9afe4',
+            'reference' => 'bfc97461073f6bdff8e8d5b825022dfd73c4f7f1',
             'dev_requirement' => false,
         ),
         'guzzlehttp/psr7' => array(
@@ -35,6 +35,15 @@
             'install_path' => __DIR__ . '/../intervention/image',
             'aliases' => array(),
             'reference' => '744ebba495319501b873a4e48787759c72e3fb8c',
+            'dev_requirement' => false,
+        ),
+        'league/mime-type-detection' => array(
+            'pretty_version' => '1.9.0',
+            'version' => '1.9.0.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../league/mime-type-detection',
+            'aliases' => array(),
+            'reference' => 'aa70e813a6ad3d1558fc927863d47309b4c23e69',
             'dev_requirement' => false,
         ),
         'phpmailer/phpmailer' => array(

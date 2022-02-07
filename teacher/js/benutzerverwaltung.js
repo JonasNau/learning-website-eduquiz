@@ -82,8 +82,7 @@ class Benutzerverwaltung {
 
     changeAllKlassenstufeBtn.addEventListener("click", async () => {
       if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
+       !(await Utils.userHasPermissions(
           ["editUserInformation", "benutzerverwaltungChangeKlassenstufe"]
         ))
       ) {
@@ -173,8 +172,7 @@ class Benutzerverwaltung {
 
     changeAllauthenticatedBtn.addEventListener("click", async () => {
       if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
+       !(await Utils.userHasPermissions(
           ["editUserInformation", "benutzerverwaltungChangeAuthenticated"]
         ))
       ) {
@@ -216,8 +214,7 @@ class Benutzerverwaltung {
 
     changeAllgroupsBtn.addEventListener("click", async () => {
       if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
+       !(await Utils.userHasPermissions(
           ["editUserInformation", "benutzerverwaltungChangeGroups"]
         ))
       ) {
@@ -408,8 +405,7 @@ class Benutzerverwaltung {
 
     changeAllpermissionsBtn.addEventListener("click", async () => {
       if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
+       !(await Utils.userHasPermissions(
           ["editUserInformation", "benutzerverwaltungChangePermissions"]
         ))
       ) {
@@ -702,8 +698,7 @@ class Benutzerverwaltung {
       );
       if (type === "changePassword") {
         if (
-          !(await Utils.userHasPermissions(
-            "../../includes/userSystem/checkPermissionsFromFrontend.php",
+         !(await Utils.userHasPermissions(
             ["editUserInformation", "benutzerverwaltungChangePasswords"]
           ))
         ) {
@@ -739,8 +734,7 @@ class Benutzerverwaltung {
       } else if (type === "deleteUser") {
         //Done
         if (
-          !(await Utils.userHasPermissions(
-            "../../includes/userSystem/checkPermissionsFromFrontend.php",
+         !(await Utils.userHasPermissions(
             ["benutzerverwaltungDeleteUsers"]
           ))
         ) {
@@ -786,8 +780,7 @@ class Benutzerverwaltung {
       } else if (type === "logoutFromAlldevices") {
         //Done
         if (
-          !(await Utils.userHasPermissions(
-            "../../includes/userSystem/checkPermissionsFromFrontend.php",
+         !(await Utils.userHasPermissions(
             ["benutzerverwaltungDeleteUsers"]
           ))
         ) {
@@ -823,8 +816,7 @@ class Benutzerverwaltung {
         this.edit(this.choosenArray);
       } else if (type === "newComeBackMessage") {
         if (
-          !(await Utils.userHasPermissions(
-            "../../includes/userSystem/checkPermissionsFromFrontend.php",
+         !(await Utils.userHasPermissions(
             ["benutzerverwaltungCreateComeBackMessages"]
           ))
         ) {
@@ -862,8 +854,7 @@ class Benutzerverwaltung {
         this.edit(this.choosenArray);
       } else if (type === "removeAllComeBackMessages") {
         if (
-          !(await Utils.userHasPermissions(
-            "../../includes/userSystem/checkPermissionsFromFrontend.php",
+         !(await Utils.userHasPermissions(
             ["benutzerverwaltungCreateComeBackMessages"]
           ))
         ) {
@@ -899,8 +890,7 @@ class Benutzerverwaltung {
         this.edit(this.choosenArray);
       } else if (type === "removeSpecificComeBackmessage") {
         if (
-          !(await Utils.userHasPermissions(
-            "../../includes/userSystem/checkPermissionsFromFrontend.php",
+         !(await Utils.userHasPermissions(
             ["benutzerverwaltungCreateComeBackMessages"]
           ))
         ) {
@@ -980,8 +970,7 @@ class Benutzerverwaltung {
         this.edit(this.choosenArray);
       } else if (type === "showPublic") {
         if (
-          !(await Utils.userHasPermissions(
-            "../../includes/userSystem/checkPermissionsFromFrontend.php",
+         !(await Utils.userHasPermissions(
             ["editUserInformation", "benutzerverwaltungChangeShowPublic"]
           ))
         ) {
@@ -2096,20 +2085,21 @@ class Benutzerverwaltung {
     element.innerHTML = "";
   }
 
-  async edit(choosen) {
+  async edit(choosen, reloadOnlyOne = false) {
     if (!choosen || !choosen.length > 0) {
       this.editContainer.classList.add("hidden");
       this.clear(this.editTableBody);
       return false;
     }
     this.editReloadBtn.disabled = true;
-    this.editContainer.classList.add("hidden");
     console.log("Edit:", choosen);
 
-    this.resultTable.classList.add("hidden");
-    this.clear(this.tableBody);
-
-    this.clear(this.editTableBody);
+    if (!reloadOnlyOne) {
+      this.resultTable.classList.add("hidden");
+      this.clear(this.tableBody);
+      this.editContainer.classList.add("hidden");
+      this.clear(this.editTableBody);
+    }
 
     for (let current of choosen) {
       //Get current
@@ -2132,10 +2122,25 @@ class Benutzerverwaltung {
       }
 
       if (current["userID"]) {
-        let tableRow = document.createElement("tr");
+        let tableRow;
+        if (!reloadOnlyOne) {
+          tableRow = document.createElement("tr");
+          this.editTableBody.appendChild(tableRow);
+        } else {
+          try {
+            tableRow = this.editTable.querySelector(
+              `tbody .result[data-value="${current["userID"]}"]`
+            );
+            console.log(tableRow);
+          } catch {
+            tableRow = document.createElement("tr");
+            this.editTableBody.appendChild(tableRow);
+          }
+        }
+
         tableRow.classList.add("result");
         tableRow.setAttribute("data-value", current["userID"]);
-
+        
         tableRow.innerHTML = `
         <td id="userID">${current["userID"]}</td>
         <td id="username"><span id="text">${
@@ -2156,7 +2161,6 @@ class Benutzerverwaltung {
         <td id="permissions"><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button><div><b>Erlaubt:</b></div><div id="permissionsAllowed"></div><b>Verboten:</b><div id="permissionsForbidden"></div></span></td>
         <td id="other"><button type="button" id="other-btn">Optionen</button></td>
         `;
-        this.editTableBody.appendChild(tableRow);
 
         let groupsInner = tableRow.querySelector("#groups #text");
         Utils.listOfArrayToHTML(groupsInner, current["groups"]);
@@ -2185,8 +2189,7 @@ class Benutzerverwaltung {
         let changeUsernameBtn = tableRow.querySelector("#username #change");
         changeUsernameBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["editUserInformation", "benutzerverwaltungChangeUsername"]
             ))
           ) {
@@ -2221,15 +2224,14 @@ class Benutzerverwaltung {
               false
             )
           );
-          this.edit(this.choosenArray);
+          this.edit([current["userID"]], true);
         });
 
         //Email
         let changeEmailBtn = tableRow.querySelector("#email #change");
         changeEmailBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["editUserInformation", "benutzerverwaltungChangeEmail"]
             ))
           ) {
@@ -2264,7 +2266,7 @@ class Benutzerverwaltung {
               false
             )
           );
-          this.edit(this.choosenArray);
+          this.edit([current["userID"]], true);
         });
 
         //Klassenstufe
@@ -2273,8 +2275,7 @@ class Benutzerverwaltung {
         );
         changeKlassenstufeBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["editUserInformation", "benutzerverwaltungChangeKlassenstufe"]
             ))
           ) {
@@ -2358,7 +2359,7 @@ class Benutzerverwaltung {
             );
           }
 
-          this.edit(this.choosenArray);
+          this.edit([current["userID"]], true);
         });
         //Bestätigung
         let changeAuthenticatedBtn = tableRow.querySelector(
@@ -2367,8 +2368,7 @@ class Benutzerverwaltung {
 
         changeAuthenticatedBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["editUserInformation", "benutzerverwaltungChangeAuthenticated"]
             ))
           ) {
@@ -2403,21 +2403,20 @@ class Benutzerverwaltung {
               false
             )
           );
-          this.edit(this.choosenArray);
+          this.edit([current["userID"]], true);
         });
 
         let changeGroupsBtn = tableRow.querySelector("#groups #change");
         changeGroupsBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["editUserInformation", "benutzerverwaltungChangeGroups"]
             ))
           ) {
             return false;
           }
           await changeGroups(current["userID"]);
-          this.edit(this.choosenArray);
+          this.edit([current["userID"]], true);
         });
 
         let changePermissionsBtn = tableRow.querySelector(
@@ -2425,15 +2424,14 @@ class Benutzerverwaltung {
         );
         changePermissionsBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["editUserInformation", "benutzerverwaltungChangePermissions"]
             ))
           ) {
             return false;
           }
           await changePermissions(current["userID"]);
-          this.edit(this.choosenArray);
+          this.edit([current["userID"]], true);
         });
 
         let otherBtn = tableRow.querySelector("#other #other-btn");
@@ -2535,7 +2533,7 @@ class Benutzerverwaltung {
                 current["userID"]
               );
             }
-            this.edit(this.choosenArray);
+            this.edit([current["userID"]], true);
           } else if (type === "logoutFromAlldevices") {
             //Done
             if (
@@ -2574,7 +2572,7 @@ class Benutzerverwaltung {
                 false
               )
             );
-            this.edit(this.choosenArray);
+            this.edit([current["userID"]], true);
           } else if (type === "newComeBackMessage") {
             if (
               !(await Utils.userHasPermissions(
@@ -2611,7 +2609,7 @@ class Benutzerverwaltung {
                 false
               )
             );
-            this.edit(this.choosenArray);
+            this.edit([current["userID"]], true);
           } else if (type === "removeAllComeBackMessages") {
             if (
               !(await Utils.userHasPermissions(
@@ -2649,7 +2647,7 @@ class Benutzerverwaltung {
                 false
               )
             );
-            this.edit(this.choosenArray);
+            this.edit([current["userID"]], true);
           } else if (type === "removeSpecificComeBackmessage") {
             if (
               !(await Utils.userHasPermissions(
@@ -2715,7 +2713,7 @@ class Benutzerverwaltung {
                 )
               );
             }
-            this.edit(this.choosenArray);
+            this.edit([current["userID"]], true);
           } else if (type === "showPublic") {
             if (
               !(await Utils.userHasPermissions(
@@ -2760,7 +2758,7 @@ class Benutzerverwaltung {
       }
       this.editContainer.classList.remove("hidden");
     }
-    this.editReloadBtn.disabled = false;
+    this.editReloadBtn.disabled = true;
   }
 }
 

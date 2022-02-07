@@ -201,7 +201,7 @@ if (userHasPermissions($conn, $userID, ["accessMediaVerwaltung" => gnVP($conn, "
 
                     </div>
                     <div class="overflow-auto">
-                        <table class="styled-table" id="resultTable">
+                        <table class="styled-table shrinkMedia" id="resultTable">
                             <thead>
                                 <tr>
                                     <th id="select">
@@ -209,7 +209,10 @@ if (userHasPermissions($conn, $userID, ["accessMediaVerwaltung" => gnVP($conn, "
                                         <hr>
                                         <div><input type="checkbox" id="chooseall"> Alle auswählen</div>
                                     </th>
-                                    <th id="data">Daten</th>
+                                    <th id="data">
+                                        <span class="heading">Daten</span>
+                                        <span><input type="checkbox" id="checkbox" checked="checked">Verkleinerte Ansicht</span>
+                                    </th>
                                     <th id="description" style="min-width: 300px;">Beschreibung</td>
                                     <th id="keywords" style="min-width: 200px;">Schlüsselwörter</th>
                                     <th id="isOnlineSource">Ist eine Onlinequelle</th>
@@ -232,11 +235,14 @@ if (userHasPermissions($conn, $userID, ["accessMediaVerwaltung" => gnVP($conn, "
                                     <th id="thumbnailPath">Miniaturansicht - Pfad / URL</th>
                                     <th id="thumbnailInMediaFolder">Miniaturansicht - Pfad / URL</th>
                                     <th id="fileSize">Dateigröße</th>
+                                    <th id="uploadedBy">Hochgeladen von</th>
+                                    <th id="changedBy">Geändert von</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td class="select"><input type="checkbox" id="select"><button id="chooseOnly"><img src="../../images/icons/stift.svg" alt="Auswahl"></button></td>
+                                    <td id="data">Beschreibung</td>
                                     <td id="description" style="min-width: 300px;">Beschreibung</td>
                                     <td id="keywords" style="min-width: 200px;">Schlüsselwörter</td>
                                     <td id="isOnlineSource">Ist eine Onlinequelle</td>
@@ -259,6 +265,8 @@ if (userHasPermissions($conn, $userID, ["accessMediaVerwaltung" => gnVP($conn, "
                                     <td id="thumbnailPath">Miniaturansicht - Pfad / URL</td>
                                     <td id="thumbnailInMediaFolder">Miniaturansicht - Pfad / URL</td>
                                     <td id="fileSize">Dateigröße</td>
+                                    <td id="uploadedBy">Hochgeladen von</td>
+                                    <td id="changedBy">Geändert von</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -271,10 +279,13 @@ if (userHasPermissions($conn, $userID, ["accessMediaVerwaltung" => gnVP($conn, "
                         </div>
 
                         <div class="overflow-auto" id="edit">
-                            <table class="table styled-table" id="editTable">
+                            <table class="table styled-table shrinkMedia" id="editTable">
                                 <thead>
                                     <tr>
-                                        <th id="data">Daten</th>
+                                        <th id="data">
+                                            <span class="heading">Daten</span>
+                                            <span><input type="checkbox" id="checkbox" checked="checked">Verkleinerte Ansicht</span>
+                                        </th>
                                         <th id="description" style="min-width: 300px;"><span>Beschreibung</span><button type="button" id="changeAll">alle ändern</button></td>
                                         <th id="keywords" style="min-width: 200px;"><span>Schlüsselwörter</span><button type="button" id="changeAll">alle ändern</button></th>
                                         <th id="isOnlineSource"><span>Ist eine Onlinequelle</span><button type="button" id="changeAll">alle ändern</button></th>
@@ -305,10 +316,9 @@ if (userHasPermissions($conn, $userID, ["accessMediaVerwaltung" => gnVP($conn, "
                                 </thead>
                                 <tbody>
                                     <tr>
-
                                         <td id="data">
-                                            <div class="dataContent"></div>
-                                            <div class="change"><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button></div>
+                                           <div class="content"></div>
+                                           <div class="change"><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button></div>
                                         </td>
                                         <td id="description"><span>Erlenmeyerkolben auf einem Tisch.</span><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button></td>
                                         <td id="keywords" style="min-width: 200px;"></td>

@@ -65,6 +65,7 @@ if (isset($_POST["settings"])) {
                 die();
             }
 
+            $results = limitArray($results, $limitResults);
             $resultArray = array();
 
             foreach ($results as $result) {
@@ -86,7 +87,6 @@ if (isset($_POST["settings"])) {
 
                 $resultArray[] = array("id" => intval($result), "name" => $name, "type" => $type, "description" => $description, "setting" => $setting, "normalValue" => $normalValue, "usedAt" => $usedAt, "usedAt" => $usedAt, "permissionNeeded" => $permissionNeeded, "userIsAllowed" => $userIsAllowed, "min" => $min, "max" => $max, "");
             }
-            $resultArray = limitArray($resultArray, $limitResults);
             echo json_encode($resultArray);
         }
 

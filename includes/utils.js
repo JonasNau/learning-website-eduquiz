@@ -914,8 +914,7 @@ export function toggleValuesInArray(array, ...values) {
 }
 
 export async function userHasPermissions(
-  checkPermissionsFromFrontendPATH,
-  permissions = new Array()
+  permissions = new Array(),  checkPermissionsFromFrontendPATH = "/includes/userSystem/checkPermissionsFromFrontend.php",
 ) {
   return new Promise((resolve, reject) => {
     var xhr = new XMLHttpRequest();
@@ -1708,11 +1707,11 @@ export async function chooseFromArrayWithSearch(
   });
 }
 
-export async function getSettingVal(PATHtoGeneralFunctions, setting) {
+export async function getSettingVal(setting) {
   return await sendXhrREQUEST(
     "POST",
     "GETsettingVal&setting=" + setting,
-    PATHtoGeneralFunctions,
+    "/includes/generalFunctions.php",
     "application/x-www-form-urlencoded",
     true,
     true,
@@ -1940,7 +1939,7 @@ export function boolToString(bool, data = { true: "Ja", false: "Nein" }) {
 }
 
 export function valueToString(value, data = { true: "Ja", false: "Nein" }) {
-  return data.value ?? value;
+  return data[value] ?? value;
 }
 
 export function swapArrayElements(arr, indexA, indexB) {
@@ -1966,7 +1965,6 @@ export function escapeURI(input) {
     return input;
   }
 }
-
 
 //Medienverwaltung
 export function setMedia(
@@ -1999,203 +1997,156 @@ export function setMedia(
           true
         )
       );
-
       console.log("MEDIA DATA RECIEVED =>", mediaData);
       if (!mediaData) resolve(false);
-      if (mediaData.type === "image") {
-        let path = mediaData.path;
-        if (!mediaData.isOnlineSource) {
-          //SELF HOSTED IMAGES
-          if (mediaData.inMediaFolder) {
-            path = `${mediaData.mediaFolderPath}${path}/${mediaData.filename}`;
-          } else {
-            path = `${path}/${mediaData.filename}`;
-          }
-          console.log("THE PATH FOR THE IMAGE IS:", path);
-          if (mediaData.isBlob) {
-            await setImage(
-              mediaData.isOnlineSource,
-              showAnyway,
-              await getBLOBData({
-                serverRequest: {
-                  request:
-                    "getAttribute&type=medienverwaltung&secondOperation=getBlob&thirdOperation=primary&mediaID=" +
-                    data.mediaID,
-                  path: "/includes/getAttributes.php",
-                },
-              }),
-              container
-            );
-          } else {
-            await setImage(
-              mediaData.isOnlineSource,
-              showAnyway,
-              await getBLOBData({ url: path }),
-              container
-            );
-          }
-        } else {
-          //THIRD PARTY HOSTED IMAGES
-          let path = mediaData.path;
-          console.log("THE PATH FOR THE IMAGE IS:", path);
+
+      if (makeJSON(window.localStorage.getItem("SETTING_lightDataUsage"))) {
+        let warnContainer = document.createElement("div");
+        warnContainer.classList.add("SETTING_lightDataUsage-warning");
+        warnContainer.setAttribute("style", "position: relative;");
+        warnContainer.innerHTML = `
+        <div class="header">Laden von Medien</div>
+        <div class="content">Hier wird verhindert, dass Inhalt geladen wird, weil du den Datensparmodus aktiviert hast. Um diesen zu laden klicke auf diese Fläche.</div>
+        <div class="footer">Typ: ${valueToString(mediaData.type, {
+          image: "Bild",
+          video: "Video",
+          audio: "Audio",
+        })}</div>
+        `;
+
+        //Listen to click
+        warnContainer.addEventListener(
+          "click",
+          async () => {
+            container.removeChild(warnContainer);
+            if (mediaData.type === "image") {
+              await setImage(
+                mediaData.isOnlineSource,
+                showAnyway,
+                mediaData,
+                container
+              );
+            } else if (mediaData.type === "video") {
+              await setVideo(
+                mediaData.isOnlineSource,
+                showAnyway,
+                mediaData,
+                container
+              );
+            } else if (mediaData.type === "audio") {
+              await setAudio(
+                mediaData.isOnlineSource,
+                showAnyway,
+                mediaData,
+                container
+              );
+            } else {
+              await setOtherMedia(isOnlineSource, showAnyway, mediaData, container);
+            }
+          },
+          { once: true }
+        );
+        container.appendChild(warnContainer);
+      } else {
+        if (mediaData.type === "image") {
           await setImage(
             mediaData.isOnlineSource,
             showAnyway,
-            { url: path },
+            mediaData,
             container
           );
-        }
-      }
-
-      if (mediaData.type === "video") {
-        let path = mediaData.path;
-        if (!mediaData.isOnlineSource) {
-          //SELF HOSTED IMAGES
-          if (mediaData.inMediaFolder) {
-            path = `${mediaData.mediaFolderPath}${path}/${mediaData.filename}`;
-          } else {
-            path = `${path}/${mediaData.filename}`;
-          }
-          console.log("THE PATH FOR THE VIDEO IS:", path);
-          if (mediaData.isBlob) {
-            //VIDEO is BLOB
-            let dataPrimary = await getBLOBData({
-              serverRequest: {
-                request:
-                  "getAttribute&type=medienverwaltung&secondOperation=getBlob&thirdOperation=primary&mediaID=" +
-                  data.mediaID,
-                path: "/includes/getAttributes.php",
-              },
-            });
-            //GET thumbnail data if enabled
-            let thumbnailURL = false;
-
-            if (mediaData.thumbnail) {
-              if (mediaData.thumbnailIsOnlineSource) {
-                let dataThumbnail = await getBLOBData({
-                  url: mediaData.thumbnailPath,
-                });
-                thumbnailURL = dataThumbnail.url;
-              } else {
-                if (mediaData.thumbnailInMediaFolder) {
-                  let dataThumbnail = await getBLOBData({
-                    url: `${mediaData.mediaFolderPath}${media.thumbnailPath}/${mediaData.thumbnailFileName}`,
-                  });
-                  thumbnailURL = dataThumbnail.url;
-                } else {
-                  if (mediaData.thumbnailIsBlob) {
-                    let dataThumbnail = await getBLOBData({
-                      serverRequest: {
-                        request:
-                          "getAttribute&type=medienverwaltung&secondOperation=getBlob&thirdOperation=thumbnail&mediaID=" +
-                          data.mediaID,
-                        path: "/includes/getAttributes.php",
-                      },
-                    });
-                    thumbnailURL = dataThumbnail.url;
-                  } else {
-                    let dataThumbnail = await getBLOBData({
-                      url: `${mediaData.thumbnailPath}/${mediaData.thumbnailFileName}`,
-                    });
-                    thumbnailURL = dataThumbnail.url;
-                  }
-                }
-              }
-            }
-
-            await setVideo(
-              mediaData.isOnlineSource,
-              showAnyway,
-              {
-                thumbnailURL: thumbnailURL,
-                primaryUrl: dataPrimary.url,
-                primaryBLOB: dataPrimary.blob,
-              },
-              container
-            );
-          } else {
-
-            await setVideo(
-              mediaData.isOnlineSource,
-              showAnyway,
-              {path: path},
-              container, mediaData
-            );
-          }
-        } else {
-          //THIRD PARTY HOSTED VIDEOS
-          let path = mediaData.path;
-          console.log("THE PATH FOR THE VIDEO IS:", path);
-          await setVideo(true, showAnyway, mediaData, container, mediaData);
-        }
-      }
-
-      if (mediaData.type === "audio") {
-        let path = mediaData.path;
-        if (!mediaData.isOnlineSource) {
-          //SELF HOSTED IMAGES
-          if (mediaData.inMediaFolder) {
-            path = `${mediaData.mediaFolderPath}${path}/${mediaData.filename}`;
-          } else {
-            path = `${path}/${mediaData.filename}`;
-          }
-          console.log("THE PATH FOR THE Audio IS:", path);
-          if (mediaData.isBlob) {
-            await setAudio(
-              mediaData.isOnlineSource,
-              showAnyway,
-              await getBLOBData({
-                serverRequest: {
-                  request:
-                    "getAttribute&type=medienverwaltung&secondOperation=getBlob&thirdOperation=primary&mediaID=" +
-                    data.mediaID,
-                  path: "/includes/getAttributes.php",
-                },
-              }),
-              container
-            );
-          } else {
-            await setAudio(
-              mediaData.isOnlineSource,
-              showAnyway,
-              await getBLOBData({ url: path }),
-              container
-            );
-          }
-        } else {
-          //THIRD PARTY HOSTED IMAGES
-          let path = mediaData.path;
-          console.log("THE PATH FOR THE IMAGE IS:", path);
+        } else if (mediaData.type === "video") {
+          await setVideo(
+            mediaData.isOnlineSource,
+            showAnyway,
+            mediaData,
+            container
+          );
+        } else if (mediaData.type === "audio") {
           await setAudio(
             mediaData.isOnlineSource,
             showAnyway,
-            {url: path},
+            mediaData,
             container
           );
+        } else {
+          await setOtherMedia( mediaData.isOnlineSource, showAnyway, mediaData, container);
         }
       }
     } else {
       //Source is not saved in Table - Normal Source
+      if (makeJSON(window.localStorage.getItem("SETTING_lightDataUsage"))) {
+        let warnContainer = document.createElement("div");
+        warnContainer.classList.add("SETTING_lightDataUsage-warning");
+        warnContainer.setAttribute("style", "position: relative;");
+        warnContainer.innerHTML = `
+        <div class="header">Laden von Medien</div>
+        <div class="content">Hier wird verhindert, dass Inhalt geladen wird, weil du den Datensparmodus aktiviert hast. Um diesen zu laden klicke auf diese Fläche.</div>
+        <div class="footer">Typ: ${valueToString(data.type, {
+          image: "Bild",
+          video: "Video",
+          audio: "Audio",
+        })}</div>
+        `;
 
-      if (data.type === "image") {
-        //THIRD PARTY HOSTED IMAGES
-        await setImage(true, showAnyway, { url: data.url }, container);
-      } else if (data.type === "video") {
-        //THIRD PARTY HOSTED VIDEO
-        await setVideo(
-          true,
-          showAnyway,
-          {path: data.url},
-          container
+        //Listen to click
+        warnContainer.addEventListener(
+          "click",
+          async () => {
+            container.removeChild(warnContainer);
+            if (data.type === "image") {
+              await setImage(
+                data.isOnlineSource,
+                showAnyway,
+                data,
+                container
+              );
+            } else if (data.type === "video") {
+              await setVideo(
+                data.isOnlineSource,
+                showAnyway,
+                data,
+                container
+              );
+            } else if (data.type === "audio") {
+              await setAudio(
+                data.isOnlineSource,
+                showAnyway,
+                data,
+                container
+              );
+            } else {
+              await setOtherMedia(data.isOnlineSource, showAnyway, data, container);
+            }
+          },
+          { once: true }
         );
-      } else if (data.type === "audio") {
-        //THIRD PARTY HOSTED IMAGES
-        await setAudio(
-          true,
-          showAnyway,
-          {url: data.url},
-          container
-        );
+        container.appendChild(warnContainer);
+      } else {
+        if (data.type === "image") {
+          await setImage(
+            data.isOnlineSource,
+            showAnyway,
+            data,
+            container
+          );
+        } else if (data.type === "video") {
+          await setVideo(
+            data.isOnlineSource,
+            showAnyway,
+            data,
+            container
+          );
+        } else if (data.type === "audio") {
+          await setAudio(
+            data.isOnlineSource,
+            showAnyway,
+            data,
+            container
+          );
+        } else {
+          await setOtherMedia(data.isOnlineSource, showAnyway, data, container);
+        }
       }
     }
 
@@ -2203,19 +2154,71 @@ export function setMedia(
   });
 }
 
-function setImage(isOnlineSource, showAnyway, data, container) {
+function setImage(isOnlineSource, showAnyway, mediaData, container) {
   return new Promise(async (resolve, reject) => {
-    if (!data) resolve(false);
+    if (!mediaData) resolve(false);
+
+    let getData = async (mediaData) => {
+      if (mediaData.urlIsBLOB) return mediaData.blobData;      
+      //Download -> GET BLOB URL
+      mediaData.path = mediaData.path ?? mediaData.url;
+      let downloadURL = mediaData.path;
+
+      if (!mediaData.isOnlineSource) {
+        //SELF HOSTED IMAGES
+        if (mediaData.isBlob) {
+          return await getBLOBData({
+            serverRequest: {
+              request:
+                "getAttribute&type=medienverwaltung&secondOperation=getBlob&thirdOperation=primary&mediaID=" +
+                mediaData.mediaID,
+              path: "/includes/getAttributes.php",
+            },
+          });
+        }
+        if (mediaData.inMediaFolder) {
+          downloadURL = `${mediaData.mediaFolderPath}${mediaData.path}/${mediaData.filename}`;
+        } else {
+          downloadURL = `${mediaData.path}/${mediaData.filename}`;
+        }
+        console.log("THE PATH FOR THE IMAGE IS:", downloadURL);
+        return await getBLOBData({ url: downloadURL });
+      }
+      console.log("THE PATH FOR THE IMAGE IS:", downloadURL);
+      return await getBLOBData({ url: downloadURL });
+    };
+
+    let getPath = async (mediaData) => {
+      mediaData.path = mediaData.path ?? mediaData.url;
+      let downloadURL = mediaData.path;
+
+      if (!mediaData.isOnlineSource) {
+        //SELF HOSTED IMAGES
+        if (mediaData.isBlob) {
+          return await getSettingVal("servername");
+        }
+        if (mediaData.inMediaFolder) {
+          downloadURL = `${mediaData.mediaFolderPath}${mediaData.path}/${mediaData.filename}`;
+        } else {
+          downloadURL = `${mediaData.path}/${mediaData.filename}`;
+        }
+        console.log("THE PATH FOR THE IMAGE IS:", downloadURL);
+      }
+      return downloadURL;
+    };
+
     let imageContainer = document.createElement("div");
     imageContainer.classList.add("mediaContainer", "image");
-
+    container.appendChild(imageContainer);
     if (isOnlineSource && !showAnyway) {
       let warnContainer = document.createElement("div");
       warnContainer.classList.add("preventExternalMedia-warning");
-      warnContainer.setAttribute("style", "position: relative;")
+      warnContainer.setAttribute("style", "position: relative;");
       warnContainer.innerHTML = `
       <div class="header">Externener Inhalt</div>
-      <div class="content">Hier wird verhindert, dass externener Inhalt  von ${data.url} geladen wird. Um diesen zu laden klicke auf diese Fläche.</div>
+      <div class="content">Hier wird verhindert, dass externener Inhalt  von ${await getPath(
+        mediaData
+      )} geladen wird. Um diesen zu laden klicke auf diese Fläche.</div>
       <div class="footer">Typ: Bild</div>
       `;
 
@@ -2223,40 +2226,126 @@ function setImage(isOnlineSource, showAnyway, data, container) {
       warnContainer.addEventListener(
         "click",
         async () => {
+          imageContainer.classList.add("loading");
           warnContainer.classList.add("loading");
-          data = await getBLOBData({ url: data.url });
+          let data = await getData(mediaData);
+          console.log("IMAGE DATA=>", data);
           imageContainer.innerHTML = `<img src="${data.url}" alt="${data.originURL}">`;
+          imageContainer.classList.remove("loading");
         },
         { once: true }
       );
       imageContainer.appendChild(warnContainer);
     } else {
+      imageContainer.classList.add("loading");
+      let data = await getData(mediaData);
       imageContainer.innerHTML = `<img src="${data.url}" alt="${data.originURL}">`;
+      imageContainer.classList.remove("loading");
     }
-    container.appendChild(imageContainer);
     resolve(true);
   });
 }
 
-function setVideo(
-  isOnlineSource,
-  showAnyway,
-  data,
-  container,
-  mediaData = false
-) {
+
+export async function getThumbnailURL(mediaData){
+  //GET thumbnail data if enabled
+  if (mediaData.urlIsBLOB) return mediaData.url ?? mediaData.path;
+  if (mediaData.thumbnail) {
+    if (mediaData.thumbnailIsOnlineSource) {
+      return await getBLOBData({
+        url: mediaData.thumbnailPath,
+      });
+    } else {
+      if (mediaData.thumbnailInMediaFolder) {
+        return await getBLOBData({
+          url: `${mediaData.mediaFolderPath}${media.thumbnailPath}/${mediaData.thumbnailFileName}`,
+        });
+      } else {
+        if (mediaData.thumbnailIsBlob) {
+          return await getBLOBData({
+            serverRequest: {
+              request:
+                "getAttribute&type=medienverwaltung&secondOperation=getBlob&thirdOperation=thumbnail&mediaID=" +
+                data.mediaID,
+              path: "/includes/getAttributes.php",
+            },
+          });
+        } else {
+          return await getBLOBData({
+            url: `${mediaData.thumbnailPath}/${mediaData.thumbnailFileName}`,
+          });
+        }
+      }
+    }
+  }
+  return false;
+};
+function setVideo(isOnlineSource, showAnyway, mediaData, container) {
   return new Promise(async (resolve, reject) => {
-    if (!data) resolve(false);
+    if (!mediaData) resolve(false);
     let videoContainer = document.createElement("div");
     videoContainer.classList.add("mediaContainer", "video");
+    container.appendChild(videoContainer);
 
-    if ((isOnlineSource && !showAnyway) || (mediaData.thumbnailIsOnlineSource && !showAnyway)) {
+    let getData = async (mediaData) => {
+      if (mediaData.urlIsBLOB) return mediaData.blobData;      
+      //Download -> GET BLOB URL
+      mediaData.path = mediaData.path ?? mediaData.url;
+      let downloadURL = mediaData.path;
+      if (!mediaData.isOnlineSource) {
+        //SELF HOSTED IMAGES
+        if (mediaData.isBlob) {
+          return await getBLOBData({
+            serverRequest: {
+              request:
+                "getAttribute&type=medienverwaltung&secondOperation=getBlob&thirdOperation=primary&mediaID=" +
+                mediaData.mediaID,
+              path: "/includes/getAttributes.php",
+            },
+          });
+        }
+        if (mediaData.inMediaFolder) {
+          downloadURL = `${mediaData.mediaFolderPath}${mediaData.path}/${mediaData.filename}`;
+        } else {
+          downloadURL = `${mediaData.path}/${mediaData.filename}`;
+        }
+        console.log("THE PATH FOR THE VIDEO IS:", downloadURL);
+        return await getBLOBData({ url: downloadURL });
+      }
+      return await getBLOBData({ url: downloadURL });
+    };
+
+    let getPath = async (mediaData) => {
+      mediaData.path = mediaData.path ?? mediaData.url;
+      let downloadURL = mediaData.path;
+
+      if (!mediaData.isOnlineSource) {
+        //SELF HOSTED IMAGES
+        if (mediaData.isBlob) {
+          return await getSettingVal("servername");
+        }
+        if (mediaData.inMediaFolder) {
+          downloadURL = `${mediaData.mediaFolderPath}${mediaData.path}/${mediaData.filename}`;
+        } else {
+          downloadURL = `${mediaData.path}/${mediaData.filename}`;
+        }
+        console.log("THE PATH FOR THE VIDEO IS:", downloadURL);
+      }
+      return downloadURL;
+    };
+
+    if (
+      (isOnlineSource && !showAnyway) ||
+      (mediaData.thumbnailIsOnlineSource && !showAnyway)
+    ) {
       let warnContainer = document.createElement("div");
       warnContainer.classList.add("preventExternalMedia-warning");
-      warnContainer.setAttribute("style", "position: relative;")
+      warnContainer.setAttribute("style", "position: relative;");
       warnContainer.innerHTML = `
       <div class="header">Externener Inhalt</div>
-      <div class="content">Hier wird verhindert, dass externener Inhalt von ${data.path} geladen wird. Um diesen zu laden klicke auf diese Fläche.</div>
+      <div class="content">Hier wird verhindert, dass externener Inhalt von ${await getPath(
+        mediaData
+      )} geladen wird. Um diesen zu laden klicke auf diese Fläche.</div>
       <div class="footer">Typ: Video</div>
       `;
 
@@ -2264,176 +2353,257 @@ function setVideo(
       warnContainer.addEventListener(
         "click",
         async () => {
+          videoContainer.classList.add("loading");
           warnContainer.classList.add("loading");
-          let dataPrimary = await getBLOBData({ url: data.path });
-
+          let data = await getData(mediaData);
           //GET thumbnail data if enabled
-          let thumbnailURL = false;
-
-          if (mediaData) {
-            if (mediaData.thumbnail) {
-              if (mediaData.thumbnailIsOnlineSource) {
-                let dataThumbnail = await getBLOBData({
-                  url: mediaData.thumbnailPath,
-                });
-                thumbnailURL = dataThumbnail.url;
-              } else {
-                if (mediaData.thumbnailInMediaFolder) {
-                  let dataThumbnail = await getBLOBData({
-                    url: `${mediaData.mediaFolderPath}${mediaData.thumbnailPath}/${mediaData.thumbnailFileName}`,
-                  });
-                  thumbnailURL = dataThumbnail.url;
-                } else {
-                  if (mediaData.thumbnailIsBlob) {
-                    let dataThumbnail = await getBLOBData({
-                      serverRequest: {
-                        request:
-                          "getAttribute&type=medienverwaltung&secondOperation=getBlob&thirdOperation=thumbnail&mediaID=" +
-                          data.mediaID,
-                        path: "/includes/getAttributes.php",
-                      },
-                    });
-                    thumbnailURL = dataThumbnail.url;
-                  } else {
-                    let dataThumbnail = await getBLOBData({
-                      url: `${mediaData.thumbnailPath}/${mediaData.thumbnailFileName}`,
-                    });
-                    thumbnailURL = dataThumbnail.url;
-                  }
-                }
-              }
-            }
-          }
-
-          data = {
-            thumbnailURL: thumbnailURL,
-            primaryUrl: dataPrimary.url,
-            primaryBLOB: dataPrimary.blob,
-          };
+          let thumbnailURL = (await getThumbnailURL(mediaData)) ?? false;
 
           videoContainer.innerHTML = `
           <video controls ${
-            data.thumbnailURL ? `poster="${data.thumbnailURL}"` : ""
+            thumbnailURL.url ? `poster="${thumbnailURL.url}"` : ""
           } preload="metadata">
-            <source src="${data.primaryUrl}" type="${data.primaryBLOB.type}"/>
+            <source src="${data.url}" type="${data.blob.type}"/>
             Das Video wird von deinem Browser nicht unterstützt, klicke es stattdessen an: <a href="${
               data.url
             }" target="_blank">Zum Video</a>
           </video>
           `;
+          videoContainer.classList.remove("loading");
         },
         { once: true }
       );
       videoContainer.appendChild(warnContainer);
     } else {
+      videoContainer.classList.add("loading");
+      warnContainer.classList.add("loading");
+      let data = await getData(mediaData);
+      //GET thumbnail data if enabled
+      let thumbnailURL = (await getThumbnailURL(mediaData)) ?? false;
 
-      let dataPrimary = await getBLOBData({url: data.path});
-
-          //GET thumbnail data if enabled
-          let thumbnailURL = false;
-
-          if (mediaData) {
-            if (mediaData.thumbnail) {
-              if (mediaData.thumbnailIsOnlineSource) {
-                let dataThumbnail = await getBLOBData({
-                  url: mediaData.thumbnailPath,
-                });
-                thumbnailURL = dataThumbnail.url;
-              } else {
-                if (mediaData.thumbnailInMediaFolder) {
-                  let dataThumbnail = await getBLOBData({
-                    url: `${mediaData.mediaFolderPath}${mediaData.thumbnailPath}/${mediaData.thumbnailFileName}`,
-                  });
-                  thumbnailURL = dataThumbnail.url;
-                } else {
-                  if (mediaData.thumbnailIsBlob) {
-                    let dataThumbnail = await getBLOBData({
-                      serverRequest: {
-                        request:
-                          "getAttribute&type=medienverwaltung&secondOperation=getBlob&thirdOperation=thumbnail&mediaID=" +
-                          data.mediaID,
-                        path: "/includes/getAttributes.php",
-                      },
-                    });
-                    thumbnailURL = dataThumbnail.url;
-                  } else {
-                    let dataThumbnail = await getBLOBData({
-                      url: `${mediaData.thumbnailPath}/${mediaData.thumbnailFileName}`,
-                    });
-                    thumbnailURL = dataThumbnail.url;
-                  }
-                }
-              }
-            }
-          }
-
-          data = {
-            thumbnailURL: thumbnailURL,
-            primaryUrl: dataPrimary.url,
-            primaryBLOB: dataPrimary.blob,
-          };
-
-
-      videoContainer.innerHTML = ` 
+      videoContainer.innerHTML = `
       <video controls ${
-        data.thumbnailURL ? `poster="${data.thumbnailURL}"` : ""
+        thumbnailURL.url ? `poster="${thumbnailURL.url}"` : ""
       } preload="metadata">
-        <source src="${data.primaryUrl}" type="${data.primaryBLOB.type}"/>
+        <source src="${data.url}" type="${data.blob.type}"/>
         Das Video wird von deinem Browser nicht unterstützt, klicke es stattdessen an: <a href="${
           data.url
         }" target="_blank">Zum Video</a>
       </video>
       `;
+      videoContainer.classList.remove("loading");
     }
-    container.appendChild(videoContainer);
+
     resolve(true);
   });
 }
 
-function setAudio(isOnlineSource, showAnyway, data, container) {
+function setAudio(isOnlineSource, showAnyway, mediaData, container) {
   return new Promise(async (resolve, reject) => {
-    if (!data) resolve(false);
+    if (!mediaData) resolve(false);
     let audioContainer = document.createElement("div");
+    audioContainer.setAttribute("style", "position: relative;");
     audioContainer.classList.add("mediaContainer", "audio");
+    container.appendChild(audioContainer);
+
+    let getData = async (mediaData) => {
+      if (mediaData.urlIsBLOB) return mediaData.blobData;      
+      //Download -> GET BLOB URL
+      mediaData.path = mediaData.path ?? mediaData.url;
+      let downloadURL = mediaData.path;
+      if (!mediaData.isOnlineSource) {
+        //SELF HOSTED IMAGES
+        if (mediaData.isBlob) {
+          return await getBLOBData({
+            serverRequest: {
+              request:
+                "getAttribute&type=medienverwaltung&secondOperation=getBlob&thirdOperation=primary&mediaID=" +
+                mediaData.mediaID,
+              path: "/includes/getAttributes.php",
+            },
+          });
+        }
+        if (mediaData.inMediaFolder) {
+          downloadURL = `${mediaData.mediaFolderPath}${mediaData.path}/${mediaData.filename}`;
+        } else {
+          downloadURL = `${mediaData.path}/${mediaData.filename}`;
+        }
+        console.log("THE PATH FOR THE AUDIO IS:", downloadURL);
+        return await getBLOBData({ url: downloadURL });
+      }
+      return await getBLOBData({ url: downloadURL });
+    };
+
+    let getPath = async (mediaData) => {
+      mediaData.path = mediaData.path ?? mediaData.url;
+      let downloadURL = mediaData.path;
+
+      if (!mediaData.isOnlineSource) {
+        //SELF HOSTED IMAGES
+        if (mediaData.isBlob) {
+          return await getSettingVal("servername");
+        }
+        if (mediaData.inMediaFolder) {
+          downloadURL = `${mediaData.mediaFolderPath}${mediaData.path}/${mediaData.filename}`;
+        } else {
+          downloadURL = `${mediaData.path}/${mediaData.filename}`;
+        }
+        console.log("THE PATH FOR THE AUDIO IS:", downloadURL);
+      }
+      return downloadURL;
+    };
 
     if (isOnlineSource && !showAnyway) {
       let warnContainer = document.createElement("div");
       warnContainer.classList.add("preventExternalMedia-warning");
-      warnContainer.setAttribute("style", "position: relative;")
+      warnContainer.setAttribute("style", "position: relative;");
       warnContainer.innerHTML = `
       <div class="header">Externener Inhalt</div>
-      <div class="content">Hier wird verhindert, dass externener Inhalt von ${data.url} geladen wird. Um diesen zu laden klicke auf diese Fläche.</div>
+      <div class="content">Hier wird verhindert, dass externener Inhalt von ${await getPath(
+        mediaData
+      )} geladen wird. Um diesen zu laden klicke auf diese Fläche.</div>
       <div class="footer">Typ: Audio</div>
       `;
 
       //Listen to click
       warnContainer.addEventListener(
         "click",
-        async() => {
+        async () => {
+          audioContainer.classList.add("loading");
           warnContainer.classList.add("loading");
-          data = await getBLOBData({url: data.url});
+          let data = await getData(mediaData);
           audioContainer.innerHTML = `
           <audio controls>
             <source src="${data.url}" type="${data.blob.type}">
           Die Auio wird von deinem Browser nicht unterstützt, klicke sie stattdessen an: <a href="${data.url}" target="_blank">Zur Audio</a>
             </audio>
           `;
+          audioContainer.classList.remove("loading");
         },
         { once: true }
       );
       audioContainer.appendChild(warnContainer);
     } else {
-      data = await getBLOBData({url: data.url});
-      audioContainer.innerHTML = ` 
-      <audio controls>
-      <source src="${data.url}" type="${data.blob.type}">
-    Die Auio wird von deinem Browser nicht unterstützt, klicke sie stattdessen an: <a href="${data.url}" target="_blank">Zur Audio</a>
-      </audio>
-    `;
+      audioContainer.classList.add("loading");
+      let data = await getData(mediaData);
+      audioContainer.innerHTML = `
+          <audio controls>
+            <source src="${data.url}" type="${data.blob.type}">
+          Die Auio wird von deinem Browser nicht unterstützt, klicke sie stattdessen an: <a href="${data.url}" target="_blank">Zur Audio</a>
+            </audio>
+          `;
+      audioContainer.classList.remove("loading");
     }
-    container.appendChild(audioContainer);
     resolve(true);
   });
+}
+
+function setOtherMedia(isOnlineSource, showAnyway, mediaData, container) {
+  return new Promise(async (resolve, reject) => {
+    if (!mediaData) resolve(false);
+
+    let getData = async (mediaData) => {
+      if (mediaData.urlIsBLOB) return mediaData.blobData;      
+      //Download -> GET BLOB URL
+      mediaData.path = mediaData.path ?? mediaData.url;
+      let downloadURL = mediaData.path;
+      if (!mediaData.isOnlineSource) {
+        //SELF HOSTED IMAGES
+        if (mediaData.isBlob) {
+          return await getBLOBData({
+            serverRequest: {
+              request:
+                "getAttribute&type=medienverwaltung&secondOperation=getBlob&thirdOperation=primary&mediaID=" +
+                mediaData.mediaID,
+              path: "/includes/getAttributes.php",
+            },
+          });
+        }
+        if (mediaData.inMediaFolder) {
+          downloadURL = `${mediaData.mediaFolderPath}${mediaData.path}/${mediaData.filename}`;
+        } else {
+          downloadURL = `${mediaData.path}/${mediaData.filename}`;
+        }
+        console.log("THE PATH FOR THE MEDIA IS:", downloadURL);
+        return await getBLOBData({ url: downloadURL });
+      }
+      return await getBLOBData({ url: downloadURL });
+    };
+
+    let getPath = async (mediaData) => {
+      mediaData.path = mediaData.path ?? mediaData.url;
+      let downloadURL = mediaData.path;
+
+      if (!mediaData.isOnlineSource) {
+        //SELF HOSTED IMAGES
+        if (mediaData.isBlob) {
+          return await getSettingVal("servername");
+        }
+        if (mediaData.inMediaFolder) {
+          downloadURL = `${mediaData.mediaFolderPath}${mediaData.path}/${mediaData.filename}`;
+        } else {
+          downloadURL = `${mediaData.path}/${mediaData.filename}`;
+        }
+        console.log("THE PATH FOR THE MEDIA IS:", downloadURL);
+      }
+      return downloadURL;
+    };
+
+    let mediaContainer = document.createElement("div");
+    mediaContainer.classList.add("mediaContainer", "other");
+    container.appendChild(mediaContainer);
+    if (isOnlineSource && !showAnyway) {
+      let warnContainer = document.createElement("div");
+      warnContainer.classList.add("preventExternalMedia-warning");
+      warnContainer.setAttribute("style", "position: relative;");
+      warnContainer.innerHTML = `
+      <div class="header">Externener Inhalt</div>
+      <div class="content">Hier wird verhindert, dass externener Inhalt  von ${await getPath(
+        mediaData
+      )} geladen wird. Um diesen zu laden klicke auf diese Fläche.</div>
+      <div class="footer">Typ: Anderer</div>
+      `;
+
+      //Listen to click
+      warnContainer.addEventListener(
+        "click",
+        async () => {
+          mediaContainer.classList.add("loading");
+          warnContainer.classList.add("loading");
+          let data = await getData(mediaData);
+          console.log("DATA=>", data);
+          mediaContainer.innerHTML = `<object data="${data.url}" type="${data.blob.type}">
+          </object>`;
+          mediaContainer.classList.remove("loading");
+        },
+        { once: true }
+      );
+      mediaContainer.appendChild(warnContainer);
+    } else {
+      mediaContainer.classList.add("loading");
+      let data = await getData(mediaData);
+      console.log("DATA=>", data);
+      mediaContainer.innerHTML = `<object data="${data.url}" type="${data.blob.type}">
+      </object>`;
+      mediaContainer.classList.remove("loading");
+    }
+    resolve(true);
+  });
+}
+export function getNewestVersion(cacheControl = window.localStorage.getItem("cacheControl")) {
+  let time = new Date();
+
+  if (cacheControl == "no-cache") {
+    return time.getMilliseconds();
+  } else if (cacheControl == "daily") {
+    let day = time.getDate();
+    let month = time.getMonth() + 1;
+    let year = time.getFullYear();
+    return `${day}-${month}-${year}`;
+  } else if (cacheControl == "auto" || !cacheControl) {
+    window.localStorage.setItem("cacheControl", "auto");
+    return "";
+  }
 }
 
 export async function getBLOBData(
@@ -2443,49 +2613,53 @@ export async function getBLOBData(
       path: "/includes/data.php",
     },
     url: "",
+    cache: "no - auto - daily"
   }
 ) {
   return new Promise(async (resolve, reject) => {
-    let blob;
-    if (data.url) {
-      blob = await sendXhrREQUEST(
-        "GET",
-        false,
-        data.url,
-        false,
-        true,
-        false,
-        false,
-        false,
-        false,
-        false,
-        "blob"
-      );
-    } else if (data.serverRequest) {
-      blob = await sendXhrREQUEST(
-        "POST",
-        data.serverRequest.request,
-        data.serverRequest.path,
-        "application/x-www-form-urlencoded",
-        true,
-        false,
-        false,
-        false,
-        false,
-        false,
-        "blob"
-      );
+    try {
+      let blob;
+      if (data.url) {
+        blob = await sendXhrREQUEST(
+          "GET",
+          false,
+          data.url + `?v=${getNewestVersion()}`,
+          "application/x-www-form-urlencoded",
+          true,
+          false,
+          false,
+          false,
+          false,
+          false,
+          "blob"
+        );
+      } else if (data.serverRequest) {
+        blob = await sendXhrREQUEST(
+          "POST",
+          data.serverRequest.request,
+          data.serverRequest.path,
+          "application/x-www-form-urlencoded",
+          true,
+          false,
+          false,
+          false,
+          false,
+          false,
+          "blob"
+        );
+      }
+      let newURL = window.URL.createObjectURL(blob);
+      resolve({
+        url: newURL,
+        blob: blob,
+        originURL: data.url ?? data.serverRequest.path,
+      });
+    } catch {
+      resolve({url: data.url, blob: false})
     }
-
-    let newURL = window.URL.createObjectURL(blob);
-    resolve({
-      url: newURL,
-      blob: blob,
-      originURL: data.url ?? data.serverRequest.path,
-    });
+  
   });
 }
-
 
 //Pick users
 export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
@@ -2686,7 +2860,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
         this.filterContainer = null;
         this.selectionFiltersContainer = null;
         this.limiter = null;
-    
+
         //Filters
         this.usernameSelectContainer = null;
         this.emailSelectContainer = null;
@@ -2698,56 +2872,56 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
         this.rankingSelectContainer = null;
 
         this.hideUsersIDS = null;
-    
+
         this.permissionsAllowedSelectContainer = null;
         this.permissionsAllowedObject = new Object();
         this.permissionsForbiddenSelectContainer = null;
         this.permissionsForbiddenArray = new Array();
-    
+
         this.groupsSearchArray = new Array();
         this.klassenstufenSearchArray = new Array();
-    
+
         //Selection
         this.choosenArray = new Array();
         this.oldCheckedArray = new Array();
-    
+
         //others
         this.searchWhileTyping = false;
         this.resultDescriptionContainer = null;
         this.resultBox = null;
-    
+
         this.searchReloadBtn = null;
         this.editReloadBtn = null;
       }
-    
+
       async prepareSearch() {
         if (!this.container) return "No container";
-    
+
         //StartBtn
         let searchBtn = this.container.querySelector(".filter #search");
         console.log(searchBtn);
         if (!searchBtn) return "No searchBtn";
         this.searchBtn = searchBtn;
-    
+
         //Filter Container (init)
         let filterContainer = this.container.querySelector(".filter");
         if (!filterContainer) return "No filter container";
         this.filterContainer = filterContainer;
-    
+
         //Filter Type Select (init)
         let chooseFilterTypeSelect = filterContainer.querySelector(
           "#chooseFilterTypeContainer #chooseFilter"
         );
         if (!chooseFilterTypeSelect) return "no chooseFilterTypeSelect";
         this.chooseFilterTypeSelect = chooseFilterTypeSelect;
-    
+
         //Selection Filters (init) - Enable or disable filter
         console.log(this.filterContainer);
         let selectionFiltersContainer =
           this.filterContainer.querySelector(".selectionFilters");
         if (!selectionFiltersContainer) return "no selection filters container";
         this.selectionFiltersContainer = selectionFiltersContainer;
-    
+
         //Initialize filters
         let usernameSelectContainer =
           selectionFiltersContainer.querySelector("#username");
@@ -2788,12 +2962,13 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
         this.isOnlineSelectContainer = isOnlineSelectContainer;
         this.klassenstufeSelectContainer = klassenstufeSelectContainer;
         this.groupsSelectContainer = groupsSelectContainer;
-        this.permissionsAllowedSelectContainer = permissionsAllowedSelectContainer;
+        this.permissionsAllowedSelectContainer =
+          permissionsAllowedSelectContainer;
         this.permissionsForbiddenSelectContainer =
           permissionsForbiddenSelectContainer;
         this.authenticatedSelectContainer = authenticatedSelectContainer;
         this.rankingSelectContainer = rankingSelectContainer;
-    
+
         //hide all
         this.usernameSelectContainer.classList.add("hidden");
         this.userIDSelectContainer.classList.add("hidden");
@@ -2804,22 +2979,21 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
         this.permissionsAllowedSelectContainer.classList.add("hidden");
         this.authenticatedSelectContainer.classList.add("hidden");
         this.rankingSelectContainer.classList.add("hidden");
-    
+
         //Init limiter
         let limiter = selectionFiltersContainer.querySelector(
           "#limitResults #numberInput"
         );
         if (!limiter) return "no limiter";
         this.limiter = limiter;
-    
+
         //Search While Typing
-        let searchWhileTypingContainer = selectionFiltersContainer.querySelector(
-          "#other #searchWhileTyping"
-        );
-        if (!searchWhileTypingContainer) return "no search while typin container";
-        let searchWhileTypingCheckbox = searchWhileTypingContainer.querySelector(
-          "#allowSearchWhileTyping"
-        );
+        let searchWhileTypingContainer =
+          selectionFiltersContainer.querySelector("#other #searchWhileTyping");
+        if (!searchWhileTypingContainer)
+          return "no search while typin container";
+        let searchWhileTypingCheckbox =
+          searchWhileTypingContainer.querySelector("#allowSearchWhileTyping");
         if (!searchWhileTypingCheckbox) return "no search while typin checkbox";
         searchWhileTypingCheckbox.checked = false;
         this.searchWhileTyping = false;
@@ -2832,7 +3006,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
             this.searchWhileTyping = false;
           }
         });
-    
+
         let reloadBtn = this.container.querySelector("#reload");
         if (!reloadBtn) return "no reload button";
         reloadBtn.addEventListener("click", () => {
@@ -2840,7 +3014,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
         });
         this.searchReloadBtn = reloadBtn;
         this.searchReloadBtn.disabled = true;
-    
+
         //Result Table
         let resultTable = this.container.querySelector("#resultTable");
         if (!resultTable) {
@@ -2848,27 +3022,30 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
         }
         this.resultTable = resultTable;
         this.resultTable.classList.add("hidden");
-    
+
         let tableBody = resultTable.querySelector("tbody");
         if (!tableBody) {
           return "no table body";
         }
         this.tableBody = tableBody;
         this.clear(this.tableBody);
-    
+
         ///ChooseAllBtn
         this.chooseAllBtn = this.resultTable.querySelector("thead #chooseall");
         if (!this.chooseAllBtn) return "No choose all btn";
         //Make Choose All -------
-    
+
         this.chooseAllBtn.addEventListener("change", (event) => {
           if (event.target.checked) {
             console.log("checked");
             this.oldCheckedArray = copyArray(this.choosenArray);
-            let allCheckBtns = this.resultTable.querySelectorAll(".result #select");
-    
+            let allCheckBtns =
+              this.resultTable.querySelectorAll(".result #select");
+
             allCheckBtns.forEach((element) => {
-              let dataValue = element.closest(".result").getAttribute("data-value");
+              let dataValue = element
+                .closest(".result")
+                .getAttribute("data-value");
               element.checked = true;
               this.choosenArray = addToArray(
                 this.choosenArray,
@@ -2878,11 +3055,14 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
             });
           } else {
             console.log("unchecked");
-            let allCheckBtns = this.resultTable.querySelectorAll(".result #select");
-    
+            let allCheckBtns =
+              this.resultTable.querySelectorAll(".result #select");
+
             allCheckBtns.forEach((element) => {
-              let dataValue = element.closest(".result").getAttribute("data-value");
-    
+              let dataValue = element
+                .closest(".result")
+                .getAttribute("data-value");
+
               if (this.oldCheckedArray.includes(dataValue)) {
                 element.checked = true;
                 this.choosenArray = addToArray(
@@ -2900,7 +3080,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
             });
           }
         });
-    
+
         //Result Desription
         let resultDescriptionContainer =
           this.container.querySelector(".resultDesciption");
@@ -2908,11 +3088,11 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
           return "no discription container";
         }
         this.resultDescriptionContainer = resultDescriptionContainer;
-    
+
         searchBtn.addEventListener("click", () => {
           this.search(this.arraySearch);
         });
-    
+
         //Add that user can select type of filter and set normally to username
         this.chooseFilterTypeSelect.addEventListener("change", () => {
           let value =
@@ -2922,11 +3102,11 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
           console.log(value);
           this.setFilterMode(value);
         });
-    
+
         //First shown mode automatically
         this.setFilterMode("username");
       }
-    
+
       async setFilterMode(value) {
         if (!value) return false;
         this.filterType = value;
@@ -2941,7 +3121,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
         this.authenticatedSelectContainer.classList.add("hidden");
         this.isOnlineSelectContainer.classList.add("hidden");
         this.rankingSelectContainer.classList.add("hidden");
-    
+
         if (value === "username") {
           this.enableFilter(this.usernameSelectContainer);
         } else if (value === "email") {
@@ -2978,10 +3158,10 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
           //Nothing to show
         }
       }
-    
+
       async enableFilter(filter) {
         if (!filter) return false;
-    
+
         if (filter === this.usernameSelectContainer) {
           let input = this.usernameSelectContainer.querySelector("#textInput");
           listenToChanges(input, "input", 450, () => {
@@ -3020,10 +3200,10 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
         } else if (filter === this.groupsSelectContainer) {
           //Groups
           this.groupsSearchArray = new Array(); //Reset old value
-    
+
           let choosenContainer =
             this.groupsSelectContainer.querySelector("#choosen");
-    
+
           let update = () => {
             //Update Choosen
             choosenContainer.innerHTML = "";
@@ -3033,7 +3213,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
                 listItem.setAttribute("data-value", element);
                 listItem.innerHTML = `<span>${element}</span><button type="button" id="remove">X</button><span></span`;
                 choosenContainer.appendChild(listItem);
-    
+
                 let removeBtn = listItem.querySelector("#remove");
                 removeBtn.addEventListener("click", (event) => {
                   this.groupsSearchArray = removeFromArray(
@@ -3045,7 +3225,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
               });
             }
           };
-    
+
           let addBtn = this.groupsSelectContainer.querySelector("#addBtn");
           addBtn = removeAllEventlisteners(addBtn);
           addBtn.addEventListener("click", async () => {
@@ -3079,7 +3259,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
             }
             update();
           });
-    
+
           this.groupsSelectContainer.classList.remove("hidden");
         } else if (filter === this.permissionsAllowedSelectContainer) {
           this.permissionsAllowedObject = new Object();
@@ -3090,7 +3270,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
           let addBtn =
             this.permissionsAllowedSelectContainer.querySelector("#addBtn");
           addBtn = removeAllEventlisteners(addBtn);
-    
+
           let add = async () => {
             let toAdd = await addPermission([]);
             if (toAdd && toAdd.length > 0) {
@@ -3123,11 +3303,11 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
                 this.permissionsAllowedObject
               )) {
                 let listItem = document.createElement("li");
-    
+
                 listItem.setAttribute("data-value", key);
                 listItem.innerHTML = `<span>${key} = ${value}</span><button type="button" id="remove">X</button><span></span>`;
                 choosenContainer.appendChild(listItem);
-    
+
                 let removeBtn = listItem.querySelector("#remove");
                 removeBtn.addEventListener("click", (event) => {
                   delete this.permissionsAllowedObject[key];
@@ -3147,7 +3327,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
           let addBtn =
             this.permissionsForbiddenSelectContainer.querySelector("#addBtn");
           addBtn = removeAllEventlisteners(addBtn);
-    
+
           let add = async () => {
             let toAdd = await addPermission([]);
             if (toAdd && toAdd.length > 0) {
@@ -3168,11 +3348,11 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
             if (this.permissionsForbiddenArray.length > 0) {
               for (const current of this.permissionsForbiddenArray) {
                 let listItem = document.createElement("li");
-    
+
                 listItem.setAttribute("data-value", current);
                 listItem.innerHTML = `<span>${current}</span><button type="button" id="remove">X</button><span></span>`;
                 choosenContainer.appendChild(listItem);
-    
+
                 let removeBtn = listItem.querySelector("#remove");
                 removeBtn.addEventListener("click", (event) => {
                   this.permissionsForbiddenArray = removeFromArray(
@@ -3188,16 +3368,16 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
               this.search();
             }
           };
-    
+
           this.permissionsForbiddenSelectContainer.classList.remove("hidden");
         } else if (filter === this.klassenstufeSelectContainer) {
           //Klassenstufen
-    
+
           this.klassenstufenSearchArray = new Array(); //Reset old value
-    
+
           let choosenContainer =
             this.klassenstufeSelectContainer.querySelector("#choosen");
-    
+
           let update = () => {
             //Update Choosen
             choosenContainer.innerHTML = "";
@@ -3207,7 +3387,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
                 listItem.setAttribute("data-value", element);
                 listItem.innerHTML = `<span>${element}</span><button type="button" id="remove">X</button><span></span`;
                 choosenContainer.appendChild(listItem);
-    
+
                 let removeBtn = listItem.querySelector("#remove");
                 removeBtn.addEventListener("click", (event) => {
                   this.klassenstufenSearchArray = removeFromArray(
@@ -3219,8 +3399,9 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
               });
             }
           };
-    
-          let addBtn = this.klassenstufeSelectContainer.querySelector("#addBtn");
+
+          let addBtn =
+            this.klassenstufeSelectContainer.querySelector("#addBtn");
           addBtn = removeAllEventlisteners(addBtn);
           addBtn.addEventListener("click", async () => {
             let availableKlassenstufen = await makeJSON(
@@ -3253,7 +3434,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
             }
             update();
           });
-    
+
           this.klassenstufeSelectContainer.classList.remove("hidden");
         } else if (filter === this.authenticatedSelectContainer) {
           let select =
@@ -3265,7 +3446,8 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
           });
           this.authenticatedSelectContainer.classList.remove("hidden");
         } else if (filter === this.isOnlineSelectContainer) {
-          let select = this.isOnlineSelectContainer.querySelector("#selectInput");
+          let select =
+            this.isOnlineSelectContainer.querySelector("#selectInput");
           listenToChanges(select, "change", 200, () => {
             if (this.searchWhileTyping) {
               this.search();
@@ -3276,7 +3458,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
           return false;
         }
       }
-    
+
       async search() {
         this.searchReloadBtn.disabled = true;
         //toggleLodingAnimation(this.container)
@@ -3306,7 +3488,8 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
             )
           );
         } else if (this.filterType === "email") {
-          let input = this.emailSelectContainer.querySelector("#textInput").value;
+          let input =
+            this.emailSelectContainer.querySelector("#textInput").value;
           this.showResults(
             makeJSON(
               await makeJSON(
@@ -3474,7 +3657,8 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
             )
           );
         } else if (this.filterType === "isOnline") {
-          let select = this.isOnlineSelectContainer.querySelector("#selectInput");
+          let select =
+            this.isOnlineSelectContainer.querySelector("#selectInput");
           let input = select[select.selectedIndex].getAttribute("data-value");
           this.showResults(
             makeJSON(
@@ -3520,48 +3704,51 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
           if (isEmptyInput(username)) {
             username = false;
           }
-    
+
           //Email
-          let email = this.emailSelectContainer.querySelector("#textInput").value;
+          let email =
+            this.emailSelectContainer.querySelector("#textInput").value;
           if (isEmptyInput(email)) {
             email = false;
           }
-    
+
           //userID
           let userID =
             this.userIDSelectContainer.querySelector("#numberInput").value;
           if (isEmptyInput(userID)) {
             userID = false;
           }
-    
+
           //ranking
           let ranking =
             this.rankingSelectContainer.querySelector("#numberInput").value;
           if (isEmptyInput(ranking)) {
             ranking = false;
           }
-    
+
           //Groups
           let groups = this.groupsSearchArray;
           if (!groups.length > 0) {
             groups = false;
           }
-    
+
           //Klassenstufe
           let klassenstufen = this.klassenstufenSearchArray;
           if (!klassenstufen.length > 0) {
             klassenstufen = false;
           }
-    
+
           //isOnline
           let isOnlineSelect =
             this.isOnlineSelectContainer.querySelector("#selectInput");
           let isOnline =
-            isOnlineSelect[isOnlineSelect.selectedIndex].getAttribute("data-value");
+            isOnlineSelect[isOnlineSelect.selectedIndex].getAttribute(
+              "data-value"
+            );
           if (isEmptyInput(isOnline)) {
             isOnline = false;
           }
-    
+
           //authenticated
           let authenticatedSelect =
             this.authenticatedSelectContainer.querySelector("#selectInput");
@@ -3572,19 +3759,19 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
           if (isEmptyInput(authenticated)) {
             authenticated = false;
           }
-    
+
           //permissionsAllowed
           let permissionsAllowed = this.permissionsAllowedObject;
           if (!Object.keys(permissionsAllowed).length) {
             permissionsAllowed = false;
           }
-    
+
           //permissionsForbidden
           let permissionsForbidden = this.permissionsForbiddenArray;
           if (!permissionsForbidden.length > 0) {
             permissionsForbidden = false;
           }
-    
+
           console.log(
             username,
             email,
@@ -3597,7 +3784,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
             permissionsAllowed,
             permissionsForbidden
           );
-    
+
           this.showResults(
             makeJSON(
               await makeJSON(
@@ -3640,7 +3827,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
           return false;
         }
       }
-    
+
       showResults(results) {
         this.searchBtn.classList.remove("loading");
         this.clear(this.tableBody);
@@ -3651,20 +3838,20 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
           return true;
         }
         results = makeJSON(results);
-    
+
         if (!results.length > 0) {
           this.resultTable.classList.add("hidden");
           this.resultDescriptionContainer.innerHTML = "Keine Ergebnisse...";
           return false;
         }
         this.resultDescriptionContainer.innerHTML = `${results.length} Ergebnisse`;
-    
+
         let tableBody = this.resultTable.querySelector("tbody");
         if (!tableBody) return false;
         this.tableBody = tableBody;
-    
+
         results = sortItems(results, "username"); //Just sort it to better overview
-    
+
         for (const result of results) {
           if (this.hideUsersIDS && this.hideUsersIDS.length) {
             if (result[typeToHide] == result) {
@@ -3675,12 +3862,12 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
           let tableRow = document.createElement("tr");
           tableRow.classList.add("result");
           tableRow.setAttribute("data-value", result["userID"]);
-    
+
           let showPublicText = "Nein";
           if (Boolean(makeJSON(result["showPublic"]))) {
             showPublicText = "Ja";
           }
-    
+
           tableRow.innerHTML = `
           <td class="select"><input type="checkbox" id="select"><button id="chooseOnly"><img src="../../images/icons/stift.svg" alt="Auswahl"></button></td>
           <td id="username">${result["username"]}</td>
@@ -3702,11 +3889,11 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
           <td id="showPublic">${showPublicText}</td>
           `;
           this.tableBody.append(tableRow);
-    
+
           let groupsInner = tableRow.querySelector("#groups");
           let usersGroups = makeJSON(result["groups"]);
           listOfArrayToHTML(groupsInner, usersGroups, "Keine Gruppen");
-    
+
           //Allowed Permissions
           let permissionsInner = tableRow.querySelector("#permissionsAllowed");
           objectKEYVALUEToHTML(
@@ -3714,7 +3901,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
             result["permissionsAllowed"],
             "Keine zusätzlichen"
           );
-    
+
           //Forbidden Permissions
           let forbiddenPermissionsInner = tableRow.querySelector(
             "#permissionsForbidden"
@@ -3724,11 +3911,11 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
             result["permissionsForbidden"],
             "Keine zusätzlichen"
           );
-    
+
           //Next Messages
           let nextMessagesInner = tableRow.querySelector("#nextMessages");
           listOfArrayToHTML(nextMessagesInner, result["nextMessages"]);
-    
+
           let checkBox = tableRow.querySelector(".select #select");
           checkBox.addEventListener("change", (event) => {
             if (event.target.checked) {
@@ -3744,28 +3931,27 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
               );
             }
           });
-    
+
           let chooseThis = tableRow.querySelector(".select #chooseOnly");
           if (!chooseThis) continue;
-    
+
           chooseThis.addEventListener("click", (event) => {
             this.choosenArray = addToArray(
               this.choosenArray,
               result["userID"],
               false
             );
-           goBackWithValue();
+            goBackWithValue();
           });
         }
         this.searchReloadBtn.disabled = false;
         this.resultTable.classList.remove("hidden");
       }
-    
+
       clear(element) {
         element.innerHTML = "";
       }
     }
-    
 
     var myModal = new bootstrap.Modal(modal);
     myModal.show();
@@ -3804,7 +3990,9 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
     let benutzerververwaltungContainer = modal.querySelector(
       "#benutzerverwaltung"
     );
-    let benutzerverwaltung = new Benutzerverwaltung(benutzerververwaltungContainer);
+    let benutzerverwaltung = new Benutzerverwaltung(
+      benutzerververwaltungContainer
+    );
     console.log(benutzerverwaltung.prepareSearch());
     benutzerverwaltung.hideUsersIDS = hideUsersIDS;
   });

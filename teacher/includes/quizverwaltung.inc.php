@@ -44,34 +44,33 @@ if (isset($_POST["quizverwaltung"])) {
                 die();
             }
 
-            if (count($foundQuizzesUniqueIDs) > 0) {
-                $resultArray = array();
+            $foundQuizzesUniqueIDs = limitArray($foundQuizzesUniqueIDs, $limitResults);
+            $resultArray = array();
 
-                foreach ($foundQuizzesUniqueIDs as $currentQuizUniqueID) {
-                    $name = getValueFromDatabase($conn, "selectquiz", "quizname", "uniqueID", $currentQuizUniqueID, 1, false);
-                    $klassenstufe = getValueFromDatabase($conn, "selectquiz", "klassenstufe", "uniqueID", $currentQuizUniqueID, 1, false);
-                    $fach = getValueFromDatabase($conn, "selectquiz", "fach", "uniqueID", $currentQuizUniqueID, 1, false);
-                    $thema = getValueFromDatabase($conn, "selectquiz", "thema", "uniqueID", $currentQuizUniqueID, 1, false);
-                    $description = getValueFromDatabase($conn, "selectquiz", "description", "uniqueID", $currentQuizUniqueID, 1, false);
-                    $quizId = getValueFromDatabase($conn, "selectquiz", "quizId", "uniqueID", $currentQuizUniqueID, 1, false);
-                    $showQuizAuswahl = getValueFromDatabase($conn, "selectquiz", "showQuizAuswahl", "uniqueID", $currentQuizUniqueID, 1, false);
-                    $visibility = getValueFromDatabase($conn, "selectquiz", "visibility", "uniqueID", $currentQuizUniqueID, 1, false);
-                    $requireKlassenstufe = getValueFromDatabase($conn, "selectquiz", "requireKlassenstufe", "uniqueID", $currentQuizUniqueID, 1, false);
-                    $requireFach = getValueFromDatabase($conn, "selectquiz", "requireFach", "uniqueID", $currentQuizUniqueID, 1, false);
-                    $requireThema = getValueFromDatabase($conn, "selectquiz", "requireThema", "uniqueID", $currentQuizUniqueID, 1, false);
-                    $requireName = getValueFromDatabase($conn, "selectquiz", "requireQuizname", "uniqueID", $currentQuizUniqueID, 1, false);
-                    $questions = searchQuestionsOneQuiz($conn, false, $currentQuizUniqueID);
-                    $lastUsed = getValueFromDatabase($conn, "selectquiz", "lastUsed", "uniqueID", $currentQuizUniqueID, 1, false);
-                    $created = getValueFromDatabase($conn, "selectquiz", "created", "uniqueID", $currentQuizUniqueID, 1, false);
-                    $createdBy = getValueFromDatabase($conn, "selectquiz", "createdBy", "uniqueID", $currentQuizUniqueID, 1, false);
-                    $changed = getValueFromDatabase($conn, "selectquiz", "changed", "uniqueID", $currentQuizUniqueID, 1, false);
-                    $changedBy = json_validate(getValueFromDatabase($conn, "selectquiz", "changedBy", "uniqueID", $currentQuizUniqueID, 1, false));
+            foreach ($foundQuizzesUniqueIDs as $currentQuizUniqueID) {
+                $name = getValueFromDatabase($conn, "selectquiz", "quizname", "uniqueID", $currentQuizUniqueID, 1, false);
+                $klassenstufe = getValueFromDatabase($conn, "selectquiz", "klassenstufe", "uniqueID", $currentQuizUniqueID, 1, false);
+                $fach = getValueFromDatabase($conn, "selectquiz", "fach", "uniqueID", $currentQuizUniqueID, 1, false);
+                $thema = getValueFromDatabase($conn, "selectquiz", "thema", "uniqueID", $currentQuizUniqueID, 1, false);
+                $description = getValueFromDatabase($conn, "selectquiz", "description", "uniqueID", $currentQuizUniqueID, 1, false);
+                $quizId = getValueFromDatabase($conn, "selectquiz", "quizId", "uniqueID", $currentQuizUniqueID, 1, false);
+                $showQuizAuswahl = getValueFromDatabase($conn, "selectquiz", "showQuizAuswahl", "uniqueID", $currentQuizUniqueID, 1, false);
+                $visibility = getValueFromDatabase($conn, "selectquiz", "visibility", "uniqueID", $currentQuizUniqueID, 1, false);
+                $requireKlassenstufe = getValueFromDatabase($conn, "selectquiz", "requireKlassenstufe", "uniqueID", $currentQuizUniqueID, 1, false);
+                $requireFach = getValueFromDatabase($conn, "selectquiz", "requireFach", "uniqueID", $currentQuizUniqueID, 1, false);
+                $requireThema = getValueFromDatabase($conn, "selectquiz", "requireThema", "uniqueID", $currentQuizUniqueID, 1, false);
+                $requireName = getValueFromDatabase($conn, "selectquiz", "requireQuizname", "uniqueID", $currentQuizUniqueID, 1, false);
+                $questions = searchQuestionsOneQuiz($conn, false, $currentQuizUniqueID);
+                $lastUsed = getValueFromDatabase($conn, "selectquiz", "lastUsed", "uniqueID", $currentQuizUniqueID, 1, false);
+                $created = getValueFromDatabase($conn, "selectquiz", "created", "uniqueID", $currentQuizUniqueID, 1, false);
+                $createdBy = getValueFromDatabase($conn, "selectquiz", "createdBy", "uniqueID", $currentQuizUniqueID, 1, false);
+                $changed = getValueFromDatabase($conn, "selectquiz", "changed", "uniqueID", $currentQuizUniqueID, 1, false);
+                $changedBy = json_validate(getValueFromDatabase($conn, "selectquiz", "changedBy", "uniqueID", $currentQuizUniqueID, 1, false));
 
-                    $resultArray[] = array("uniqueID" => $currentQuizUniqueID, "name" => $name, "klassenstufe" => $klassenstufe, "fach" => $fach, "thema" => $thema, "description" => $description, "quizId" => $quizId, "showQuizAuswahl" => $showQuizAuswahl, "visibility" => $visibility, "requireKlassenstufe" => $requireKlassenstufe, "requireFach" => $requireFach, "requireThema" => $requireThema, "requireName" => $requireName, "questions" => $questions, "lastUsed" => $lastUsed, "created" => $created, "createdBy" => $createdBy, "changed" => $changed, "changedBy" => $changedBy);
-                }
-                echo json_encode(limitArray($resultArray, intval($limitResults)));
-                return true;
+                $resultArray[] = array("uniqueID" => $currentQuizUniqueID, "name" => $name, "klassenstufe" => $klassenstufe, "fach" => $fach, "thema" => $thema, "description" => $description, "quizId" => $quizId, "showQuizAuswahl" => $showQuizAuswahl, "visibility" => $visibility, "requireKlassenstufe" => $requireKlassenstufe, "requireFach" => $requireFach, "requireThema" => $requireThema, "requireName" => $requireName, "questions" => $questions, "lastUsed" => $lastUsed, "created" => $created, "createdBy" => $createdBy, "changed" => $changed, "changedBy" => $changedBy);
             }
+            echo json_encode($resultArray);
+            return true;
         }
 
         if ($type === "showQuizAuswahl") {
@@ -292,7 +291,7 @@ if (isset($_POST["quizverwaltung"])) {
             foreach ($allQuizzes as $currentQuizUniqueID) {
                 $allQuestions = searchQuestionsOneQuiz($conn, false, $currentQuizUniqueID);
                 if ($allQuestions == false || !count($allQuestions) > 0) {
-                   continue;
+                    continue;
                 }
                 if (array_contains_all_values($allQuestions, $input, true)) {
                     $resultArray[] = $currentQuizUniqueID;
@@ -1008,7 +1007,6 @@ if (isset($_POST["quizverwaltung"])) {
 
         returnMessage("success", "Quiz erfolgreich erstellt. Nun kann mit der Bearbeitung begonnen werden.", false, $resultArray);
         die();
-        
     } else if ($operation === "deleteQuiz") {
         if (!userHasPermissions($conn, $userID, ["quizverwaltungADDandRemove" => gnVP($conn, "quizverwaltungADDandRemove")])) {
             permissionDenied();
@@ -1035,18 +1033,17 @@ if (isset($_POST["quizverwaltung"])) {
         }
         $uniqueID = $_POST["uniqueID"];
         if (!valueInDatabaseExists($conn, "selectquiz", "uniqueID", "uniqueID", $uniqueID)) {
-
         }
         $quizdata = json_validate($_POST["quizdata"]);
         if ($quizdata) {
-           if (setValueFromDatabase($conn, "selectquiz", "quizdata", "uniqueID", $uniqueID, json_encode($quizdata))) {
-            returnMessage("success", "Die Quizdaten wurden erfolgreich geändert");
-           } else {
-            returnMessage("success", "Die Quizdaten wurden nicht geändert.");
-           }
+            if (setValueFromDatabase($conn, "selectquiz", "quizdata", "uniqueID", $uniqueID, json_encode($quizdata))) {
+                returnMessage("success", "Die Quizdaten wurden erfolgreich geändert");
+            } else {
+                returnMessage("success", "Die Quizdaten wurden nicht geändert.");
+            }
         } else {
             returnMessage("failed", "Die Quizdaten sind nicht gültig");
         }
-        die();   
+        die();
     }
 }

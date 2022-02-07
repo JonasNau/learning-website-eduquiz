@@ -158,3 +158,16 @@ td.select #chooseOnly img {
   width: 20px;
   height: 20px;
 }
+
+
+/* mediaContainer */
+
+/* Shrink */
+table.shrinkMedia .mediaContainer > * {
+  max-width: 35vw;
+}
+
+table .mediaContainer {
+  word-wrap: break-word;
+  /* word-break: break-all; */
+}

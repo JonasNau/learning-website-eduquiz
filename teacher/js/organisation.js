@@ -669,8 +669,7 @@ class Klassenstufenverwaltung {
     changeAllShowQuizauswahl.addEventListener("click", async () => {
       //Change All Show Quizauswahl
       if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
+       !(await Utils.userHasPermissions(
           ["klassenstufenverwaltungChangeValues"]
         ))
       ) {
@@ -709,8 +708,7 @@ class Klassenstufenverwaltung {
     changeAlluserCanBe.addEventListener("click", async () => {
       //Change All userCanBe
       if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
+       !(await Utils.userHasPermissions(
           ["klassenstufenverwaltungChangeValues"]
         ))
       ) {
@@ -749,8 +747,7 @@ class Klassenstufenverwaltung {
     changeAllquizCanBeCreated.addEventListener("click", async () => {
       //Change All userCanBe
       if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
+       !(await Utils.userHasPermissions(
           ["klassenstufenverwaltungChangeValues"]
         ))
       ) {
@@ -789,8 +786,7 @@ class Klassenstufenverwaltung {
     removeAllBtn.addEventListener("click", async () => {
       //Change All authenticated
       if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
+       !(await Utils.userHasPermissions(
           ["klassenstufenverwaltungADDandREMOVE"]
         ))
       ) {
@@ -1040,8 +1036,7 @@ class Klassenstufenverwaltung {
     if (!addBtn) return "no addBtn";
     addBtn.addEventListener("click", async () => {
       if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
+       !(await Utils.userHasPermissions(
           ["klassenstufenverwaltungADDandREMOVE"]
         ))
       ) {
@@ -1372,21 +1367,21 @@ class Klassenstufenverwaltung {
     }
   }
 
-  async edit(choosen) {
-    choosen = Utils.sortItems(choosen, false); //Just sort it to better overview
+  async edit(choosen, reloadOnlyOne = false) {
     if (!choosen || !choosen.length > 0) {
       this.editContainer.classList.add("hidden");
       this.clear(this.editTableBody);
       return false;
     }
     this.editReloadBtn.disabled = true;
-    this.editContainer.classList.add("hidden");
     console.log("Edit:", choosen);
 
-    this.resultTable.classList.add("hidden");
-    this.clear(this.tableBody);
-
-    this.clear(this.editTableBody);
+    if (!reloadOnlyOne) {
+      this.resultTable.classList.add("hidden");
+      this.clear(this.tableBody);
+      this.editContainer.classList.add("hidden");
+      this.clear(this.editTableBody);
+    }
 
     for (const currentRaw of choosen) {
       //Get Data
@@ -1409,7 +1404,21 @@ class Klassenstufenverwaltung {
       console.log(current);
 
       if (current["klassenstufe"]) {
-        let tableRow = document.createElement("tr");
+        let tableRow;
+        if (!reloadOnlyOne) {
+          tableRow = document.createElement("tr");
+          this.editTableBody.appendChild(tableRow);
+        } else {
+          try {
+            tableRow = this.editTable.querySelector(
+              `tbody .result[data-value="${current["klassenstufe"]}"]`
+            );
+            console.log(tableRow);
+          } catch {
+            tableRow = document.createElement("tr");
+            this.editTableBody.appendChild(tableRow);
+          }
+        }
         tableRow.classList.add("result");
         tableRow.setAttribute("data-value", current["klassenstufe"]);
 
@@ -1439,7 +1448,6 @@ class Klassenstufenverwaltung {
         <td id="quizCanBeCreated" class="${quizCanBeCreated}"><span>${quizCanBeCreated}</span><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></td>
         <td id="remove"><button class="delete-btn" id="delete"><img src="../../images/icons/delete.svg" alt="Löschen"></button></td>
   `;
-        this.editTableBody.appendChild(tableRow);
 
         let changeNameBtn = tableRow.querySelector("#name #change");
         let changeShowQuizAuswahl = tableRow.querySelector(
@@ -1452,8 +1460,7 @@ class Klassenstufenverwaltung {
 
         changeNameBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["klassenstufenverwaltungChangeValues"]
             ))
           ) {
@@ -1469,7 +1476,7 @@ class Klassenstufenverwaltung {
             Utils.alertUser("Nachricht", "Keine Aktion unternommen", false);
             return false;
           }
-          await Utils.makeJSON(
+          let res = await Utils.makeJSON(
             await Utils.sendXhrREQUEST(
               "POST",
               "klassenstufenverwaltung&operation=changeValue&type=changeNameFromKlassenstufe&klassenstufe=" +
@@ -1484,13 +1491,25 @@ class Klassenstufenverwaltung {
               true
             )
           );
-          this.edit(this.choosenArray);
+          if (res["status"] === "success") {
+            this.choosenArray = Utils.removeFromArray(
+              this.choosenArray,
+              current["name"]
+            );
+            this.choosenArray = Utils.addToArray(
+              this.choosenArray,
+              userInput,
+              false
+            );
+            this.edit([userInput], true);
+          } else {
+            this.edit([current["name"]], true);
+          }
         });
 
         changeShowQuizAuswahl.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["klassenstufenverwaltungChangeValues"]
             ))
           ) {
@@ -1522,13 +1541,12 @@ class Klassenstufenverwaltung {
               true
             )
           );
-          this.edit(this.choosenArray);
+          this.edit([current["klassenstufe"]], true);
         });
 
         changeUserCanBe.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["klassenstufenverwaltungChangeValues"]
             ))
           ) {
@@ -1559,13 +1577,12 @@ class Klassenstufenverwaltung {
               true
             )
           );
-          this.edit(this.choosenArray);
+          this.edit([current["klassenstufe"]], true);
         });
 
         changeQuizCanBeCreated.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["klassenstufenverwaltungChangeValues"]
             ))
           ) {
@@ -1596,15 +1613,14 @@ class Klassenstufenverwaltung {
               true
             )
           );
-          this.edit(this.choosenArray);
+          this.edit([current["klassenstufe"]], true);
         });
 
         let removeBtn = tableRow.querySelector("#remove #delete");
         removeBtn.addEventListener("click", async () => {
           //Ask User
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["klassenstufenverwaltungADDandREMOVE"]
             ))
           ) {
@@ -1639,14 +1655,14 @@ class Klassenstufenverwaltung {
               true
             )
           );
-          this.edit(this.choosenArray);
+          this.edit([current["klassenstufe"]], true);
 
           this.choosenArray = Utils.removeFromArray(
             this.choosenArray,
             current["klassenstufe"]
           );
           console.log(this.choosenArray);
-          this.edit(this.choosenArray);
+          this.edit([current["klassenstufe"]], true);
         });
         this.editContainer.classList.remove("hidden");
       }
@@ -1714,8 +1730,7 @@ class KlassenstufenBackupverwaltung {
     removeAllBtn.addEventListener("click", async () => {
       //Change All authenticated
       if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
+       !(await Utils.userHasPermissions(
           ["klassenstufenverwaltungADDandREMOVE"]
         ))
       ) {
@@ -2209,20 +2224,21 @@ class KlassenstufenBackupverwaltung {
     }
   }
 
-  async edit(choosen) {
+  async edit(choosen, reloadOnlyOne = false) {
     if (!choosen || !choosen.length > 0) {
       this.editContainer.classList.add("hidden");
       this.clear(this.editTableBody);
       return false;
     }
     this.editReloadBtn.disabled = true;
-    this.editContainer.classList.add("hidden");
     console.log("Edit:", choosen);
 
-    this.resultTable.classList.add("hidden");
-    this.clear(this.tableBody);
-
-    this.clear(this.editTableBody);
+    if (!reloadOnlyOne) {
+      this.resultTable.classList.add("hidden");
+      this.clear(this.tableBody);
+      this.editContainer.classList.add("hidden");
+      this.clear(this.editTableBody);
+    }
 
     for (const currentRaw of choosen) {
       //Get Data
@@ -2245,7 +2261,21 @@ class KlassenstufenBackupverwaltung {
       console.log(current);
 
       if (current["name"]) {
-        let tableRow = document.createElement("tr");
+        let tableRow;
+        if (!reloadOnlyOne) {
+          tableRow = document.createElement("tr");
+          this.editTableBody.appendChild(tableRow);
+        } else {
+          try {
+            tableRow = this.editTable.querySelector(
+              `tbody .result[data-value="${current["name"]}"]`
+            );
+            console.log(tableRow);
+          } catch {
+            tableRow = document.createElement("tr");
+            this.editTableBody.appendChild(tableRow);
+          }
+        }
         tableRow.classList.add("result");
         tableRow.setAttribute("data-value", current["name"]);
 
@@ -2257,13 +2287,11 @@ class KlassenstufenBackupverwaltung {
         <td id="recover"><button class="changeBtn" id="change"><img src="../../images/icons/recover.svg" alt="ändern" class="changeIcon"></button></td>
         <td id="remove"><button class="delete-btn" id="delete"><img src="../../images/icons/delete.svg" alt="Löschen"></button></td>
   `;
-        this.editTableBody.appendChild(tableRow);
 
         let changeNameBtn = tableRow.querySelector("#name #change");
         changeNameBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["klassenstufenverwaltungChangeValues"]
             ))
           ) {
@@ -2303,9 +2331,9 @@ class KlassenstufenBackupverwaltung {
               userInput,
               false
             );
-            this.edit(this.choosenArray);
+            this.edit([userInput], true);
           } else {
-            this.edit(this.choosenArray);
+            this.edit([current["name"]], true);
           }
         });
 
@@ -2313,8 +2341,7 @@ class KlassenstufenBackupverwaltung {
 
         recoverBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["klassenstufenverwaltungChangeValues"]
             ))
           ) {
@@ -2345,15 +2372,14 @@ class KlassenstufenBackupverwaltung {
               true
             )
           );
-          this.edit(this.choosenArray);
+          this.edit([current["name"]], true);
         });
 
         let removeBtn = tableRow.querySelector("#remove #delete");
         removeBtn.addEventListener("click", async () => {
           //Ask User
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["klassenstufenverwaltungADDandREMOVE"]
             ))
           ) {
@@ -2389,14 +2415,14 @@ class KlassenstufenBackupverwaltung {
             )
           );
           if (res["status"]) {
-            this.edit(this.choosenArray);
+            this.edit([current["name"]], true);
 
             this.choosenArray = Utils.removeFromArray(
               this.choosenArray,
               current["name"]
             );
             console.log(this.choosenArray);
-            this.edit(this.choosenArray);
+            this.edit(this.choosenArray, true);
           }
         });
         this.editContainer.classList.remove("hidden");
@@ -2471,8 +2497,7 @@ class Faecherverwaltung {
     changeAllShowQuizauswahl.addEventListener("click", async () => {
       //Change All Show Quizauswahl
       if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
+       !(await Utils.userHasPermissions(
           ["faecherverwaltungChangeValues"]
         ))
       ) {
@@ -2511,8 +2536,7 @@ class Faecherverwaltung {
     changeAllquizCanBeCreated.addEventListener("click", async () => {
       //Change All userCanBe
       if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
+       !(await Utils.userHasPermissions(
           ["klassenstufenverwaltungChangeValues"]
         ))
       ) {
@@ -2551,8 +2575,7 @@ class Faecherverwaltung {
     removeAllBtn.addEventListener("click", async () => {
       //Change All authenticated
       if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
+       !(await Utils.userHasPermissions(
           ["faecherverwaltungADDandREMOVE"]
         ))
       ) {
@@ -2789,8 +2812,7 @@ class Faecherverwaltung {
     if (!addBtn) return "no addBtn";
     addBtn.addEventListener("click", async () => {
       if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
+       !(await Utils.userHasPermissions(
           ["faecherverwaltungADDandREMOVE"]
         ))
       ) {
@@ -3082,21 +3104,21 @@ class Faecherverwaltung {
     }
   }
 
-  async edit(choosen) {
-    choosen = Utils.sortItems(choosen, false); //Just sort it to better overview
+  async edit(choosen, reloadOnlyOne = false) {
     if (!choosen || !choosen.length > 0) {
       this.editContainer.classList.add("hidden");
       this.clear(this.editTableBody);
       return false;
     }
     this.editReloadBtn.disabled = true;
-    this.editContainer.classList.add("hidden");
     console.log("Edit:", choosen);
 
-    this.resultTable.classList.add("hidden");
-    this.clear(this.tableBody);
-
-    this.clear(this.editTableBody);
+    if (!reloadOnlyOne) {
+      this.resultTable.classList.add("hidden");
+      this.clear(this.tableBody);
+      this.editContainer.classList.add("hidden");
+      this.clear(this.editTableBody);
+    }
 
     for (const currentRaw of choosen) {
       //Get Data
@@ -3119,7 +3141,21 @@ class Faecherverwaltung {
       console.log(current);
 
       if (current["name"]) {
-        let tableRow = document.createElement("tr");
+        let tableRow;
+        if (!reloadOnlyOne) {
+          tableRow = document.createElement("tr");
+          this.editTableBody.appendChild(tableRow);
+        } else {
+          try {
+            tableRow = this.editTable.querySelector(
+              `tbody .result[data-value="${current["name"]}"]`
+            );
+            console.log(tableRow);
+          } catch {
+            tableRow = document.createElement("tr");
+            this.editTableBody.appendChild(tableRow);
+          }
+        }
         tableRow.classList.add("result");
         tableRow.setAttribute("data-value", current["name"]);
 
@@ -3142,7 +3178,6 @@ class Faecherverwaltung {
         <td id="quizCanBeCreated" class="${quizCanBeCreated}"><span>${quizCanBeCreated}</span><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></td>
         <td id="remove"><button class="delete-btn" id="delete"><img src="../../images/icons/delete.svg" alt="Löschen"></button></td>
   `;
-        this.editTableBody.appendChild(tableRow);
 
         let changeNameBtn = tableRow.querySelector("#name #change");
         let changeShowQuizAuswahl = tableRow.querySelector(
@@ -3154,8 +3189,7 @@ class Faecherverwaltung {
 
         changeNameBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["faecherverwaltungChangeValues"]
             ))
           ) {
@@ -3171,7 +3205,7 @@ class Faecherverwaltung {
             Utils.alertUser("Nachricht", "Keine Aktion unternommen", false);
             return false;
           }
-          await Utils.makeJSON(
+          let res = await Utils.makeJSON(
             await Utils.sendXhrREQUEST(
               "POST",
               "faecherverwaltung&operation=changeValue&type=changeName&fach=" +
@@ -3186,13 +3220,25 @@ class Faecherverwaltung {
               true
             )
           );
-          this.edit(this.choosenArray);
+          if (res["status"] === "success") {
+            this.choosenArray = Utils.removeFromArray(
+              this.choosenArray,
+              current["name"]
+            );
+            this.choosenArray = Utils.addToArray(
+              this.choosenArray,
+              userInput,
+              false
+            );
+            this.edit([userInput], true);
+          } else {
+            this.edit([current["name"]], true);
+          }
         });
 
         changeShowQuizAuswahl.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["faecherverwaltungChangeValues"]
             ))
           ) {
@@ -3224,13 +3270,12 @@ class Faecherverwaltung {
               true
             )
           );
-          this.edit(this.choosenArray);
+          this.edit([current["name"]], true);
         });
 
         changeQuizCanBeCreated.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["faecherverwaltungChangeValues"]
             ))
           ) {
@@ -3261,15 +3306,14 @@ class Faecherverwaltung {
               true
             )
           );
-          this.edit(this.choosenArray);
+          this.edit([current["name"]], true);
         });
 
         let removeBtn = tableRow.querySelector("#remove #delete");
         removeBtn.addEventListener("click", async () => {
           //Ask User
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["faecherverwaltungADDandREMOVE"]
             ))
           ) {
@@ -3303,7 +3347,6 @@ class Faecherverwaltung {
               true
             )
           );
-          this.edit(this.choosenArray);
 
           this.choosenArray = Utils.removeFromArray(
             this.choosenArray,
@@ -3378,8 +3421,7 @@ class FaecherBackupverwaltung {
     removeAllBtn.addEventListener("click", async () => {
       //Change All authenticated
       if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
+       !(await Utils.userHasPermissions(
           ["faecherverwaltungADDandREMOVE"]
         ))
       ) {
@@ -3868,20 +3910,21 @@ class FaecherBackupverwaltung {
     }
   }
 
-  async edit(choosen) {
+  async edit(choosen, reloadOnlyOne = false) {
     if (!choosen || !choosen.length > 0) {
       this.editContainer.classList.add("hidden");
       this.clear(this.editTableBody);
       return false;
     }
     this.editReloadBtn.disabled = true;
-    this.editContainer.classList.add("hidden");
     console.log("Edit:", choosen);
 
-    this.resultTable.classList.add("hidden");
-    this.clear(this.tableBody);
-
-    this.clear(this.editTableBody);
+    if (!reloadOnlyOne) {
+      this.resultTable.classList.add("hidden");
+      this.clear(this.tableBody);
+      this.editContainer.classList.add("hidden");
+      this.clear(this.editTableBody);
+    }
 
     for (const currentRaw of choosen) {
       //Get Data
@@ -3904,7 +3947,21 @@ class FaecherBackupverwaltung {
       console.log(current);
 
       if (current["name"]) {
-        let tableRow = document.createElement("tr");
+        let tableRow;
+        if (!reloadOnlyOne) {
+          tableRow = document.createElement("tr");
+          this.editTableBody.appendChild(tableRow);
+        } else {
+          try {
+            tableRow = this.editTable.querySelector(
+              `tbody .result[data-value="${current["name"]}"]`
+            );
+            console.log(tableRow);
+          } catch {
+            tableRow = document.createElement("tr");
+            this.editTableBody.appendChild(tableRow);
+          }
+        }
         tableRow.classList.add("result");
         tableRow.setAttribute("data-value", current["name"]);
 
@@ -3916,13 +3973,11 @@ class FaecherBackupverwaltung {
         <td id="recover"><button class="changeBtn" id="change"><img src="../../images/icons/recover.svg" alt="ändern" class="changeIcon"></button></td>
         <td id="remove"><button class="delete-btn" id="delete"><img src="../../images/icons/delete.svg" alt="Löschen"></button></td>
   `;
-        this.editTableBody.appendChild(tableRow);
 
         let changeNameBtn = tableRow.querySelector("#name #change");
         changeNameBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["faecherverwaltungChangeValues"]
             ))
           ) {
@@ -3962,7 +4017,7 @@ class FaecherBackupverwaltung {
               userInput,
               false
             );
-            this.edit(this.choosenArray);
+            this.edit([current["name"]], true);
           } else {
             this.edit(this.choosenArray);
           }
@@ -3972,8 +4027,7 @@ class FaecherBackupverwaltung {
 
         recoverBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["faecherverwaltungChangeValues"]
             ))
           ) {
@@ -4011,8 +4065,7 @@ class FaecherBackupverwaltung {
         removeBtn.addEventListener("click", async () => {
           //Ask User
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["faecherverwaltungADDandREMOVE"]
             ))
           ) {
@@ -4048,14 +4101,13 @@ class FaecherBackupverwaltung {
             )
           );
           if (res["status"]) {
-            this.edit(this.choosenArray);
 
             this.choosenArray = Utils.removeFromArray(
               this.choosenArray,
               current["name"]
             );
             console.log(this.choosenArray);
-            this.edit(this.choosenArray);
+            this.edit([current["name"]], true);
           }
         });
         this.editContainer.classList.remove("hidden");
@@ -4130,8 +4182,7 @@ class Themenverwaltung {
     changeAllShowQuizauswahl.addEventListener("click", async () => {
       //Change All Show Quizauswahl
       if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
+       !(await Utils.userHasPermissions(
           ["themenverwaltungChangeValues"]
         ))
       ) {
@@ -4170,8 +4221,7 @@ class Themenverwaltung {
     changeAllquizCanBeCreated.addEventListener("click", async () => {
       //Change All userCanBe
       if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
+       !(await Utils.userHasPermissions(
           ["themenverwaltungChangeValues"]
         ))
       ) {
@@ -4210,8 +4260,7 @@ class Themenverwaltung {
     removeAllBtn.addEventListener("click", async () => {
       //Change All authenticated
       if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
+       !(await Utils.userHasPermissions(
           ["themenverwaltungADDandRemove"]
         ))
       ) {
@@ -4448,8 +4497,7 @@ class Themenverwaltung {
     if (!addBtn) return "no addBtn";
     addBtn.addEventListener("click", async () => {
       if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
+       !(await Utils.userHasPermissions(
           ["themenverwaltungADDandRemove"]
         ))
       ) {
@@ -4741,21 +4789,22 @@ class Themenverwaltung {
     }
   }
 
-  async edit(choosen) {
-    choosen = Utils.sortItems(choosen, false); //Just sort it to better overview
+  async edit(choosen, reloadOnlyOne = false) {
     if (!choosen || !choosen.length > 0) {
       this.editContainer.classList.add("hidden");
       this.clear(this.editTableBody);
       return false;
     }
     this.editReloadBtn.disabled = true;
-    this.editContainer.classList.add("hidden");
     console.log("Edit:", choosen);
 
-    this.resultTable.classList.add("hidden");
-    this.clear(this.tableBody);
+    if (!reloadOnlyOne) {
+      this.resultTable.classList.add("hidden");
+      this.clear(this.tableBody);
+      this.editContainer.classList.add("hidden");
+      this.clear(this.editTableBody);
+    }
 
-    this.clear(this.editTableBody);
 
     for (const currentRaw of choosen) {
       //Get Data
@@ -4778,7 +4827,21 @@ class Themenverwaltung {
       console.log(current);
 
       if (current["name"]) {
-        let tableRow = document.createElement("tr");
+        let tableRow;
+        if (!reloadOnlyOne) {
+          tableRow = document.createElement("tr");
+          this.editTableBody.appendChild(tableRow);
+        } else {
+          try {
+            tableRow = this.editTable.querySelector(
+              `tbody .result[data-value="${current["name"]}"]`
+            );
+            console.log(tableRow);
+          } catch {
+            tableRow = document.createElement("tr");
+            this.editTableBody.appendChild(tableRow);
+          }
+        }
         tableRow.classList.add("result");
         tableRow.setAttribute("data-value", current["name"]);
 
@@ -4801,7 +4864,6 @@ class Themenverwaltung {
         <td id="quizCanBeCreated" class="${quizCanBeCreated}"><span>${quizCanBeCreated}</span><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></td>
         <td id="remove"><button class="delete-btn" id="delete"><img src="../../images/icons/delete.svg" alt="Löschen"></button></td>
   `;
-        this.editTableBody.appendChild(tableRow);
 
         let changeNameBtn = tableRow.querySelector("#name #change");
         let changeShowQuizAuswahl = tableRow.querySelector(
@@ -4813,8 +4875,7 @@ class Themenverwaltung {
 
         changeNameBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["themenverwaltungChangeValues"]
             ))
           ) {
@@ -4830,7 +4891,7 @@ class Themenverwaltung {
             Utils.alertUser("Nachricht", "Keine Aktion unternommen", false);
             return false;
           }
-          await Utils.makeJSON(
+          let res = await Utils.makeJSON(
             await Utils.sendXhrREQUEST(
               "POST",
               "themenverwaltung&operation=changeValue&type=changeName&thema=" +
@@ -4845,13 +4906,25 @@ class Themenverwaltung {
               true
             )
           );
-          this.edit(this.choosenArray);
+          if (res["status"] === "success") {
+            this.choosenArray = Utils.removeFromArray(
+              this.choosenArray,
+              current["name"]
+            );
+            this.choosenArray = Utils.addToArray(
+              this.choosenArray,
+              userInput,
+              false
+            );
+            this.edit([current["name"]], true);
+          } else {
+            this.edit(this.choosenArray);
+          }
         });
 
         changeShowQuizAuswahl.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["themenverwaltungChangeValues"]
             ))
           ) {
@@ -4883,13 +4956,12 @@ class Themenverwaltung {
               true
             )
           );
-          this.edit(this.choosenArray);
+          this.edit([current["name"]], true);
         });
 
         changeQuizCanBeCreated.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["themenverwaltungChangeValues"]
             ))
           ) {
@@ -4920,15 +4992,14 @@ class Themenverwaltung {
               true
             )
           );
-          this.edit(this.choosenArray);
+          this.edit([current["name"]], true);
         });
 
         let removeBtn = tableRow.querySelector("#remove #delete");
         removeBtn.addEventListener("click", async () => {
           //Ask User
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["themenverwaltungADDandREMOVE"]
             ))
           ) {
@@ -4962,7 +5033,6 @@ class Themenverwaltung {
               true
             )
           );
-          this.edit(this.choosenArray);
 
           this.choosenArray = Utils.removeFromArray(
             this.choosenArray,
@@ -5037,8 +5107,7 @@ class ThemenBackupverwaltung {
     removeAllBtn.addEventListener("click", async () => {
       //Change All authenticated
       if (
-        !(await Utils.userHasPermissions(
-          "../../includes/userSystem/checkPermissionsFromFrontend.php",
+       !(await Utils.userHasPermissions(
           ["themenverwaltungADDandREMOVE"]
         ))
       ) {
@@ -5527,20 +5596,21 @@ class ThemenBackupverwaltung {
     }
   }
 
-  async edit(choosen) {
+  async edit(choosen, reloadOnlyOne = false) {
     if (!choosen || !choosen.length > 0) {
       this.editContainer.classList.add("hidden");
       this.clear(this.editTableBody);
       return false;
     }
     this.editReloadBtn.disabled = true;
-    this.editContainer.classList.add("hidden");
     console.log("Edit:", choosen);
 
-    this.resultTable.classList.add("hidden");
-    this.clear(this.tableBody);
-
-    this.clear(this.editTableBody);
+    if (!reloadOnlyOne) {
+      this.resultTable.classList.add("hidden");
+      this.clear(this.tableBody);
+      this.editContainer.classList.add("hidden");
+      this.clear(this.editTableBody);
+    }
 
     for (const currentRaw of choosen) {
       //Get Data
@@ -5563,7 +5633,21 @@ class ThemenBackupverwaltung {
       console.log(current);
 
       if (current["name"]) {
-        let tableRow = document.createElement("tr");
+        let tableRow;
+        if (!reloadOnlyOne) {
+          tableRow = document.createElement("tr");
+          this.editTableBody.appendChild(tableRow);
+        } else {
+          try {
+            tableRow = this.editTable.querySelector(
+              `tbody .result[data-value="${current["name"]}"]`
+            );
+            console.log(tableRow);
+          } catch {
+            tableRow = document.createElement("tr");
+            this.editTableBody.appendChild(tableRow);
+          }
+        }
         tableRow.classList.add("result");
         tableRow.setAttribute("data-value", current["name"]);
 
@@ -5575,13 +5659,11 @@ class ThemenBackupverwaltung {
         <td id="recover"><button class="changeBtn" id="change"><img src="../../images/icons/recover.svg" alt="ändern" class="changeIcon"></button></td>
         <td id="remove"><button class="delete-btn" id="delete"><img src="../../images/icons/delete.svg" alt="Löschen"></button></td>
   `;
-        this.editTableBody.appendChild(tableRow);
 
         let changeNameBtn = tableRow.querySelector("#name #change");
         changeNameBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["themenverwaltungChangeValues"]
             ))
           ) {
@@ -5621,7 +5703,7 @@ class ThemenBackupverwaltung {
               userInput,
               false
             );
-            this.edit(this.choosenArray);
+            this.edit([userInput], true);
           } else {
             this.edit(this.choosenArray);
           }
@@ -5631,8 +5713,7 @@ class ThemenBackupverwaltung {
 
         recoverBtn.addEventListener("click", async () => {
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["themenverwaltungChangeValues"]
             ))
           ) {
@@ -5670,8 +5751,7 @@ class ThemenBackupverwaltung {
         removeBtn.addEventListener("click", async () => {
           //Ask User
           if (
-            !(await Utils.userHasPermissions(
-              "../../includes/userSystem/checkPermissionsFromFrontend.php",
+           !(await Utils.userHasPermissions(
               ["faecherverwaltungADDandREMOVE"]
             ))
           ) {
@@ -5707,8 +5787,6 @@ class ThemenBackupverwaltung {
             )
           );
           if (res["status"]) {
-            this.edit(this.choosenArray);
-
             this.choosenArray = Utils.removeFromArray(
               this.choosenArray,
               current["name"]
@@ -5789,6 +5867,7 @@ if (!organisationContainer) {
   console.log(themenverwaltung.prepareSearch());
   console.log(themenverwaltung.prepareEdit());
   themenverwaltung.setFilterMode("all");
+  themenverwaltung.limiter.value = 20;
   themenverwaltung.search();
 
   let themenBackupverwaltungContainer = organisationContainer.querySelector(
