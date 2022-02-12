@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<!-- saved from url=(0090)https://eduquiz.ddns.net/teacher/?route=/quizverwaltung&quizId=30JeahrigerKriegEinfuehrung -->
+<html lang="de"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!--Logo in Tab Bar-->
+  <link rel="shortcut icon" href="https://eduquiz.ddns.net/images/logo.png?v=12-02-2022">
+  <title>Lehrerpanel</title>
+  <!--Styles Global-->
+
+  <!--Bootstrap CSS-->
+  <link href="./Lehrerpanel_files/bootstrap.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="./Lehrerpanel_files/lehrerpanel.css">
+  <link rel="stylesheet" href="./Lehrerpanel_files/global.css">
+  <link rel="stylesheet" href="./Lehrerpanel_files/style.css">
+  <link rel="stylesheet" href="./Lehrerpanel_files/utils.css">
+  <noscript>
+    <meta content="0;url=/noscript.html" http-equiv="refresh" />
+  </noscript>
+</head>
+
+<body class="" style="">
+
+  <div class="sidebar close">
+    <span class="navbar-toggle-btn-navbar">
+      <span class="line"></span>
+      <span class="line"></span>
+      <span class="line"></span>
+    </span>
+    <div class="logo-details">
+      <a href="https://eduquiz.ddns.net/"><img src="./Lehrerpanel_files/logo.png" class="sidebar-logo" alt="Logo"></a>
+      <span class="logo_name">Lehrerpanel</span>
+    </div>
+    <ul class="nav-links">
+      <li class="navigationsLink">
+        <a href="https://eduquiz.ddns.net/teacher/?route=/home">
+          <img src="./Lehrerpanel_files/home.svg" class="navImage invertWhite" alt="Home">
+          <span class="link_name">Home</span>
+        </a>
+        <ul class="sub-menu blank">
+          <li><a class="link_name" href="https://eduquiz.ddns.net/teacher/?route=/quizverwaltung&amp;quizId=30JeahrigerKriegEinfuehrung#">Home</a></li>
+        </ul>
+      </li>
+              <li class="navigationsLink">
+          <a href="https://eduquiz.ddns.net/teacher/?route=/benutzerverwaltung">
+            <img src="./Lehrerpanel_files/multipleusers.svg" class="navImage invertWhite" alt="User">
+            <span class="link_name">Benutzerverwaltung</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li><a class="link_name" href="https://eduquiz.ddns.net/teacher/?route=/quizverwaltung&amp;quizId=30JeahrigerKriegEinfuehrung#">Benutzerverwaltung</a></li>
+          </ul>
+        </li>
+                    <li class="navigationsLink">
+          <a href="https://eduquiz.ddns.net/teacher/?route=/medienverwaltung">
+            <img src="./Lehrerpanel_files/media.svg" class="navImage invertWhite" alt="Users">
+            <span class="link_name">Medien verwalten</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li><a class="link_name" href="https://eduquiz.ddns.net/teacher/?route=/quizverwaltung">Medien verwalten</a></li>
+          </ul>
+        </li>
+                     <li class="navigationsLink">
+          <a href="https://eduquiz.ddns.net/teacher/?route=/quizverwaltung">
+            <img src="./Lehrerpanel_files/quizIcon.svg" class="navImage invertWhite" alt="Users">
+            <span class="link_name">Quizze Verwalten</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li><a class="link_name" href="https://eduquiz.ddns.net/teacher/?route=/quizverwaltung">Quizze Verwalten</a></li>
+          </ul>
+        </li>
+                    <li class="navigationsLink">
+          <div class="iocn-link">
+            <a href="https://eduquiz.ddns.net/teacher/?route=/organisation" class="sidebar-link">
+              <img src="./Lehrerpanel_files/hierarchie.svg" class="navImage invertWhite" alt="Zahnrad">
+              <span class="link_name">Organisation</span>
+            </a>
+            <i class="arrow">↑</i>
+          </div>
+          <ul class="sub-menu">
+            <li><a class="link_name" href="https://eduquiz.ddns.net/teacher/?route=/organisation">Organisation</a></li>
+            <li><a href="https://eduquiz.ddns.net/teacher/?route=/organisation#overwiew">Übersicht</a></li>
+            <li><a href="https://eduquiz.ddns.net/teacher/?route=/organisation#klassenstufenVerwaltung">Klassenstufen bearbeiten</a></li>
+            <li><a href="https://eduquiz.ddns.net/teacher/?route=/organisation#faecherVerwaltung">Fächer bearbeiten</a></li>
+            <li><a href="https://eduquiz.ddns.net/teacher/?route=/organisation#themenVerwaltung">Themen bearbeiten</a></li>
+          </ul>
+        </li>
+                    <li class="navigationsLink">
+          <div class="iocn-link">
+            <a href="https://eduquiz.ddns.net/teacher/?route=/berechtigungsverwaltung" class="sidebar-link">
+              <img src="./Lehrerpanel_files/permssions.svg" class="navImage invertWhite" alt="Berechtigungen">
+              <span class="link_name">Berechtigungsverw.</span>
+            </a>
+            <i class="arrow">↑</i>
+          </div>
+          <ul class="sub-menu">
+            <li><a class="link_name" href="https://eduquiz.ddns.net/teacher/?route=/berechtigungsverwaltung">Berechtigungsverw.</a></li>
+            <li><a href="https://eduquiz.ddns.net/teacher/?route=/berechtigungsverwaltung#berechtigungsVerwaltung">Berechtigungen</a></li>
+            <li><a href="https://eduquiz.ddns.net/teacher/?route=/berechtigungsverwaltung#gruppenVerwaltung">Gruppen</a></li>
+          </ul>
+        </li>
+                    <li class="navigationsLink">
+          <a href="https://eduquiz.ddns.net/teacher/?route=/settings" class="sidebar-link">
+            <img src="./Lehrerpanel_files/zahnrad.svg" class="navImage invertWhite" alt="Zahnrad">
+            <span class="link_name">Einstellungen</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li><a class="link_name" href="https://eduquiz.ddns.net/teacher/?route=/quizverwaltung&amp;quizId=30JeahrigerKriegEinfuehrung#">Einstellungen</a></li>
+          </ul>
+        </li>
+      
+      <li>
+        <a href="https://eduquiz.ddns.net/" class="sidebar-link leave">
+          <img src="./Lehrerpanel_files/goBack.svg" class="navImage invertWhite" alt="Pfeil">
+          <span class="link_name">Verlassen</span>
+        </a>
+        <ul class="sub-menu blank">
+          <li><a class="link_name" href="https://eduquiz.ddns.net/teacher/?route=/quizverwaltung&amp;quizId=30JeahrigerKriegEinfuehrung#">Verlassen</a></li>
+        </ul>
+      </li>
+      <li class="profile-li">
+        <div class="profile-details">
+          <div class="profile-content">
+            <img src="./Lehrerpanel_files/user.svg">
+          </div>
+          <div class="name-job">
+            <div class="profile_name showDotsIfTooLong">Jonas</div>
+            <div class="job showDotsIfTooLong">SUPER_GROUP, Projektarbeitsgruppe</div>
+          </div>
+          <a href="https://eduquiz.ddns.net/includes/userSystem/logout.inc.php"><img src="./Lehrerpanel_files/logout.svg" class="logoutIcon" alt="Pfeil" data-bs-toggle="tooltip" data-bs-placement="right" title="" data-bs-original-title="Abmelden" aria-label="Abmelden"></a>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <section class="home-section">
+    <i class="navbar-toggle-btn-inside">
+      <span class="line"></span>
+      <span class="line"></span>
+      <span class="line"></span>
+    </i>
+    <div class="home-content">
+          <link rel="stylesheet" href="./Lehrerpanel_files/quizverwaltung.css">
+    <div class="container" id="quizverwaltungsContainer">
+        <h2>Quizverwaltung</h2>
+        <p>Hier ist es möglich Quizze zu suchen und zu bearbeiten, sie zu bearbeiten und auch gegebenenfalls zu löschen. Das wird der meist genutzte Bereich des Lehrerpanels sein.</p>
+        <section>
+            <div class="row">
+                <div id="quizverwaltung">
+                    <h3>Quizze verwalten</h3>
+                    <button class="btn btn-secondary" id="addBtn">Quiz erstellen</button>
+                    <button class="btn btn-secondary" id="filterToggle">Filtern</button>
+                    <button class="btn btn-secondary" id="edit" disabled="">Bearbeiten</button>
+                    <button class="btn btn-info" id="reload">Neuladen</button>
+                    <div class="filter hidden">
+                        <div id="chooseFilterTypeContainer">
+                            <label for="chooseFilter" class="form-label">Filtern nach</label>
+                            <select id="chooseFilter" class="form-select">
+                                <option data-value="" selected="selected">Auswahl</option>
+                                <option data-value="showQuizAuswahl">Bei der Quzauswahl angezeigt</option>
+                                <option data-value="visibility">Sichtbarkeit</option>
+                                <option data-value="klassenstufe">Klassenstufe</option>
+                                <option data-value="fach">Fach</option>
+                                <option data-value="thema">Thema</option>
+                                <option data-value="name">Name</option>
+                                <option data-value="description">Beschreibung</option>
+                                <option data-value="quizId">quizId</option>
+                                <option data-value="id">id</option>
+                                <option data-value="requireKlassenstufe">Klassenstufe erzwungen</option>
+                                <option data-value="requireFach">Fach erzwungen</option>
+                                <option data-value="requireThema">Thema erzwungen</option>
+                                <option data-value="requireName">Name erzwungen</option>
+                                <option data-value="questions">Fragen enthalten</option>
+                                <option data-value="numberOfQuizCards">Anzahl der Fragen</option>
+                                <option data-value="created">Erstelldatum</option>
+                                <option data-value="createdBy">Erstellt von</option>
+                                <option data-value="changed">Änderungsdatum</option>
+                                <option data-value="changedBy">Geändert durch</option>
+                                <option data-value="all">Alle anzeigen</option>
+                                <option data-value="multiple">Mehreres</option>
+                            </select>
+                        </div>
+                        <div class="selectionFilters">
+                            <div id="other">
+                                <div id="searchWhileTyping">
+                                    <label for="allowSearchWhileTyping">Während der Eingabe suchen</label>
+                                    <input type="checkbox" id="allowSearchWhileTyping">
+                                </div>
+                            </div>
+                            <div class="mt-2 hidden" id="showQuizAuswahl">
+                                <label for="selectInput" class="form-label">Filtern nach bei der Quizauswahl anzeigen</label>
+                                <select class="form-select" aria-label="Bei der Quizauswahl anzeigen" id="selectInput">
+                                    <option data-value="" selected="selected">Auswahl</option>
+                                    <option data-value="1" value="1">Ja</option>
+                                    <option data-value="0">Nein</option>
+                                </select>
+                            </div>
+                            <div class="mt-2 hidden" id="visibility">
+                                <label for="selectInput" class="form-label">Filtern nach bei Sichtbarkeit</label>
+                                <select class="form-select" aria-label="Bei der Quizauswahl anzeigen" id="selectInput">
+                                    <option data-value="" selected="selected">Auswahl</option>
+                                    <option data-value="1" value="1">sichtbar</option>
+                                    <option data-value="0">unsichtbar</option>
+                                </select>
+                            </div>
+                            <div class="mt-2 hidden" id="klassenstufe">
+                                <label for="selectInput" class="form-label">Filtern nach Klassenstufe</label>
+                                <button class="btn btn-sm btn-primary" id="addBtn">Auswahl</button>
+                                <div id="choosen"></div>
+                            </div>
+                            <div class="mt-2 hidden" id="fach">
+                                <label for="selectInput" class="form-label">Filtern nach Fach</label>
+                                <button class="btn btn-sm btn-primary" id="addBtn">Auswahl</button>
+                                <div id="choosen"></div>
+                            </div>
+                            <div class="mt-2 hidden" id="thema">
+                                <label for="selectInput" class="form-label">Filtern nach Thema</label>
+                                <button class="btn btn-sm btn-primary" id="addBtn">Auswahl</button>
+                                <div id="choosen"></div>
+                            </div>
+                            <div class="mt-2 hidden" id="name">
+                                <label for="textInput" class="form-label">Filtern nach Name</label>
+                                <input type="text" id="textInput" class="form-control" autocomplete="off">
+                            </div>
+                            <div class="mt-2 hidden" id="description">
+                                <label for="textInput" class="form-label">Filtern nach Beschreibung</label>
+                                <input type="text" id="textInput" class="form-control" placeholder="z.B. Dieses Quiz hilft dir dabei, dich in der Zeichensetzung zu verbessern!" autocomplete="off">
+                            </div>
+                            <div class="mt-2 hidden" id="questions">
+                                <label for="selectInput" class="form-label">Filtern nach enthaltenen Fragen</label>
+                                <button class="btn btn-sm btn-primary" id="addBtn">Hinzufügen</button>
+                                <div id="choosen"></div>
+                            </div>
+                            <div class="mt-2 hidden" id="quizId">
+                                <label for="textInput" class="form-label">Filtern nach quizId</label>
+                                <input type="text" id="textInput" class="form-control" placeholder="z.B. 23452b4-43" autocomplete="off">
+                            </div>
+                            <div class="mt-2" id="id">
+                                <label for="numberInput" class="form-label">Filtern nach id (Fester Wert, der in Aufsteigender Reihenfolge bei Erstellung von Quizzen generiert wird.</label>
+                                <input type="number" id="numberInput" name="numberInput" min="0" placeholder="z.B. 22" autocomplete="off">
+                            </div>
+                            <div class="mt-2 hidden" id="requireKlassenstufe">
+                                <label for="selectInput" class="form-label">Filtern nach "Klassenstufe benötigt"</label>
+                                <select class="form-select" aria-label="Klassenstufe benötigt" id="selectInput">
+                                    <option data-value="" selected="selected">Auswahl</option>
+                                    <option data-value="1" value="1">Ja</option>
+                                    <option data-value="0">Nein</option>
+                                </select>
+                            </div>
+                            <div class="mt-2 hidden" id="requireFach">
+                                <label for="selectInput" class="form-label">Filtern nach "Fach benötigt"</label>
+                                <select class="form-select" aria-label="Fach benötigt" id="selectInput">
+                                    <option data-value="" selected="selected">Auswahl</option>
+                                    <option data-value="1" value="1">Ja</option>
+                                    <option data-value="0">Nein</option>
+                                </select>
+                            </div>
+                            <div class="mt-2 hidden" id="requireThema">
+                                <label for="selectInput" class="form-label">Filtern nach "Thema benötigt"</label>
+                                <select class="form-select" aria-label="Thema benötigt" id="selectInput">
+                                    <option data-value="" selected="selected">Auswahl</option>
+                                    <option data-value="1" value="1">Ja</option>
+                                    <option data-value="0">Nein</option>
+                                </select>
+                            </div>
+                            <div class="mt-2 hidden" id="requireName">
+                                <label for="selectInput" class="form-label">Filtern nach "Name benötigt"</label>
+                                <select class="form-select" aria-label="Name benötigt" id="selectInput">
+                                    <option data-value="" selected="selected">Auswahl</option>
+                                    <option data-value="1" value="1">Ja</option>
+                                    <option data-value="0">Nein</option>
+                                </select>
+                            </div>
+                            <div class="mt-2 hidden" id="numberOfQuizCards">
+                                <label for="numberInput" class="form-label">Filtern nach "Anzahl der Fragen"</label>
+                                <input type="number" id="numberInput" name="numberInput" min="0" autocomplete="off">
+                            </div>
+                            <div class="mt-2 hidden" id="created">
+                                <label for="textInput" class="form-label">Filtern nach Erstelldatum</label>
+                                <input type="text" id="textInput" class="form-control" placeholder="z.B. 12.01.2022" autocomplete="off">
+                            </div>
+                            <div class="mt-2 hidden" id="createdBy">
+                                <label for="addBtn" class="form-label">Filtern nach "erstellt von"</label>
+                                <button class="btn btn-sm btn-primary" id="addBtn">Auswahl</button>
+                                <button class="btn btn-sm btn-danger" id="removeBtn">Entfernen</button>
+                                <div id="choosen"></div>
+                            </div>
+                            <div class="mt-2 hidden" id="changed">
+                                <label for="textInput" class="form-label">Filtern nach Änderungsdatum</label>
+                                <input type="text" id="textInput" class="form-control" placeholder="z.B. 12-01-2022" autocomplete="off">
+                            </div>
+                            <div class="mt-2 hidden" id="changedBy">
+                                <label for="addBtn" class="form-label">Filtern nach "bearbeitet von"</label>
+                                <button class="btn btn-sm btn-primary" id="addBtn">Auswahl</button>
+                                <button class="btn btn-sm btn-danger" id="removeBtn">Entfernen</button>
+                                <div id="choosen"></div>
+                            </div>
+                            <div class="mt-2" id="limitResults">
+                                <label for="numberInput" class="form-label">Ergebnisse Limitieren</label>
+                                <input type="number" id="numberInput" name="numberInput" min="0" autocomplete="off">
+                            </div>
+
+                        </div>
+                        <button type="button" class="btn btn-primary" id="search" style="position: relative"><span>Suchen</span></button>
+                    </div>
+                    <div class="resultDesciption">1 Ergebnisse</div>
+                    <div class="overflow-auto">
+                        <table class="styled-table hidden" id="resultTable">
+                            <thead>
+                                <tr>
+                                    <th id="select">
+                                        <div class="heading">Ausgewählt</div>
+                                        <hr>
+                                        <div><input type="checkbox" id="chooseall"> Alle auswählen</div>
+                                    </th>
+                                    <th id="name">Name</th>
+                                    <th id="klassenstufe">Klassenstufe</th>
+                                    <th id="fach">Fach</th>
+                                    <th id="thema">Thema</th>
+                                    <th id="description">Beschreibung</th>
+                                    <th id="quizId">quizId</th>
+                                    <th id="id">id</th>
+                                    <th id="showQuizAuswahl">Bei der Quizauswahl anzeigen</th>
+                                    <th id="visibility">Verfügbarkeitsstatus</th>
+                                    <th id="requireKlassenstufe">Klassenstufe wird benötigt</th>
+                                    <th id="requireFach">Fach wird benötigt</th>
+                                    <th id="requireThema">Thema wird benötigt</th>
+                                    <th id="requireName">Name wird benötigt</th>
+                                    <th id="questions">Fragen</th>
+                                    <th id="lastUsed">zuletzt Benutzt</th>
+                                    <th id="created">Erstelldatum</th>
+                                    <th id="createdBy">erstellt von</th>
+                                    <th id="changed">Änderungsdatum</th>
+                                    <th id="changedBy">geändert von</th>
+
+
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+
+                    <div class="row" id="editContainer">
+                        <h4>Bearbeiten</h4>
+                        <div class="col-4">
+                            <button class="btn btn-info btn-sm" id="reload">Neuladen</button>
+                        </div>
+
+                        <div class="overflow-auto" id="edit">
+                            <table class="table styled-table" id="editTable">
+                                <thead>
+                                    <tr>
+
+                                        <th id="name"><span>Name</span><button type="button" id="changeAll">alle ändern</button></th>
+                                        <th id="quizData">Quizdaten</th>
+                                        <th id="klassenstufe"><span>Klassenstufe</span><button type="button" id="changeAll">alle ändern</button></th>
+                                        <th id="fach"><span>Fach</span><button type="button" id="changeAll">alle ändern</button></th>
+                                        <th id="thema"><span>Thema</span><button type="button" id="changeAll">alle ändern</button></th>
+                                        <th id="description"><span>Beschreibung</span><button type="button" id="changeAll">alle ändern</button></th>
+                                        <th id="quizId">quizId</th>
+                                        <th id="id">id</th>
+                                        <th id="showQuizAuswahl"><span>Bei der Quizauswahl anzeigen</span><button type="button" id="changeAll">alle ändern</button></th>
+                                        <th id="visibility"><span>Bei dem Nutzer angezeigt</span><button type="button" id="changeAll">alle ändern</button></th>
+                                        <th id="requireKlassenstufe"><span>Klassenstufe wird benötigt</span><button type="button" id="changeAll">alle ändern</button></th>
+                                        <th id="requireFach"><span>Fach wird benötigt</span><button type="button" id="changeAll">alle ändern</button></th>
+                                        <th id="requireThema"><span>Thema wird benötigt</span><button type="button" id="changeAll">alle ändern</button></th>
+                                        <th id="requireName"><span>Name wird benötigt</span><button type="button" id="changeAll">alle ändern</button></th>
+                                        <th id="questions">Fragen</th>
+                                        <th id="remove"><span>Entfernen</span><button type="button" id="changeAll">alle
+                                                Entfernen</button></th>
+                                    </tr>
+                                </thead>
+                                <tbody><tr class="result" data-value="165">
+        <td id="name" style="min-width: 400px;"><span>Einführung</span><button class="changeBtn" id="change"><img src="./Lehrerpanel_files/stift.svg" alt="ändern" class="changeIcon"></button></td>
+        <td id="quizData"><span>Quiz bearbeiten</span><button class="changeBtn" id="change"><img src="./Lehrerpanel_files/stift.svg" alt="ändern" class="changeIcon"></button></td>
+        <td id="klassenstufe" style="min-width: 400px;"><span>Klasse 6</span><button class="changeBtn" id="change"><img src="./Lehrerpanel_files/stift.svg" alt="ändern" class="changeIcon"></button></td>
+        <td id="fach" style="min-width: 400px;"><span>Geschichte</span><button class="changeBtn" id="change"><img src="./Lehrerpanel_files/stift.svg" alt="ändern" class="changeIcon"></button></td>
+        <td id="thema" style="min-width: 400px;"><span>Der dreißigjährige Krieg</span><button class="changeBtn" id="change"><img src="./Lehrerpanel_files/stift.svg" alt="ändern" class="changeIcon"></button></td>
+        <td id="description" style="min-width: 400px;"><span>null</span><button class="changeBtn" id="change"><img src="./Lehrerpanel_files/stift.svg" alt="ändern" class="changeIcon"></button></td>
+        <td id="quizId"><span>30JeahrigerKriegEinfuehrung</span><button class="changeBtn" id="change"><img src="./Lehrerpanel_files/stift.svg" alt="ändern" class="changeIcon"></button><button class="btn btn-sm btn-warning" style="margin: 5px;" id="generateRandomQuizId">Zufall</button></td>
+        <td id="id">165</td>
+        <td id="showQuizAuswahl" class="angezeigt"><span>angezeigt</span>
+        <label class="switch">
+              <input type="checkbox" id="checkbox">
+              <span class="slider round"></span>
+        </label>
+        </td>
+        <td id="visibility" class="angezeigt"><span>angezeigt</span>
+        <label class="switch">
+              <input type="checkbox" id="checkbox">
+              <span class="slider round"></span>
+        </label>
+        </td>
+        <td id="requireKlassenstufe"><span>benötigt</span>
+        <label class="switch">
+              <input type="checkbox" id="checkbox">
+              <span class="slider round"></span>
+        </label>
+        </td>
+        <td id="requireFach"><span>benötigt</span>
+        <label class="switch">
+              <input type="checkbox" id="checkbox">
+              <span class="slider round"></span>
+        </label>
+        </td>
+        <td id="requireThema"><span>benötigt</span>
+        <label class="switch">
+              <input type="checkbox" id="checkbox">
+              <span class="slider round"></span>
+        </label>
+        </td>
+        <td id="requireName"><span>benötigt</span>
+        <label class="switch">
+              <input type="checkbox" id="checkbox">
+              <span class="slider round"></span>
+        </label>
+        </td>
+        <td id="questions" style="min-width: 400px;"><ul class="listInfo"><li>Was ergibt 20   20?</li><li>Was ergibt 50?</li><li>Wie lautet ein Merksatz, um Brüche zu dividieren?</li><li>Gebe den Namen des Gerätes ein, das du auf dem Bild siehst.</li><li>Was ergibt 20 / 4</li></ul></td>
+        <td id="remove"><button class="delete-btn"><img src="./Lehrerpanel_files/delete.svg" alt="Löschen"></button></td>
+  </tr></tbody>
+                            </table>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </section>
+    </div>
+
+
+    <script src="./Lehrerpanel_files/quizverwaltung.js.Download" type="module" defer=""></script>
+
+
+    </div>
+  </section>
+
+
+  <!--Libraries-->
+  <!-- Bootstrap and Popper -- Local hosted -->
+  <script src="./Lehrerpanel_files/bootstrap.bundle.min.js.Download"></script>
+  <!-- Sund manager -->
+  <script src="./Lehrerpanel_files/soundmanager2.js.Download" defer="" type="module"></script>
+
+  <script src="./Lehrerpanel_files/lehrerpanel.js.Download" type="module" defer=""></script>
+
+  <script src="./Lehrerpanel_files/every.js.Download" type="module" defer=""></script>
+
+  <script type="module" defer="">
+    import * as Utils from "../includes/utils.js";
+
+    Utils.holdSererContact("../includes/generalFunctions.php");
+  </script>
+
+
+<div id="modalContainer"><div class="modal-div" id="1">
+    <!-- Modal -->
+    <div class="modal fade show" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-modal="true" role="dialog" style="display: block;">
+    <div class="modal-dialog modal-fullscreen">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="staticBackdropLabel">Quizdaten bearbeiten</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="editQuizdata">
+          <h2>Globale Einstellungen</h2>
+           <div class="general">
+        <button type="button" class="btn btn-info" id="refreshBtn">Aktualisieren</button>
+        <button type="button" class="btn btn-info" id="confirmBtn">Hochladen / Bestätigen</button>
+        <div id="shuffleCards">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkBox">
+                <label class="form-check-label" for="checkBox">
+                    Karten durchmischen
+                </label>
+            </div>
+        </div>
+        <div id="limitCards">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkBox" disabled="">
+                <label class="form-check-label" for="checkBox">
+                    Karten limitieren
+                </label>
+            </div>
+            <div class="inner">
+                <input type="number" id="numberInput" name="numberInput" min="" max="" autocomplete="off" value="" disabled="">
+            </div>
+        </div>
+        <div id="showResultDirectly">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkBox">
+                <label class="form-check-label" for="checkBox">
+                    Ergebnis direkt anzeigen
+                </label>
+            </div>
+        </div>
+        <div id="showTime">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkBox">
+                <label class="form-check-label" for="checkBox">
+                  Zeitanzeige anzeigen
+                </label>
+            </div>
+        </div>
+        <div id="timeLimit">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkBox">
+                <label class="form-check-label" for="checkBox">
+                    Zeitlimit aktivieren
+                </label>
+            </div>
+            <div class="inner">
+                <input type="number" id="numberInput" name="numberInput" min="" max="" autocomplete="off" value="" disabled="">
+                <label class="form-check-label" for="numberInput">Angabe in Sekunden</label>
+            </div>
+        </div>
+        <div id="information">
+          <div id="points"><b>Gesamtpunktzahl:</b> <span class="content">408</span></div>
+          <div id="amountOfCards"><b>Karten:</b> <span class="content">8</span></div>
+        </div>
+        </div>
+           <div class="editCards">
+            <div class="options">
+              <div id="toolbar">
+                <button type="button" class="btn btn-success" id="createCard" data-action="createCard">Karte hinzufügen</button>
+                <button type="button" class="btn btn-secondary" id="editChoosenCards" data-action="editChoosenCards" disabled="">Ausgewählte Karten bearbeiten</button>
+              </div>
+              <div class="dropdown" id="furtherOptions">
+                  <button class="btn btn-secondary dropdown-toggle" type="button" id="optionsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    Weitere Optionen
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="optionsDropdown">
+                    <li><a class="dropdown-item" data-action="createCard">Karte hinzufügen</a></li>
+                    <li><a class="dropdown-item" data-action="recover">Änderungen rückgänging machen</a></li>
+                    <li><a class="dropdown-item" data-action="removeAll">Alle Karten entfernen</a></li>
+                    <li><a class="dropdown-item" data-action="copyQuizdata">Daten in die Zwischenablage kopieren (exportieren)</a></li>
+                    <li><a class="dropdown-item" data-action="insertQuizdata">Daten einfügen (importieren)</a></li>
+                  </ul>
+              </div>
+            </div>
+            <h3>Karten bearbeiten</h3>
+            <div class="cardList"><div class="item collapse show" data-cardid="1" style="">
+            <div class="header">
+            <div class="form-check" id="choose">
+                <input class="form-check-input" type="checkbox" id="checkbox">
+                <label class="form-check-label">
+                    Karte auswählen
+                </label>
+            </div>
+            <div class="btn-group-vertical " role="group" id="moveCard" aria-label="Kartenreihenfolge ändern">
+              <button type="button" class="btn btn-outline-primary" data-action="upwards">Hoch ↑</button>
+              <button type="button" class="btn btn-outline-primary" data-action="downwards">Runter ↓</button>
+            </div>
+            <label class="form-check-label" for="moveCard">Kartenreihenfolge ändern</label>
+            <div class="form-control">
+              <input type="number" class="form-control col-3" aria-label="ID festlegen" id="id" placeholder="z.B. 1">
+              <label class="form-check-label">
+                  Id der Karte (Für Sortierung genutzt)
+              </label>
+              </div> 
+
+           
+            <button type="button" class="btn btn-secondary" id="copyCard">Karte kopieren</button>
+            <button type="button" class="btn btn-danger" id="deleteCard">Karte löschen</button>
+        </div>
+        <div class="body">
+            <div id="cardType">Typ: Multiple Choice</div>
+            <div id="options">
+                <button type="button" class="btn btn-secondary" id="toggleOptions"><img src="./Lehrerpanel_files/zahnrad.svg" alt="" class="icon-auto" style="position: relative; width: 20px;"><span>Optionen</span></button>
+                <ul class="collapse" id="optionsList">
+                    <li id="shuffle">
+                        <input class="form-check-input" type="checkbox" value="" id="checkbox">
+                        <label class="form-check-label">
+                            Antworten durchmischen
+                        </label>
+                    </li>
+                    <li id="timeLimit">
+                      <div class="form-check">
+                          <input class="form-check-input" type="checkbox" id="checkBox">
+                          <label class="form-check-label" for="checkBox">
+                              Zeitlimit aktivieren
+                          </label>
+                      </div>
+                      <div class="inner">
+                          <input type="number" id="numberInput" name="numberInput" min="" max="" autocomplete="off" value="">
+                          <label class="form-check-label" for="numberInput">Angabe in Sekunden</label>
+                      </div> 
+                    </li>
+                </ul>
+            </div>
+            <div id="task">
+              <h5>Aufgabe</h5>
+                <div class="input-group mb-3">
+                    <div class="input-group-text">
+                        <input class="form-check-input mt-0" type="checkbox" id="checkBox" aria-label="Checkbox für Texteingabe">
+                    </div>
+                    <textarea class="form-control" id="textInput" rows="3" aria-label="Aufgabe eingeben" placeholder="Klicke die richtige Antwort an."></textarea>
+                    <button type="button" class="btn btn-sm btn-primary" id="getSuggestions">Vorgefertigte
+                        Aufgaben</button>
+                </div>
+            </div>
+            <div id="question">
+            <h5>Frage</h5>
+                <div class="input-group mb-3" id="task">
+                    <div class="input-group-text">
+                        <input class="form-check-input mt-0" type="checkbox" id="checkBox" aria-label="Checkbox für Texteingabe">
+                    </div>
+                    <textarea class="form-control" id="textInput" rows="3" aria-label="Frage eingeben" placeholder="Was ist die Hauptstadt von Brasilien?"></textarea>
+                    <button type="button" class="btn btn-sm btn-primary" id="getSuggestions">Vorgefertigte
+                        Fragen</button>
+                </div>
+            </div>
+            <button type="button" class="btn btn-secondary" id="changeMedia">Medien hinzufügen / bearbeiten</button>
+            <div id="answers">
+                <div class="change"><button type="button" class="btn btn-secondary" id="changeAnswers">Antwort hinzufügen / löschen</button></div>
+            </div>
+            <h5>Punkte</h5>
+            <div id="points">
+                <input type="number" class="form-control" aria-label="Punkte festlegen" id="numberInput" placeholder="z.B. 1 oder 4,5">
+            </div>
+        </div>
+            </div><div class="item collapse show" data-cardid="2" style=""></div><div class="item collapse show" data-cardid="3" style=""></div><div class="item collapse show" data-cardid="4" style=""></div><div class="item collapse show" data-cardid="5" style=""></div><div class="item collapse show" data-cardid="6" style=""></div><div class="item collapse show" data-cardid="7" style=""></div><div class="item collapse show" data-cardid="8" style=""></div></div>
+           </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="ok">OK</button>
+        </div>
+      </div>
+    </div>
+    </div>
+     </div></div><div class="modal-backdrop fade show"></div></body><style id="sunny-ext-fontface">
+/*
+  Loaded by background.js -> storage -> used in content.js -> injected into page (above shadow DOM)
+  chrome-extension://ebgofhigpedaepplnmglnedbfjemmpnh - path with extension ID, depends on a browser, examples:
+  chrome-extension://jbhkeedjhehmaajkjojekekjkhcjpbam/accessible/font-clarika.template.css
+  moz-extension://ce627beb-0efb-48bb-83d7-1d89956b72ab/accessible/font-clarika.template.css
+*/
+
+@font-face {
+    font-family: 'clarika-medium';
+    src: url('chrome-extension://ebgofhigpedaepplnmglnedbfjemmpnh/accessible/font/clarika-medium.woff2') format('woff2'),
+    url('chrome-extension://ebgofhigpedaepplnmglnedbfjemmpnh/accessible/font/clarika-medium.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'clarika-bold';
+    src: url('chrome-extension://ebgofhigpedaepplnmglnedbfjemmpnh/accessible/font/clarika-bold.woff2') format('woff2'),
+    url('chrome-extension://ebgofhigpedaepplnmglnedbfjemmpnh/accessible/font/clarika-bold.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'clarika-demi';
+    src: url('chrome-extension://ebgofhigpedaepplnmglnedbfjemmpnh/accessible/font/clarika-demi.woff2') format('woff2'),
+    url('chrome-extension://ebgofhigpedaepplnmglnedbfjemmpnh/accessible/font/clarika-demi.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'clarika-heavy';
+    src: url('chrome-extension://ebgofhigpedaepplnmglnedbfjemmpnh/accessible/font/clarika-heavy.woff2') format('woff2'),
+    url('chrome-extension://ebgofhigpedaepplnmglnedbfjemmpnh/accessible/font/clarika-heavy.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'clarika-light';
+    src: url('chrome-extension://ebgofhigpedaepplnmglnedbfjemmpnh/accessible/font/clarika-light.woff2') format('woff2'),
+    url('chrome-extension://ebgofhigpedaepplnmglnedbfjemmpnh/accessible/font/clarika-light.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'clarika-thin';
+    src: url('chrome-extension://ebgofhigpedaepplnmglnedbfjemmpnh/accessible/font/clarika-thin.woff2') format('woff2'),
+    url('chrome-extension://ebgofhigpedaepplnmglnedbfjemmpnh/accessible/font/clarika-thin.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+</style><style id="lumaly-2022-font-style">@font-face {
+    font-family: 'Euclid Circular A';
+    src: url('chrome-extension://ebgofhigpedaepplnmglnedbfjemmpnh/accessible/font/EuclidCircularA-MediumItalic.woff2') format('woff2'),
+        url('chrome-extension://ebgofhigpedaepplnmglnedbfjemmpnh/accessible/font/EuclidCircularA-MediumItalic.woff') format('woff');
+    font-weight: 500;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Euclid Circular A';
+    src: url('chrome-extension://ebgofhigpedaepplnmglnedbfjemmpnh/accessible/font/EuclidCircularA-Italic.woff2') format('woff2'),
+        url('chrome-extension://ebgofhigpedaepplnmglnedbfjemmpnh/accessible/font/EuclidCircularA-Italic.woff') format('woff');
+    font-weight: normal;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Euclid Circular A';
+    src: url('chrome-extension://ebgofhigpedaepplnmglnedbfjemmpnh/accessible/font/EuclidCircularA-BoldItalic.woff2') format('woff2'),
+        url('chrome-extension://ebgofhigpedaepplnmglnedbfjemmpnh/accessible/font/EuclidCircularA-BoldItalic.woff') format('woff');
+    font-weight: bold;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Euclid Circular A';
+    src: url('chrome-extension://ebgofhigpedaepplnmglnedbfjemmpnh/accessible/font/EuclidCircularA-SemiBold.woff2') format('woff2'),
+        url('chrome-extension://ebgofhigpedaepplnmglnedbfjemmpnh/accessible/font/EuclidCircularA-SemiBold.woff') format('woff');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Euclid Circular A';
+    src: url('chrome-extension://ebgofhigpedaepplnmglnedbfjemmpnh/accessible/font/EuclidCircularA-Medium.woff2') format('woff2'),
+        url('chrome-extension://ebgofhigpedaepplnmglnedbfjemmpnh/accessible/font/EuclidCircularA-Medium.woff') format('woff');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Euclid Circular A';
+    src: url('chrome-extension://ebgofhigpedaepplnmglnedbfjemmpnh/accessible/font/EuclidCircularA-Regular.woff2') format('woff2'),
+        url('chrome-extension://ebgofhigpedaepplnmglnedbfjemmpnh/accessible/font/EuclidCircularA-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Euclid Circular A';
+    src: url('chrome-extension://ebgofhigpedaepplnmglnedbfjemmpnh/accessible/font/EuclidCircularA-LightItalic.woff2') format('woff2'),
+        url('chrome-extension://ebgofhigpedaepplnmglnedbfjemmpnh/accessible/font/EuclidCircularA-LightItalic.woff') format('woff');
+    font-weight: 300;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Euclid Circular A';
+    src: url('chrome-extension://ebgofhigpedaepplnmglnedbfjemmpnh/accessible/font/EuclidCircularA-Bold.woff2') format('woff2'),
+        url('chrome-extension://ebgofhigpedaepplnmglnedbfjemmpnh/accessible/font/EuclidCircularA-Bold.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Euclid Circular A';
+    src: url('chrome-extension://ebgofhigpedaepplnmglnedbfjemmpnh/accessible/font/EuclidCircularA-Light.woff2') format('woff2'),
+        url('chrome-extension://ebgofhigpedaepplnmglnedbfjemmpnh/accessible/font/EuclidCircularA-Light.woff') format('woff');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Euclid Circular A';
+    src: url('chrome-extension://ebgofhigpedaepplnmglnedbfjemmpnh/accessible/font/EuclidCircularA-SemiBoldItalic.woff2') format('woff2'),
+        url('chrome-extension://ebgofhigpedaepplnmglnedbfjemmpnh/accessible/font/EuclidCircularA-SemiBoldItalic.woff') format('woff');
+    font-weight: 600;
+    font-style: italic;
+    font-display: swap;
+}</style></html>

@@ -65,7 +65,7 @@ if (isset($_POST["getAttribute"])) {
             $keywords = json_validate(getValueFromDatabase($conn, "medienVerwaltung", "description", "mediaID", $mediaID, 1, false));
             $fileSize = getValueFromDatabase($conn, "medienVerwaltung", "fileSize", "mediaID", $mediaID, 1, false);
     
-            echo json_encode(array("thumbnailIsBlob" => $thumbnailIsBlob, "thumbnailIsOnlineSource" => $thumbnailIsOnlineSource, "thumbnail" => $thumbnail, "isBlob" => $isBlob, "isOnlineSource" => $isOnlineSource, "inMediaFolder" => $inMediaFolder, "uploaded" => $uploaded, "filename" => $filename, "mimeType" => $mimeType, "type" => $type, "path" => $path, "thumbnailFileName" => $thumbnailFileName, "thumbnailMimeType" => $thumbnailMimeType, "thumbnailPath" => $thumbnailPath, "description" => $description, "keywords" => $keywords, "fileSize" => $fileSize, "mediaFolderPath" => $mediaFolderPath, "thumbnailInMediaFolder" => $thumbnailInMediaFolder));
+            echo json_encode(array("mediaID" => $mediaID, "thumbnailIsBlob" => $thumbnailIsBlob, "thumbnailIsOnlineSource" => $thumbnailIsOnlineSource, "thumbnail" => $thumbnail, "isBlob" => $isBlob, "isOnlineSource" => $isOnlineSource, "inMediaFolder" => $inMediaFolder, "uploaded" => $uploaded, "filename" => $filename, "mimeType" => $mimeType, "type" => $type, "path" => $path, "thumbnailFileName" => $thumbnailFileName, "thumbnailMimeType" => $thumbnailMimeType, "thumbnailPath" => $thumbnailPath, "description" => $description, "keywords" => $keywords, "fileSize" => $fileSize, "mediaFolderPath" => $mediaFolderPath, "thumbnailInMediaFolder" => $thumbnailInMediaFolder));
             die();
         } else if ($secondOperation === "getBlob") {
             $thirdOperation = $_POST["thirdOperation"];
@@ -77,8 +77,11 @@ if (isset($_POST["getAttribute"])) {
                 echo getValueFromDatabase($conn, "medienVerwaltung", "blobData", "mediaID", $mediaID, 1, false);
             }
             die();
+        } else if ($secondOperation === "GET mediaID BY id") {
+            $id = $_POST['id'];
+            echo getValueFromDatabase($conn, "medienVerwaltung", "mediaID", "id", $id, 1, false);
+            die();
         }
-       
     }
 }
 

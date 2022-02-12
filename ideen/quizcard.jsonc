@@ -18,8 +18,6 @@
           {
             "type": "video",
             "path": "/media/videos/test.mp4",
-            "sourceType": "video/mp4",
-            "hidden": true,
             "isOnlineSource": true,
             "size": "middle"
           },
@@ -31,18 +29,13 @@
         ],
         [
           {
-            "type": "image",
-            "path": "/media/images/20+20.jpg",
-            "sourceType": "image/jpg",
-            "hidden": false,
-            "isOnlineSource": true,
-            "size": "small",
-            "alt": "20 + 20 Bild"
+           "type": "media",
+           "mediaID": "3",
+           "size": "middle"
           },
           {
-            "type": "text",
-            "text": "Schau dir dieses Bild genauer an.",
-            "size": "middle"
+            "type": "audio",
+            "mediaID": "5"
           }
         ],
         [
@@ -68,7 +61,7 @@
         { "type": "text", "text": "50", "answerID": 3 },
         { "type": "text", "text": "60", "size": "large", "answerID": 4 },
         {
-          "type": "image",
+          "type": "media",
           "mediaID": "1",
           "size": "middle",
           "answerID": 5
@@ -96,7 +89,6 @@
         { "type": "text", "text": "60 - 9", "answerID": 4 }
       ],
       "correctAnswersIDs": [1, 2, 3],
-      "correctAnswers": ["5 * 10", "(5 * 10 * 2 ) / 2", " 2(5²)"],
       "points": 1
     },
     {

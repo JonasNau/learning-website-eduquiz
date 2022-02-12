@@ -1701,6 +1701,8 @@ class Medienverwaltung {
               description +
               "&mimeType=" +
               JSON.stringify(mimeType) +
+              "&type=" +
+              JSON.stringify(type) +
               "&path=" +
               path +
               "&id=" +
@@ -2123,7 +2125,7 @@ class Medienverwaltung {
         //set cacheControl to old value
         window.localStorage.setItem("cacheControl", oldCacheControl);
 
-        //Change
+        //TODO: change
 
         //data
         let changeDataBtn = tableRow.querySelector("#data .change #change");
@@ -2150,6 +2152,50 @@ class Medienverwaltung {
             false
           );
           if (type === "uploadToFileSystem") {
+            let choosenfile = await Utils.getUserInput(
+              "Dateieingabe",
+              "Füge hier deine gewünchte Datei ein",
+              false,
+              "file",
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              { multiple: false }
+            );
+            //Create FormData object
+            let formData = new FormData();
+            formData.append("file_to_append", choosenfile);
+            console.log(
+              "CHOOSEN FILE =>",
+              choosenfile,
+              "formData =>",
+              formData
+            );
+            if (!choosenfile) {
+              await Utils.alertUser("Nachricht", "Keine Aktion unternommen");
+              return false;
+            }
+            await Utils.makeJSON(
+              await Utils.sendXhrREQUEST(
+                "POST",
+                "medienverwaltung&operation=changeValue&type=changeData&id=" +
+                  current["id"] +
+                  "&secondOperation=changeFileData&file=" +
+                  JSON.stringify(formData),
+                "/teacher/includes/medienverwaltung.inc.php",
+                "application/x-www-form-urlencoded",
+                true,
+                true,
+                false,
+                true,
+                false,
+                true,
+                "text/plain"
+              )
+            );
           } else if (type === "uploadAsBlobuploadAsBlob") {
           } else if (type === "addOnlineSource") {
           }

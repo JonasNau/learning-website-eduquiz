@@ -82,9 +82,10 @@ class Benutzerverwaltung {
 
     changeAllKlassenstufeBtn.addEventListener("click", async () => {
       if (
-       !(await Utils.userHasPermissions(
-          ["editUserInformation", "benutzerverwaltungChangeKlassenstufe"]
-        ))
+        !(await Utils.userHasPermissions([
+          "editUserInformation",
+          "benutzerverwaltungChangeKlassenstufe",
+        ]))
       ) {
         return false;
       }
@@ -172,9 +173,10 @@ class Benutzerverwaltung {
 
     changeAllauthenticatedBtn.addEventListener("click", async () => {
       if (
-       !(await Utils.userHasPermissions(
-          ["editUserInformation", "benutzerverwaltungChangeAuthenticated"]
-        ))
+        !(await Utils.userHasPermissions([
+          "editUserInformation",
+          "benutzerverwaltungChangeAuthenticated",
+        ]))
       ) {
         return false;
       }
@@ -214,9 +216,10 @@ class Benutzerverwaltung {
 
     changeAllgroupsBtn.addEventListener("click", async () => {
       if (
-       !(await Utils.userHasPermissions(
-          ["editUserInformation", "benutzerverwaltungChangeGroups"]
-        ))
+        !(await Utils.userHasPermissions([
+          "editUserInformation",
+          "benutzerverwaltungChangeGroups",
+        ]))
       ) {
         return false;
       }
@@ -405,9 +408,10 @@ class Benutzerverwaltung {
 
     changeAllpermissionsBtn.addEventListener("click", async () => {
       if (
-       !(await Utils.userHasPermissions(
-          ["editUserInformation", "benutzerverwaltungChangePermissions"]
-        ))
+        !(await Utils.userHasPermissions([
+          "editUserInformation",
+          "benutzerverwaltungChangePermissions",
+        ]))
       ) {
         return false;
       }
@@ -692,15 +696,16 @@ class Benutzerverwaltung {
           "Neue Nachricht": "newComeBackMessage",
           "Bestimmte Nachricht löschen": "removeSpecificComeBackmessage",
           "Alle Nachrichten löschen": "removeAllComeBackMessages",
-          "Der Öffentlichkeit anzeigen": "showPublic"
+          "Der Öffentlichkeit anzeigen": "showPublic",
         },
         true
       );
       if (type === "changePassword") {
         if (
-         !(await Utils.userHasPermissions(
-            ["editUserInformation", "benutzerverwaltungChangePasswords"]
-          ))
+          !(await Utils.userHasPermissions([
+            "editUserInformation",
+            "benutzerverwaltungChangePasswords",
+          ]))
         ) {
           return false;
         }
@@ -734,9 +739,7 @@ class Benutzerverwaltung {
       } else if (type === "deleteUser") {
         //Done
         if (
-         !(await Utils.userHasPermissions(
-            ["benutzerverwaltungDeleteUsers"]
-          ))
+          !(await Utils.userHasPermissions(["benutzerverwaltungDeleteUsers"]))
         ) {
           return false;
         }
@@ -780,9 +783,7 @@ class Benutzerverwaltung {
       } else if (type === "logoutFromAlldevices") {
         //Done
         if (
-         !(await Utils.userHasPermissions(
-            ["benutzerverwaltungDeleteUsers"]
-          ))
+          !(await Utils.userHasPermissions(["benutzerverwaltungDeleteUsers"]))
         ) {
           return false;
         }
@@ -816,9 +817,9 @@ class Benutzerverwaltung {
         this.edit(this.choosenArray);
       } else if (type === "newComeBackMessage") {
         if (
-         !(await Utils.userHasPermissions(
-            ["benutzerverwaltungCreateComeBackMessages"]
-          ))
+          !(await Utils.userHasPermissions([
+            "benutzerverwaltungCreateComeBackMessages",
+          ]))
         ) {
           return false;
         }
@@ -854,9 +855,9 @@ class Benutzerverwaltung {
         this.edit(this.choosenArray);
       } else if (type === "removeAllComeBackMessages") {
         if (
-         !(await Utils.userHasPermissions(
-            ["benutzerverwaltungCreateComeBackMessages"]
-          ))
+          !(await Utils.userHasPermissions([
+            "benutzerverwaltungCreateComeBackMessages",
+          ]))
         ) {
           return false;
         }
@@ -890,15 +891,15 @@ class Benutzerverwaltung {
         this.edit(this.choosenArray);
       } else if (type === "removeSpecificComeBackmessage") {
         if (
-         !(await Utils.userHasPermissions(
-            ["benutzerverwaltungCreateComeBackMessages"]
-          ))
+          !(await Utils.userHasPermissions([
+            "benutzerverwaltungCreateComeBackMessages",
+          ]))
         ) {
           return false;
         }
 
         let allMessages = new Array();
-        
+
         for (const current of this.choosenArray) {
           let allCurrentMessages = await Utils.makeJSON(
             await Utils.sendXhrREQUEST(
@@ -931,7 +932,7 @@ class Benutzerverwaltung {
           false,
           true
         );
-       
+
         if (!messagesToRemove || !messagesToRemove.length > 0) {
           await Utils.alertUser(
             "Nachricht",
@@ -941,7 +942,6 @@ class Benutzerverwaltung {
           return false;
         }
 
-       
         if (!messagesToRemove || !messagesToRemove.length > 0) {
           await Utils.alertUser("Nachricht", "Keine Aktion unternommen", false);
           return false;
@@ -965,14 +965,14 @@ class Benutzerverwaltung {
               )
             );
           }
-         
         }
         this.edit(this.choosenArray);
       } else if (type === "showPublic") {
         if (
-         !(await Utils.userHasPermissions(
-            ["editUserInformation", "benutzerverwaltungChangeShowPublic"]
-          ))
+          !(await Utils.userHasPermissions([
+            "editUserInformation",
+            "benutzerverwaltungChangeShowPublic",
+          ]))
         ) {
           return false;
         }
@@ -984,7 +984,8 @@ class Benutzerverwaltung {
           false,
           false,
           true,
-          { Ja: "1", Nein: "0" }, true
+          { Ja: "1", Nein: "0" },
+          true
         );
         if (userInput === false) {
           Utils.alertUser("Nachricht", "Keine Aktion unternommen", false);
@@ -1008,7 +1009,6 @@ class Benutzerverwaltung {
             )
           );
         }
-        
       }
     });
   }
@@ -2140,7 +2140,7 @@ class Benutzerverwaltung {
 
         tableRow.classList.add("result");
         tableRow.setAttribute("data-value", current["userID"]);
-        
+
         tableRow.innerHTML = `
         <td id="userID">${current["userID"]}</td>
         <td id="username"><span id="text">${
@@ -2189,9 +2189,10 @@ class Benutzerverwaltung {
         let changeUsernameBtn = tableRow.querySelector("#username #change");
         changeUsernameBtn.addEventListener("click", async () => {
           if (
-           !(await Utils.userHasPermissions(
-              ["editUserInformation", "benutzerverwaltungChangeUsername"]
-            ))
+            !(await Utils.userHasPermissions([
+              "editUserInformation",
+              "benutzerverwaltungChangeUsername",
+            ]))
           ) {
             return false;
           }
@@ -2231,9 +2232,10 @@ class Benutzerverwaltung {
         let changeEmailBtn = tableRow.querySelector("#email #change");
         changeEmailBtn.addEventListener("click", async () => {
           if (
-           !(await Utils.userHasPermissions(
-              ["editUserInformation", "benutzerverwaltungChangeEmail"]
-            ))
+            !(await Utils.userHasPermissions([
+              "editUserInformation",
+              "benutzerverwaltungChangeEmail",
+            ]))
           ) {
             return false;
           }
@@ -2275,9 +2277,10 @@ class Benutzerverwaltung {
         );
         changeKlassenstufeBtn.addEventListener("click", async () => {
           if (
-           !(await Utils.userHasPermissions(
-              ["editUserInformation", "benutzerverwaltungChangeKlassenstufe"]
-            ))
+            !(await Utils.userHasPermissions([
+              "editUserInformation",
+              "benutzerverwaltungChangeKlassenstufe",
+            ]))
           ) {
             return false;
           }
@@ -2368,9 +2371,10 @@ class Benutzerverwaltung {
 
         changeAuthenticatedBtn.addEventListener("click", async () => {
           if (
-           !(await Utils.userHasPermissions(
-              ["editUserInformation", "benutzerverwaltungChangeAuthenticated"]
-            ))
+            !(await Utils.userHasPermissions([
+              "editUserInformation",
+              "benutzerverwaltungChangeAuthenticated",
+            ]))
           ) {
             return false;
           }
@@ -2409,9 +2413,10 @@ class Benutzerverwaltung {
         let changeGroupsBtn = tableRow.querySelector("#groups #change");
         changeGroupsBtn.addEventListener("click", async () => {
           if (
-           !(await Utils.userHasPermissions(
-              ["editUserInformation", "benutzerverwaltungChangeGroups"]
-            ))
+            !(await Utils.userHasPermissions([
+              "editUserInformation",
+              "benutzerverwaltungChangeGroups",
+            ]))
           ) {
             return false;
           }
@@ -2424,9 +2429,10 @@ class Benutzerverwaltung {
         );
         changePermissionsBtn.addEventListener("click", async () => {
           if (
-           !(await Utils.userHasPermissions(
-              ["editUserInformation", "benutzerverwaltungChangePermissions"]
-            ))
+            !(await Utils.userHasPermissions([
+              "editUserInformation",
+              "benutzerverwaltungChangePermissions",
+            ]))
           ) {
             return false;
           }
@@ -2457,10 +2463,10 @@ class Benutzerverwaltung {
           );
           if (type === "changePassword") {
             if (
-              !(await Utils.userHasPermissions(
-                "../../includes/userSystem/checkPermissionsFromFrontend.php",
-                ["editUserInformation", "benutzerverwaltungChangePasswords"]
-              ))
+              !(await Utils.userHasPermissions([
+                "editUserInformation",
+                "benutzerverwaltungChangePasswords",
+              ]))
             ) {
               return false;
             }
@@ -2492,10 +2498,9 @@ class Benutzerverwaltung {
           } else if (type === "deleteUser") {
             //Done
             if (
-              !(await Utils.userHasPermissions(
-                "../../includes/userSystem/checkPermissionsFromFrontend.php",
-                ["benutzerverwaltungDeleteUsers"]
-              ))
+              !(await Utils.userHasPermissions([
+                "benutzerverwaltungDeleteUsers",
+              ]))
             ) {
               return false;
             }
@@ -2537,10 +2542,9 @@ class Benutzerverwaltung {
           } else if (type === "logoutFromAlldevices") {
             //Done
             if (
-              !(await Utils.userHasPermissions(
-                "../../includes/userSystem/checkPermissionsFromFrontend.php",
-                ["benutzerverwaltungDeleteUsers"]
-              ))
+              !(await Utils.userHasPermissions([
+                "benutzerverwaltungDeleteUsers",
+              ]))
             ) {
               return false;
             }
@@ -2575,10 +2579,9 @@ class Benutzerverwaltung {
             this.edit([current["userID"]], true);
           } else if (type === "newComeBackMessage") {
             if (
-              !(await Utils.userHasPermissions(
-                "../../includes/userSystem/checkPermissionsFromFrontend.php",
-                ["benutzerverwaltungCreateComeBackMessages"]
-              ))
+              !(await Utils.userHasPermissions([
+                "benutzerverwaltungCreateComeBackMessages",
+              ]))
             ) {
               return false;
             }
@@ -2612,10 +2615,9 @@ class Benutzerverwaltung {
             this.edit([current["userID"]], true);
           } else if (type === "removeAllComeBackMessages") {
             if (
-              !(await Utils.userHasPermissions(
-                "../../includes/userSystem/checkPermissionsFromFrontend.php",
-                ["benutzerverwaltungCreateComeBackMessages"]
-              ))
+              !(await Utils.userHasPermissions([
+                "benutzerverwaltungCreateComeBackMessages",
+              ]))
             ) {
               return false;
             }
@@ -2650,10 +2652,9 @@ class Benutzerverwaltung {
             this.edit([current["userID"]], true);
           } else if (type === "removeSpecificComeBackmessage") {
             if (
-              !(await Utils.userHasPermissions(
-                "../../includes/userSystem/checkPermissionsFromFrontend.php",
-                ["benutzerverwaltungCreateComeBackMessages"]
-              ))
+              !(await Utils.userHasPermissions([
+                "benutzerverwaltungCreateComeBackMessages",
+              ]))
             ) {
               return false;
             }
@@ -2716,10 +2717,9 @@ class Benutzerverwaltung {
             this.edit([current["userID"]], true);
           } else if (type === "showPublic") {
             if (
-              !(await Utils.userHasPermissions(
-                "../../includes/userSystem/checkPermissionsFromFrontend.php",
-                ["editUserInformation", "benutzerverwaltungChangeShowPublic"]
-              ))
+              !(await Utils.userHasPermissions([
+                "benutzerverwaltungChangeShowPublic",
+              ]))
             ) {
               return false;
             }
@@ -2731,7 +2731,8 @@ class Benutzerverwaltung {
               false,
               false,
               true,
-              { Ja: "1", Nein: "0" }, true
+              { Ja: "1", Nein: "0" },
+              true
             );
             if (userInput === false) {
               Utils.alertUser("Nachricht", "Keine Aktion unternommen", false);

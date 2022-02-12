@@ -1,0 +1,76 @@
+.preventExternalMedia-warning {
+  background-color: rgba(255, 0, 0, 0.4);
+  min-height: 100%;
+  min-width: 100%;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.preventExternalMedia-warning .header {
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.preventExternalMedia-warning .content {
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.preventExternalMedia-warning .footer {
+  text-align: center;
+  font-weight: lighter;
+  font-size: 1rem;
+}
+
+/* Light Data Usage Warning */
+.SETTING_lightDataUsage-warning {
+  background-color: rgba(179, 61, 61, 0.966);
+  min-height: 100%;
+  min-width: 100%;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.SETTING_lightDataUsage-warning .header {
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.SETTING_lightDataUsage-warning .content {
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.SETTING_lightDataUsage-warning .footer {
+  text-align: center;
+  font-weight: lighter;
+  font-size: 1rem;
+}
+
+
+
+.mediaContainer {
+  width: 100%;
+  height: auto;
+  position: relative;
+}
+
+.mediaContainer > *:not(audio) {
+  position: relative;
+  width: auto;
+  height: auto;
+}
+
+/* Selecting */
+
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+}

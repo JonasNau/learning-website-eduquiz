@@ -26,7 +26,7 @@ $clientsConnected = getNumOnlineClients($conn);
 
 
 <link rel="stylesheet" href="./css/home.css?v=<?php echo  getNewestVersion(); ?>">
-<h1>Hallo <?php echo $username ?>, dies ist die Statseite des Lehrerpanels!</h1>
+<h1>Hallo <?php echo $username ?>, dies ist die Startseite des Lehrerpanels!</h1>
 
 <div class="row">
   <div class="col">

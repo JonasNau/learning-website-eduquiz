@@ -201,9 +201,10 @@ export function getUserInput(
   placeholder = false,
   textContent = false,
   canBeEmpty = false,
-  optionsToChooseFrom = new Array(),
+  optionsToChooseFrom = new Object(),
   auswahlItem = false,
-  fullscreen = false
+  fullscreen = false,
+  options = false
 ) {
   return new Promise((resolve, reject) => {
     //Create Modal container if doesnt exist
@@ -563,7 +564,7 @@ export function getUserInput(
       <!-- Modal -->
       <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
       <div class="modal-dialog ${boolToString(fullscreen, {
-        true: "modal-fullscreens",
+        true: "modal-fullscreen",
         false: "",
       })}">
         <div class="modal-content">
@@ -617,6 +618,106 @@ export function getUserInput(
             hideAllModals(closeOthers);
             modalOuter.remove();
             resolve(value);
+          }
+        }
+      });
+
+      no.addEventListener("click", (target) => {
+        myModal.hide();
+        hideAllModals(closeOthers);
+        modalOuter.remove();
+        resolve(false);
+      });
+
+      close.addEventListener("click", (target) => {
+        myModal.hide();
+        hideAllModals(closeOthers);
+        modalOuter.remove();
+        resolve(false);
+      });
+    } else if (type === "file") {
+      let modalHTML = `
+      <!-- Modal -->
+      <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+      <div class="modal-dialog ${boolToString(fullscreen, {
+        true: "modal-fullscreens",
+        false: "",
+      })}">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="staticBackdropLabel">${title}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="description">
+              <p>${text}</p>
+            </div>
+              <input type="file" id="fileInput" name="file" ${valueToString(
+                options.multiple,
+                { true: "multiple", false: "", undefined: "" }
+              )}>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger" id="no">Nein</button>
+            <button type="button" class="btn btn-success" id="yes">Ja</button>
+          </div>
+        </div>
+      </div>
+      </div>
+       `;
+      modalOuter.innerHTML = modalHTML;
+      let modal = modalOuter.querySelector(".modal");
+
+      let textInput = modal.querySelector("#textInput");
+
+      if (textContent) {
+        textInput.setAttribute("value", textContent);
+      }
+      if (placeholder) {
+        textInput.setAttribute("placeholder", placeholder);
+      }
+
+      let close = modal.querySelector("#close");
+      let yes = modal.querySelector("#yes");
+      let no = modal.querySelector("#no");
+
+      var myModal = new bootstrap.Modal(modal);
+      myModal.show();
+
+      yes.addEventListener("click", (target) => {
+        let files = modal.querySelector("#fileInput").files;
+        if (options.multiple) {
+          if (canBeEmpty) {
+            myModal.hide();
+            hideAllModals(closeOthers);
+            modalOuter.remove();
+            resolve(files);
+          } else {
+            if (!files.length > 0) {
+              myModal.hide();
+              hideAllModals(closeOthers);
+              modalOuter.remove();
+              resolve(files);
+            }
+          }
+        } else {
+          //only one file
+          if (canBeEmpty) {
+            myModal.hide();
+            hideAllModals(closeOthers);
+            modalOuter.remove();
+            alert("current selected files", files);
+            if (files.length > 0) {
+              resolve(files[0]);
+            }
+            resolve(false);
+          } else {
+            if (files.length > 0) {
+              myModal.hide();
+              hideAllModals(closeOthers);
+              modalOuter.remove();
+              resolve(files[0]);
+            }
           }
         }
       });
@@ -721,6 +822,8 @@ export function alertUser(title, text, closeOthers) {
   });
 }
 
+
+
 export function hideAllModals(check) {
   if (check) {
     let number = 0;
@@ -740,6 +843,7 @@ export function hideAllModals(check) {
     return false;
   }
 }
+
 export async function popUpStatus(status = true) {
   if (status) {
     sessionStorage.setItem("popupOpen", true);
@@ -872,8 +976,10 @@ export function arrayIncludesValue(array, value) {
   return false;
 }
 
-export function removeFromArray(array, ...forDeletion) {
-  return array.filter((item) => !forDeletion.includes(item));
+export function removeFromArray(array, value) {
+  return array.filter(function(ele){ 
+    return ele != value;
+});
 }
 
 Object.prototype.removeItem = function (key) {
@@ -914,7 +1020,8 @@ export function toggleValuesInArray(array, ...values) {
 }
 
 export async function userHasPermissions(
-  permissions = new Array(),  checkPermissionsFromFrontendPATH = "/includes/userSystem/checkPermissionsFromFrontend.php",
+  permissions = new Array(),
+  checkPermissionsFromFrontendPATH = "/includes/userSystem/checkPermissionsFromFrontend.php"
 ) {
   return new Promise((resolve, reject) => {
     var xhr = new XMLHttpRequest();
@@ -1018,13 +1125,18 @@ export async function sendXhrREQUEST(
   showPermissionDenied = true,
   showErrors = true,
   logData = true,
-  responseType = "text"
+  responseType = "text", headers = {"key": "value"}
 ) {
   //contentType = "application/x-www-form-urlencoded"
   return new Promise(async (resolve, reject) => {
     var xhr = new XMLHttpRequest();
     xhr.open(METHOD, FILEorURL, ascncrounously);
     xhr.setRequestHeader("Content-Type", contentType);
+    if (headers && Object.keys(headers).length > 0) {
+      for (let [key, value] of Object.keys(headers)) {
+        xhr.setRequestHeader(key, value);
+      }
+    }
     xhr.responseType = responseType;
     xhr.send(request);
     //Wenn Antwort
@@ -1948,10 +2060,6 @@ export function swapArrayElements(arr, indexA, indexB) {
   arr[indexB] = temp;
 }
 
-Array.prototype.swap = function (indexA, indexB) {
-  swapArrayElements(this, indexA, indexB);
-};
-
 export function escapeURI(input) {
   if (!input) return input;
   if (typeof input === "string") {
@@ -2041,7 +2149,12 @@ export function setMedia(
                 container
               );
             } else {
-              await setOtherMedia(isOnlineSource, showAnyway, mediaData, container);
+              await setOtherMedia(
+                isOnlineSource,
+                showAnyway,
+                mediaData,
+                container
+              );
             }
           },
           { once: true }
@@ -2070,10 +2183,16 @@ export function setMedia(
             container
           );
         } else {
-          await setOtherMedia( mediaData.isOnlineSource, showAnyway, mediaData, container);
+          await setOtherMedia(
+            mediaData.isOnlineSource,
+            showAnyway,
+            mediaData,
+            container
+          );
         }
       }
     } else {
+      if (!data?.url && !data?.path) resolve(false);
       //Source is not saved in Table - Normal Source
       if (makeJSON(window.localStorage.getItem("SETTING_lightDataUsage"))) {
         let warnContainer = document.createElement("div");
@@ -2095,28 +2214,18 @@ export function setMedia(
           async () => {
             container.removeChild(warnContainer);
             if (data.type === "image") {
-              await setImage(
-                data.isOnlineSource,
-                showAnyway,
-                data,
-                container
-              );
+              await setImage(data.isOnlineSource, showAnyway, data, container);
             } else if (data.type === "video") {
-              await setVideo(
-                data.isOnlineSource,
-                showAnyway,
-                data,
-                container
-              );
+              await setVideo(data.isOnlineSource, showAnyway, data, container);
             } else if (data.type === "audio") {
-              await setAudio(
+              await setAudio(data.isOnlineSource, showAnyway, data, container);
+            } else {
+              await setOtherMedia(
                 data.isOnlineSource,
                 showAnyway,
                 data,
                 container
               );
-            } else {
-              await setOtherMedia(data.isOnlineSource, showAnyway, data, container);
             }
           },
           { once: true }
@@ -2124,26 +2233,11 @@ export function setMedia(
         container.appendChild(warnContainer);
       } else {
         if (data.type === "image") {
-          await setImage(
-            data.isOnlineSource,
-            showAnyway,
-            data,
-            container
-          );
+          await setImage(data.isOnlineSource, showAnyway, data, container);
         } else if (data.type === "video") {
-          await setVideo(
-            data.isOnlineSource,
-            showAnyway,
-            data,
-            container
-          );
+          await setVideo(data.isOnlineSource, showAnyway, data, container);
         } else if (data.type === "audio") {
-          await setAudio(
-            data.isOnlineSource,
-            showAnyway,
-            data,
-            container
-          );
+          await setAudio(data.isOnlineSource, showAnyway, data, container);
         } else {
           await setOtherMedia(data.isOnlineSource, showAnyway, data, container);
         }
@@ -2159,7 +2253,7 @@ function setImage(isOnlineSource, showAnyway, mediaData, container) {
     if (!mediaData) resolve(false);
 
     let getData = async (mediaData) => {
-      if (mediaData.urlIsBLOB) return mediaData.blobData;      
+      if (mediaData.urlIsBLOB) return mediaData.blobData;
       //Download -> GET BLOB URL
       mediaData.path = mediaData.path ?? mediaData.url;
       let downloadURL = mediaData.path;
@@ -2246,8 +2340,7 @@ function setImage(isOnlineSource, showAnyway, mediaData, container) {
   });
 }
 
-
-export async function getThumbnailURL(mediaData){
+export async function getThumbnailURL(mediaData) {
   //GET thumbnail data if enabled
   if (mediaData.urlIsBLOB) return mediaData.url ?? mediaData.path;
   if (mediaData.thumbnail) {
@@ -2279,7 +2372,7 @@ export async function getThumbnailURL(mediaData){
     }
   }
   return false;
-};
+}
 function setVideo(isOnlineSource, showAnyway, mediaData, container) {
   return new Promise(async (resolve, reject) => {
     if (!mediaData) resolve(false);
@@ -2288,7 +2381,7 @@ function setVideo(isOnlineSource, showAnyway, mediaData, container) {
     container.appendChild(videoContainer);
 
     let getData = async (mediaData) => {
-      if (mediaData.urlIsBLOB) return mediaData.blobData;      
+      if (mediaData.urlIsBLOB) return mediaData.blobData;
       //Download -> GET BLOB URL
       mediaData.path = mediaData.path ?? mediaData.url;
       let downloadURL = mediaData.path;
@@ -2363,7 +2456,7 @@ function setVideo(isOnlineSource, showAnyway, mediaData, container) {
           <video controls ${
             thumbnailURL.url ? `poster="${thumbnailURL.url}"` : ""
           } preload="metadata">
-            <source src="${data.url}" type="${data.blob.type}"/>
+            <source src="${data.url}" type="${data?.blob?.type ?? mediaData?.mimeType ?? ""}"/>
             Das Video wird von deinem Browser nicht unterstützt, klicke es stattdessen an: <a href="${
               data.url
             }" target="_blank">Zum Video</a>
@@ -2385,7 +2478,7 @@ function setVideo(isOnlineSource, showAnyway, mediaData, container) {
       <video controls ${
         thumbnailURL.url ? `poster="${thumbnailURL.url}"` : ""
       } preload="metadata">
-        <source src="${data.url}" type="${data.blob.type}"/>
+        <source src="${data.url}" type="${data?.blob?.type ?? mediaData?.mimeType ?? ""}"/>
         Das Video wird von deinem Browser nicht unterstützt, klicke es stattdessen an: <a href="${
           data.url
         }" target="_blank">Zum Video</a>
@@ -2407,7 +2500,7 @@ function setAudio(isOnlineSource, showAnyway, mediaData, container) {
     container.appendChild(audioContainer);
 
     let getData = async (mediaData) => {
-      if (mediaData.urlIsBLOB) return mediaData.blobData;      
+      if (mediaData.urlIsBLOB) return mediaData.blobData;
       //Download -> GET BLOB URL
       mediaData.path = mediaData.path ?? mediaData.url;
       let downloadURL = mediaData.path;
@@ -2474,7 +2567,7 @@ function setAudio(isOnlineSource, showAnyway, mediaData, container) {
           let data = await getData(mediaData);
           audioContainer.innerHTML = `
           <audio controls>
-            <source src="${data.url}" type="${data.blob.type}">
+            <source src="${data.url}" type="${data?.blob?.type ?? mediaData?.mimeType ?? ""}">
           Die Auio wird von deinem Browser nicht unterstützt, klicke sie stattdessen an: <a href="${data.url}" target="_blank">Zur Audio</a>
             </audio>
           `;
@@ -2488,7 +2581,7 @@ function setAudio(isOnlineSource, showAnyway, mediaData, container) {
       let data = await getData(mediaData);
       audioContainer.innerHTML = `
           <audio controls>
-            <source src="${data.url}" type="${data.blob.type}">
+            <source src="${data.url}" type="${data?.blob?.type ?? mediaData?.mimeType ?? ""}">
           Die Auio wird von deinem Browser nicht unterstützt, klicke sie stattdessen an: <a href="${data.url}" target="_blank">Zur Audio</a>
             </audio>
           `;
@@ -2503,7 +2596,7 @@ function setOtherMedia(isOnlineSource, showAnyway, mediaData, container) {
     if (!mediaData) resolve(false);
 
     let getData = async (mediaData) => {
-      if (mediaData.urlIsBLOB) return mediaData.blobData;      
+      if (mediaData.urlIsBLOB) return mediaData.blobData;
       //Download -> GET BLOB URL
       mediaData.path = mediaData.path ?? mediaData.url;
       let downloadURL = mediaData.path;
@@ -2572,7 +2665,7 @@ function setOtherMedia(isOnlineSource, showAnyway, mediaData, container) {
           warnContainer.classList.add("loading");
           let data = await getData(mediaData);
           console.log("DATA=>", data);
-          mediaContainer.innerHTML = `<object data="${data.url}" type="${data.blob.type}">
+          mediaContainer.innerHTML = `<object data="${data.url}" type="${data?.blob?.type ?? mediaData?.mimeType ?? ""}">
           </object>`;
           mediaContainer.classList.remove("loading");
         },
@@ -2583,18 +2676,20 @@ function setOtherMedia(isOnlineSource, showAnyway, mediaData, container) {
       mediaContainer.classList.add("loading");
       let data = await getData(mediaData);
       console.log("DATA=>", data);
-      mediaContainer.innerHTML = `<object data="${data.url}" type="${data.blob.type}">
+      mediaContainer.innerHTML = `<object data="${data.url}" type="${data?.blob?.type ?? mediaData?.mimeType ?? ""}">
       </object>`;
       mediaContainer.classList.remove("loading");
     }
     resolve(true);
   });
 }
-export function getNewestVersion(cacheControl = window.localStorage.getItem("cacheControl")) {
+export function getNewestVersion(
+  cacheControl = window.localStorage.getItem("cacheControl")
+) {
   let time = new Date();
 
   if (cacheControl == "no-cache") {
-    return time.getMilliseconds();
+    return time.getTime();
   } else if (cacheControl == "daily") {
     let day = time.getDate();
     let month = time.getMonth() + 1;
@@ -2613,7 +2708,7 @@ export async function getBLOBData(
       path: "/includes/data.php",
     },
     url: "",
-    cache: "no - auto - daily"
+    cache: "no - auto - daily",
   }
 ) {
   return new Promise(async (resolve, reject) => {
@@ -2655,9 +2750,8 @@ export async function getBLOBData(
         originURL: data.url ?? data.serverRequest.path,
       });
     } catch {
-      resolve({url: data.url, blob: false})
+      resolve({ url: data.url, originURL: data.url});
     }
-  
   });
 }
 
@@ -3996,4 +4090,15 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
     console.log(benutzerverwaltung.prepareSearch());
     benutzerverwaltung.hideUsersIDS = hideUsersIDS;
   });
+}
+
+export function selectListSelectItemBySelector(selectList, attribute, value) {
+  if (!selectList) return;
+  let options = selectList.querySelectorAll("option");
+  for (let i = 0; i < options.length; i++) {
+    if (options[i].getAttribute(attribute) == value) {
+      selectList.selectedIndex = i;
+      return;
+    }
+  }
 }

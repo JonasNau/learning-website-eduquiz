@@ -364,7 +364,7 @@ if (isset($_POST["medienverwaltung"])) {
         } else if ($filter === "multiple") {
             $filename = $_POST["filename"];
             $description = $_POST["description"];
-            $type = $_POST["type"];
+            $type = json_validate($_POST["type"]);
             $mimeType = json_validate($_POST["mimeType"]);
             $path = $_POST["path"];
             $id = $_POST["id"];
@@ -407,7 +407,7 @@ if (isset($_POST["medienverwaltung"])) {
             if ($type !== false && count($type) && count($allMediaIDs) > 0 && $type != "false") {
                 foreach ($allMediaIDs as $currentID) {
                     $typeCurrent = getValueFromDatabase($conn, "medienVerwaltung", "type", "id", $currentID, 1, false);
-                    if (!in_array($type, $typeCurrent)) {
+                    if (!in_array($typeCurrent, $type)) {
                         $allMediaIDs = removeFromArray($allMediaIDs, $currentID);
                     }
                 }
@@ -415,7 +415,7 @@ if (isset($_POST["medienverwaltung"])) {
             if ($mimeType !== false && count($mimeType) && count($allMediaIDs) > 0 && $description != "false") {
                 foreach ($allMediaIDs as $currentID) {
                     $mimeTypeCurrent = getValueFromDatabase($conn, "medienVerwaltung", "mimeType", "id", $currentID, 1, false);
-                    if (!in_array($mimeType, $mimeTypeCurrent)) {
+                    if (!in_array($mimeTypeCurrent, $mimeType)) {
                         $allMediaIDs = removeFromArray($allMediaIDs, $currentID);
                     }
                 }
@@ -585,30 +585,29 @@ if (isset($_POST["medienverwaltung"])) {
         }
     } else if ($operation === "changeValue") {
         $id = $_POST["id"];
-        if (!valueInDatabaseExists($conn, "permissions", "id", "id", $id)) {
-            returnMessage("failed", "Die Berechtigung, die du bearbeiten möchtest gibt es nicht. (id: $id)");
+        if (!valueInDatabaseExists($conn, "medienVerwaltung", "id", "id", $id)) {
+            returnMessage("failed", "Der Medieneintrag, den du bearbeiten möchtest gibt es nicht. (id: $id)");
+            die();
+        }
+        if (!userHasPermissions($conn, $userID, ["medienverwaltungChangeValues"=>gnVP($conn, "medienverwaltungChangeValues")])) {
+            permissionDenied();
             die();
         }
         $type = $_POST["type"];
 
-        if ($type === "changeName") {
-            $rankingPermission = getValueFromDatabase($conn, "permissions", "ranking", "id", $id, 1, false);
-            if (!userHasPermissionRanking($conn, $userID, $rankingPermission)) {
-                returnMessage(false, "Du hast nicht den benötigten Rang. Dein Rang: $usersRank | Benötigter Rang: $rankingPermission");
-                die();
-            }
-            $newName = $_POST["input"];
-            if (empty($newName)) {
-                returnMessage("failed", "Der Name für die Berechtigung darf nicht leer sein. (Eingabe: $newName)");
-                die();
-            }
-            if ($returnArray = renamePermissionInDatabase($conn, $id, $newName)) {
-                echo json_encode($returnArray);
-                die();
-            } else {
-                echo json_encode($returnArray);
-                die();
-            }
+        if ($type === "changeData") {
+           $secondOperation = $_POST["secondOperation"] ?? "";
+           if ($secondOperation === "changeFileData") {
+            $files = json_validate($_POST["file"]);
+            echo json_encode($files);
+            echo "hre";
+            die();
+           } else if ($secondOperation === "changeBlobData") {
+
+           } else if ($secondOperation === "changeOnlineData") {
+
+           }
+
         } else if ($type === "changeType") {
             $rankingPermission = getValueFromDatabase($conn, "permissions", "ranking", "id", $id, 1, false);
             if (!userHasPermissionRanking($conn, $userID, $rankingPermission)) {

@@ -1055,6 +1055,7 @@ class SETTINGS {
           });
           changeUsedAtBtn.addEventListener("click", async () => {
             let input = await changeUsedAt(current["id"]);
+            this.edit([current["id"]], true);
           });
           changeTypeBtn.addEventListener("click", async () => {
             let input = await changeType([current["id"]]);
@@ -1149,7 +1150,7 @@ class SETTINGS {
                 true
               )
             );
-            this.search();
+            this.edit([current["id"]], true);
           });
           changeMaxBtn.addEventListener("click", async () => {
             let input = await Utils.getUserInput(
@@ -1184,7 +1185,7 @@ class SETTINGS {
                 true
               )
             );
-            this.search();
+            this.edit([current["id"]], true);
           });
         } else {
           tableRow.classList.add("forbidden");

@@ -1,1351 +1,5 @@
-import * as Utils from "../../includes/utils.js";
-
-export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
-  return new Promise(async function (resolve, reject) {
-    let modalContainer = document.querySelector("#modalContainer");
-
-    if (modalContainer == null) {
-      modalContainer = document.createElement("div");
-      modalContainer.setAttribute("id", "modalContainer");
-      document.body.appendChild(modalContainer);
-    }
-
-    if (document.querySelector("#modalContainer") == null) {
-      alert("no modal container found");
-      reject();
-    }
-    let number = 1;
-    let modals = modalContainer.querySelectorAll(".modal");
-    console.log(modals);
-    if (modals.length > 0) {
-      number = modals.length + 1;
-    }
-    console.log("Number of Modals", number);
-
-    let modalOuter = document.createElement("div");
-    modalOuter.classList.add("modal-div");
-    modalOuter.setAttribute("id", number);
-    modalContainer.appendChild(modalOuter);
-
-    let modalHTML = `
-    <!-- Modal -->
-    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="true" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-fullscreen">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="staticBackdropLabel">Berechtigungen ändern</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close"></button>
-        </div>
-        <div class="modal-body">
-         
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-danger" id="no">Nein</button>
-          <button type="button" class="btn btn-success" id="yes">Ja</button>
-        </div>
-      </div>
-    </div>
-    </div>
-                 `;
-
-    modalOuter.innerHTML = modalHTML;
-    let modal = modalOuter.querySelector(".modal");
-    let modalBody = modal.querySelector(".modal-body");
-
-    modalBody.innerHTML = `
-    <div class="container" id="benutzerverwaltung">
-    <div class="filter">
-
-        <div id="chooseFilterTypeContainer">
-            <label for="chooseFilter" class="form-label">Filtern nach</label>
-            <select id="chooseFilter" class="form-select">
-                <option data-value="username">Benutzername</option>
-                <option data-value="groups">Gruppen</option>
-                <option data-value="email">Email</option>
-                <option data-value="isOnline">Onlinestatus</option>
-                <option data-value="userID">Benutzer ID</option>
-                <option data-value="authenticated">Bestätigt / Nicht bestätigt</option>
-                <option data-value="klassenstufe">Klassenstufe</option>
-                <option data-value="permissionsAllowed">Berechtigung (erlaubt)</option>
-                <option data-value="permissionsForbidden">Berechtigung (verboten)</option>
-                <option data-value="ranking">Rang</option>
-                <option data-value="multiple">Mehreres</option>
-                <option data-value="all">Alle anzeigen</option>
-            </select>
-        </div>
-
-
-        <div class="selectionFilters">
-            <div id="other">
-                <div id="searchWhileTyping">
-                    <label for="allowSearchWhileTyping">Während des Tippens suchen</label>
-                    <input type="checkbox" id="allowSearchWhileTyping">
-                </div>
-            </div>
-            <div class="mt-2" id="username">
-                <label for="textInput" class="form-label">Filtern nach Benutzername</label>
-                <input type="text" id="textInput" class="form-control" placeholder="Benutzername" autocomplete="off">
-            </div>
-            <div class="mt-2" id="email">
-                <label for="textInput" class="form-label">Filtern nach Email</label>
-                <input type="text" id="textInput" class="form-control" placeholder="Email" autocomplete="off">
-            </div>
-            <div class="mt-2" id="userID">
-                <label for="numberInput" class="form-label">Filtern nach UserID</label>
-                <input type="number" id="numberInput" name="numberInput" min="0" autocomplete="off">
-            </div>
-            <div class="mt-2" id="ranking">
-                <label for="numberInput" class="form-label">Filtern nach Rang</label>
-                <input type="number" id="numberInput" name="numberInput" min="0" autocomplete="off">
-            </div>
-            <div class="mt-2" id="klassenstufe">
-                <label for="select" class="form-label">Filtern nach Klassenstufe (Oder):</label>
-                <button class="btn btn-sm btn-primary" id="addBtn">Hinzufügen</button>
-                <div id="choosen"></div>
-            </div>
-            <div class="mt-2" id="groups">
-                <label for="select" class="form-label">Filtern nach Gruppen (Und):</label>
-                <button class="btn btn-sm btn-primary" id="addBtn">Hinzufügen</button>
-                <ul id="choosen">
-
-                </ul>
-            </div>
-            <div class="mt-2" id="permissionsAllowed">
-                <label for="select" class="form-label">Filtern nach Berechtigungen (erlaubt):</label>
-                <button class="btn btn-sm btn-primary" id="addBtn">Hinzufügen</button>
-                <ul id="choosen">
-
-                </ul>
-            </div>
-            <div class="mt-2" id="permissionsForbidden">
-                <label for="select" class="form-label">Filtern nach Berechtigungen (verboten):</label>
-                <button class="btn btn-sm btn-primary" id="addBtn">Hinzufügen</button>
-                <ul id="choosen">
-
-                </ul>
-            </div>
-            <div class="mt-2" id="authenticated">
-                <label for="selectInput" class="form-label">Filtern nach "Bestätigtungsstatus"</label>
-                <select class="form-select" aria-label="Bestätigt Filter" id="selectInput">
-                    <option data-value="" selected="selected">Auswahl</option>
-                    <option data-value="1" value="1">Ja</option>
-                    <option data-value="0">Nein</option>
-                </select>
-            </div>
-            <div class="mt-2" id="isOnline">
-                <label for="selectInput" class="form-label">Filtern nach "Onlinestatus"</label>
-                <select class="form-select" aria-label="Bestätigt Filter" id="selectInput">
-                    <option data-value="" selected="selected">Auswahl</option>
-                    <option data-value="1" value="1">Online</option>
-                    <option data-value="0">Offline</option>
-                </select>
-            </div>
-            <div class="mt-2" id="limitResults">
-                <label for="numberInput" class="form-label">Ergebnisse Limitieren</label>
-                <input type="number" id="numberInput" name="numberInput" min="0" autocomplete="off">
-            </div>
-        </div>
-
-
-        <button type="button" class="btn btn-primary" id="search" style="position: relative"><span>Suchen</span></button>
-        <button class="btn btn-info" id="reload">Neuladen</button>
-    </div>
-    <div class="resultDesciption">
-
-    </div>
-    <div class="overflow-auto">
-        <table class="styled-table" id="resultTable">
-            <thead>
-                <tr>
-                    <th>
-                        <div class="heading">Ausgewählt</div>
-                        <hr>
-                        <div><input type="checkbox" id="chooseall"> Alle auswählen</div>
-                    </th>
-                    <th id="username" style="min-width: 150px;">Username</th>
-                    <th id="email" style="min-width: 190px;">E-Mail</th>
-                    <th id="klassenstufe">Klassenstufe</th>
-                    <th id="authenticated">Verifiziert</th>
-                    <th id="isOnline">Onlinestatus</th>
-                    <th id="lastActivity" style="min-width: 150px;">Letzte Aktivität</th>
-                    <th id="lastQuiz" style="min-width: 200px;">Letztes Quiz</th>
-                    <th id="lastLogin" style="min-width: 150px;">Letzter Login</th>
-                    <th id="groups" style="min-width: 150px;">Gruppen</th>
-                    <th id="permissionsAllowed" style="min-width: 150px;">Berechtigungen (erlaubt)</th>
-                    <th id="permissionsForbidden" style="min-width: 150px;">Berechtigungen (verboten)</th>
-                    <th id="created" style="min-width: 150px;">Erstellt</th>
-                    <th id="lastPwdChange" style="min-width: 150px;">Passwort geändert</th>
-                    <th id="userID">UserID</th>
-                    <th id="nextMessages" style="min-width: 350px;">Ausstehende Nachrichten</th>
-                    <th id="ranking">Rang</th>
-                    <th id="showPublic">öffentlich anzeigen</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Results -->
-            </tbody>
-        </table>
-    </div>
-</div>
-    `;
-
-    //Class
-    class Benutzerverwaltung {
-      constructor(container) {
-        this.container = container;
-        this.searchBtn = null;
-        this.chooseFilterTypeSelect = null;
-        this.filterContainer = null;
-        this.selectionFiltersContainer = null;
-        this.limiter = null;
-
-        //Filters
-        this.usernameSelectContainer = null;
-        this.emailSelectContainer = null;
-        this.userIDSelectContainer = null;
-        this.klassenstufeSelectContainer = null;
-        this.groupsSelectContainer = null;
-        this.authenticatedSelectContainer = null;
-        this.isOnlineSelectContainer = null;
-        this.rankingSelectContainer = null;
-
-        this.hideUsersIDS = null;
-
-        this.permissionsAllowedSelectContainer = null;
-        this.permissionsAllowedObject = new Object();
-        this.permissionsForbiddenSelectContainer = null;
-        this.permissionsForbiddenArray = new Array();
-
-        this.groupsSearchArray = new Array();
-        this.klassenstufenSearchArray = new Array();
-
-        //Selection
-        this.choosenArray = new Array();
-        this.oldCheckedArray = new Array();
-
-        //others
-        this.searchWhileTyping = false;
-        this.resultDescriptionContainer = null;
-        this.resultBox = null;
-
-        this.searchReloadBtn = null;
-        this.editReloadBtn = null;
-      }
-
-      async prepareSearch() {
-        if (!this.container) return "No container";
-
-        //StartBtn
-        let searchBtn = this.container.querySelector(".filter #search");
-        console.log(searchBtn);
-        if (!searchBtn) return "No searchBtn";
-        this.searchBtn = searchBtn;
-
-        //Filter Container (init)
-        let filterContainer = this.container.querySelector(".filter");
-        if (!filterContainer) return "No filter container";
-        this.filterContainer = filterContainer;
-
-        //Filter Type Select (init)
-        let chooseFilterTypeSelect = filterContainer.querySelector(
-          "#chooseFilterTypeContainer #chooseFilter"
-        );
-        if (!chooseFilterTypeSelect) return "no chooseFilterTypeSelect";
-        this.chooseFilterTypeSelect = chooseFilterTypeSelect;
-
-        //Selection Filters (init) - Enable or disable filter
-        console.log(this.filterContainer);
-        let selectionFiltersContainer =
-          this.filterContainer.querySelector(".selectionFilters");
-        if (!selectionFiltersContainer) return "no selection filters container";
-        this.selectionFiltersContainer = selectionFiltersContainer;
-
-        //Initialize filters
-        let usernameSelectContainer =
-          selectionFiltersContainer.querySelector("#username");
-        let emailSelectContainer =
-          selectionFiltersContainer.querySelector("#email");
-        let userIDSelectContainer =
-          selectionFiltersContainer.querySelector("#userID");
-        let isOnlineSelectContainer =
-          selectionFiltersContainer.querySelector("#isOnline");
-        let klassenstufeSelectContainer =
-          selectionFiltersContainer.querySelector("#klassenstufe");
-        let groupsSelectContainer =
-          selectionFiltersContainer.querySelector("#groups");
-        let authenticatedSelectContainer =
-          selectionFiltersContainer.querySelector("#authenticated");
-        let permissionsAllowedSelectContainer =
-          selectionFiltersContainer.querySelector("#permissionsAllowed");
-        let permissionsForbiddenSelectContainer =
-          selectionFiltersContainer.querySelector("#permissionsForbidden");
-        let rankingSelectContainer =
-          selectionFiltersContainer.querySelector("#ranking");
-        if (
-          !usernameSelectContainer ||
-          !emailSelectContainer ||
-          !userIDSelectContainer ||
-          !klassenstufeSelectContainer ||
-          !groupsSelectContainer ||
-          !authenticatedSelectContainer ||
-          !isOnlineSelectContainer ||
-          !permissionsAllowedSelectContainer ||
-          !permissionsForbiddenSelectContainer ||
-          !rankingSelectContainer
-        )
-          return "Error in initializing Filters";
-        this.usernameSelectContainer = usernameSelectContainer;
-        this.emailSelectContainer = emailSelectContainer;
-        this.userIDSelectContainer = userIDSelectContainer;
-        this.isOnlineSelectContainer = isOnlineSelectContainer;
-        this.klassenstufeSelectContainer = klassenstufeSelectContainer;
-        this.groupsSelectContainer = groupsSelectContainer;
-        this.permissionsAllowedSelectContainer =
-          permissionsAllowedSelectContainer;
-        this.permissionsForbiddenSelectContainer =
-          permissionsForbiddenSelectContainer;
-        this.authenticatedSelectContainer = authenticatedSelectContainer;
-        this.rankingSelectContainer = rankingSelectContainer;
-
-        //hide all
-        this.usernameSelectContainer.classList.add("hidden");
-        this.userIDSelectContainer.classList.add("hidden");
-        this.emailSelectContainer.classList.add("hidden");
-        this.isOnlineSelectContainer.classList.add("hidden");
-        this.klassenstufeSelectContainer.classList.add("hidden");
-        this.groupsSelectContainer.classList.add("hidden");
-        this.permissionsAllowedSelectContainer.classList.add("hidden");
-        this.authenticatedSelectContainer.classList.add("hidden");
-        this.rankingSelectContainer.classList.add("hidden");
-
-        //Init limiter
-        let limiter = selectionFiltersContainer.querySelector(
-          "#limitResults #numberInput"
-        );
-        if (!limiter) return "no limiter";
-        this.limiter = limiter;
-
-        //Search While Typing
-        let searchWhileTypingContainer =
-          selectionFiltersContainer.querySelector("#other #searchWhileTyping");
-        if (!searchWhileTypingContainer)
-          return "no search while typin container";
-        let searchWhileTypingCheckbox =
-          searchWhileTypingContainer.querySelector("#allowSearchWhileTyping");
-        if (!searchWhileTypingCheckbox) return "no search while typin checkbox";
-        searchWhileTypingCheckbox.checked = false;
-        this.searchWhileTyping = false;
-        searchWhileTypingCheckbox.addEventListener("change", (event) => {
-          if (event.target.checked) {
-            console.log("searchWhileTyping on");
-            this.searchWhileTyping = true;
-          } else {
-            console.log("searchWhileTyping off");
-            this.searchWhileTyping = false;
-          }
-        });
-
-        let reloadBtn = this.container.querySelector("#reload");
-        if (!reloadBtn) return "no reload button";
-        reloadBtn.addEventListener("click", () => {
-          this.search();
-        });
-        this.searchReloadBtn = reloadBtn;
-        this.searchReloadBtn.disabled = true;
-
-        //Result Table
-        let resultTable = this.container.querySelector("#resultTable");
-        if (!resultTable) {
-          return "No result Table found.";
-        }
-        this.resultTable = resultTable;
-        this.resultTable.classList.add("hidden");
-
-        let tableBody = resultTable.querySelector("tbody");
-        if (!tableBody) {
-          return "no table body";
-        }
-        this.tableBody = tableBody;
-        this.clear(this.tableBody);
-
-        ///ChooseAllBtn
-        this.chooseAllBtn = this.resultTable.querySelector("thead #chooseall");
-        if (!this.chooseAllBtn) return "No choose all btn";
-        //Make Choose All -------
-
-        this.chooseAllBtn.addEventListener("change", (event) => {
-          if (event.target.checked) {
-            console.log("checked");
-            this.oldCheckedArray = Utils.copyArray(this.choosenArray);
-            let allCheckBtns =
-              this.resultTable.querySelectorAll(".result #select");
-
-            allCheckBtns.forEach((element) => {
-              let dataValue = element
-                .closest(".result")
-                .getAttribute("data-value");
-              element.checked = true;
-              this.choosenArray = Utils.addToArray(
-                this.choosenArray,
-                dataValue,
-                false
-              );
-            });
-          } else {
-            console.log("unchecked");
-            let allCheckBtns =
-              this.resultTable.querySelectorAll(".result #select");
-
-            allCheckBtns.forEach((element) => {
-              let dataValue = element
-                .closest(".result")
-                .getAttribute("data-value");
-
-              if (this.oldCheckedArray.includes(dataValue)) {
-                element.checked = true;
-                this.choosenArray = Utils.addToArray(
-                  this.choosenArray,
-                  dataValue,
-                  false
-                );
-              } else {
-                element.checked = false;
-                this.choosenArray = Utils.removeFromArray(
-                  this.choosenArray,
-                  dataValue
-                );
-              }
-            });
-          }
-          this.updateEditBtn();
-        });
-
-        //Result Desription
-        let resultDescriptionContainer =
-          this.container.querySelector(".resultDesciption");
-        if (!resultDescriptionContainer) {
-          return "no discription container";
-        }
-        this.resultDescriptionContainer = resultDescriptionContainer;
-
-        searchBtn.addEventListener("click", () => {
-          this.search(this.arraySearch);
-        });
-
-        //Add that user can select type of filter and set normally to username
-        this.chooseFilterTypeSelect.addEventListener("change", () => {
-          let value =
-            this.chooseFilterTypeSelect[
-              chooseFilterTypeSelect.selectedIndex
-            ].getAttribute("data-value");
-          console.log(value);
-          this.setFilterMode(value);
-        });
-
-        //First shown mode automatically
-        this.setFilterMode("username");
-      }
-
-      updateEditBtn() {
-        console.log(this.choosenArray.length);
-        if (this.choosenArray.length > 0) {
-          this.editBtn.disabled = false;
-        } else {
-          this.editBtn.disabled = true;
-        }
-      }
-
-      async setFilterMode(value) {
-        if (!value) return false;
-        this.filterType = value;
-        //Hide All and clear
-        this.usernameSelectContainer.classList.add("hidden");
-        this.emailSelectContainer.classList.add("hidden");
-        this.userIDSelectContainer.classList.add("hidden");
-        this.groupsSelectContainer.classList.add("hidden");
-        this.klassenstufeSelectContainer.classList.add("hidden");
-        this.permissionsAllowedSelectContainer.classList.add("hidden");
-        this.permissionsForbiddenSelectContainer.classList.add("hidden");
-        this.authenticatedSelectContainer.classList.add("hidden");
-        this.isOnlineSelectContainer.classList.add("hidden");
-        this.rankingSelectContainer.classList.add("hidden");
-
-        if (value === "username") {
-          this.enableFilter(this.usernameSelectContainer);
-        } else if (value === "email") {
-          this.enableFilter(this.emailSelectContainer);
-        } else if (value === "userID") {
-          this.enableFilter(this.userIDSelectContainer);
-        } else if (value === "groups") {
-          this.enableFilter(this.groupsSelectContainer);
-        } else if (value === "klassenstufe") {
-          this.enableFilter(this.klassenstufeSelectContainer);
-        } else if (value === "permissionsAllowed") {
-          this.enableFilter(this.permissionsAllowedSelectContainer);
-        } else if (value === "permissionsForbidden") {
-          this.enableFilter(this.permissionsForbiddenSelectContainer);
-        } else if (value === "ranking") {
-          this.enableFilter(this.rankingSelectContainer);
-        } else if (value === "authenticated") {
-          this.enableFilter(this.authenticatedSelectContainer);
-        } else if (value === "isOnline") {
-          this.enableFilter(this.isOnlineSelectContainer);
-        } else if (value == "multiple") {
-          this.enableFilter(this.usernameSelectContainer);
-          this.enableFilter(this.emailSelectContainer);
-          this.enableFilter(this.userIDSelectContainer);
-          this.enableFilter(this.groupsSelectContainer);
-          this.enableFilter(this.klassenstufeSelectContainer);
-          this.enableFilter(this.permissionsSelectContainer);
-          this.enableFilter(this.authenticatedSelectContainer);
-          this.enableFilter(this.isOnlineSelectContainer);
-          this.enableFilter(this.permissionsAllowedSelectContainer);
-          this.enableFilter(this.permissionsForbiddenSelectContainer);
-          this.enableFilter(this.rankingSelectContainer);
-        } else if (value == "all") {
-          //Nothing to show
-        }
-      }
-
-      async enableFilter(filter) {
-        if (!filter) return false;
-
-        if (filter === this.usernameSelectContainer) {
-          let input = this.usernameSelectContainer.querySelector("#textInput");
-          Utils.listenToChanges(input, "input", 450, () => {
-            if (this.searchWhileTyping) {
-              this.search();
-            }
-          });
-          this.usernameSelectContainer.classList.remove("hidden");
-        } else if (filter === this.emailSelectContainer) {
-          //Email
-          let input = this.emailSelectContainer.querySelector("#textInput");
-          Utils.listenToChanges(input, "input", 450, () => {
-            if (this.searchWhileTyping) {
-              this.search();
-            }
-          });
-          this.emailSelectContainer.classList.remove("hidden");
-        } else if (filter === this.userIDSelectContainer) {
-          //UserID
-          let input = this.userIDSelectContainer.querySelector("#numberInput");
-          Utils.listenToChanges(input, "input", 450, () => {
-            if (this.searchWhileTyping) {
-              this.search();
-            }
-          });
-          this.userIDSelectContainer.classList.remove("hidden");
-        } else if (filter === this.rankingSelectContainer) {
-          //UserID
-          let input = this.rankingSelectContainer.querySelector("#numberInput");
-          Utils.listenToChanges(input, "input", 450, () => {
-            if (this.searchWhileTyping) {
-              this.search();
-            }
-          });
-          this.rankingSelectContainer.classList.remove("hidden");
-        } else if (filter === this.groupsSelectContainer) {
-          //Groups
-          this.groupsSearchArray = new Array(); //Reset old value
-
-          let choosenContainer =
-            this.groupsSelectContainer.querySelector("#choosen");
-
-          let update = () => {
-            //Update Choosen
-            choosenContainer.innerHTML = "";
-            if (this.groupsSearchArray.length > 0) {
-              this.groupsSearchArray.forEach((element) => {
-                let listItem = document.createElement("li");
-                listItem.setAttribute("data-value", element);
-                listItem.innerHTML = `<span>${element}</span><button type="button" id="remove">X</button><span></span`;
-                choosenContainer.appendChild(listItem);
-
-                let removeBtn = listItem.querySelector("#remove");
-                removeBtn.addEventListener("click", (event) => {
-                  this.groupsSearchArray = Utils.removeFromArray(
-                    this.groupsSearchArray,
-                    element
-                  );
-                  update();
-                });
-              });
-            }
-          };
-
-          let addBtn = this.groupsSelectContainer.querySelector("#addBtn");
-          addBtn = Utils.removeAllEventlisteners(addBtn);
-          addBtn.addEventListener("click", async () => {
-            let availableGroups = await Utils.makeJSON(
-              await Utils.sendXhrREQUEST(
-                "POST",
-                "benutzerverwaltung&operation=other&type=getAvailableGroups",
-                "./includes/benutzerverwaltung.inc.php",
-                "application/x-www-form-urlencoded",
-                true,
-                true,
-                false,
-                true
-              )
-            );
-            let choosen = await Utils.chooseFromArrayWithSearch(
-              availableGroups,
-              false,
-              "Gruppen auswählen",
-              this.groupsSearchArray,
-              true
-            );
-            if (choosen && choosen.length > 0) {
-              for (const current of choosen) {
-                this.groupsSearchArray = Utils.addToArray(
-                  this.groupsSearchArray,
-                  current,
-                  false
-                );
-              }
-            }
-            update();
-          });
-
-          this.groupsSelectContainer.classList.remove("hidden");
-        } else if (filter === this.permissionsAllowedSelectContainer) {
-          this.permissionsAllowedObject = new Object();
-          console.log(this.permissionsAllowedObject);
-          let choosenContainer =
-            this.permissionsAllowedSelectContainer.querySelector("#choosen");
-          choosenContainer.innerHTML = "";
-          let addBtn =
-            this.permissionsAllowedSelectContainer.querySelector("#addBtn");
-          addBtn = Utils.removeAllEventlisteners(addBtn);
-
-          let add = async () => {
-            let toAdd = await addPermission([]);
-            if (toAdd && toAdd.length > 0) {
-              for (const current of toAdd) {
-                let input = await Utils.getUserInput(
-                  "Eingabe",
-                  `Welchen Wert soll die Berechtigung ${current} haben?`,
-                  false,
-                  "text",
-                  1,
-                  1,
-                  false
-                );
-                if (!Utils.isEmptyInput(input, true)) {
-                  this.permissionsAllowedObject[current] = input;
-                  if (this.searchWhileTyping) {
-                    this.search();
-                  }
-                }
-              }
-            }
-            update();
-          };
-          addBtn.addEventListener("click", add);
-          let update = () => {
-            //Update Choosen
-            choosenContainer.innerHTML = "";
-            if (Object.keys(this.permissionsAllowedObject).length > 0) {
-              for (const [key, value] of Object.entries(
-                this.permissionsAllowedObject
-              )) {
-                let listItem = document.createElement("li");
-
-                listItem.setAttribute("data-value", key);
-                listItem.innerHTML = `<span>${key} = ${value}</span><button type="button" id="remove">X</button><span></span>`;
-                choosenContainer.appendChild(listItem);
-
-                let removeBtn = listItem.querySelector("#remove");
-                removeBtn.addEventListener("click", (event) => {
-                  delete this.permissionsAllowedObject[key];
-                  update();
-                  console.log("After", this.permissionsAllowedObject);
-                });
-              }
-            }
-          };
-          this.permissionsAllowedSelectContainer.classList.remove("hidden");
-        } else if (filter === this.permissionsForbiddenSelectContainer) {
-          this.permissionsForbiddenArray = new Array();
-          console.log(this.permissionsAllowedObject);
-          let choosenContainer =
-            this.permissionsForbiddenSelectContainer.querySelector("#choosen");
-          choosenContainer.innerHTML = "";
-          let addBtn =
-            this.permissionsForbiddenSelectContainer.querySelector("#addBtn");
-          addBtn = Utils.removeAllEventlisteners(addBtn);
-
-          let add = async () => {
-            let toAdd = await addPermission([]);
-            if (toAdd && toAdd.length > 0) {
-              for (const current of toAdd) {
-                this.permissionsForbiddenArray = Utils.addToArray(
-                  this.permissionsForbiddenArray,
-                  current,
-                  false
-                );
-              }
-            }
-            update();
-          };
-          addBtn.addEventListener("click", add);
-          let update = () => {
-            //Update Choosen
-            choosenContainer.innerHTML = "";
-            if (this.permissionsForbiddenArray.length > 0) {
-              for (const current of this.permissionsForbiddenArray) {
-                let listItem = document.createElement("li");
-
-                listItem.setAttribute("data-value", current);
-                listItem.innerHTML = `<span>${current}</span><button type="button" id="remove">X</button><span></span>`;
-                choosenContainer.appendChild(listItem);
-
-                let removeBtn = listItem.querySelector("#remove");
-                removeBtn.addEventListener("click", (event) => {
-                  this.permissionsForbiddenArray = Utils.removeFromArray(
-                    this.permissionsForbiddenArray,
-                    current
-                  );
-                  update();
-                  console.log("After", this.permissionsForbiddenArray);
-                });
-              }
-            }
-            if (this.searchWhileTyping) {
-              this.search();
-            }
-          };
-
-          this.permissionsForbiddenSelectContainer.classList.remove("hidden");
-        } else if (filter === this.klassenstufeSelectContainer) {
-          //Klassenstufen
-
-          this.klassenstufenSearchArray = new Array(); //Reset old value
-
-          let choosenContainer =
-            this.klassenstufeSelectContainer.querySelector("#choosen");
-
-          let update = () => {
-            //Update Choosen
-            choosenContainer.innerHTML = "";
-            if (this.klassenstufenSearchArray.length > 0) {
-              this.klassenstufenSearchArray.forEach((element) => {
-                let listItem = document.createElement("li");
-                listItem.setAttribute("data-value", element);
-                listItem.innerHTML = `<span>${element}</span><button type="button" id="remove">X</button><span></span`;
-                choosenContainer.appendChild(listItem);
-
-                let removeBtn = listItem.querySelector("#remove");
-                removeBtn.addEventListener("click", (event) => {
-                  this.klassenstufenSearchArray = Utils.removeFromArray(
-                    this.klassenstufenSearchArray,
-                    element
-                  );
-                  update();
-                });
-              });
-            }
-          };
-
-          let addBtn =
-            this.klassenstufeSelectContainer.querySelector("#addBtn");
-          addBtn = Utils.removeAllEventlisteners(addBtn);
-          addBtn.addEventListener("click", async () => {
-            let availableKlassenstufen = await Utils.makeJSON(
-              await Utils.sendXhrREQUEST(
-                "POST",
-                "benutzerverwaltung&operation=other&type=getAllKlassenstufen",
-                "./includes/benutzerverwaltung.inc.php",
-                "application/x-www-form-urlencoded",
-                true,
-                true,
-                false,
-                true
-              )
-            );
-            let choosen = await Utils.chooseFromArrayWithSearch(
-              availableKlassenstufen,
-              false,
-              "Klassenstufe auswählen",
-              this.klassenstufenSearchArray,
-              true
-            );
-            if (choosen && choosen.length > 0) {
-              for (const current of choosen) {
-                this.klassenstufenSearchArray = Utils.addToArray(
-                  this.klassenstufenSearchArray,
-                  current,
-                  false
-                );
-              }
-            }
-            update();
-          });
-
-          this.klassenstufeSelectContainer.classList.remove("hidden");
-        } else if (filter === this.authenticatedSelectContainer) {
-          let select =
-            this.authenticatedSelectContainer.querySelector("#selectInput");
-          Utils.listenToChanges(select, "change", 200, () => {
-            if (this.searchWhileTyping) {
-              this.search();
-            }
-          });
-          this.authenticatedSelectContainer.classList.remove("hidden");
-        } else if (filter === this.isOnlineSelectContainer) {
-          let select =
-            this.isOnlineSelectContainer.querySelector("#selectInput");
-          Utils.listenToChanges(select, "change", 200, () => {
-            if (this.searchWhileTyping) {
-              this.search();
-            }
-          });
-          this.isOnlineSelectContainer.classList.remove("hidden");
-        } else {
-          return false;
-        }
-      }
-
-      async search() {
-        this.searchReloadBtn.disabled = true;
-        //Utils.toggleLodingAnimation(this.container)
-        this.searchBtn.classList.add("loading");
-        this.choosenArray = new Array();
-
-        if (this.filterType === "username") {
-          let input =
-            this.usernameSelectContainer.querySelector("#textInput").value;
-          this.showResults(
-            Utils.makeJSON(
-              await Utils.makeJSON(
-                await Utils.sendXhrREQUEST(
-                  "POST",
-                  "benutzerverwaltung&operation=search&type=username&input=" +
-                    input +
-                    "&limitResults=" +
-                    this.limiter.value,
-                  "./includes/benutzerverwaltung.inc.php",
-                  "application/x-www-form-urlencoded",
-                  true,
-                  true,
-                  false,
-                  true
-                )
-              )
-            )
-          );
-        } else if (this.filterType === "email") {
-          let input =
-            this.emailSelectContainer.querySelector("#textInput").value;
-          this.showResults(
-            Utils.makeJSON(
-              await Utils.makeJSON(
-                await Utils.sendXhrREQUEST(
-                  "POST",
-                  "benutzerverwaltung&operation=search&type=email&input=" +
-                    input +
-                    "&limitResults=" +
-                    this.limiter.value,
-                  "./includes/benutzerverwaltung.inc.php",
-                  "application/x-www-form-urlencoded",
-                  true,
-                  true,
-                  false,
-                  true
-                )
-              )
-            )
-          );
-        } else if (this.filterType === "userID") {
-          let input =
-            this.userIDSelectContainer.querySelector("#numberInput").value;
-          this.showResults(
-            Utils.makeJSON(
-              await Utils.makeJSON(
-                await Utils.sendXhrREQUEST(
-                  "POST",
-                  "benutzerverwaltung&operation=search&type=userID&input=" +
-                    input +
-                    "&limitResults=" +
-                    this.limiter.value,
-                  "./includes/benutzerverwaltung.inc.php",
-                  "application/x-www-form-urlencoded",
-                  true,
-                  true,
-                  false,
-                  true
-                )
-              )
-            )
-          );
-        } else if (this.filterType === "groups") {
-          this.showResults(
-            Utils.makeJSON(
-              await Utils.makeJSON(
-                await Utils.sendXhrREQUEST(
-                  "POST",
-                  "benutzerverwaltung&operation=search&type=groups&input=" +
-                    JSON.stringify(this.groupsSearchArray) +
-                    "&limitResults=" +
-                    this.limiter.value,
-                  "./includes/benutzerverwaltung.inc.php",
-                  "application/x-www-form-urlencoded",
-                  true,
-                  true,
-                  false,
-                  true
-                )
-              )
-            )
-          );
-        } else if (this.filterType === "klassenstufe") {
-          this.showResults(
-            Utils.makeJSON(
-              await Utils.makeJSON(
-                await Utils.sendXhrREQUEST(
-                  "POST",
-                  "benutzerverwaltung&operation=search&type=klassenstufe&input=" +
-                    JSON.stringify(this.klassenstufenSearchArray) +
-                    "&limitResults=" +
-                    this.limiter.value,
-                  "./includes/benutzerverwaltung.inc.php",
-                  "application/x-www-form-urlencoded",
-                  true,
-                  true,
-                  false,
-                  true
-                )
-              )
-            )
-          );
-        } else if (this.filterType === "permissionsAllowed") {
-          this.showResults(
-            Utils.makeJSON(
-              await Utils.makeJSON(
-                await Utils.sendXhrREQUEST(
-                  "POST",
-                  "benutzerverwaltung&operation=search&type=permissionsAllowed&input=" +
-                    JSON.stringify(this.permissionsAllowedObject) +
-                    "&limitResults=" +
-                    this.limiter.value,
-                  "./includes/benutzerverwaltung.inc.php",
-                  "application/x-www-form-urlencoded",
-                  true,
-                  true,
-                  false,
-                  true
-                )
-              )
-            )
-          );
-        } else if (this.filterType === "permissionsForbidden") {
-          this.showResults(
-            Utils.makeJSON(
-              await Utils.makeJSON(
-                await Utils.sendXhrREQUEST(
-                  "POST",
-                  "benutzerverwaltung&operation=search&type=permissionsForbidden&input=" +
-                    JSON.stringify(this.permissionsForbiddenArray) +
-                    "&limitResults=" +
-                    this.limiter.value,
-                  "./includes/benutzerverwaltung.inc.php",
-                  "application/x-www-form-urlencoded",
-                  true,
-                  true,
-                  false,
-                  true
-                )
-              )
-            )
-          );
-        } else if (this.filterType === "ranking") {
-          let input =
-            this.rankingSelectContainer.querySelector("#numberInput").value;
-          this.showResults(
-            Utils.makeJSON(
-              await Utils.makeJSON(
-                await Utils.sendXhrREQUEST(
-                  "POST",
-                  "benutzerverwaltung&operation=search&type=ranking&input=" +
-                    input +
-                    "&limitResults=" +
-                    this.limiter.value,
-                  "./includes/benutzerverwaltung.inc.php",
-                  "application/x-www-form-urlencoded",
-                  true,
-                  true,
-                  false,
-                  true
-                )
-              )
-            )
-          );
-        } else if (this.filterType == "authenticated") {
-          let select =
-            this.authenticatedSelectContainer.querySelector("#selectInput");
-          let input = select[select.selectedIndex].getAttribute("data-value");
-          this.showResults(
-            Utils.makeJSON(
-              await Utils.makeJSON(
-                await Utils.sendXhrREQUEST(
-                  "POST",
-                  "benutzerverwaltung&operation=search&type=authenticated&input=" +
-                    input +
-                    "&limitResults=" +
-                    this.limiter.value,
-                  "./includes/benutzerverwaltung.inc.php",
-                  "application/x-www-form-urlencoded",
-                  true,
-                  true,
-                  false,
-                  true
-                )
-              )
-            )
-          );
-        } else if (this.filterType === "isOnline") {
-          let select =
-            this.isOnlineSelectContainer.querySelector("#selectInput");
-          let input = select[select.selectedIndex].getAttribute("data-value");
-          this.showResults(
-            Utils.makeJSON(
-              await Utils.makeJSON(
-                await Utils.sendXhrREQUEST(
-                  "POST",
-                  "benutzerverwaltung&operation=search&type=isOnline&input=" +
-                    input +
-                    "&limitResults=" +
-                    this.limiter.value,
-                  "./includes/benutzerverwaltung.inc.php",
-                  "application/x-www-form-urlencoded",
-                  true,
-                  true,
-                  false,
-                  true
-                )
-              )
-            )
-          );
-        } else if (this.filterType === "all") {
-          this.showResults(
-            Utils.makeJSON(
-              await Utils.makeJSON(
-                await Utils.sendXhrREQUEST(
-                  "POST",
-                  "benutzerverwaltung&operation=search&type=all&limitResults=" +
-                    this.limiter.value,
-                  "./includes/benutzerverwaltung.inc.php",
-                  "application/x-www-form-urlencoded",
-                  true,
-                  true,
-                  false,
-                  true
-                )
-              )
-            )
-          );
-        } else if (this.filterType == "multiple") {
-          //Username
-          let username =
-            this.usernameSelectContainer.querySelector("#textInput").value;
-          if (Utils.isEmptyInput(username)) {
-            username = false;
-          }
-
-          //Email
-          let email =
-            this.emailSelectContainer.querySelector("#textInput").value;
-          if (Utils.isEmptyInput(email)) {
-            email = false;
-          }
-
-          //userID
-          let userID =
-            this.userIDSelectContainer.querySelector("#numberInput").value;
-          if (Utils.isEmptyInput(userID)) {
-            userID = false;
-          }
-
-          //ranking
-          let ranking =
-            this.rankingSelectContainer.querySelector("#numberInput").value;
-          if (Utils.isEmptyInput(ranking)) {
-            ranking = false;
-          }
-
-          //Groups
-          let groups = this.groupsSearchArray;
-          if (!groups.length > 0) {
-            groups = false;
-          }
-
-          //Klassenstufe
-          let klassenstufen = this.klassenstufenSearchArray;
-          if (!klassenstufen.length > 0) {
-            klassenstufen = false;
-          }
-
-          //isOnline
-          let isOnlineSelect =
-            this.isOnlineSelectContainer.querySelector("#selectInput");
-          let isOnline =
-            isOnlineSelect[isOnlineSelect.selectedIndex].getAttribute(
-              "data-value"
-            );
-          if (Utils.isEmptyInput(isOnline)) {
-            isOnline = false;
-          }
-
-          //authenticated
-          let authenticatedSelect =
-            this.authenticatedSelectContainer.querySelector("#selectInput");
-          let authenticated =
-            authenticatedSelect[authenticatedSelect.selectedIndex].getAttribute(
-              "data-value"
-            );
-          if (Utils.isEmptyInput(authenticated)) {
-            authenticated = false;
-          }
-
-          //permissionsAllowed
-          let permissionsAllowed = this.permissionsAllowedObject;
-          if (!Object.keys(permissionsAllowed).length) {
-            permissionsAllowed = false;
-          }
-
-          //permissionsForbidden
-          let permissionsForbidden = this.permissionsForbiddenArray;
-          if (!permissionsForbidden.length > 0) {
-            permissionsForbidden = false;
-          }
-
-          console.log(
-            username,
-            email,
-            userID,
-            ranking,
-            groups,
-            klassenstufen,
-            isOnline,
-            authenticated,
-            permissionsAllowed,
-            permissionsForbidden
-          );
-
-          this.showResults(
-            Utils.makeJSON(
-              await Utils.makeJSON(
-                await Utils.sendXhrREQUEST(
-                  "POST",
-                  "benutzerverwaltung&operation=search&type=multiple&username=" +
-                    username +
-                    "&email=" +
-                    email +
-                    "&userID=" +
-                    userID +
-                    "&ranking=" +
-                    ranking +
-                    "&groups=" +
-                    JSON.stringify(groups) +
-                    "&klassenstufen=" +
-                    klassenstufen +
-                    "&isOnline=" +
-                    isOnline +
-                    "&authenticated=" +
-                    authenticated +
-                    "&permissionsAllowed=" +
-                    JSON.stringify(permissionsAllowed) +
-                    "&permissionsForbidden=" +
-                    JSON.stringify(permissionsForbidden) +
-                    "&limitResults=" +
-                    this.limiter.value,
-                  "./includes/benutzerverwaltung.inc.php",
-                  "application/x-www-form-urlencoded",
-                  true,
-                  true,
-                  false,
-                  true
-                )
-              )
-            )
-          );
-        } else {
-          console.log("no input method");
-          return false;
-        }
-      }
-
-      showResults(results) {
-        this.searchBtn.classList.remove("loading");
-        this.clear(this.tableBody);
-        this.resultDescriptionContainer.classList.remove("hidden");
-        if (!results) {
-          this.resultTable.classList.add("hidden");
-          this.resultDescriptionContainer.innerHTML = "Keine Ergebnisse...";
-          return true;
-        }
-        results = Utils.makeJSON(results);
-
-        if (!results.length > 0) {
-          this.resultTable.classList.add("hidden");
-          this.resultDescriptionContainer.innerHTML = "Keine Ergebnisse...";
-          return false;
-        }
-        this.resultDescriptionContainer.innerHTML = `${results.length} Ergebnisse`;
-
-        let tableBody = this.resultTable.querySelector("tbody");
-        if (!tableBody) return false;
-        this.tableBody = tableBody;
-
-        results = Utils.sortItems(results, "username"); //Just sort it to better overview
-
-        for (const result of results) {
-          if (this.hideUsersIDS && this.hideUsersIDS.length) {
-            if (result[typeToHide] == result) {
-              continue;
-            }
-          }
-          //console.log(user);
-          let tableRow = document.createElement("tr");
-          tableRow.classList.add("result");
-          tableRow.setAttribute("data-value", result["userID"]);
-
-          let showPublicText = "Nein";
-          if (Boolean(Utils.makeJSON(result["showPublic"]))) {
-            showPublicText = "Ja";
-          }
-
-          tableRow.innerHTML = `
-          <td class="select"><input type="checkbox" id="select"><button id="chooseOnly"><img src="../../images/icons/stift.svg" alt="Auswahl"></button></td>
-          <td id="username">${result["username"]}</td>
-          <td id="email">${result["email"]}</td>
-          <td id="klassenstufe">${result["klassenstufe"]}</td>
-          <td id="authenticated">${result["authenticated"]}</td>
-          <td id="isOnline">${result["isOnline"]}</td>
-          <td id="lastActivity"><span class="first">Vor ${result["lastActivityString"]} </span><span class="second">(${result["lastActivity"]})</span></td>
-          <td id="lastQuiz">${result["lastQuiz"]}</td>
-          <td id="lastLogin"><span class="first">Vor ${result["lastLoginString"]} </span><span class="second">(${result["lastLogin"]})</span></td>
-          <td id="groups">${result["groups"]}</td>
-          <td id="permissionsAllowed">${result["permissionsAllowed"]}</td>
-          <td id="permissionsForbidden">${result["permissionsForbidden"]}</td>
-          <td id="created"><span class="first">Vor ${result["createdString"]} </span><span class="second">(${result["created"]})</span></td>
-          <td id="lastPwdChange"><span class="first">Vor ${result["lastPwdChangeString"]} </span><span class="second">(${result["lastPwdChange"]})</span></td>
-          <td id="userID">${result["userID"]}</td>
-          <td id="nextMessages">${result["nextMessages"]}</td>
-          <td id="ranking">${result["ranking"]}</td>
-          <td id="showPublic">${showPublicText}</td>
-          `;
-          this.tableBody.append(tableRow);
-
-          let groupsInner = tableRow.querySelector("#groups");
-          let usersGroups = Utils.makeJSON(result["groups"]);
-          Utils.listOfArrayToHTML(groupsInner, usersGroups, "Keine Gruppen");
-
-          //Allowed Permissions
-          let permissionsInner = tableRow.querySelector("#permissionsAllowed");
-          Utils.objectKEYVALUEToHTML(
-            permissionsInner,
-            result["permissionsAllowed"],
-            "Keine zusätzlichen"
-          );
-
-          //Forbidden Permissions
-          let forbiddenPermissionsInner = tableRow.querySelector(
-            "#permissionsForbidden"
-          );
-          Utils.listOfArrayToHTML(
-            forbiddenPermissionsInner,
-            result["permissionsForbidden"],
-            "Keine zusätzlichen"
-          );
-
-          //Next Messages
-          let nextMessagesInner = tableRow.querySelector("#nextMessages");
-          Utils.listOfArrayToHTML(nextMessagesInner, result["nextMessages"]);
-
-          let checkBox = tableRow.querySelector(".select #select");
-          checkBox.addEventListener("change", (event) => {
-            if (event.target.checked) {
-              this.choosenArray = Utils.addToArray(
-                this.choosenArray,
-                result["userID"],
-                false
-              );
-            } else {
-              this.choosenArray = Utils.removeFromArray(
-                this.choosenArray,
-                result["userID"]
-              );
-            }
-            this.updateEditBtn();
-          });
-
-          let chooseThis = tableRow.querySelector(".select #chooseOnly");
-          if (!chooseThis) continue;
-
-          chooseThis.addEventListener("click", (event) => {
-            this.choosenArray = Utils.addToArray(
-              this.choosenArray,
-              result["userID"],
-              false
-            );
-            goBackWithValue();
-          });
-        }
-        this.searchReloadBtn.disabled = false;
-        this.resultTable.classList.remove("hidden");
-      }
-
-      clear(element) {
-        element.innerHTML = "";
-      }
-    }
-
-    var myModal = new bootstrap.Modal(modal);
-    myModal.show();
-
-    let close = modal.querySelector("#close");
-    let yes = modal.querySelector("#yes");
-    let no = modal.querySelector("#no");
-
-    yes.addEventListener("click", (target) => {
-      goBackWithValue();
-    });
-
-    function goBackWithValue() {
-      let array = benutzerverwaltung.choosenArray;
-      myModal.hide();
-      modalOuter.remove();
-      Utils.hideAllModals(false);
-      resolve(array);
-    }
-
-    no.addEventListener("click", (target) => {
-      myModal.hide();
-      modalOuter.remove();
-      Utils.hideAllModals(false);
-      resolve(false);
-    });
-
-    close.addEventListener("click", (target) => {
-      myModal.hide();
-      modalOuter.remove();
-      Utils.hideAllModals(false);
-      resolve(false);
-    });
-
-    //Create UserSearch
-    let benutzerververwaltungContainer = modal.querySelector(
-      "#benutzerverwaltung"
-    );
-    let benutzerverwaltung = new Benutzerverwaltung(
-      benutzerververwaltungContainer
-    );
-    console.log(benutzerverwaltung.prepareSearch());
-    benutzerverwaltung.hideUsersIDS = hideUsersIDS;
-  });
-}
+import * as Utils from "/includes/utils.js";
+import { pickMedia } from "/includes/chooseMedia.inc.js";
 
 export async function editQuizdata(uniqueID) {
   return new Promise(async (resolve, reject) => {
@@ -1826,11 +480,13 @@ export async function editQuizdata(uniqueID) {
               this.createCard();
             } else if (action === "recover") {
               await this.prepare();
-              this.refresh();
+              this.refresh(true);
             } else if (action === "removeAll") {
+              this.quizJSON["quizCards"] = new Array();
+              this.refresh(true);
             } else if (action === "copyQuizdata") {
               if (
-                await Utils.copyTextToClipboard(JSON.stringify(this.quizJSON))
+                await Utils.copyTextToClipboard(JSON.stringify(this.quizJSON, null, 3))
               ) {
                 Utils.alertUser("Nachricht", "Erfolgreich kopiert.");
               }
@@ -1841,8 +497,8 @@ export async function editQuizdata(uniqueID) {
                   "Hier kannst du im JSON Format den Text des Quizzes einfügen.",
                   false,
                   "textArea",
-                  JSON.stringify(this.quizJSON, null, 1),
-                  JSON.stringify(this.quizJSON, null, 1),
+                  JSON.stringify(this.quizJSON, null, 3),
+                  JSON.stringify(this.quizJSON, null, 3),
                   false,
                   false,
                   false,
@@ -1867,7 +523,7 @@ export async function editQuizdata(uniqueID) {
         }
 
         if (refreshCards) {
-          this.refreshCards();
+          this.refreshCards(true);
         }
 
         this.logData();
@@ -1880,42 +536,90 @@ export async function editQuizdata(uniqueID) {
         console.log("Original Data:", this.originalData);
       }
 
-      async refreshCards(cardToRefresh = false) {
+      moveCards(action, id) {
+        if (action === "upwards") {
+          //Previous
+          let objecta = this.quizJSON["quizCards"].find(
+            (quizCard) => quizCard.id == parseInt(id) - 1,
+            false
+          );
+          if (!objecta) return false;
+          //Current
+          let objectb = this.quizJSON["quizCards"].find(
+            (quizCard) => quizCard.id == id,
+            false
+          );
+          let objectbID = objectb.id;
+          let objectaID = objecta.id;
+          objectb.id = objectaID;
+          objecta.id = objectbID;
+
+          console.log("previous Card =>", objecta, "currentCard =>", objectb);
+          this.refreshCards(true);
+        } else if (action === "downwards") {
+          //Next
+          let objecta = this.quizJSON["quizCards"].find(
+            (quizCard) => quizCard.id == parseInt(id) + 1,
+            false
+          );
+          if (!objecta) return false;
+          //Current
+          let objectb = this.quizJSON["quizCards"].find(
+            (quizCard) => quizCard.id == id,
+            false
+          );
+          let objectbID = objectb.id;
+          let objectaID = objecta.id;
+          objectb.id = objectaID;
+          objecta.id = objectbID;
+
+          console.log("next Card =>", objecta, "currentCard =>", objectb);
+          this.refreshCards(true);
+        }
+      }
+
+      async refreshCards(refreshAll = true, cardToRefresh = false) {
         let cardsContainer = this.editCardsContainer.querySelector(".cardList");
         let quizCards = new Array();
 
-        if (cardToRefresh === false) {
+        if (refreshAll) {
           cardsContainer.innerHTML = ``;
-
           quizCards = this.quizJSON["quizCards"];
-  
-          //REPAIR and SORT
-          if (
-            quizCards === false ||
-            quizCards === undefined ||
-            quizCards === null
-          ) {
-            quizCards = new Array();
-          }
-  
+
           //sort by id and points
-          quizCards = quizCards.sort((a, b) =>
-            a.id > b.id ? 1 : a.id === b.id ? (a.points > b.points ? 1 : -1) : -1
-          );       
+          quizCards = quizCards.sort((a, b) => {
+            if (!a.id) return 0;
+            if (!b.id) return 0;
+            if (a.id == b.id) {
+              return 0;
+            }
+            if (a.id > b.id) {
+              return 1;
+            } else {
+              return -1;
+            }
+          });
         } else {
-          quizCards = Utils.addToArray(quizCards, this.quizJSON["quizCards"].find((quizCard) => quizCard.id == cardToRefresh, false));
+          //Add card information from quizJSON to quizCards array
+          quizCards = Utils.addToArray(
+            quizCards,
+            this.quizJSON["quizCards"].find(
+              (quizCard) => quizCard.id == cardToRefresh,
+              false
+            )
+          );
           console.log(quizCards);
         }
 
         let counter = 1;
 
-        for (const currentCard of quizCards) {
+        for (let currentCard of quizCards) {
           let id;
           let item;
-          if (cardToRefresh == false || cardToRefresh.length == 0) {
+          if (refreshAll) {
             id = counter;
             currentCard.id = counter;
-  
+
             item = document.createElement("div");
             item.classList.add("collapse", "item");
             item.setAttribute("data-cardid", id);
@@ -1929,7 +633,9 @@ export async function editQuizdata(uniqueID) {
             cardsContainer.appendChild(item);
           } else {
             id = currentCard.id;
-            item = this.editCardsContainer.querySelector(`div[data-cardid='${id}']`);
+            item = this.editCardsContainer.querySelector(
+              `div[data-cardid='${id}']`
+            );
             item.classList.add("collapse", "item");
             item.setAttribute("data-cardid", id);
             let collapse = bootstrap.Collapse.getOrCreateInstance(item);
@@ -1940,7 +646,6 @@ export async function editQuizdata(uniqueID) {
               }
             });
           }
-
 
           let cardType = currentCard["type"];
 
@@ -1953,6 +658,11 @@ export async function editQuizdata(uniqueID) {
                     Karte auswählen
                 </label>
             </div>
+            <div class="btn-group-vertical " role="group" id="moveCard" aria-label="Kartenreihenfolge ändern">
+              <button type="button" class="btn btn-outline-primary" data-action="upwards">Hoch &#8593;</button>
+              <button type="button" class="btn btn-outline-primary" data-action="downwards">Runter &#8595;</button>
+            </div>
+            <label class="form-check-label" for="moveCard">Kartenreihenfolge ändern</label>
             <div class="form-control">
               <input type="number" class="form-control col-3" aria-label="ID festlegen" id="id" placeholder="z.B. 1">
               <label class="form-check-label">
@@ -2008,7 +718,7 @@ export async function editQuizdata(uniqueID) {
                         <input class="form-check-input mt-0" type="checkbox" id="checkBox"
                             aria-label="Checkbox für Texteingabe">
                     </div>
-                    <textarea class="form-control" id="textInput" rows="3" aria-label="Frage eingeben" placeholder="Was ist die Hauptstadt von Brasilien?"></textarea>
+                    <textarea class="form-control" id="textInput" rows="3" aria-label="Frage eingeben" placeholder="Frage..." autocomplete="off"></textarea>
                     <button type="button" class="btn btn-sm btn-primary" id="getSuggestions">Vorgefertigte
                         Fragen</button>
                 </div>
@@ -2016,15 +726,6 @@ export async function editQuizdata(uniqueID) {
             <button type="button" class="btn btn-secondary" id="changeMedia">Medien hinzufügen / bearbeiten</button>
             <div id="answers">
                 <div class="change"><button type="button" class="btn btn-secondary" id="changeAnswers">Antwort hinzufügen / löschen</button></div>
-                <div class="body">
-
-                </div>
-            </div>
-            <div id="correctAnswer">
-                <div class="change"><button type="button" class="btn btn-secondary" id="changeCorrectAnswer">Richtige Antwort auswählen</button></div>
-                <div class="body">
-
-                </div> 
             </div>
             <h5>Punkte</h5>
             <div id="points">
@@ -2034,6 +735,15 @@ export async function editQuizdata(uniqueID) {
             `;
             let itemHeader = item.querySelector(".header");
             let itemBody = item.querySelector(".body");
+
+            //Move card
+            let moveBtns = itemHeader.querySelectorAll("#moveCard button");
+            for (const currentBtn of moveBtns) {
+              currentBtn.addEventListener("click", () => {
+                let action = currentBtn.getAttribute("data-action");
+                this.moveCards(action, id);
+              });
+            }
 
             //Choose logic
             let chooseCheckbox = itemHeader.querySelector("#choose #checkbox");
@@ -2068,7 +778,8 @@ export async function editQuizdata(uniqueID) {
             });
             let deleteCardBtn = itemHeader.querySelector("#deleteCard");
             deleteCardBtn.addEventListener("click", () => {
-              this.removeCard(id);
+              this.quizJSON["quizCards"] = Utils.removeFromArray(this.quizJSON["quizCards"], currentCard);
+              this.refresh(true);
             });
 
             let optionsContainer = itemBody.querySelector("#options");
@@ -2386,54 +1097,1092 @@ export async function editQuizdata(uniqueID) {
               this.logData();
             });
 
-
             //Change Media
             let changeMediaBtn = itemBody.querySelector("#changeMedia");
             changeMediaBtn.addEventListener("click", async () => {
-              await this.editMedia(id);
-            })
+              let res = await editMedia(currentCard);
+              currentCard = res;
+              this.refreshCards(false, id);
+            });
 
             //Answers
             let changeAnswersBtn = itemBody.querySelector("#changeAnswers");
             changeAnswersBtn.addEventListener("click", async () => {
-              await this.changeAnswersMulitpleChoice(id);
-              this.refreshCards(id);
-            })
-
-
-            //Correct Answer
-
-
-
+              let res = await changeAnswersMulitpleChoice(currentCard);
+              currentCard = res;
+              this.refreshCards(false, id);
+            });
           } else if (cardType === "mchoice-multi") {
+            item.innerHTML = `
+            <div class="header">
+            <div class="form-check" id="choose">
+                <input class="form-check-input" type="checkbox" id="checkbox">
+                <label class="form-check-label">
+                    Karte auswählen
+                </label>
+            </div>
+            <div class="btn-group-vertical " role="group" id="moveCard" aria-label="Kartenreihenfolge ändern">
+              <button type="button" class="btn btn-outline-primary" data-action="upwards">Hoch &#8593;</button>
+              <button type="button" class="btn btn-outline-primary" data-action="downwards">Runter &#8595;</button>
+            </div>
+            <label class="form-check-label" for="moveCard">Kartenreihenfolge ändern</label>
+            <div class="form-control">
+              <input type="number" class="form-control col-3" aria-label="ID festlegen" id="id" placeholder="z.B. 1">
+              <label class="form-check-label">
+                  Id der Karte (Für Sortierung genutzt)
+              </label>
+              </div> 
+
+           
+            <button type="button" class="btn btn-secondary" id="copyCard">Karte kopieren</button>
+            <button type="button" class="btn btn-danger" id="deleteCard">Karte löschen</button>
+        </div>
+        <div class="body">
+            <div id="cardType">Typ: Multiple Choice Multi</div>
+            <div id="options">
+                <button type="button" class="btn btn-secondary" id="toggleOptions"><img src="../images/icons/zahnrad.svg" alt="" class="icon-auto" style="position: relative; width: 20px;"><span>Optionen</span></button>
+                <ul class="collapse" id="optionsList">
+                    <li id="shuffle">
+                        <input class="form-check-input" type="checkbox" value="" id="checkbox">
+                        <label class="form-check-label">
+                            Antworten durchmischen
+                        </label>
+                    </li>
+                    <li id="timeLimit">
+                      <div class="form-check">
+                          <input class="form-check-input" type="checkbox" id="checkBox">
+                          <label class="form-check-label" for="checkBox">
+                              Zeitlimit aktivieren
+                          </label>
+                      </div>
+                      <div class="inner">
+                          <input type="number" id="numberInput" name="numberInput" min="" max="" autocomplete="off" value="">
+                          <label class="form-check-label" for="numberInput">Angabe in Sekunden</label>
+                      </div> 
+                    </li>
+                </ul>
+            </div>
+            <div id="task">
+              <h5>Aufgabe</h5>
+                <div class="input-group mb-3">
+                    <div class="input-group-text">
+                        <input class="form-check-input mt-0" type="checkbox" id="checkBox"
+                            aria-label="Checkbox für Texteingabe">
+                    </div>
+                    <textarea class="form-control" id="textInput" rows="3" aria-label="Aufgabe eingeben" placeholder="Klicke die richtige Antwort an."></textarea>
+                    <button type="button" class="btn btn-sm btn-primary" id="getSuggestions">Vorgefertigte
+                        Aufgaben</button>
+                </div>
+            </div>
+            <div id="question">
+            <h5>Frage</h5>
+                <div class="input-group mb-3" id="task">
+                    <div class="input-group-text">
+                        <input class="form-check-input mt-0" type="checkbox" id="checkBox"
+                            aria-label="Checkbox für Texteingabe">
+                    </div>
+                    <textarea class="form-control" id="textInput" rows="3" aria-label="Frage eingeben" placeholder="Frage..." autocomplete="off"></textarea>
+                    <button type="button" class="btn btn-sm btn-primary" id="getSuggestions">Vorgefertigte
+                        Fragen</button>
+                </div>
+            </div>
+            <button type="button" class="btn btn-secondary" id="changeMedia">Medien hinzufügen / bearbeiten</button>
+            <div id="answers">
+                <div class="change"><button type="button" class="btn btn-secondary" id="changeAnswers">Antwort hinzufügen / löschen</button></div>
+            </div>
+            <h5>Punkte</h5>
+            <div id="points">
+                <input type="number" class="form-control" aria-label="Punkte festlegen" id="numberInput" placeholder="z.B. 1 oder 4,5">
+            </div>
+        </div>
+            `;
+            let itemHeader = item.querySelector(".header");
+            let itemBody = item.querySelector(".body");
+
+            //Move card
+            let moveBtns = itemHeader.querySelectorAll("#moveCard button");
+            for (const currentBtn of moveBtns) {
+              currentBtn.addEventListener("click", () => {
+                let action = currentBtn.getAttribute("data-action");
+                this.moveCards(action, id);
+              });
+            }
+
+            //Choose logic
+            let chooseCheckbox = itemHeader.querySelector("#choose #checkbox");
+            chooseCheckbox.addEventListener("click", () => {
+              if (chooseCheckbox.checked) {
+                this.choosenCardsArray = Utils.addToArray(
+                  this.choosenCardsArray,
+                  id,
+                  false
+                );
+              } else {
+                this.choosenCardsArray = Utils.removeFromArray(
+                  this.choosenCardsArray,
+                  id
+                );
+              }
+              console.log(this.choosenCardsArray);
+            });
+
+            let idNumberInput = itemHeader.querySelector("#id");
+            idNumberInput.value = id;
+            idNumberInput.addEventListener("input", () => {
+              if (!Utils.isEmptyInput(idNumberInput.value)) {
+                currentCard["id"] = Number(idNumberInput.value);
+              }
+              this.logData();
+            });
+
+            let copyCardBtn = itemHeader.querySelector("#copyCard");
+            copyCardBtn.addEventListener("click", () => {
+              this.copyCard(id);
+            });
+            let deleteCardBtn = itemHeader.querySelector("#deleteCard");
+            deleteCardBtn.addEventListener("click", () => {
+              this.quizJSON["quizCards"] = Utils.removeFromArray(this.quizJSON["quizCards"], currentCard);
+              this.refresh(true);
+            });
+
+            let optionsContainer = itemBody.querySelector("#options");
+            let toggleOptionsBtn =
+              optionsContainer.querySelector("#toggleOptions");
+            toggleOptionsBtn.addEventListener("click", () => {
+              let collapse = bootstrap.Collapse.getOrCreateInstance(
+                optionsContainer.querySelector("#optionsList")
+              );
+              collapse.toggle();
+            });
+
+            //Options
+            let options = currentCard["options"];
+            //shuffleCards
+            let shuffleCardsCheckbox =
+              optionsContainer.querySelector("#shuffle #checkbox");
+            shuffleCardsCheckbox.checked = options["shuffle"];
+            shuffleCardsCheckbox.addEventListener("click", () => {
+              options["shuffle"] = shuffleCardsCheckbox.checked;
+              this.logData();
+            });
+
+            //Timelimit
+            let timeLimitContainer =
+              optionsContainer.querySelector("#timeLimit");
+            let timeLimitCheckbox =
+              timeLimitContainer.querySelector("#checkBox");
+
+            let timeLimitNumberInput = timeLimitContainer.querySelector(
+              ".inner #numberInput"
+            );
+            //timeLimit
+            timeLimitCheckbox.checked = Boolean(options["timeLimit"]);
+            if (Boolean(options["timeLimit"])) {
+              timeLimitNumberInput.value = Number(options["timeLimit"]);
+            } else {
+              options["timeLimit"] = false;
+            }
+            timeLimitCheckbox.addEventListener("input", () => {
+              let status = Boolean(timeLimitCheckbox.checked);
+              //set status in JSON
+              options["timeLimit"] = status;
+              if (!status) {
+                //Deactivate
+                timeLimitNumberInput.disabled = true;
+                timeLimitNumberInput =
+                  Utils.removeAllEventlisteners(timeLimitNumberInput);
+              } else {
+                //Activate
+                timeLimitNumberInput =
+                  Utils.removeAllEventlisteners(timeLimitNumberInput);
+                timeLimitNumberInput.disabled = false;
+                timeLimitNumberInput.addEventListener("input", () => {
+                  let value = Number(timeLimitNumberInput.value);
+                  if (value && value > 0) {
+                    options["timeLimit"] = value;
+                  } else {
+                    options["timeLimit"] = false;
+                  }
+                  this.logData();
+                });
+              }
+              this.logData();
+            });
+            if (Boolean(options["timeLimit"])) {
+              //Activate
+              timeLimitNumberInput =
+                Utils.removeAllEventlisteners(timeLimitNumberInput);
+              timeLimitNumberInput.disabled = false;
+              timeLimitNumberInput.addEventListener("input", () => {
+                let value = Number(timeLimitNumberInput.value);
+                if (value && value > 0) {
+                  options["timeLimit"] = value;
+                } else {
+                  options["timeLimit"] = false;
+                }
+              });
+            } else {
+              //Deactivate
+              timeLimitNumberInput.disabled = true;
+              timeLimitNumberInput =
+                Utils.removeAllEventlisteners(timeLimitNumberInput);
+            }
+
+            //Task
+            let taskContainer = itemBody.querySelector("#task");
+            let taskCheckbox = taskContainer.querySelector("#checkBox");
+            let taskTextInput = taskContainer.querySelector("#textInput");
+            let suggestTaskButton =
+              taskContainer.querySelector("#getSuggestions");
+            taskCheckbox.checked = Boolean(currentCard["task"]);
+            if (Boolean(currentCard["task"])) {
+              taskTextInput.value = String(currentCard["task"]);
+            } else {
+              currentCard["task"] = false;
+            }
+            taskCheckbox.addEventListener("input", () => {
+              let status = Boolean(taskCheckbox.checked);
+              //set status in JSON
+              currentCard["task"] = status;
+              if (!status) {
+                //Deactivate
+                taskTextInput.disabled = true;
+                taskTextInput = Utils.removeAllEventlisteners(taskTextInput);
+                suggestTaskButton.disabled = true;
+                suggestTaskButton =
+                  Utils.removeAllEventlisteners(suggestTaskButton);
+              } else {
+                //Activate
+                taskTextInput = Utils.removeAllEventlisteners(taskTextInput);
+                taskTextInput.disabled = false;
+                taskTextInput.addEventListener("input", () => {
+                  let value = String(taskTextInput.value);
+                  if (!Utils.isEmptyInput(value)) {
+                    currentCard["task"] = value;
+                    taskTextInput.value = value;
+                  } else {
+                    currentCard["task"] = false;
+                    taskTextInput.value = "";
+                  }
+                  this.logData();
+                });
+                suggestTaskButton.disabled = false;
+                suggestTaskButton.addEventListener("click", async () => {
+                  let selectedTask = await Utils.chooseFromArrayWithSearch(
+                    this.questionsSelectArray,
+                    true,
+                    "Aufgabe auswählen",
+                    false,
+                    false,
+                    true,
+                    "quizverwaltung&operation=other&type=getTasks&searchFor=",
+                    "../teacher/includes/quizverwaltung.inc.php"
+                  );
+                  if (selectedTask || selectedTask[0]) {
+                    currentCard["task"] = selectedTask[0];
+                    taskTextInput.value = selectedTask[0];
+                  } else {
+                    currentCard["task"] = false;
+                    taskTextInput.value = "";
+                  }
+                  this.logData();
+                });
+              }
+              this.logData();
+            });
+            if (Boolean(currentCard["task"])) {
+              //Activate
+              taskTextInput = Utils.removeAllEventlisteners(taskTextInput);
+              taskTextInput.disabled = false;
+              taskTextInput.addEventListener("input", () => {
+                let value = String(taskTextInput.value);
+                if (!Utils.isEmptyInput(value)) {
+                  currentCard["task"] = value;
+                  taskTextInput.value = value;
+                } else {
+                  currentCard["task"] = false;
+                  taskTextInput.value = "";
+                }
+                this.logData();
+              });
+              suggestTaskButton.disabled = false;
+              suggestTaskButton.addEventListener("click", async () => {
+                let selectedTask = await Utils.chooseFromArrayWithSearch(
+                  this.questionsSelectArray,
+                  true,
+                  "Aufgabe auswählen",
+                  false,
+                  false,
+                  true,
+                  "quizverwaltung&operation=other&type=getTasks&searchFor=",
+                  "../teacher/includes/quizverwaltung.inc.php"
+                );
+                if (selectedTask || selectedTask[0]) {
+                  currentCard["task"] = selectedTask[0];
+                  taskTextInput.value = selectedTask[0];
+                }
+                this.logData();
+              });
+            } else {
+              //Deactivate
+              taskTextInput.disabled = true;
+              taskTextInput = Utils.removeAllEventlisteners(taskTextInput);
+              suggestTaskButton.disabled = true;
+              suggestTaskButton =
+                Utils.removeAllEventlisteners(suggestTaskButton);
+            }
+
+            //Question
+            let questionContainer = itemBody.querySelector("#question");
+            let questionCheckbox = questionContainer.querySelector("#checkBox");
+            let questionTextInput =
+              questionContainer.querySelector("#textInput");
+            let suggestQuestionButton =
+              questionContainer.querySelector("#getSuggestions");
+            questionCheckbox.checked = Boolean(currentCard["question"]);
+            if (Boolean(currentCard["question"])) {
+              questionTextInput.value = String(currentCard["question"]);
+            } else {
+              currentCard["question"] = false;
+              questionTextInput.value = "";
+            }
+            questionCheckbox.addEventListener("input", () => {
+              let status = Boolean(questionCheckbox.checked);
+              //set status in JSON
+              currentCard["question"] = status;
+              if (!status) {
+                //Deactivate
+                questionTextInput.disabled = true;
+                questionTextInput =
+                  Utils.removeAllEventlisteners(questionTextInput);
+                suggestQuestionButton.disabled = true;
+                suggestQuestionButton = Utils.removeAllEventlisteners(
+                  suggestQuestionButton
+                );
+              } else {
+                //Activate
+                questionTextInput =
+                  Utils.removeAllEventlisteners(questionTextInput);
+                questionTextInput.disabled = false;
+                questionTextInput.addEventListener("input", () => {
+                  let value = String(questionTextInput.value);
+                  if (!Utils.isEmptyInput(value)) {
+                    currentCard["question"] = value;
+                    questionTextInput.value = value;
+                  } else {
+                    currentCard["question"] = false;
+                    questionTextInput.value = "";
+                  }
+                  this.logData();
+                });
+                suggestQuestionButton.disabled = false;
+                suggestQuestionButton.addEventListener("click", async () => {
+                  let selectedQuestion = await Utils.chooseFromArrayWithSearch(
+                    this.questionsSelectArray,
+                    true,
+                    "Frage auswählen",
+                    false,
+                    false,
+                    true,
+                    "quizverwaltung&operation=other&type=getQuestions&searchFor=",
+                    "../teacher/includes/quizverwaltung.inc.php"
+                  );
+                  if (selectedQuestion || selectedQuestion[0]) {
+                    currentCard["question"] = selectedQuestion[0];
+                    questionTextInput.value = selectedQuestion[0];
+                  }
+                  this.logData();
+                });
+              }
+              this.logData();
+            });
+            if (Boolean(currentCard["question"])) {
+              //Activate
+              questionTextInput =
+                Utils.removeAllEventlisteners(questionTextInput);
+              questionTextInput.disabled = false;
+              questionTextInput.addEventListener("input", () => {
+                let value = String(questionTextInput.value);
+                if (!Utils.isEmptyInput(value)) {
+                  currentCard["question"] = value;
+                  questionTextInput.value = value;
+                } else {
+                  currentCard["question"] = false;
+                }
+                this.logData();
+              });
+              suggestQuestionButton.disabled = false;
+              suggestQuestionButton.addEventListener("click", async () => {
+                let selectedQuestion = await Utils.chooseFromArrayWithSearch(
+                  this.questionsSelectArray,
+                  true,
+                  "Frage auswählen",
+                  false,
+                  false,
+                  true,
+                  "quizverwaltung&operation=other&type=getQuestions&searchFor=",
+                  "../teacher/includes/quizverwaltung.inc.php"
+                );
+                if (selectedQuestion || selectedQuestion[0]) {
+                  currentCard["question"] = selectedQuestion[0];
+                  questionTextInput.value = selectedQuestion[0];
+                }
+                this.logData();
+              });
+            } else {
+              //Deactivate
+              questionTextInput.disabled = true;
+              questionTextInput =
+                Utils.removeAllEventlisteners(questionTextInput);
+              suggestQuestionButton.disabled = true;
+              suggestQuestionButton = Utils.removeAllEventlisteners(
+                suggestQuestionButton
+              );
+            }
+
+            //points
+            let pointsNumberInput = itemBody.querySelector(
+              "#points #numberInput"
+            );
+            pointsNumberInput.value = Number(currentCard["points"]);
+            pointsNumberInput.addEventListener("input", () => {
+              if (!Utils.isEmptyInput(pointsNumberInput.value)) {
+                let number = Number(pointsNumberInput.value);
+                if (number < 0) {
+                  pointsNumberInput.value = 0;
+                  currentCard["points"] = 0;
+                } else {
+                  currentCard["points"] = number;
+                }
+              } else {
+                currentCard["points"] = 0;
+              }
+              this.logData();
+            });
+
+            //Change Media
+            let changeMediaBtn = itemBody.querySelector("#changeMedia");
+            changeMediaBtn.addEventListener("click", async () => {
+              let res = await editMedia(currentCard);
+              currentCard = res;
+              this.refreshCards(false, id);
+            });
+
+            //Answers
+            let changeAnswersBtn = itemBody.querySelector("#changeAnswers");
+            changeAnswersBtn.addEventListener("click", async () => {
+              let res = await changeAnswersMulitpleChoiceMulti(currentCard);
+              currentCard = res;
+              this.refreshCards(false, id);
+            });
           } else if (cardType === "textInput") {
+            item.innerHTML = `
+            <div class="header">
+            <div class="form-check" id="choose">
+                <input class="form-check-input" type="checkbox" id="checkbox">
+                <label class="form-check-label">
+                    Karte auswählen
+                </label>
+            </div>
+            <div class="btn-group-vertical " role="group" id="moveCard" aria-label="Kartenreihenfolge ändern">
+              <button type="button" class="btn btn-outline-primary" data-action="upwards">Hoch &#8593;</button>
+              <button type="button" class="btn btn-outline-primary" data-action="downwards">Runter &#8595;</button>
+            </div>
+            <label class="form-check-label" for="moveCard">Kartenreihenfolge ändern</label>
+            <div class="form-control">
+              <input type="number" class="form-control col-3" aria-label="ID festlegen" id="id" placeholder="z.B. 1">
+              <label class="form-check-label">
+                  Id der Karte (Für Sortierung genutzt)
+              </label>
+              </div> 
+
+           
+            <button type="button" class="btn btn-secondary" id="copyCard">Karte kopieren</button>
+            <button type="button" class="btn btn-danger" id="deleteCard">Karte löschen</button>
+        </div>
+        <div class="body">
+            <div id="cardType">Typ: Texteingabe</div>
+            <div id="options">
+                <button type="button" class="btn btn-secondary" id="toggleOptions"><img src="../images/icons/zahnrad.svg" alt="" class="icon-auto" style="position: relative; width: 20px;"><span>Optionen</span></button>
+                <ul class="collapse" id="optionsList">
+                    <li id="shuffle">
+                        <input class="form-check-input" type="checkbox" value="" id="checkbox">
+                        <label class="form-check-label">
+                            Antworten durchmischen
+                        </label>
+                    </li>
+                    <li id="timeLimit">
+                      <div class="form-check">
+                          <input class="form-check-input" type="checkbox" id="checkBox">
+                          <label class="form-check-label" for="checkBox">
+                              Zeitlimit aktivieren
+                          </label>
+                      </div>
+                      <div class="inner">
+                          <input type="number" id="numberInput" name="numberInput" min="" max="" autocomplete="off" value="">
+                          <label class="form-check-label" for="numberInput">Angabe in Sekunden</label>
+                      </div> 
+                    </li>
+                    <li id="size">
+                    <label for="selectInput" class="form-label">Größe auswählen</label>
+                      <select class="form-select" aria-label="Größe der Schrift auswählen - Dropdown-Menü" id="selectInput">
+                        <option data-value="large" selected="selected">groß</option>  
+                        <option data-value="middle" selected="selected">mittel</option>
+                        <option data-value="small" selected="selected">klein</option>
+                      </select>
+                  </li>
+                  <li id="wordsJustNeedToBeIncluded">
+                  <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="checkBox">
+                      <label class="form-check-label" for="checkBox">
+                          Enthaltene Wörter, um als richtig zu gelten
+                      </label>
+                  </div>
+                  <div class="inner">
+                      <button class="btn btn-primary btn-sm" class="editBtn">bearbeiten</button>
+                  </div> 
+                </li>
+                </ul>
+            </div>
+            <div id="task">
+              <h5>Aufgabe</h5>
+                <div class="input-group mb-3">
+                    <div class="input-group-text">
+                        <input class="form-check-input mt-0" type="checkbox" id="checkBox"
+                            aria-label="Checkbox für Texteingabe">
+                    </div>
+                    <textarea class="form-control" id="textInput" rows="3" aria-label="Aufgabe eingeben" placeholder="Klicke die richtige Antwort an."></textarea>
+                    <button type="button" class="btn btn-sm btn-primary" id="getSuggestions">Vorgefertigte
+                        Aufgaben</button>
+                </div>
+            </div>
+            <div id="question">
+            <h5>Frage</h5>
+                <div class="input-group mb-3" id="task">
+                    <div class="input-group-text">
+                        <input class="form-check-input mt-0" type="checkbox" id="checkBox"
+                            aria-label="Checkbox für Texteingabe">
+                    </div>
+                    <textarea class="form-control" id="textInput" rows="3" aria-label="Frage eingeben" placeholder="Was ist die Hauptstadt von Brasilien?"></textarea>
+                    <button type="button" class="btn btn-sm btn-primary" id="getSuggestions">Vorgefertigte
+                        Fragen</button>
+                </div>
+            </div>
+            <button type="button" class="btn btn-secondary" id="changeMedia">Medien hinzufügen / bearbeiten</button>
+            <div id="answers">
+                <div class="change"><button type="button" class="btn btn-secondary" id="changeAnswers">Antwort hinzufügen / löschen</button></div>
+            </div>
+            <h5>Punkte</h5>
+            <div id="points">
+                <input type="number" class="form-control" aria-label="Punkte festlegen" id="numberInput" placeholder="z.B. 1 oder 4,5">
+            </div>
+        </div>
+            `;
+            let itemHeader = item.querySelector(".header");
+            let itemBody = item.querySelector(".body");
+
+            //Move card
+            let moveBtns = itemHeader.querySelectorAll("#moveCard button");
+            for (const currentBtn of moveBtns) {
+              currentBtn.addEventListener("click", () => {
+                let action = currentBtn.getAttribute("data-action");
+                this.moveCards(action, id);
+              });
+            }
+
+            //Choose logic
+            let chooseCheckbox = itemHeader.querySelector("#choose #checkbox");
+            chooseCheckbox.addEventListener("click", () => {
+              if (chooseCheckbox.checked) {
+                this.choosenCardsArray = Utils.addToArray(
+                  this.choosenCardsArray,
+                  id,
+                  false
+                );
+              } else {
+                this.choosenCardsArray = Utils.removeFromArray(
+                  this.choosenCardsArray,
+                  id
+                );
+              }
+              console.log(this.choosenCardsArray);
+            });
+
+            let idNumberInput = itemHeader.querySelector("#id");
+            idNumberInput.value = id;
+            idNumberInput.addEventListener("input", () => {
+              if (!Utils.isEmptyInput(idNumberInput.value)) {
+                currentCard["id"] = Number(idNumberInput.value);
+              }
+              this.logData();
+            });
+
+            let copyCardBtn = itemHeader.querySelector("#copyCard");
+            copyCardBtn.addEventListener("click", () => {
+              this.copyCard(id);
+            });
+            let deleteCardBtn = itemHeader.querySelector("#deleteCard");
+            deleteCardBtn.addEventListener("click", () => {
+              this.quizJSON["quizCards"] = Utils.removeFromArray(this.quizJSON["quizCards"], currentCard);
+              this.refresh(true);
+            });
+
+            let optionsContainer = itemBody.querySelector("#options");
+            let toggleOptionsBtn =
+              optionsContainer.querySelector("#toggleOptions");
+            toggleOptionsBtn.addEventListener("click", () => {
+              let collapse = bootstrap.Collapse.getOrCreateInstance(
+                optionsContainer.querySelector("#optionsList")
+              );
+              collapse.toggle();
+            });
+
+            //Options
+            let options = currentCard["options"];
+            //shuffleCards
+            let shuffleCardsCheckbox =
+              optionsContainer.querySelector("#shuffle #checkbox");
+            shuffleCardsCheckbox.checked = options["shuffle"];
+            shuffleCardsCheckbox.addEventListener("click", () => {
+              options["shuffle"] = shuffleCardsCheckbox.checked;
+              this.logData();
+            });
+
+            //Timelimit
+            let timeLimitContainer =
+              optionsContainer.querySelector("#timeLimit");
+            let timeLimitCheckbox =
+              timeLimitContainer.querySelector("#checkBox");
+
+            let timeLimitNumberInput = timeLimitContainer.querySelector(
+              ".inner #numberInput"
+            );
+            //timeLimit
+            timeLimitCheckbox.checked = Boolean(options["timeLimit"]);
+            if (Boolean(options["timeLimit"])) {
+              timeLimitNumberInput.value = Number(options["timeLimit"]);
+            } else {
+              options["timeLimit"] = false;
+            }
+            timeLimitCheckbox.addEventListener("input", () => {
+              let status = Boolean(timeLimitCheckbox.checked);
+              //set status in JSON
+              options["timeLimit"] = status;
+              if (!status) {
+                //Deactivate
+                timeLimitNumberInput.disabled = true;
+                timeLimitNumberInput =
+                  Utils.removeAllEventlisteners(timeLimitNumberInput);
+              } else {
+                //Activate
+                timeLimitNumberInput =
+                  Utils.removeAllEventlisteners(timeLimitNumberInput);
+                timeLimitNumberInput.disabled = false;
+                timeLimitNumberInput.addEventListener("input", () => {
+                  let value = Number(timeLimitNumberInput.value);
+                  if (value && value > 0) {
+                    options["timeLimit"] = value;
+                  } else {
+                    options["timeLimit"] = false;
+                  }
+                  this.logData();
+                });
+              }
+              this.logData();
+            });
+            if (Boolean(options["timeLimit"])) {
+              //Activate
+              timeLimitNumberInput =
+                Utils.removeAllEventlisteners(timeLimitNumberInput);
+              timeLimitNumberInput.disabled = false;
+              timeLimitNumberInput.addEventListener("input", () => {
+                let value = Number(timeLimitNumberInput.value);
+                if (value && value > 0) {
+                  options["timeLimit"] = value;
+                } else {
+                  options["timeLimit"] = false;
+                }
+              });
+            } else {
+              //Deactivate
+              timeLimitNumberInput.disabled = true;
+              timeLimitNumberInput =
+                Utils.removeAllEventlisteners(timeLimitNumberInput);
+            }
+             //size
+             let textSizeSelect =
+             optionsContainer.querySelector("#size #selectInput");
+           console.log(textSizeSelect);
+           Utils.selectListSelectItemBySelector(
+             textSizeSelect,
+             "data-value",
+             currentAnswer["size"]
+           );
+           textSizeSelect.addEventListener("change", () => {
+             currentAnswer["size"] =
+               textSizeSelect[textSizeSelect.selectedIndex].getAttribute(
+                 "data-value"
+               );
+             this.logData();
+           });
+
+
+           //wordsJustNeedToBeIncluded
+            let wordsJustNeedToBeIncludedContainer =
+              optionsContainer.querySelector("#wordsJustNeedToBeIncluded");
+            let  wordsJustNeedToBeIncludedCheckbox =
+              wordsJustNeedToBeIncludedContainer.querySelector("#checkBox");
+
+            let wordsJustNeedToBeIncludedButton = timeLimitContainer.querySelector(
+              ".inner .editBtn"
+            );
+            wordsJustNeedToBeIncludedCheckbox.checked = Boolean(options["wordsJustNeedToBeIncluded"]);
+           if (!Boolean(options["wordsJustNeedToBeIncluded"])) {
+            options["wordsJustNeedToBeIncluded"] = false;
+           }
+           wordsJustNeedToBeIncludedCheckbox.addEventListener("click", () => {
+             let status = Boolean(wordsJustNeedToBeIncludedCheckbox.checked);
+             //set status in JSON
+             options["wordsJustNeedToBeIncluded"] = status;
+             if (!status) {
+               //Deactivate
+               wordsJustNeedToBeIncludedButton.disabled = true;
+               wordsJustNeedToBeIncludedButton =
+                 Utils.removeAllEventlisteners(wordsJustNeedToBeIncludedButton);
+             } else {
+               //Activate
+               wordsJustNeedToBeIncludedButton =
+                 Utils.removeAllEventlisteners(wordsJustNeedToBeIncludedButton);
+                 wordsJustNeedToBeIncludedButton.disabled = false;
+                 wordsJustNeedToBeIncludedButton.addEventListener("click", async() => {
+                   options["wordsJustNeedToBeIncluded"] = await Utils.editArrayUI();
+                   this.logData();
+               });
+             }
+             this.logData();
+           });
+           if (Boolean(options["timeLimit"])) {
+             //Activate
+             wordsJustNeedToBeIncludedButton =
+             Utils.removeAllEventlisteners(wordsJustNeedToBeIncludedButton);
+             wordsJustNeedToBeIncludedButton.disabled = false;
+             wordsJustNeedToBeIncludedButton.addEventListener("click", async() => {
+               options["wordsJustNeedToBeIncluded"] = await Utils.editArrayUI();
+               this.logData();
+           });
+           } else {
+             //Deactivate
+             wordsJustNeedToBeIncludedButton.disabled = true;
+             wordsJustNeedToBeIncludedButton =
+               Utils.removeAllEventlisteners(wordsJustNeedToBeIncludedButton);
+           }
+
+            //Task
+            let taskContainer = itemBody.querySelector("#task");
+            let taskCheckbox = taskContainer.querySelector("#checkBox");
+            let taskTextInput = taskContainer.querySelector("#textInput");
+            let suggestTaskButton =
+              taskContainer.querySelector("#getSuggestions");
+            taskCheckbox.checked = Boolean(currentCard["task"]);
+            if (Boolean(currentCard["task"])) {
+              taskTextInput.value = String(currentCard["task"]);
+            } else {
+              currentCard["task"] = false;
+            }
+            taskCheckbox.addEventListener("input", () => {
+              let status = Boolean(taskCheckbox.checked);
+              //set status in JSON
+              currentCard["task"] = status;
+              if (!status) {
+                //Deactivate
+                taskTextInput.disabled = true;
+                taskTextInput = Utils.removeAllEventlisteners(taskTextInput);
+                suggestTaskButton.disabled = true;
+                suggestTaskButton =
+                  Utils.removeAllEventlisteners(suggestTaskButton);
+              } else {
+                //Activate
+                taskTextInput = Utils.removeAllEventlisteners(taskTextInput);
+                taskTextInput.disabled = false;
+                taskTextInput.addEventListener("input", () => {
+                  let value = String(taskTextInput.value);
+                  if (!Utils.isEmptyInput(value)) {
+                    currentCard["task"] = value;
+                    taskTextInput.value = value;
+                  } else {
+                    currentCard["task"] = false;
+                    taskTextInput.value = "";
+                  }
+                  this.logData();
+                });
+                suggestTaskButton.disabled = false;
+                suggestTaskButton.addEventListener("click", async () => {
+                  let selectedTask = await Utils.chooseFromArrayWithSearch(
+                    this.questionsSelectArray,
+                    true,
+                    "Aufgabe auswählen",
+                    false,
+                    false,
+                    true,
+                    "quizverwaltung&operation=other&type=getTasks&searchFor=",
+                    "../teacher/includes/quizverwaltung.inc.php"
+                  );
+                  if (selectedTask || selectedTask[0]) {
+                    currentCard["task"] = selectedTask[0];
+                    taskTextInput.value = selectedTask[0];
+                  } else {
+                    currentCard["task"] = false;
+                    taskTextInput.value = "";
+                  }
+                  this.logData();
+                });
+              }
+              this.logData();
+            });
+            if (Boolean(currentCard["task"])) {
+              //Activate
+              taskTextInput = Utils.removeAllEventlisteners(taskTextInput);
+              taskTextInput.disabled = false;
+              taskTextInput.addEventListener("input", () => {
+                let value = String(taskTextInput.value);
+                if (!Utils.isEmptyInput(value)) {
+                  currentCard["task"] = value;
+                  taskTextInput.value = value;
+                } else {
+                  currentCard["task"] = false;
+                  taskTextInput.value = "";
+                }
+                this.logData();
+              });
+              suggestTaskButton.disabled = false;
+              suggestTaskButton.addEventListener("click", async () => {
+                let selectedTask = await Utils.chooseFromArrayWithSearch(
+                  this.questionsSelectArray,
+                  true,
+                  "Aufgabe auswählen",
+                  false,
+                  false,
+                  true,
+                  "quizverwaltung&operation=other&type=getTasks&searchFor=",
+                  "../teacher/includes/quizverwaltung.inc.php"
+                );
+                if (selectedTask || selectedTask[0]) {
+                  currentCard["task"] = selectedTask[0];
+                  taskTextInput.value = selectedTask[0];
+                }
+                this.logData();
+              });
+            } else {
+              //Deactivate
+              taskTextInput.disabled = true;
+              taskTextInput = Utils.removeAllEventlisteners(taskTextInput);
+              suggestTaskButton.disabled = true;
+              suggestTaskButton =
+                Utils.removeAllEventlisteners(suggestTaskButton);
+            }
+
+            //Question
+            let questionContainer = itemBody.querySelector("#question");
+            let questionCheckbox = questionContainer.querySelector("#checkBox");
+            let questionTextInput =
+              questionContainer.querySelector("#textInput");
+            let suggestQuestionButton =
+              questionContainer.querySelector("#getSuggestions");
+            questionCheckbox.checked = Boolean(currentCard["question"]);
+            if (Boolean(currentCard["question"])) {
+              questionTextInput.value = String(currentCard["question"]);
+            } else {
+              currentCard["question"] = false;
+              questionTextInput.value = "";
+            }
+            questionCheckbox.addEventListener("input", () => {
+              let status = Boolean(questionCheckbox.checked);
+              //set status in JSON
+              currentCard["question"] = status;
+              if (!status) {
+                //Deactivate
+                questionTextInput.disabled = true;
+                questionTextInput =
+                  Utils.removeAllEventlisteners(questionTextInput);
+                suggestQuestionButton.disabled = true;
+                suggestQuestionButton = Utils.removeAllEventlisteners(
+                  suggestQuestionButton
+                );
+              } else {
+                //Activate
+                questionTextInput =
+                  Utils.removeAllEventlisteners(questionTextInput);
+                questionTextInput.disabled = false;
+                questionTextInput.addEventListener("input", () => {
+                  let value = String(questionTextInput.value);
+                  if (!Utils.isEmptyInput(value)) {
+                    currentCard["question"] = value;
+                    questionTextInput.value = value;
+                  } else {
+                    currentCard["question"] = false;
+                    questionTextInput.value = "";
+                  }
+                  this.logData();
+                });
+                suggestQuestionButton.disabled = false;
+                suggestQuestionButton.addEventListener("click", async () => {
+                  let selectedQuestion = await Utils.chooseFromArrayWithSearch(
+                    this.questionsSelectArray,
+                    true,
+                    "Frage auswählen",
+                    false,
+                    false,
+                    true,
+                    "quizverwaltung&operation=other&type=getQuestions&searchFor=",
+                    "../teacher/includes/quizverwaltung.inc.php"
+                  );
+                  if (selectedQuestion || selectedQuestion[0]) {
+                    currentCard["question"] = selectedQuestion[0];
+                    questionTextInput.value = selectedQuestion[0];
+                  }
+                  this.logData();
+                });
+              }
+              this.logData();
+            });
+            if (Boolean(currentCard["question"])) {
+              //Activate
+              questionTextInput =
+                Utils.removeAllEventlisteners(questionTextInput);
+              questionTextInput.disabled = false;
+              questionTextInput.addEventListener("input", () => {
+                let value = String(questionTextInput.value);
+                if (!Utils.isEmptyInput(value)) {
+                  currentCard["question"] = value;
+                  questionTextInput.value = value;
+                } else {
+                  currentCard["question"] = false;
+                }
+                this.logData();
+              });
+              suggestQuestionButton.disabled = false;
+              suggestQuestionButton.addEventListener("click", async () => {
+                let selectedQuestion = await Utils.chooseFromArrayWithSearch(
+                  this.questionsSelectArray,
+                  true,
+                  "Frage auswählen",
+                  false,
+                  false,
+                  true,
+                  "quizverwaltung&operation=other&type=getQuestions&searchFor=",
+                  "../teacher/includes/quizverwaltung.inc.php"
+                );
+                if (selectedQuestion || selectedQuestion[0]) {
+                  currentCard["question"] = selectedQuestion[0];
+                  questionTextInput.value = selectedQuestion[0];
+                }
+                this.logData();
+              });
+            } else {
+              //Deactivate
+              questionTextInput.disabled = true;
+              questionTextInput =
+                Utils.removeAllEventlisteners(questionTextInput);
+              suggestQuestionButton.disabled = true;
+              suggestQuestionButton = Utils.removeAllEventlisteners(
+                suggestQuestionButton
+              );
+            }
+
+            //points
+            let pointsNumberInput = itemBody.querySelector(
+              "#points #numberInput"
+            );
+            pointsNumberInput.value = Number(currentCard["points"]);
+            pointsNumberInput.addEventListener("input", () => {
+              if (!Utils.isEmptyInput(pointsNumberInput.value)) {
+                let number = Number(pointsNumberInput.value);
+                if (number < 0) {
+                  pointsNumberInput.value = 0;
+                  currentCard["points"] = 0;
+                } else {
+                  currentCard["points"] = number;
+                }
+              } else {
+                currentCard["points"] = 0;
+              }
+              this.logData();
+            });
+
+            //Change Media
+            let changeMediaBtn = itemBody.querySelector("#changeMedia");
+            changeMediaBtn.addEventListener("click", async () => {
+              let res = await editMedia(currentCard);
+              currentCard = res;
+              this.refreshCards(false, id);
+            });
+
+            //Answers
+            let changeAnswersBtn = itemBody.querySelector("#changeAnswers");
+            changeAnswersBtn.addEventListener("click", async () => {
+              let res = await changeAnswersMulitpleChoice(currentCard);
+              currentCard = res;
+              this.refreshCards(false, id);
+            });
           } else {
             console.log("Unknown cardType:", currentCard);
           }
 
           counter++;
         }
+        return true;
       }
 
-      async changeAnswersMulitpleChoice(cardID) {
-        return new Promise(async (resolve, reject) => {
-          
-        })
+      async createCard() {
+        let type = await Utils.getUserInput(
+          "Karte erstellen",
+          "Welche Art von Karte möchtest du hinzufügen?",
+          false,
+          "select",
+          false,
+          false,
+          true,
+          {
+            "Multiple Choice (1 richtig)": "mchoice",
+            "Multiple Choice Multi (0-Alle richtig)": "mchoice-multi",
+            Texteingabe: "textInput",
+          },
+          false,
+          false
+        );
+        if (!type) return;
+        if (type === "mchoice") {
+          this.quizJSON["quizCards"] = Utils.addToArray(
+            this.quizJSON["quizCards"],
+            {
+              type: "mchoice",
+              options: {},
+              task: "",
+              question: "",
+              media: [],
+              answers: [],
+              correctAnswerID: undefined,
+              points: 1,
+            }
+          );
+        } else if (type === "mchoice-muliti") {
+          this.quizJSON["quizCards"] = Utils.addToArray(
+            this.quizJSON["quizCards"],
+            {
+              type: "mchoice-multi",
+              options: {},
+              task: "",
+              question: "",
+              media: [],
+              answers: [],
+              correctAnswersIDs: [],
+              points: 1,
+            }
+          );
+        } else if (type === "textInput") {
+        }
+        this.refresh(true);
       }
-
-      async editMedia(cardID) {
-        return new Promise(async (resolve, reject) => {
-          //TODO: Mediaverwaltung
-        })
-      }
-
-      async editJSONDATA() {}
-
-      async createCard() {}
-
-      async removeCard() {}
-
-      async copyCard() {}
 
       async submitData() {
         console.log("Submit:", this.quizJSON);
@@ -2480,3 +2229,1890 @@ export async function editQuizdata(uniqueID) {
     });
   });
 }
+
+export async function changeAnswersMulitpleChoice(cardData) {
+  return new Promise((resolve, reject) => {
+    //Create Modal container if doesnt exist
+    let modalContainer = document.querySelector("#modalContainer");
+
+    if (modalContainer == null) {
+      modalContainer = document.createElement("div");
+      modalContainer.setAttribute("id", "modalContainer");
+      document.body.appendChild(modalContainer);
+    }
+
+    if (document.querySelector("#modalContainer") == null) {
+      alert("no modal container found");
+      reject();
+    }
+    let number = 1;
+    let modals = modalContainer.querySelectorAll(".modal");
+    console.log(modals);
+    if (modals.length > 0) {
+      number = modals.length + 1;
+    }
+    console.log("Number of Modals", number);
+
+    let modalOuter = document.createElement("div");
+    modalOuter.classList.add("modal-div");
+    modalOuter.setAttribute("id", number);
+    modalContainer.appendChild(modalOuter);
+
+    let modalHTML = `
+        <!-- Modal -->
+        <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="staticBackdropLabel">Antworten bearbeiten</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="programContainer">
+                <div class="header">
+                
+                </div>
+                <div class="answersList">
+
+                </div>
+              </div>
+             
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-danger" id="no">Nein</button>
+              <button type="button" class="btn btn-success" id="yes">Ja</button>
+            </div>
+          </div>
+        </div>
+        </div>
+         `;
+
+    modalOuter.innerHTML = modalHTML;
+    let modal = modalOuter.querySelector(".modal");
+
+    let close = modal.querySelector("#close");
+    let yes = modal.querySelector("#yes");
+    let no = modal.querySelector("#no");
+
+    var myModal = new bootstrap.Modal(modal);
+    myModal.show();
+
+    class EditAnswers {
+      constructor(cardData, container) {
+        this.cardData = cardData;
+        this.answerArray = cardData["answers"];
+        this.correctAnswerID;
+        this.header;
+        this.list;
+
+        this.container = container;
+      }
+
+      async refresh(refreshAnswers = true) {
+        //Set general
+        this.answerArray = this.cardData["answers"];
+        this.correctAnswerID = this.cardData["correctAnswerID"];
+
+        this.header = this.container.querySelector(".header");
+        this.list = this.container.querySelector(".answersList");
+
+        this.header.innerHTML = `
+              <button type="button" class="btn btn-info" id="addBtn">Antwort hinzufügen</button>
+              <button type="button" class="btn btn-secondary" id="refreshBtn">Aktualisieren</button>
+              `;
+
+        console.log(this.header);
+
+        let addBtn = this.header.querySelector("#addBtn");
+        addBtn = Utils.removeAllEventlisteners(addBtn);
+        addBtn.addEventListener("click", async () => {
+          let type = await Utils.getUserInput(
+            "Antwort hinzufügen",
+            "Welche Art von Antwort möchtest du hinzufügen?",
+            false,
+            "select",
+            false,
+            false,
+            true,
+            { Text: "text", Medium: "media" },
+            false,
+            false
+          );
+          if (!type) return;
+          if (type === "text") {
+            this.answerArray = Utils.addToArray(this.answerArray, {
+              type: "text",
+              size: "middle",
+            });
+          } else if (type === "media") {
+            this.answerArray = Utils.addToArray(this.answerArray, {
+              type: "media",
+              size: "middle",
+            });
+          }
+          this.refresh(true);
+        });
+
+        let refreshBtn = this.header.querySelector("#refreshBtn");
+        refreshBtn = Utils.removeAllEventlisteners(refreshBtn);
+        refreshBtn.addEventListener("click", () => {
+          this.refresh(true);
+        });
+        if (refreshAnswers) {
+          this.refreshAnswers(true);
+        }
+        console.log("refreshed successfully");
+        return true;
+      }
+
+      refreshAnswers(refreshAll = true, cardToRefresh = false) {
+        let answerCards = new Array();
+        console.log(
+          "Card Data:",
+          Utils.makeJSON(JSON.stringify(this.cardData))
+        );
+
+        if (refreshAll) {
+          this.list.innerHTML = ``;
+          answerCards = this.answerArray;
+          //If broken set new array
+          if (!answerCards || typeof answerCards != typeof new Array())
+            answerCards = new Array();
+
+          //sort by id and points
+          answerCards = answerCards.sort((a, b) => {
+            if (!a.answerID) return 0;
+            if (!b.answerID) return 0;
+            if (a.answerID == b.answerID) {
+              return 0;
+            }
+            if (a.answerID > b.answerID) {
+              return 1;
+            } else {
+              return -1;
+            }
+          });
+        } else {
+          //Get specific card to refresh
+          let answerToRefresh = this.answerArray.find((answer) => {
+            if (answer.answerID == cardToRefresh) {
+              return answer;
+            }
+          }, false);
+          answerCards = Utils.addToArray(answerCards, answerToRefresh);
+          console.log(answerCards);
+        }
+
+        let counter = 1;
+
+        for (const currentAnswer of answerCards) {
+          let answerID;
+          let item;
+          if (refreshAll) {
+            answerID = counter;
+            currentAnswer.answerID = counter;
+
+            item = document.createElement("div");
+            item.classList.add("collapse", "item");
+            item.setAttribute("data-answerID", answerID);
+            let collapse = bootstrap.Collapse.getOrCreateInstance(item);
+            collapse.show();
+            item.addEventListener("click", (event) => {
+              if (event.target === item) {
+                collapse.toggle();
+              }
+            });
+            this.list.appendChild(item);
+          } else {
+            answerID = currentAnswer.answerID;
+            item = this.list.querySelector(`div[data-answerID='${answerID}']`);
+            item.classList.add("collapse", "item");
+            item.setAttribute("data-cardid", answerID);
+            let collapse = bootstrap.Collapse.getOrCreateInstance(item);
+            collapse.show();
+            item.addEventListener("click", (event) => {
+              if (event.target === item) {
+                collapse.toggle();
+              }
+            });
+          }
+
+          console.log("current answer", currentAnswer, item);
+          let answerType = currentAnswer["type"];
+          console.log("answerType", answerType);
+          if (answerType === "text") {
+            item.innerHTML = `
+                  <div class="header">
+                  <div class="form-check" id="correctAnswer">
+                      <input class="form-check-input" type="checkbox" id="checkbox">
+                      <label class="form-check-label">
+                          Richtige Antwort
+                      </label>
+                  </div>
+                  <div class="btn-group-vertical " role="group" id="moveCard" aria-label="Kartenreihenfolge ändern">
+                    <button type="button" class="btn btn-outline-primary" data-action="upwards">Hoch &#8593;</button>
+                    <button type="button" class="btn btn-outline-primary" data-action="downwards">Runter &#8595;</button>
+                  </div>
+                  <label class="form-check-label" for="moveCard">Antwortrehenfolge ändern</label>
+                  <div class="form-control">
+                    <input type="number" class="form-control col-3" aria-label="ID festlegen" id="id" placeholder="z.B. 1" value="${currentAnswer.answerID}">
+                    <label class="form-check-label">
+                        Id der Antwort (Für Sortierung genutzt)
+                    </label>
+                    </div>
+                  <button type="button" class="btn btn-secondary" id="copyAnswer">Karte kopieren</button>
+                  <button type="button" class="btn btn-danger" id="deleteAnswer">Antwort löschen</button>
+              </div>
+              <div class="body">
+                  <div id="cardType">Typ: Text</div>
+                  <div id="options">
+                      <button type="button" class="btn btn-secondary" id="toggleOptions"><img src="../images/icons/zahnrad.svg" alt="" class="icon-auto" style="position: relative; width: 20px;"><span>Optionen</span></button>
+                      <ul class="collapse" id="optionsList">
+                          <li id="size">
+                            <label for="selectInput" class="form-label">Größe der Schrift auswählen</label>
+                              <select class="form-select" aria-label="Größe der Schrift auswählen - Dropdown-Menü" id="selectInput">
+                                <option data-value="large" selected="selected">groß (wenig Text)</option>  
+                                <option data-value="middle" selected="selected">mittel (Normal)</option>
+                                <option data-value="small" selected="selected">klein (viel Text)</option>
+                              </select>
+                            
+                          </li>
+                      </ul>
+                  </div>
+                  <div id="text">
+                  <h5>Antwortmöglichkeit (Text)</h5>
+                      <div class="input-group mb-3" id="task">
+                        <textarea class="form-control" id="textInput" rows="3" aria-label="Antwortmöglichkeit eingeben" placeholder="Antwort...">${currentAnswer.text}</textarea>
+                      </div>
+                  </div>
+              </div>
+                  `;
+            let itemHeader = item.querySelector(".header");
+            let itemBody = item.querySelector(".body");
+
+            //Choose as correct answer
+            let correctAnswerCheckbox = item.querySelector(
+              ".header #correctAnswer #checkbox"
+            );
+            correctAnswerCheckbox.checked =
+              currentAnswer.answerID == this.correctAnswerID;
+            correctAnswerCheckbox.addEventListener("click", () => {
+              if (correctAnswerCheckbox.checked) {
+                this.correctAnswerID = currentAnswer.answerID;
+              } else {
+                this.correctAnswerID = false;
+              }
+              for (const current of this.answerArray) {
+                this.refreshAnswers(false, current.answerID);
+              }
+            });
+
+            //Move card
+            let moveBtns = itemHeader.querySelectorAll("#moveCard button");
+            for (const currentBtn of moveBtns) {
+              currentBtn.addEventListener("click", () => {
+                let action = currentBtn.getAttribute("data-action");
+                moveObject(
+                  action,
+                  this.answerArray,
+                  "answerID",
+                  currentAnswer.answerID
+                );
+                this.refreshAnswers(true);
+              });
+            }
+
+            //answerID
+            let idNumberInput = itemHeader.querySelector("#id");
+            idNumberInput.value = currentAnswer.answerID;
+            idNumberInput.addEventListener("input", () => {
+              if (!Utils.isEmptyInput(idNumberInput.value)) {
+                currentAnswer.answerID = Number(idNumberInput.value);
+              }
+            });
+
+            //copyCard
+            let copyAnswerBtn = itemHeader.querySelector("#copyAnswer");
+            copyAnswerBtn.addEventListener("click", () => {
+              this.answerArray = Utils.addToArray(
+                this.answerArray,
+                Utils.makeJSON(JSON.stringify(currentAnswer))
+              );
+              this.cardData.answers = this.answerArray;
+              this.refreshAnswers();
+              this.logData();
+            });
+
+            //delete
+            let deleteAnswerBtn = itemHeader.querySelector("#deleteAnswer");
+            deleteAnswerBtn.addEventListener("click", () => {
+              this.cardData["answers"] = Utils.removeFromArray(
+                this.cardData["answers"],
+                currentAnswer
+              );
+              this.logData();
+              this.refresh(true);
+            });
+
+            //Options
+            let optionsContainer = itemBody.querySelector("#options");
+            let toggleOptionsBtn =
+              optionsContainer.querySelector("#toggleOptions");
+            toggleOptionsBtn.addEventListener("click", () => {
+              let collapse = bootstrap.Collapse.getOrCreateInstance(
+                optionsContainer.querySelector("#optionsList")
+              );
+              collapse.toggle();
+            });
+
+            //text size
+            let textSizeSelect =
+              optionsContainer.querySelector("#size #selectInput");
+            console.log(textSizeSelect);
+            //set
+            Utils.selectListSelectItemBySelector(
+              textSizeSelect,
+              "data-value",
+              "small"
+            );
+            textSizeSelect.addEventListener("change", () => {
+              currentAnswer["size"] =
+                textSizeSelect[textSizeSelect.selectedIndex].getAttribute(
+                  "data-value"
+                );
+              this.logData();
+            });
+
+            //Text input
+            let textInput = itemBody.querySelector("#text #task #textInput");
+            textInput.value = currentAnswer["text"] ?? "";
+            textInput.addEventListener("input", () => {
+              currentAnswer["text"] = textInput.value;
+              this.logData();
+            });
+            this.logData();
+          } else if (answerType === "media") {
+            item.innerHTML = `
+            <div class="header">
+            <div class="form-check" id="correctAnswer">
+                <input class="form-check-input" type="checkbox" id="checkbox">
+                <label class="form-check-label">
+                    Richtige Antwort
+                </label>
+            </div>
+            <div class="btn-group-vertical " role="group" id="moveCard" aria-label="Kartenreihenfolge ändern">
+              <button type="button" class="btn btn-outline-primary" data-action="upwards">Hoch &#8593;</button>
+              <button type="button" class="btn btn-outline-primary" data-action="downwards">Runter &#8595;</button>
+            </div>
+            <label class="form-check-label" for="moveCard">Antwortrehenfolge ändern</label>
+            <div class="form-control">
+              <input type="number" class="form-control col-3" aria-label="ID festlegen" id="id" placeholder="z.B. 1" value="${currentAnswer.answerID}">
+              <label class="form-check-label">
+                  Id der Antwort (Für Sortierung genutzt)
+              </label>
+              </div>
+            <button type="button" class="btn btn-secondary" id="copyAnswer">Karte kopieren</button>
+            <button type="button" class="btn btn-danger" id="deleteAnswer">Antwort löschen</button>
+        </div>
+        <div class="body">
+            <div id="cardType">Typ: Medien</div>
+            <div id="options">
+                <button type="button" class="btn btn-secondary" id="toggleOptions"><img src="../images/icons/zahnrad.svg" alt="" class="icon-auto" style="position: relative; width: 20px;"><span>Optionen</span></button>
+                <ul class="collapse" id="optionsList">
+                    <li id="size">
+                      <label for="selectInput" class="form-label">Größe auswählen</label>
+                        <select class="form-select" aria-label="Größe der Schrift auswählen - Dropdown-Menü" id="selectInput">
+                          <option data-value="large" selected="selected">groß</option>  
+                          <option data-value="middle" selected="selected">mittel</option>
+                          <option data-value="small" selected="selected">klein</option>
+                        </select>
+                      
+                    </li>
+                    <li id="volume">
+                      <label for="selectInput" class="form-label">Lautstärke (Standard) z.B. für zu laute Audios oder Videos</label>
+                      <div class="slidecontainer">
+                        <input type="range" min="1" max="100" value="100" step="1" id="rangeInput">
+                        <span class="currentValue"></span> <span>%</span>
+                      </div>
+                      
+                    </li>
+                </ul>
+            </div>
+            <div id="media">
+            <h5>Antwortmöglichkeit (Medien)</h5>
+              <button class="btn btn-primary btn-sm addBtn">Medium auswählen</button>
+              <h5>Vorschau</h5>
+              <div class="previewContainer"></div>
+            </div>
+        </div>
+            `;
+            let itemHeader = item.querySelector(".header");
+            let itemBody = item.querySelector(".body");
+
+            //Choose as correct answer
+            let correctAnswerCheckbox = item.querySelector(
+              ".header #correctAnswer #checkbox"
+            );
+            correctAnswerCheckbox.checked =
+              currentAnswer.answerID == this.correctAnswerID;
+            correctAnswerCheckbox.addEventListener("click", () => {
+              if (correctAnswerCheckbox.checked) {
+                this.correctAnswerID = currentAnswer.answerID;
+              } else {
+                this.correctAnswerID = false;
+              }
+              for (const current of this.answerArray) {
+                this.refreshAnswers(false, current.answerID);
+              }
+            });
+
+            //Move card
+            let moveBtns = itemHeader.querySelectorAll("#moveCard button");
+            for (const currentBtn of moveBtns) {
+              currentBtn.addEventListener("click", () => {
+                let action = currentBtn.getAttribute("data-action");
+                moveObject(
+                  action,
+                  this.answerArray,
+                  "answerID",
+                  currentAnswer.answerID
+                );
+                this.refreshAnswers(true);
+              });
+            }
+
+            //answerID
+            let idNumberInput = itemHeader.querySelector("#id");
+            idNumberInput.value = currentAnswer.answerID;
+            idNumberInput.addEventListener("input", () => {
+              if (!Utils.isEmptyInput(idNumberInput.value)) {
+                currentAnswer.answerID = Number(idNumberInput.value);
+                console.log(idNumberInput.value);
+              }
+            });
+
+            //copyCard
+            let copyAnswerBtn = itemHeader.querySelector("#copyAnswer");
+            copyAnswerBtn.addEventListener("click", () => {
+              this.answerArray = Utils.addToArray(
+                this.answerArray,
+                Utils.makeJSON(JSON.stringify(currentAnswer))
+              );
+              this.cardData.answers = this.answerArray;
+              this.refresh(true);
+              this.logData();
+            });
+
+            //delete
+            let deleteAnswerBtn = itemHeader.querySelector("#deleteAnswer");
+            deleteAnswerBtn.addEventListener("click", () => {
+              this.cardData["answers"] = Utils.removeFromArray(
+                this.cardData["answers"],
+                currentAnswer
+              );
+              this.logData();
+              this.refresh(true);
+            });
+
+            //Options
+            let optionsContainer = itemBody.querySelector("#options");
+            let toggleOptionsBtn =
+              optionsContainer.querySelector("#toggleOptions");
+            toggleOptionsBtn.addEventListener("click", () => {
+              let collapse = bootstrap.Collapse.getOrCreateInstance(
+                optionsContainer.querySelector("#optionsList")
+              );
+              collapse.toggle();
+            });
+
+            //size
+            let textSizeSelect =
+              optionsContainer.querySelector("#size #selectInput");
+            console.log(textSizeSelect);
+            Utils.selectListSelectItemBySelector(
+              textSizeSelect,
+              "data-value",
+              currentAnswer["size"]
+            );
+            textSizeSelect.addEventListener("change", () => {
+              currentAnswer["size"] =
+                textSizeSelect[textSizeSelect.selectedIndex].getAttribute(
+                  "data-value"
+                );
+              this.logData();
+            });
+
+            //volume
+            let volumeSlider = optionsContainer.querySelector(
+              "#volume .slidecontainer #rangeInput"
+            );
+            let volumeSliderCurrentValue = optionsContainer.querySelector(
+              "#volume .slidecontainer .currentValue"
+            );
+            if (currentAnswer["volume"]) {
+              volumeSlider.value = currentAnswer["volume"];
+              volumeSliderCurrentValue.innerText = currentAnswer["volume"];
+            }
+            volumeSliderCurrentValue.innerText = currentAnswer["volume"] ?? 100;
+            console.log(volumeSlider);
+            volumeSlider.addEventListener("input", () => {
+              console.log("volume:", Number(volumeSlider.value));
+              currentAnswer["volume"] = Number(volumeSlider.value);
+              volumeSliderCurrentValue.innerText = volumeSlider.value;
+            });
+
+            //add / change media
+            let previewContainer = itemBody.querySelector(
+              "#media .previewContainer"
+            );
+            Utils.setMedia(currentAnswer, previewContainer, false);
+            let changeMediaBtn = itemBody.querySelector("#media .addBtn");
+            changeMediaBtn.addEventListener("click", async () => {
+              let media = await pickMedia(false, false);
+              console.log("Choosen Media:", media);
+              delete currentAnswer["volume"];
+              if (!media) {
+                currentAnswer["mediaID"] = false;
+              } else {
+                currentAnswer["mediaID"] = media["mediaID"] ?? false;
+                currentAnswer["volume"] = 100;
+              }
+              this.refreshAnswers(false, currentAnswer.mediaID);
+            });
+
+            this.logData();
+          }
+          counter++;
+        }
+        return true;
+      }
+
+      logData() {
+        console.log(
+          "Current cardData:",
+          Utils.makeJSON(JSON.stringify(this.cardData))
+        );
+        // alert(this.quizJSON["options"].showTime)
+        console.log(
+          "Passed in and changed is the same reference:",
+          Object.is(cardData, this.cardData)
+        );
+      }
+    }
+
+    let programContainer = modal.querySelector(".programContainer");
+    let editAnswers = new EditAnswers(cardData, programContainer);
+    editAnswers.refresh(true);
+
+    yes.addEventListener("click", (target) => {
+      myModal.hide();
+      modalOuter.remove();
+      console.log(
+        "before return:",
+        Utils.makeJSON(JSON.stringify(editAnswers.cardData))
+      );
+      resolve(editAnswers.cardData);
+    });
+
+    no.addEventListener("click", (target) => {
+      myModal.hide();
+      modalOuter.remove();
+      resolve(false);
+    });
+
+    close.addEventListener("click", (target) => {
+      myModal.hide();
+      modalOuter.remove();
+      resolve(false);
+    });
+  });
+}
+
+export async function changeAnswersMulitpleChoiceMulti(cardData) {
+  return new Promise((resolve, reject) => {
+    //Create Modal container if doesnt exist
+    let modalContainer = document.querySelector("#modalContainer");
+
+    if (modalContainer == null) {
+      modalContainer = document.createElement("div");
+      modalContainer.setAttribute("id", "modalContainer");
+      document.body.appendChild(modalContainer);
+    }
+
+    if (document.querySelector("#modalContainer") == null) {
+      alert("no modal container found");
+      reject();
+    }
+    let number = 1;
+    let modals = modalContainer.querySelectorAll(".modal");
+    console.log(modals);
+    if (modals.length > 0) {
+      number = modals.length + 1;
+    }
+    console.log("Number of Modals", number);
+
+    let modalOuter = document.createElement("div");
+    modalOuter.classList.add("modal-div");
+    modalOuter.setAttribute("id", number);
+    modalContainer.appendChild(modalOuter);
+
+    let modalHTML = `
+        <!-- Modal -->
+        <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="staticBackdropLabel">Antworten bearbeiten</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="programContainer">
+                <div class="header">
+                
+                </div>
+                <div class="answersList">
+
+                </div>
+              </div>
+             
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-danger" id="no">Nein</button>
+              <button type="button" class="btn btn-success" id="yes">Ja</button>
+            </div>
+          </div>
+        </div>
+        </div>
+         `;
+
+    modalOuter.innerHTML = modalHTML;
+    let modal = modalOuter.querySelector(".modal");
+
+    let close = modal.querySelector("#close");
+    let yes = modal.querySelector("#yes");
+    let no = modal.querySelector("#no");
+
+    var myModal = new bootstrap.Modal(modal);
+    myModal.show();
+
+    class EditAnswers {
+      constructor(cardData, container) {
+        this.cardData = cardData;
+        this.answerArray;
+        this.header;
+        this.list;
+
+        this.container = container;
+      }
+
+      async refresh(refreshAnswers = true) {
+        //Set general
+        this.answerArray = this.cardData["answers"] ?? new Array();
+        this.correctAnswersIDs =
+          this.cardData["correctAnswersIDs"] ?? new Array();
+
+        this.header = this.container.querySelector(".header");
+        this.list = this.container.querySelector(".answersList");
+
+        this.header.innerHTML = `
+              <button type="button" class="btn btn-info" id="addBtn">Antwort hinzufügen</button>
+              <button type="button" class="btn btn-secondary" id="refreshBtn">Aktualisieren</button>
+              `;
+
+        console.log(this.header);
+
+        let addBtn = this.header.querySelector("#addBtn");
+        addBtn = Utils.removeAllEventlisteners(addBtn);
+        addBtn.addEventListener("click", async () => {
+          let type = await Utils.getUserInput(
+            "Antwort hinzufügen",
+            "Welche Art von Antwort möchtest du hinzufügen?",
+            false,
+            "select",
+            false,
+            false,
+            true,
+            { Text: "text", Medium: "media" },
+            false,
+            false
+          );
+          if (!type) return;
+          if (type === "text") {
+            this.answerArray = Utils.addToArray(this.answerArray, {
+              type: "text",
+              size: "middle",
+            });
+          } else if (type === "media") {
+            this.answerArray = Utils.addToArray(this.answerArray, {
+              type: "media",
+              size: "middle",
+            });
+          }
+          this.refresh(true);
+        });
+
+        let refreshBtn = this.header.querySelector("#refreshBtn");
+        refreshBtn = Utils.removeAllEventlisteners(refreshBtn);
+        refreshBtn.addEventListener("click", () => {
+          this.refresh(true);
+        });
+        if (refreshAnswers) {
+          this.refreshAnswers(true);
+        }
+        console.log("refreshed successfully");
+        return true;
+      }
+
+      refreshAnswers(refreshAll = true, cardToRefresh = false) {
+        let answerCards = new Array();
+        console.log(
+          "Card Data:",
+          Utils.makeJSON(JSON.stringify(this.cardData))
+        );
+
+        if (refreshAll) {
+          this.list.innerHTML = ``;
+          answerCards = this.answerArray;
+          //If broken set new array
+          if (!answerCards || typeof answerCards != typeof new Array())
+            answerCards = new Array();
+
+          //sort by id and points
+          answerCards = answerCards.sort((a, b) => {
+            if (!a.answerID) return 0;
+            if (!b.answerID) return 0;
+            if (a.answerID == b.answerID) {
+              return 0;
+            }
+            if (a.answerID > b.answerID) {
+              return 1;
+            } else {
+              return -1;
+            }
+          });
+        } else {
+          //Get specific card to refresh
+          let answerToRefresh = this.answerArray.find((answer) => {
+            if (answer.answerID == cardToRefresh) {
+              return answer;
+            }
+          }, false);
+          answerCards = Utils.addToArray(answerCards, answerToRefresh);
+          console.log(answerCards);
+        }
+
+        let counter = 1;
+
+        for (const currentAnswer of answerCards) {
+          let answerID;
+          let item;
+          if (refreshAll) {
+            answerID = counter;
+            currentAnswer.answerID = counter;
+
+            item = document.createElement("div");
+            item.classList.add("collapse", "item");
+            item.setAttribute("data-answerID", answerID);
+            let collapse = bootstrap.Collapse.getOrCreateInstance(item);
+            collapse.show();
+            item.addEventListener("click", (event) => {
+              if (event.target === item) {
+                collapse.toggle();
+              }
+            });
+            this.list.appendChild(item);
+          } else {
+            answerID = currentAnswer.answerID;
+            item = this.list.querySelector(`div[data-answerID='${answerID}']`);
+            item.classList.add("collapse", "item");
+            item.setAttribute("data-cardid", answerID);
+            let collapse = bootstrap.Collapse.getOrCreateInstance(item);
+            collapse.show();
+            item.addEventListener("click", (event) => {
+              if (event.target === item) {
+                collapse.toggle();
+              }
+            });
+          }
+
+          console.log("current answer", currentAnswer, item);
+          let answerType = currentAnswer["type"];
+          console.log("answerType", answerType);
+          if (answerType === "text") {
+            item.innerHTML = `
+                  <div class="header">
+                  <div class="form-check" id="correctAnswer">
+                      <input class="form-check-input" type="checkbox" id="checkbox">
+                      <label class="form-check-label">
+                          Richtige Antwort
+                      </label>
+                  </div>
+                  <div class="btn-group-vertical " role="group" id="moveCard" aria-label="Kartenreihenfolge ändern">
+                    <button type="button" class="btn btn-outline-primary" data-action="upwards">Hoch &#8593;</button>
+                    <button type="button" class="btn btn-outline-primary" data-action="downwards">Runter &#8595;</button>
+                  </div>
+                  <label class="form-check-label" for="moveCard">Antwortrehenfolge ändern</label>
+                  <div class="form-control">
+                    <input type="number" class="form-control col-3" aria-label="ID festlegen" id="id" placeholder="z.B. 1" value="${currentAnswer.answerID}">
+                    <label class="form-check-label">
+                        Id der Antwort (Für Sortierung genutzt)
+                    </label>
+                    </div>
+                  <button type="button" class="btn btn-secondary" id="copyAnswer">Karte kopieren</button>
+                  <button type="button" class="btn btn-danger" id="deleteAnswer">Antwort löschen</button>
+              </div>
+              <div class="body">
+                  <div id="cardType">Typ: Text</div>
+                  <div id="options">
+                      <button type="button" class="btn btn-secondary" id="toggleOptions"><img src="../images/icons/zahnrad.svg" alt="" class="icon-auto" style="position: relative; width: 20px;"><span>Optionen</span></button>
+                      <ul class="collapse" id="optionsList">
+                          <li id="size">
+                            <label for="selectInput" class="form-label">Größe der Schrift auswählen</label>
+                              <select class="form-select" aria-label="Größe der Schrift auswählen - Dropdown-Menü" id="selectInput">
+                                <option data-value="large" selected="selected">groß (wenig Text)</option>  
+                                <option data-value="middle" selected="selected">mittel (Normal)</option>
+                                <option data-value="small" selected="selected">klein (viel Text)</option>
+                              </select>
+                            
+                          </li>
+                      </ul>
+                  </div>
+                  <div id="text">
+                  <h5>Antwortmöglichkeit (Text)</h5>
+                      <div class="input-group mb-3" id="task">
+                        <textarea class="form-control" id="textInput" rows="3" aria-label="Antwortmöglichkeit eingeben" placeholder="Antwort...">${currentAnswer.text}</textarea>
+                      </div>
+                  </div>
+              </div>
+                  `;
+            let itemHeader = item.querySelector(".header");
+            let itemBody = item.querySelector(".body");
+
+            //Choose as correct answer
+            let correctAnswerCheckbox = item.querySelector(
+              ".header #correctAnswer #checkbox"
+            );
+            correctAnswerCheckbox.checked = this.cardData["correctAnswersIDs"]?.includes?.(currentAnswer.answerID);
+            correctAnswerCheckbox.addEventListener("click", () => {
+              if (correctAnswerCheckbox.checked) {
+                this.cardData["correctAnswersIDs"] = Utils.addToArray(
+                  this.cardData["correctAnswersIDs"],
+                  currentAnswer.answerID,
+                  false
+                );
+              } else {
+                this.cardData["correctAnswersIDs"] = Utils.removeFromArray(
+                  this.cardData["correctAnswersIDs"],
+                  currentAnswer.answerID
+                );
+              }
+              for (const current of this.answerArray) {
+                this.refreshAnswers(false, current.answerID);
+              }
+            });
+            
+
+            //Move card
+            let moveBtns = itemHeader.querySelectorAll("#moveCard button");
+            for (const currentBtn of moveBtns) {
+              currentBtn.addEventListener("click", () => {
+                let action = currentBtn.getAttribute("data-action");
+                moveObject(
+                  action,
+                  this.answerArray,
+                  "answerID",
+                  currentAnswer.answerID
+                );
+                this.refreshAnswers(true);
+              });
+            }
+
+            //answerID
+            let idNumberInput = itemHeader.querySelector("#id");
+            idNumberInput.value = currentAnswer.answerID;
+            idNumberInput.addEventListener("input", () => {
+              if (!Utils.isEmptyInput(idNumberInput.value)) {
+                currentAnswer.answerID = Number(idNumberInput.value);
+              }
+            });
+
+            //copyCard
+            let copyAnswerBtn = itemHeader.querySelector("#copyAnswer");
+            copyAnswerBtn.addEventListener("click", () => {
+              this.answerArray = Utils.addToArray(
+                this.answerArray,
+                Utils.makeJSON(JSON.stringify(currentAnswer))
+              );
+              this.cardData.answers = this.answerArray;
+              this.refreshAnswers();
+              this.logData();
+            });
+
+            //delete
+            let deleteAnswerBtn = itemHeader.querySelector("#deleteAnswer");
+            deleteAnswerBtn.addEventListener("click", () => {
+              this.cardData["answers"] = Utils.removeFromArray(
+                this.cardData["answers"],
+                currentAnswer
+              );
+              this.logData();
+              this.refresh(true);
+            });
+
+            //Options
+            let optionsContainer = itemBody.querySelector("#options");
+            let toggleOptionsBtn =
+              optionsContainer.querySelector("#toggleOptions");
+            toggleOptionsBtn.addEventListener("click", () => {
+              let collapse = bootstrap.Collapse.getOrCreateInstance(
+                optionsContainer.querySelector("#optionsList")
+              );
+              collapse.toggle();
+            });
+
+            //text size
+            let textSizeSelect =
+              optionsContainer.querySelector("#size #selectInput");
+            console.log(textSizeSelect);
+            //set
+            Utils.selectListSelectItemBySelector(
+              textSizeSelect,
+              "data-value",
+              currentAnswer["size"]
+            );
+            textSizeSelect.addEventListener("change", () => {
+              currentAnswer["size"] =
+                textSizeSelect[textSizeSelect.selectedIndex].getAttribute(
+                  "data-value"
+                );
+              this.logData();
+            });
+
+            //Text input
+            let textInput = itemBody.querySelector("#text #task #textInput");
+            textInput.value = currentAnswer["text"] ?? "";
+            textInput.addEventListener("input", () => {
+              currentAnswer["text"] = textInput.value;
+              this.logData();
+            });
+            this.logData();
+          } else if (answerType === "media") {
+            item.innerHTML = `
+            <div class="header">
+            <div class="form-check" id="correctAnswer">
+                <input class="form-check-input" type="checkbox" id="checkbox">
+                <label class="form-check-label">
+                    Richtige Antwort
+                </label>
+            </div>
+            <div class="btn-group-vertical " role="group" id="moveCard" aria-label="Kartenreihenfolge ändern">
+              <button type="button" class="btn btn-outline-primary" data-action="upwards">Hoch &#8593;</button>
+              <button type="button" class="btn btn-outline-primary" data-action="downwards">Runter &#8595;</button>
+            </div>
+            <label class="form-check-label" for="moveCard">Antwortrehenfolge ändern</label>
+            <div class="form-control">
+              <input type="number" class="form-control col-3" aria-label="ID festlegen" id="id" placeholder="z.B. 1" value="${currentAnswer.answerID}">
+              <label class="form-check-label">
+                  Id der Antwort (Für Sortierung genutzt)
+              </label>
+              </div>
+            <button type="button" class="btn btn-secondary" id="copyAnswer">Karte kopieren</button>
+            <button type="button" class="btn btn-danger" id="deleteAnswer">Antwort löschen</button>
+        </div>
+        <div class="body">
+            <div id="cardType">Typ: Medien</div>
+            <div id="options">
+                <button type="button" class="btn btn-secondary" id="toggleOptions"><img src="../images/icons/zahnrad.svg" alt="" class="icon-auto" style="position: relative; width: 20px;"><span>Optionen</span></button>
+                <ul class="collapse" id="optionsList">
+                    <li id="size">
+                      <label for="selectInput" class="form-label">Größe auswählen</label>
+                        <select class="form-select" aria-label="Größe der Schrift auswählen - Dropdown-Menü" id="selectInput">
+                          <option data-value="large" selected="selected">groß</option>  
+                          <option data-value="middle" selected="selected">mittel</option>
+                          <option data-value="small" selected="selected">klein</option>
+                        </select>
+                      
+                    </li>
+                    <li id="volume">
+                      <label for="selectInput" class="form-label">Lautstärke (Standard) z.B. für zu laute Audios oder Videos</label>
+                      <div class="slidecontainer">
+                        <input type="range" min="1" max="100" value="100" step="1" id="rangeInput">
+                        <span class="currentValue"></span> <span>%</span>
+                      </div>
+                      
+                    </li>
+                </ul>
+            </div>
+            <div id="media">
+            <h5>Antwortmöglichkeit (Medien)</h5>
+              <button class="btn btn-primary btn-sm addBtn">Medium auswählen</button>
+              <h5>Vorschau</h5>
+              <div class="previewContainer"></div>
+            </div>
+        </div>
+            `;
+            let itemHeader = item.querySelector(".header");
+            let itemBody = item.querySelector(".body");
+
+            //Choose as correct answer
+            let correctAnswerCheckbox = item.querySelector(
+              ".header #correctAnswer #checkbox"
+            );
+            correctAnswerCheckbox.checked =
+              currentAnswer.answerID == this.correctAnswerID;
+            correctAnswerCheckbox.addEventListener("click", () => {
+              if (correctAnswerCheckbox.checked) {
+                this.correctAnswersIDs = Utils.addToArray(
+                  this.correctAnswersIDs,
+                  currentAnswer.answerID,
+                  false
+                );
+              } else {
+                this.correctAnswerID = Utils.removeFromArray(
+                  this.correctAnswersIDs,
+                  currentAnswer.answerID
+                );
+              }
+              for (const current of this.answerArray) {
+                this.refreshAnswers(false, current.answerID);
+              }
+            });
+
+            //Move card
+            let moveBtns = itemHeader.querySelectorAll("#moveCard button");
+            for (const currentBtn of moveBtns) {
+              currentBtn.addEventListener("click", () => {
+                let action = currentBtn.getAttribute("data-action");
+                moveObject(
+                  action,
+                  this.answerArray,
+                  "answerID",
+                  currentAnswer.answerID
+                );
+                this.refreshAnswers(true);
+              });
+            }
+
+            //answerID
+            let idNumberInput = itemHeader.querySelector("#id");
+            idNumberInput.value = currentAnswer.answerID;
+            idNumberInput.addEventListener("input", () => {
+              if (!Utils.isEmptyInput(idNumberInput.value)) {
+                currentAnswer.answerID = Number(idNumberInput.value);
+                console.log(idNumberInput.value);
+              }
+            });
+
+            //copyCard
+            let copyAnswerBtn = itemHeader.querySelector("#copyAnswer");
+            copyAnswerBtn.addEventListener("click", () => {
+              this.answerArray = Utils.addToArray(
+                this.answerArray,
+                Utils.makeJSON(JSON.stringify(currentAnswer))
+              );
+              this.cardData.answers = this.answerArray;
+              this.refresh(true);
+              this.logData();
+            });
+
+            //delete
+            let deleteAnswerBtn = itemHeader.querySelector("#deleteAnswer");
+            deleteAnswerBtn.addEventListener("click", () => {
+              this.cardData["answers"] = Utils.removeFromArray(
+                this.cardData["answers"],
+                currentAnswer
+              );
+              this.logData();
+              this.refresh(true);
+            });
+
+            //Options
+            let optionsContainer = itemBody.querySelector("#options");
+            let toggleOptionsBtn =
+              optionsContainer.querySelector("#toggleOptions");
+            toggleOptionsBtn.addEventListener("click", () => {
+              let collapse = bootstrap.Collapse.getOrCreateInstance(
+                optionsContainer.querySelector("#optionsList")
+              );
+              collapse.toggle();
+            });
+
+            //size
+            let textSizeSelect =
+              optionsContainer.querySelector("#size #selectInput");
+            console.log(textSizeSelect);
+            Utils.selectListSelectItemBySelector(
+              textSizeSelect,
+              "data-value",
+              currentAnswer["size"]
+            );
+            textSizeSelect.addEventListener("change", () => {
+              currentAnswer["size"] =
+                textSizeSelect[textSizeSelect.selectedIndex].getAttribute(
+                  "data-value"
+                );
+              this.logData();
+            });
+
+            //volume
+            let volumeSlider = optionsContainer.querySelector(
+              "#volume .slidecontainer #rangeInput"
+            );
+            let volumeSliderCurrentValue = optionsContainer.querySelector(
+              "#volume .slidecontainer .currentValue"
+            );
+            if (currentAnswer["volume"]) {
+              volumeSlider.value = currentAnswer["volume"];
+              volumeSliderCurrentValue.innerText = currentAnswer["volume"];
+            }
+            volumeSliderCurrentValue.innerText = currentAnswer["volume"] ?? 100;
+            console.log(volumeSlider);
+            volumeSlider.addEventListener("input", () => {
+              console.log("volume:", Number(volumeSlider.value));
+              currentAnswer["volume"] = Number(volumeSlider.value);
+              volumeSliderCurrentValue.innerText = volumeSlider.value;
+            });
+
+            //add / change media
+            let previewContainer = itemBody.querySelector(
+              "#media .previewContainer"
+            );
+            Utils.setMedia(currentAnswer, previewContainer, false);
+            let changeMediaBtn = itemBody.querySelector("#media .addBtn");
+            changeMediaBtn.addEventListener("click", async () => {
+              let media = await pickMedia(false, false);
+              console.log("Choosen Media:", media);
+              delete currentAnswer["volume"];
+              if (!media) {
+                currentAnswer["mediaID"] = false;
+              } else {
+                currentAnswer["mediaID"] = media["mediaID"] ?? false;
+                currentAnswer["volume"] = 100;
+              }
+              this.refreshAnswers(false, currentAnswer.mediaID);
+            });
+
+            this.logData();
+          }
+          counter++;
+        }
+        return true;
+      }
+
+      logData() {
+        console.log(
+          "Current cardData:",
+          Utils.makeJSON(JSON.stringify(this.cardData))
+        );
+        // alert(this.quizJSON["options"].showTime)
+        console.log(
+          "Passed in and changed is the same reference:",
+          Object.is(cardData, this.cardData)
+        );
+      }
+    }
+
+    let programContainer = modal.querySelector(".programContainer");
+    let editAnswers = new EditAnswers(cardData, programContainer);
+    editAnswers.refresh(true);
+
+    yes.addEventListener("click", (target) => {
+      myModal.hide();
+      modalOuter.remove();
+      console.log(
+        "before return:",
+        Utils.makeJSON(JSON.stringify(editAnswers.cardData))
+      );
+      resolve(editAnswers.cardData);
+    });
+
+    no.addEventListener("click", (target) => {
+      myModal.hide();
+      modalOuter.remove();
+      resolve(false);
+    });
+
+    close.addEventListener("click", (target) => {
+      myModal.hide();
+      modalOuter.remove();
+      resolve(false);
+    });
+  });
+}
+
+export async function editMedia(cardData) {
+  return new Promise((resolve, reject) => {
+    //Create Modal container if doesnt exist
+    let modalContainer = document.querySelector("#modalContainer");
+
+    if (modalContainer == null) {
+      modalContainer = document.createElement("div");
+      modalContainer.setAttribute("id", "modalContainer");
+      document.body.appendChild(modalContainer);
+    }
+
+    if (document.querySelector("#modalContainer") == null) {
+      alert("no modal container found");
+      reject();
+    }
+    let number = 1;
+    let modals = modalContainer.querySelectorAll(".modal");
+    console.log(modals);
+    if (modals.length > 0) {
+      number = modals.length + 1;
+    }
+    console.log("Number of Modals", number);
+
+    let modalOuter = document.createElement("div");
+    modalOuter.classList.add("modal-div");
+    modalOuter.setAttribute("id", number);
+    modalContainer.appendChild(modalOuter);
+
+    let modalHTML = `
+        <!-- Modal -->
+        <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="staticBackdropLabel">Medien bearbeiten</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="programContainer">
+                <div class="header">
+
+                </div>
+                <div class="sectionList">
+
+                </div>
+              </div>
+             
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-danger" id="no">Nein</button>
+              <button type="button" class="btn btn-success" id="yes">Ja</button>
+            </div>
+          </div>
+        </div>
+        </div>
+         `;
+
+    modalOuter.innerHTML = modalHTML;
+    let modal = modalOuter.querySelector(".modal");
+
+    let close = modal.querySelector("#close");
+    let yes = modal.querySelector("#yes");
+    let no = modal.querySelector("#no");
+
+    var myModal = new bootstrap.Modal(modal);
+    myModal.show();
+
+    class EditMedia {
+      constructor(cardData, container) {
+        this.cardData = cardData;
+        this.mediaArray = cardData["media"];
+        this.correctAnswerID;
+        this.header;
+        this.list;
+
+        this.container = container;
+      }
+
+      async refresh(refreshSections = true) {
+        //Set general
+        this.mediaArray = this.cardData["media"];
+
+        this.header = this.container.querySelector(".header");
+        this.list = this.container.querySelector(".sectionList");
+
+        this.header.innerHTML = `
+              <button type="button" class="btn btn-info" id="addBtn">Gruppe hinzufügen</button>
+              <button type="button" class="btn btn-secondary" id="refreshBtn">Aktualisieren</button>
+              `;
+
+        console.log(this.header);
+
+        let addBtn = this.header.querySelector("#addBtn");
+        addBtn = Utils.removeAllEventlisteners(addBtn);
+        addBtn.addEventListener("click", async () => {
+          this.cardData["media"] = Utils.addToArray(
+            this.cardData["media"],
+            [],
+            true
+          );
+          this.refresh(true);
+        });
+
+        let refreshBtn = this.header.querySelector("#refreshBtn");
+        refreshBtn = Utils.removeAllEventlisteners(refreshBtn);
+        refreshBtn.addEventListener("click", () => {
+          this.refresh();
+        });
+        if (refreshSections) {
+          this.refreshSections(true, false, true, true, false);
+        }
+        console.log("refreshed successfully");
+        return true;
+      }
+
+      refreshSections(
+        refreshAllSections = true,
+        sectionToRefresh = false,
+        refreshAllItems = false,
+        itemToRefresh = false
+      ) {
+        let mediaCards = new Array();
+        console.log(
+          "Card Data:",
+          Utils.makeJSON(JSON.stringify(this.cardData))
+        );
+
+        if (refreshAllSections) {
+          this.list.innerHTML = ``;
+          mediaCards = this.mediaArray;
+          //If broken set new array
+          if (!mediaCards || typeof mediaCards != typeof new Array())
+            mediaCards = new Array();
+        } else {
+          //Get specific card to refresh
+          let section = this.mediaArray[sectionToRefresh];
+          mediaCards = Utils.addToArray(mediaCards, section);
+          console.log(mediaCards);
+        }
+
+        for (let [currentSectionKey, currentSection] of Object.entries(
+          mediaCards
+        )) {
+          currentSectionKey = Number(currentSectionKey);
+          console.log(
+            "current section key: ",
+            currentSectionKey,
+            "current section value: ",
+            currentSection
+          );
+          let sectionItem;
+          if (refreshAllSections) {
+            sectionItem = document.createElement("div");
+            sectionItem.classList.add("collapse", "item");
+            sectionItem.setAttribute("data-sectionid", currentSectionKey);
+            let collapse = bootstrap.Collapse.getOrCreateInstance(sectionItem);
+            collapse.show();
+            sectionItem.addEventListener("click", (event) => {
+              if (event.target === sectionItem) {
+                collapse.toggle();
+              }
+            });
+            this.list.appendChild(sectionItem);
+          } else {
+            sectionItem = this.list.querySelector(
+              `div[data-sectionid='${sectionToRefresh}']`
+            );
+            sectionItem.classList.add("collapse", "item");
+            sectionItem.setAttribute("data-sectionid", sectionToRefresh);
+            let collapse = bootstrap.Collapse.getOrCreateInstance(sectionItem);
+            collapse.show();
+            sectionItem.addEventListener("click", (event) => {
+              if (event.target === sectionItem) {
+                collapse.toggle();
+              }
+            });
+          }
+          console.log("current section", currentSection, sectionItem);
+          if (refreshAllItems) {
+            sectionItem.innerHTML = `
+            <div class="header">
+            <button type="button" class="btn btn-success" id="addItem">Element erstellen</button>
+            <div class="btn-group-vertical " role="group" id="moveCard" aria-label="Kartenreihenfolge ändern">
+              <button type="button" class="btn btn-outline-primary" data-action="upwards">Hoch &#8593;</button>
+              <button type="button" class="btn btn-outline-primary" data-action="downwards">Runter &#8595;</button>
+            </div>
+            <label class="form-check-label" for="moveCard">Gruppenreihenfolge ändern ändern</label>
+            <button type="button" class="btn btn-danger" id="deleteSection">Gruppe löschen</button>
+        </div>
+        <div class="body">
+            <div class="itemList">
+              ${currentSectionKey}${JSON.stringify(currentSection, null, 2)}
+            </div>
+        </div>
+            `;
+          }
+          let itemHeader = sectionItem.querySelector(".header");
+          let itemBody = sectionItem.querySelector(".body");
+
+          //Move card
+          let moveBtns = itemHeader.querySelectorAll("#moveCard button");
+          for (const currentBtn of moveBtns) {
+            currentBtn.addEventListener("click", () => {
+              let action = currentBtn.getAttribute("data-action");
+              console.log(action);
+              this.logData();
+              if (action === "upwards") {
+                if (!this.mediaArray[currentSectionKey - 1]) return;
+                Utils.swapArrayElements(
+                  this.mediaArray,
+                  currentSectionKey,
+                  currentSectionKey - 1
+                );
+              } else if (action === "downwards") {
+                if (!this.mediaArray[currentSectionKey + 1]) return;
+                Utils.swapArrayElements(
+                  this.mediaArray,
+                  currentSectionKey,
+                  currentSectionKey + 1
+                );
+              }
+              this.refreshSections(true, false, true, false);
+            });
+          }
+
+          //create
+          let createSectionBtn = itemHeader.querySelector("#addItem");
+          createSectionBtn.addEventListener("click", async () => {
+            let type = await Utils.getUserInput(
+              "Antwort hinzufügen",
+              "Welche Art von Antwort möchtest du hinzufügen?",
+              false,
+              "select",
+              false,
+              false,
+              true,
+              { Text: "text", "Bild / Video / Audio": "media" },
+              false,
+              false
+            );
+            if (!type) return;
+
+            this.cardData["media"][currentSectionKey] = Utils.addToArray(
+              this.cardData["media"][currentSectionKey],
+              { type: type }
+            );
+            this.logData();
+            this.refresh(true);
+          });
+
+          //delete
+          let deleteSectionBtn = itemHeader.querySelector("#deleteSection");
+          deleteSectionBtn.addEventListener("click", () => {
+            this.cardData["media"] = Utils.removeFromArray(
+              this.cardData["media"],
+              currentSection
+            );
+            this.logData();
+            this.refresh(true);
+          });
+
+          // update items ---------------------------------------------------------------
+          let itemCards = new Array();
+          let itemList = itemBody.querySelector(".itemList");
+
+          if (refreshAllItems) {
+            itemList.innerHTML = ``;
+            itemCards = this.mediaArray[currentSectionKey];
+            //If broken set new array
+            if (!itemCards || typeof itemCards != typeof new Array())
+              itemCards = new Array();
+          } else {
+            //Get specific card to refresh
+            let torefreshData =
+              this.mediaArray?.[currentSectionKey]?.[itemToRefresh];
+            itemCards = Utils.addToArray(itemCards, torefreshData);
+            console.log("to refresh data =>", torefreshData);
+          }
+
+          console.log("item CARDS to refresh", itemCards);
+          for (let [currentItemKey, currentItem] of Object.entries(itemCards)) {
+            currentItemKey = Number(currentItemKey);
+            if (!currentItem) continue;
+            console.log(
+              "current item key: ",
+              currentItemKey,
+              "current item value: ",
+              currentItem
+            );
+            let item;
+            if (refreshAllItems) {
+              item = document.createElement("div");
+              item.classList.add("collapse", "item");
+              item.setAttribute("data-itemid", currentItemKey);
+              let collapse = bootstrap.Collapse.getOrCreateInstance(item);
+              collapse.show();
+              item.addEventListener("click", (event) => {
+                if (event.target === item) {
+                  collapse.toggle();
+                }
+              });
+              itemList.appendChild(item);
+            } else {
+              item = itemList.querySelector(
+                `div[data-itemid='${itemToRefresh}']`
+              );
+              item.classList.add("collapse", "item");
+              console.log("item =>", item);
+              item.setAttribute("data-itemid", itemToRefresh);
+              let collapse = bootstrap.Collapse.getOrCreateInstance(item);
+              collapse.show();
+              item.addEventListener("click", (event) => {
+                if (event.target === item) {
+                  collapse.toggle();
+                }
+              });
+            }
+            if (currentItem["type"] === "text") {
+              console.log("current section", currentItem, item);
+              item.innerHTML = `
+                    <div class="header">
+                    <div class="btn-group-vertical " role="group" id="moveCard" aria-label="Kartenreihenfolge ändern">
+                      <button type="button" class="btn btn-outline-primary" data-action="upwards">Hoch &#8593;</button>
+                      <button type="button" class="btn btn-outline-primary" data-action="downwards">Runter &#8595;</button>
+                    </div>
+                    <label class="form-check-label" for="moveCard">Reihenfolge ändern ändern</label>
+                    <button type="button" class="btn btn-danger" id="deleteItem">entfernen</button>
+                </div>
+                <div class="body">
+                    <div class="itemList">
+                      <div id="type">Typ: Text</div>
+                      <div id="options">
+                          <button type="button" class="btn btn-secondary" id="toggleOptions"><img src="../images/icons/zahnrad.svg" alt="" class="icon-auto" style="position: relative; width: 20px;"><span>Optionen</span></button>
+                          <ul class="collapse" id="optionsList">
+                              <li id="size">
+                                <label for="selectInput" class="form-label">Größe auswählen</label>
+                                  <select class="form-select" aria-label="Größe der Schrift auswählen - Dropdown-Menü" id="selectInput">
+                                    <option data-value="large" selected="selected">groß</option>  
+                                    <option data-value="middle" selected="selected">mittel</option>
+                                    <option data-value="small" selected="selected">klein</option>
+                                  </select>
+                                
+                              </li>
+                          </ul>
+                      </div>
+                      <div id="text">
+                      <h5>Text</h5>
+                        <textarea class="form-control" id="textInput" rows="3" aria-label="Text eingeben" placeholder="Text...">${
+                          currentItem.text ?? ""
+                        }</textarea>
+                      </div>
+                    </div>
+                </div>
+                    `;
+              let itemHeader = item.querySelector(".header");
+              let itemBody = item.querySelector(".body");
+
+              //delete
+              let deleteAnswerBtn = itemHeader.querySelector("#deleteItem");
+              deleteAnswerBtn.addEventListener("click", () => {
+                this.mediaArray[currentSectionKey] = Utils.removeFromArray(
+                  this.mediaArray[currentSectionKey],
+                  currentItem
+                );
+                this.logData();
+                this.refresh(true);
+              });
+
+              //Move card
+              let moveBtns = itemHeader.querySelectorAll("#moveCard button");
+              for (const currentBtn of moveBtns) {
+                currentBtn.addEventListener("click", () => {
+                  let action = currentBtn.getAttribute("data-action");
+                  console.log(action);
+                  this.logData();
+                  if (action === "upwards") {
+                    if (
+                      !this.mediaArray?.[currentSectionKey]?.[
+                        currentItemKey - 1
+                      ]
+                    )
+                      return;
+                    Utils.swapArrayElements(
+                      this.mediaArray[currentSectionKey],
+                      currentItemKey,
+                      currentItemKey - 1
+                    );
+                  } else if (action === "downwards") {
+                    if (
+                      !this.mediaArray?.[currentSectionKey]?.[
+                        currentItemKey + 1
+                      ]
+                    )
+                      return;
+                    Utils.swapArrayElements(
+                      this.mediaArray[currentSectionKey],
+                      currentItemKey,
+                      currentItemKey + 1
+                    );
+                  }
+                  this.refreshSections(false, currentSectionKey, true, false);
+                });
+              }
+
+              //Options
+              let optionsContainer = itemBody.querySelector("#options");
+              let toggleOptionsBtn =
+                optionsContainer.querySelector("#toggleOptions");
+              toggleOptionsBtn.addEventListener("click", () => {
+                let collapse = bootstrap.Collapse.getOrCreateInstance(
+                  optionsContainer.querySelector("#optionsList")
+                );
+                collapse.toggle();
+              });
+              //text size
+              let textSizeSelect =
+                optionsContainer.querySelector("#size #selectInput");
+              Utils.selectListSelectItemBySelector(
+                textSizeSelect,
+                "data-value",
+                currentItem["size"]
+              );
+              textSizeSelect.addEventListener("change", () => {
+                currentItem["size"] =
+                  textSizeSelect[textSizeSelect.selectedIndex].getAttribute(
+                    "data-value"
+                  );
+                this.logData();
+              });
+              //Text input
+              let textInput = itemBody.querySelector("#text #textInput");
+              textInput.value = currentItem.text ?? "";
+              textInput.addEventListener("input", () => {
+                currentItem.text = textInput.value;
+                this.logData();
+              });
+            } else {
+              console.log("current section", currentItem, item);
+              item.innerHTML = `
+                    <div class="header">
+                    <div class="btn-group-vertical " role="group" id="moveCard" aria-label="Kartenreihenfolge ändern">
+                      <button type="button" class="btn btn-outline-primary" data-action="upwards">Hoch &#8593;</button>
+                      <button type="button" class="btn btn-outline-primary" data-action="downwards">Runter &#8595;</button>
+                    </div>
+                    <label class="form-check-label" for="moveCard">Reihenfolge ändern ändern</label>
+                    <button type="button" class="btn btn-danger" id="deleteItem">entfernen</button>
+                </div>
+                <div class="body">
+                    <div class="itemList">
+                      <div id="type">Typ: Medium</div>
+                      <div id="options">
+                          <button type="button" class="btn btn-secondary" id="toggleOptions"><img src="../images/icons/zahnrad.svg" alt="" class="icon-auto" style="position: relative; width: 20px;"><span>Optionen</span></button>
+                          <ul class="collapse" id="optionsList">
+                              <li id="size">
+                                <label for="selectInput" class="form-label">Größe auswählen</label>
+                                  <select class="form-select" aria-label="Größe auswählen - Dropdown-Menü" id="selectInput">
+                                    <option data-value="large" selected="selected">groß</option>  
+                                    <option data-value="middle" selected="selected">mittel</option>
+                                    <option data-value="small" selected="selected">klein</option>
+                                  </select>
+                              </li>
+                              <li id="volume">
+                                <label for="selectInput" class="form-label">Lautstärke (Standard) z.B. für zu laute Audios oder Videos</label>
+                                <div class="slidecontainer">
+                                  <input type="range" min="1" max="100" value="100" step="1" id="rangeInput">
+                                  <span class="currentValue"></span> <span>%</span>
+                                </div>
+                              </li>
+                          </ul>
+                      </div>
+                      <div id="media">
+                        <h5>Antwortmöglichkeit (Medien)</h5>
+                        <button class="btn btn-primary btn-sm addBtn">Medium auswählen</button>
+                        <h5>Vorschau</h5>
+                        <div class="previewContainer"></div>
+                    </div>
+                    </div>
+                </div>
+                    `;
+              let itemHeader = item.querySelector(".header");
+              let itemBody = item.querySelector(".body");
+
+              //delete
+              let deleteAnswerBtn = itemHeader.querySelector("#deleteItem");
+              deleteAnswerBtn.addEventListener("click", () => {
+                this.mediaArray[currentSectionKey] = Utils.removeFromArray(
+                  this.mediaArray[currentSectionKey],
+                  currentItem
+                );
+                this.logData();
+                this.refresh(true);
+              });
+
+              //Move card
+              let moveBtns = itemHeader.querySelectorAll("#moveCard button");
+              for (const currentBtn of moveBtns) {
+                currentBtn.addEventListener("click", () => {
+                  let action = currentBtn.getAttribute("data-action");
+                  console.log(action);
+                  this.logData();
+                  if (action === "upwards") {
+                    if (
+                      !this.mediaArray?.[currentSectionKey]?.[
+                        currentItemKey - 1
+                      ]
+                    )
+                      return;
+                    Utils.swapArrayElements(
+                      this.mediaArray[currentSectionKey],
+                      currentItemKey,
+                      currentItemKey - 1
+                    );
+                  } else if (action === "downwards") {
+                    if (
+                      !this.mediaArray?.[currentSectionKey]?.[
+                        currentItemKey + 1
+                      ]
+                    )
+                      return;
+                    Utils.swapArrayElements(
+                      this.mediaArray[currentSectionKey],
+                      currentItemKey,
+                      currentItemKey + 1
+                    );
+                  }
+                  this.refreshSections(false, currentSectionKey, true, false);
+                });
+              }
+
+              //Options
+              let optionsContainer = itemBody.querySelector("#options");
+              let toggleOptionsBtn =
+                optionsContainer.querySelector("#toggleOptions");
+              toggleOptionsBtn.addEventListener("click", () => {
+                let collapse = bootstrap.Collapse.getOrCreateInstance(
+                  optionsContainer.querySelector("#optionsList")
+                );
+                collapse.toggle();
+              });
+              //text size
+              let textSizeSelect =
+                optionsContainer.querySelector("#size #selectInput");
+              Utils.selectListSelectItemBySelector(
+                textSizeSelect,
+                "data-value",
+                currentItem["size"]
+              );
+              textSizeSelect.addEventListener("change", () => {
+                currentItem["size"] =
+                  textSizeSelect[textSizeSelect.selectedIndex].getAttribute(
+                    "data-value"
+                  );
+                this.logData();
+              });
+
+              //volume
+            let volumeSlider = optionsContainer.querySelector(
+              "#volume .slidecontainer #rangeInput"
+            );
+            let volumeSliderCurrentValue = optionsContainer.querySelector(
+              "#volume .slidecontainer .currentValue"
+            );
+            if (currentItem["volume"]) {
+              volumeSlider.value = currentItem["volume"];
+              volumeSliderCurrentValue.innerText = currentItem["volume"];
+            }
+            volumeSliderCurrentValue.innerText = currentItem["volume"] ?? 100;
+            console.log(volumeSlider);
+            volumeSlider.addEventListener("input", () => {
+              console.log("volume:", Number(volumeSlider.value));
+              currentItem["volume"] = Number(volumeSlider.value);
+              volumeSliderCurrentValue.innerText = volumeSlider.value;
+            });
+
+              //add / change media
+            let previewContainer = itemBody.querySelector(
+              "#media .previewContainer"
+            );
+            Utils.setMedia(currentItem, previewContainer, false);
+            let changeMediaBtn = itemBody.querySelector("#media .addBtn");
+            changeMediaBtn.addEventListener("click", async () => {
+              let media = await pickMedia(false, false);
+              console.log("Choosen Media:", media);
+              delete currentItem["volume"];
+              if (!media) {
+                currentItem["mediaID"] = false;
+              } else {
+                currentItem["mediaID"] = media["mediaID"] ?? false;
+                currentItem["volume"] = 100;
+              }
+              this.refreshSections(false, currentSectionKey, false, currentItemKey);
+            });
+
+            }
+          }
+        }
+
+        return true;
+      }
+
+      logData() {
+        console.log(
+          "Current cardData:",
+          Utils.makeJSON(JSON.stringify(this.cardData))
+        );
+        // alert(this.quizJSON["options"].showTime)
+        console.log(
+          "Passed in and changed is the same reference:",
+          Object.is(cardData, this.cardData)
+        );
+      }
+    }
+
+    let programContainer = modal.querySelector(".programContainer");
+    let editMedia = new EditMedia(cardData, programContainer);
+    editMedia.refresh(true);
+
+    yes.addEventListener("click", (target) => {
+      myModal.hide();
+      modalOuter.remove();
+      resolve(editMedia.cardData);
+    });
+
+    no.addEventListener("click", (target) => {
+      myModal.hide();
+      modalOuter.remove();
+      resolve(false);
+    });
+
+    close.addEventListener("click", (target) => {
+      myModal.hide();
+      modalOuter.remove();
+      resolve(false);
+    });
+  });
+}
+
+let moveObject = (action, outerArray, selectorString = "id", selectorID) => {
+  if (action === "upwards") {
+    //Previous
+    let objecta = outerArray.find(
+      (element) => element[selectorString] == parseInt(selectorID) - 1,
+      false
+    );
+    if (!objecta) return false;
+    //Current
+    let objectb = outerArray.find(
+      (element) => element[selectorString] == parseInt(selectorID),
+      false
+    );
+    let objectbID = objectb[selectorString];
+    let objectaID = objecta[selectorString];
+    objectb[selectorString] = objectaID;
+    objecta[selectorString] = objectbID;
+
+    console.log("previous Card =>", objecta, "currentCard =>", objectb);
+  } else if (action === "downwards") {
+    //next
+    let objecta = outerArray.find(
+      (element) => element[selectorString] == parseInt(selectorID) + 1,
+      false
+    );
+    if (!objecta) return false;
+    //Current
+    let objectb = outerArray.find(
+      (element) => element[selectorString] == parseInt(selectorID),
+      false
+    );
+    let objectbID = objectb[selectorString];
+    let objectaID = objecta[selectorString];
+    objectb[selectorString] = objectaID;
+    objecta[selectorString] = objectbID;
+
+    console.log("next Card =>", objecta, "currentCard =>", objectb);
+  }
+};
