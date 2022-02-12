@@ -10,6 +10,7 @@
   text-align: center;
   font-size: 1.2rem;
   font-weight: bold;
+  background-color: white !important;
 }
 
 .preventExternalMedia-warning .content {
@@ -73,4 +74,8 @@
   -ms-user-select: none; /* Internet Explorer/Edge */
   user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome, Edge, Opera and Firefox */
+}
+
+#editObject .item{
+  margin: 10px 0 10px 0;
 }

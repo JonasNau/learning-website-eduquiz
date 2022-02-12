@@ -26,7 +26,7 @@ class Quiz {
       }
       return points;
     };
-    
+
     this.currentTotalPoints = 0;
 
     //User Information and Scores
@@ -414,10 +414,6 @@ class Quiz {
 
       this.userCanChoose = true;
       this.answerContainer.classList.add("userCanChoose"); //For making hover effects work
-      // this.cardFooter.innerHTML =
-      // `
-      // <button type="button" class="btn btn-secondary continueBtn" disabled>Weiter</button>
-      // `;
     } else if (cardType === "mchoice-multi") {
       let options = this.currentCardData["options"];
       let task = this.currentCardData["task"];
@@ -573,138 +569,49 @@ class Quiz {
   updateHeader() {
     if (!this.cardHeader) return false;
     this.cardHeader.innerHTML = `
-    <div id="questionNumber"><span class="descrition">Aufgabe:</span> <span class="content">${this.currentQuestionNumber} / ${this.totalCards}</span></div>
-    <div id="score"><span class="descrition">Punkte:</span> <span class="content">${this.usersPoints} / ${this.totalPoints()}</span></div>
-    <div id="score"><span class="descrition">Richtig:</span> <span class="content">${this.correctCardsNumber}</span> | <span class="descrition">Falsch:</span> <span class="content">${this.wrongCardsNumber}</span></div>
-    <div id="mark"><div id="score"><span class="descrition">Note:</span> <span class="content">${this.usersMark}</span></div></div>
+    <div id="questionNumber"><span class="descrition">Aufgabe:</span> <span class="content">${
+      this.currentQuestionNumber
+    } / ${this.totalCards}</span></div>
+    <div id="score"><span class="descrition">Punkte:</span> <span class="content">${
+      this.usersPoints
+    } / ${this.totalPoints()}</span></div>
+    <div id="score"><span class="descrition">Richtig:</span> <span class="content">${
+      this.correctCardsNumber
+    }</span> | <span class="descrition">Falsch:</span> <span class="content">${
+      this.wrongCardsNumber
+    }</span></div>
+    <div id="mark"><div id="score"><span class="descrition">Note:</span> <span class="content">${
+      this.usersMark
+    }</span></div></div>
     `;
   }
 
-  setMedia(media, mediaContainer) {
+  async setMedia(media, mediaContainer) {
     if (Utils.emptyVariable(media) || !media.length > 0) {
       console.log("no media");
       return true;
     }
     console.log("Set Media:", media);
 
-    for (const currentMedia of media) {
-      console.log("current media:", currentMedia);
-      let item = document.createElement("div");
-      item.classList.add("item");
+    for (const currentSection of media) {
+      console.log("Media to ADd =>", currentSection);
 
-      for (const currentItemMedia of currentMedia) {
-        let type = currentItemMedia["type"];
-        if (type === "video") {
-          console.log("Video");
-          let path = currentItemMedia["path"];
-          let sourceType = currentItemMedia["sourceType"];
-          let size = currentItemMedia["size"];
-
-          let videoContainer = document.createElement("div");
-          videoContainer.classList.add("video");
-
-          if (currentItemMedia["isOnlineSource"] === true) {
-            videoContainer.classList.add("onlineSource");
-            videoContainer.innerHTML = `
-            <video controls preload="none" class="${size}">
-              <source src="${path}" type="${sourceType}"/>
-            Das Video-Element wird in deinem Browser nicht unterstützt. Lade es stattdessen herunter: <a href="${path}">here</a>
-            <video>
-            `;
-          } else {
-            videoContainer.innerHTML = `
-            <video controls preload="metadata" class="${size}">
-              <source src="${path}" type="${sourceType}"/>
-            Das Video-Element wird in deinem Browser nicht unterstützt. Lade es stattdessen herunter: <a href="${path}">here</a>
-            <video>
-            `;
-          }
-
-          if (currentItemMedia["hidden"] === true) {
-            videoContainer.classList.add("spoiler");
-          }
-
-          item.appendChild(videoContainer);
-        } else if (type === "image") {
-          console.log("Image");
-          let path = currentItemMedia["path"];
-          let sourceType = currentItemMedia["sourceType"];
-          let size = currentItemMedia["size"];
-          let alt = currentItemMedia["alt"];
-
-          let imageContainer = document.createElement("div");
-          imageContainer.classList.add("image");
-
-          if (currentItemMedia["isOnlineSource"] === true) {
-            imageContainer.classList.add("onlineSource");
-            imageContainer.innerHTML = `
-          <img data-source="${path}" alt="${alt}" class="${size}">
-          `;
-          } else {
-            imageContainer.innerHTML = `
-          <img src="${path}" alt="${alt}" class="${size}">
-          `;
-          }
-
-          if (currentItemMedia["hidden"] === true) {
-            imageContainer.classList.add("spoiler");
-          }
-
-          item.appendChild(imageContainer);
-        } else if (type === "text") {
-          console.log("Text");
-
-          let text = currentItemMedia["text"];
-          let size = currentItemMedia["size"];
-
-          let textContainer = document.createElement("div");
-          textContainer.classList.add("text");
-          textContainer.innerHTML = `
-      <span class="${size}">${text}</span>
-      `;
-
-          item.appendChild(textContainer);
-        } else if (type === "audio") {
-          console.log("audio");
-
-          let path = currentItemMedia["path"];
-          let sourceType = currentItemMedia["sourceType"];
-          let volume = currentItemMedia["volume"];
-          if (Utils.emptyVariable(volume)) {
-            volume = 100;
-          }
-          let alt = currentItemMedia["alt"];
-
-          let audioContainer = document.createElement("div");
-          audioContainer.classList.add("audio");
-
-          if (currentItemMedia["isOnlineSource"] === true) {
-            audioContainer.classList.add("onlineSource");
-            audioContainer.innerHTML = `
-    <audio controls volume="${volume / 100}" preload="none">
-      <source src="${path}" type="${sourceType}" alt="${alt}">
-      Dein Browser unterstützt das Audio-Element nicht.  Lade sie stattdessen herunter: <a href="${path}">here</a>
-    </audio>
-    `;
-          } else {
-            audioContainer.innerHTML = `
-      <audio controls volume="${volume / 100}" preload="metadata">
-      <source src="${path}" type="${sourceType}" alt="${alt}">
-      Dein Browser unterstützt das Audio-Element nicht.  Lade sie stattdessen herunter: <a href="${path}">here</a>
-      </audio>
-    `;
-          }
-
-          if (currentItemMedia["hidden"] === true) {
-            audioContainer.classList.add("spoiler");
-          }
-
-          // Divided by 100 because range is from 1 to 100
-          item.appendChild(audioContainer);
+      let section = document.createElement("div");
+      section.classList.add("section");
+      mediaContainer.appendChild(section);
+      for (const itemData of currentSection) {
+        let item = document.createElement("div");
+        item.classList.add("item");
+        section.appendChild(item);
+        if (itemData.type === "text") {
+          item.classList.add("text");
+          item.setAttribute("data-size", itemData["size"]);
+          item.innerText = itemData.text;
+        } else {
+          await Utils.setMedia(itemData, item);
+          item.setAttribute("data-size", itemData["size"]);
         }
       }
-
-      mediaContainer.appendChild(item);
     }
   }
 
@@ -1371,13 +1278,23 @@ class Quiz {
     <h1 style="text-decoration: underline;">Dein Ergebnis</h1>
     <div class="resultContainer container">
         <div class="results">
-            <div id="points"><b>Punkte:</b> ${this.usersPoints} / ${this.totalPoints()}</div>
-            <div id="result"><b>Ergebnis:</b> ${this.correctCardsNumber} / ${this.totalCards}</div>
+            <div id="points"><b>Punkte:</b> ${
+              this.usersPoints
+            } / ${this.totalPoints()}</div>
+            <div id="result"><b>Ergebnis:</b> ${this.correctCardsNumber} / ${
+      this.totalCards
+    }</div>
             <div id="mark"><b>Note:</b> ${this.usersMark}</div>
             <div class="details">
-                <div class="totalCards">Gesamtanzahl von Karten: ${this.totalCards}</div>
-                <div class="correctCards">Richtige Karten: ${this.correctCardsNumber}</div>
-                <div class="wrongCards">Falsche Karten: ${this.wrongCardsNumber}</div>
+                <div class="totalCards">Gesamtanzahl von Karten: ${
+                  this.totalCards
+                }</div>
+                <div class="correctCards">Richtige Karten: ${
+                  this.correctCardsNumber
+                }</div>
+                <div class="wrongCards">Falsche Karten: ${
+                  this.wrongCardsNumber
+                }</div>
             </div>
         </div>
         <div id="viewAnswers">
@@ -1450,8 +1367,12 @@ class Quiz {
             <div id="status">Status: ${correctOrWrongToRichtigOrFalsch(
               status
             )}</div>
-            <div id="task"><span class="description">Aufgabe:</span> ${quizCard["task"]}</div>
-            <div id="question"><span class="description">Frage:</span> ${quizCard["question"]}</div>
+            <div id="task"><span class="description">Aufgabe:</span> ${
+              quizCard["task"]
+            }</div>
+            <div id="question"><span class="description">Frage:</span> ${
+              quizCard["question"]
+            }</div>
             <div id="answers"><span class="description">Antworten:</span> <span class="content"></span></div>
             <div id="usersAnswers"><span class="description">Deine Antwort:</span> <span class="content"></span></div>
             <div id="correctAnswer"><span class="description">Richtige Antwort:</span> <span class="content"></span></div>
@@ -1611,8 +1532,12 @@ class Quiz {
         <div id="caseSensitive"><span class="description">Groß und Kleinschreibung missachen:</span> ${Utils.boolToString(
           quizCard["options"]["caseSensitive"]
         )}</div>
-        <div id="task"><span class="description">Aufgabe:</span> ${quizCard["task"]}</div>
-        <div id="question"><span class="description">Frage:</span> ${quizCard["question"]}</div>
+        <div id="task"><span class="description">Aufgabe:</span> ${
+          quizCard["task"]
+        }</div>
+        <div id="question"><span class="description">Frage:</span> ${
+          quizCard["question"]
+        }</div>
         <div id="usersAnswers"><span class="description">Deine Antwort:</span> <span class="content"></span></div>
         <div id="correctAnswers"><span class="description"><span>Richtige Antworten:<span> </span><span id="correctAnswersList"></span><span> Oder Wörter, die Enthalten sein müssen, um richtig zu sein:<span> </span><span id="wordsJustNeedToBeIncluded"></span></span></div>
         `;
@@ -1620,7 +1545,9 @@ class Quiz {
         let usersAnswersContainer = item.querySelector(
           "#usersAnswers .content"
         );
-        let correctAnswersContainer = item.querySelector("#correctAnswers #correctAnswersList");
+        let correctAnswersContainer = item.querySelector(
+          "#correctAnswers #correctAnswersList"
+        );
         let wordsJustNeedToBeIncludedContainer = item.querySelector(
           "#correctAnswers #wordsJustNeedToBeIncluded"
         );
@@ -1636,21 +1563,25 @@ class Quiz {
           for (const answer of correctAnswers) {
             let li = document.createElement("li");
             appendAnswer(li, answer, "text");
-            ul.appendChild(li)
+            ul.appendChild(li);
           }
           correctAnswersContainer.appendChild(ul);
         }
         //Fill wordsJustNeedToBeIncluded
-         let wordsJustNeedToBeeIncluded = quizCard["options"]["wordJustNeedsToBeIncluded"];
-         if (wordsJustNeedToBeeIncluded && wordsJustNeedToBeeIncluded.length > 0) {
+        let wordsJustNeedToBeeIncluded =
+          quizCard["options"]["wordJustNeedsToBeIncluded"];
+        if (
+          wordsJustNeedToBeeIncluded &&
+          wordsJustNeedToBeeIncluded.length > 0
+        ) {
           let ul = document.createElement("ul");
-           for (const word of wordsJustNeedToBeeIncluded) {
+          for (const word of wordsJustNeedToBeeIncluded) {
             let li = document.createElement("li");
-             appendAnswer(li, word, "text");
-             ul.appendChild(li)
-           }
-           wordsJustNeedToBeIncludedContainer.appendChild(ul);
-         }
+            appendAnswer(li, word, "text");
+            ul.appendChild(li);
+          }
+          wordsJustNeedToBeIncludedContainer.appendChild(ul);
+        }
       }
       showUserAnswersContainer.appendChild(item);
       item.classList = `${currentUsersChoice["state"]} col-11 col-sm-6 col-md-4 col-lg-4 item col-centered`;

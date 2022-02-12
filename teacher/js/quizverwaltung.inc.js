@@ -1605,10 +1605,10 @@ export async function editQuizdata(uniqueID) {
             <div id="options">
                 <button type="button" class="btn btn-secondary" id="toggleOptions"><img src="../images/icons/zahnrad.svg" alt="" class="icon-auto" style="position: relative; width: 20px;"><span>Optionen</span></button>
                 <ul class="collapse" id="optionsList">
-                    <li id="shuffle">
+                    <li id="caseSensitive">
                         <input class="form-check-input" type="checkbox" value="" id="checkbox">
                         <label class="form-check-label">
-                            Antworten durchmischen
+                            Groß- und Kleinschreibung wichtig
                         </label>
                     </li>
                     <li id="timeLimit">
@@ -1639,7 +1639,7 @@ export async function editQuizdata(uniqueID) {
                       </label>
                   </div>
                   <div class="inner">
-                      <button class="btn btn-primary btn-sm" class="editBtn">bearbeiten</button>
+                      <button class="btn btn-primary btn-sm editBtn">bearbeiten</button>
                   </div> 
                 </li>
                 </ul>
@@ -1739,12 +1739,12 @@ export async function editQuizdata(uniqueID) {
 
             //Options
             let options = currentCard["options"];
-            //shuffleCards
-            let shuffleCardsCheckbox =
-              optionsContainer.querySelector("#shuffle #checkbox");
-            shuffleCardsCheckbox.checked = options["shuffle"];
-            shuffleCardsCheckbox.addEventListener("click", () => {
-              options["shuffle"] = shuffleCardsCheckbox.checked;
+            //caseSensitive
+            let caseSensitiveCheckbox =
+              optionsContainer.querySelector("#caseSensitive #checkbox");
+              caseSensitiveCheckbox.checked = Boolean(options["caseSensitive"]);
+              caseSensitiveCheckbox.addEventListener("click", () => {
+              options["caseSensitive"] = caseSensitiveCheckbox.checked;
               this.logData();
             });
 
@@ -1816,10 +1816,10 @@ export async function editQuizdata(uniqueID) {
            Utils.selectListSelectItemBySelector(
              textSizeSelect,
              "data-value",
-             currentAnswer["size"]
+             currentCard["size"]
            );
            textSizeSelect.addEventListener("change", () => {
-             currentAnswer["size"] =
+            currentCard["size"] =
                textSizeSelect[textSizeSelect.selectedIndex].getAttribute(
                  "data-value"
                );
@@ -1833,11 +1833,11 @@ export async function editQuizdata(uniqueID) {
             let  wordsJustNeedToBeIncludedCheckbox =
               wordsJustNeedToBeIncludedContainer.querySelector("#checkBox");
 
-            let wordsJustNeedToBeIncludedButton = timeLimitContainer.querySelector(
+            let wordsJustNeedToBeIncludedButton = wordsJustNeedToBeIncludedContainer.querySelector(
               ".inner .editBtn"
             );
             wordsJustNeedToBeIncludedCheckbox.checked = Boolean(options["wordsJustNeedToBeIncluded"]);
-           if (!Boolean(options["wordsJustNeedToBeIncluded"])) {
+           if (!options["wordsJustNeedToBeIncluded"] || !options["wordsJustNeedToBeIncluded"]?.length > 0) {
             options["wordsJustNeedToBeIncluded"] = false;
            }
            wordsJustNeedToBeIncludedCheckbox.addEventListener("click", () => {
@@ -1855,19 +1855,19 @@ export async function editQuizdata(uniqueID) {
                  Utils.removeAllEventlisteners(wordsJustNeedToBeIncludedButton);
                  wordsJustNeedToBeIncludedButton.disabled = false;
                  wordsJustNeedToBeIncludedButton.addEventListener("click", async() => {
-                   options["wordsJustNeedToBeIncluded"] = await Utils.editArrayUI();
+                  options["wordsJustNeedToBeIncluded"] = Object.values(await Utils.editObject({...options["wordsJustNeedToBeIncluded"]}, {fullscreen: true, title: "Wörter, die enthalten sein müssen.", scrollable: true, modalType: "ok"}, false, false, new Array(), "Wörter, die enthalten sein müssen"));
                    this.logData();
                });
              }
              this.logData();
            });
-           if (Boolean(options["timeLimit"])) {
+           if (options["wordsJustNeedToBeIncluded"]) {
              //Activate
              wordsJustNeedToBeIncludedButton =
              Utils.removeAllEventlisteners(wordsJustNeedToBeIncludedButton);
              wordsJustNeedToBeIncludedButton.disabled = false;
              wordsJustNeedToBeIncludedButton.addEventListener("click", async() => {
-               options["wordsJustNeedToBeIncluded"] = await Utils.editArrayUI();
+              options["wordsJustNeedToBeIncluded"] = Object.values(await Utils.editObject({...options["wordsJustNeedToBeIncluded"]}, {fullscreen: true, title: "Wörter, die enthalten sein müssen.", scrollable: true, modalType: "ok"}, false, false, new Array(), "Wörter, die enthalten sein müssen"));
                this.logData();
            });
            } else {
@@ -2120,8 +2120,7 @@ export async function editQuizdata(uniqueID) {
             //Answers
             let changeAnswersBtn = itemBody.querySelector("#changeAnswers");
             changeAnswersBtn.addEventListener("click", async () => {
-              let res = await changeAnswersMulitpleChoice(currentCard);
-              currentCard = res;
+              currentCard["correctAnswers"] = Object.values(await Utils.editObject({...currentCard["correctAnswers"]}, {fullscreen: true, title: "Richtige Antworten", scrollable: true, modalType: "ok"}, false, false, new Array()));
               this.refreshCards(false, id);
             });
           } else {
@@ -2165,7 +2164,7 @@ export async function editQuizdata(uniqueID) {
               points: 1,
             }
           );
-        } else if (type === "mchoice-muliti") {
+        } else if (type === "mchoice-multi") {
           this.quizJSON["quizCards"] = Utils.addToArray(
             this.quizJSON["quizCards"],
             {
@@ -2180,6 +2179,19 @@ export async function editQuizdata(uniqueID) {
             }
           );
         } else if (type === "textInput") {
+          this.quizJSON["quizCards"] = Utils.addToArray(
+            this.quizJSON["quizCards"],
+            {
+              type: "textInput",
+              options: {},
+              task: "",
+              question: "",
+              media: [],
+              answers: [],
+              correctAnswers: [],
+              points: 1,
+            }
+          );
         }
         this.refresh(true);
       }
@@ -2495,12 +2507,10 @@ export async function changeAnswersMulitpleChoice(cardData) {
               ".header #correctAnswer #checkbox"
             );
             correctAnswerCheckbox.checked =
-              currentAnswer.answerID == this.correctAnswerID;
+              currentAnswer.answerID == this.cardData["correctAnswerID"];
             correctAnswerCheckbox.addEventListener("click", () => {
               if (correctAnswerCheckbox.checked) {
-                this.correctAnswerID = currentAnswer.answerID;
-              } else {
-                this.correctAnswerID = false;
+                this.cardData["correctAnswerID"] = currentAnswer.answerID;
               }
               for (const current of this.answerArray) {
                 this.refreshAnswers(false, current.answerID);
@@ -2654,12 +2664,10 @@ export async function changeAnswersMulitpleChoice(cardData) {
               ".header #correctAnswer #checkbox"
             );
             correctAnswerCheckbox.checked =
-              currentAnswer.answerID == this.correctAnswerID;
+              currentAnswer.answerID == this.cardData["correctAnswerID"];
             correctAnswerCheckbox.addEventListener("click", () => {
               if (correctAnswerCheckbox.checked) {
-                this.correctAnswerID = currentAnswer.answerID;
-              } else {
-                this.correctAnswerID = false;
+                this.cardData["correctAnswerID"] = currentAnswer.answerID;
               }
               for (const current of this.answerArray) {
                 this.refreshAnswers(false, current.answerID);

@@ -739,82 +739,110 @@ export function getUserInput(
   });
 }
 
-export function alertUser(title, text, closeOthers) {
-  return new Promise((resolve, reject) => {
-    //Create Modal container if doesnt exist
-    let modalContainer = document.querySelector("#modalContainer");
+export function createModal(
+  options = {
+    backdrop: "static",
+    title: "Nachricht",
+    fullscreen: true,
+    scrollable: true,
+    verticallyCentered: true,
+    modalType: "ok | yes / no",
+  }
+) {
+  let modalContainer = document.querySelector("#modalContainer");
 
-    if (modalContainer == null) {
-      modalContainer = document.createElement("div");
-      modalContainer.setAttribute("id", "modalContainer");
-      document.body.appendChild(modalContainer);
-    }
+  if (modalContainer == null) {
+    modalContainer = document.createElement("div");
+    modalContainer.setAttribute("id", "modalContainer");
+    document.body.appendChild(modalContainer);
+  }
 
-    if (document.querySelector("#modalContainer") == null) {
-      alert("no modal cóntainer found");
-      reject();
-    }
-    let number = 1;
-    // let modalsDiv = modalContainer.querySelectorAll(".modal-div");
-    // if (modalsDiv.length > 0) {
+  if (document.querySelector("#modalContainer") == null) {
+    alert("no modal cóntainer found");
+    reject();
+  }
+  let number = 1;
+  let modals = modalContainer.querySelectorAll(".modal");
+  console.log(modals);
+  if (modals.length > 0) {
+    number = modals.length + 1;
+  }
+  console.log("Number of Modals", number);
 
-    // }
-    // console.log(modalsDiv);
-    // console.log("Number of Modal Divs", number);
-    let modals = modalContainer.querySelectorAll(".modal");
-    console.log(modals);
-    if (modals.length > 0) {
-      number = modals.length + 1;
-      if (closeOthers) {
-        hideAllModals(closeOthers);
-      }
-    }
-    console.log("Number of Modals", number);
-
-    let modalOuter = document.createElement("div");
-    modalOuter.classList.add("modal-div");
-    modalOuter.setAttribute("id", number);
-    modalContainer.appendChild(modalOuter);
-
-    let modalHTML = `
-    <!-- Modal -->
-    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="staticBackdropLabel">${title}</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="description">
-            ${text}
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" id="ok">OK</button>
-        </div>
+  let modalOuter = document.createElement("div");
+  modalOuter.classList.add("modal-div");
+  modalOuter.setAttribute("id", number);
+  modalContainer.appendChild(modalOuter);
+  let modalHTML = `
+  <!-- Modal -->
+  <div class="modal fade" id="staticBackdrop" data-bs-backdrop="${valueToString()}" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog ${valueToString(
+    options?.scrollable,
+    { true: "modal-dialog-scrollable" },
+    true
+  )} ${valueToString(
+    Boolean(options?.fullscreen),
+    { true: "modal-fullscreen" },
+    true
+  )}
+  ${valueToString(
+    options?.verticallyCentered,
+    { true: "modal-dialog-centered" },
+    true
+  )}">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">${
+          options?.title ?? ""
+        }</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close"></button>
+      </div>
+      <div class="modal-body">
+       
+      </div>
+      <div class="modal-footer">
+        ${valueToString(
+          options?.modalType,
+          {
+            true: "modal-dialog-scrollable",
+            "yes/no": `<button type="button" class="btn btn-danger" id="no">Nein</button> <button type="button" class="btn btn-success" id="yes">Ja</button>`,
+            ok: `<button type="button" class="btn btn-secondary" id="ok">OK</button>`,
+            false: `<button type="button" class="btn btn-secondary" id="ok">OK</button>`,
+          },
+          true
+        )}
+       
       </div>
     </div>
-    </div>
-     `;
+  </div>
+  </div>
+   `;
+  modalOuter.innerHTML = modalHTML;
+  let modal = modalOuter.querySelector(".modal");
+  let myModal = new bootstrap.Modal(modal);
+  return [modal, myModal, modal.querySelector(".modal-body"), modalOuter];
+}
 
-    modalOuter.innerHTML = modalHTML;
-    let modal = modalOuter.querySelector(".modal");
-
+export function alertUser(title, text, closeOthers) {
+  return new Promise((resolve, reject) => {
+    const [modal, bootstrapModal, modalBody, modalOuter] = createModal({
+      title: title,
+      fullscreen: false,
+      verticallyCentered: false,
+      modalType: "ok",
+    });
+    modalBody.innerText = text;
+    bootstrapModal.show();
     let ok = modal.querySelector("#ok");
-    var myModal = new bootstrap.Modal(modal);
-    myModal.show();
-
     ok.addEventListener("click", (target) => {
-      myModal.hide();
+      bootstrapModal.hide();
       hideAllModals(closeOthers);
       modalOuter.remove();
       resolve(true);
     });
-
     let close = modal.querySelector("#close");
     close.addEventListener("click", (target) => {
-      myModal.hide();
+      bootstrapModal.hide();
       hideAllModals(closeOthers);
       modalOuter.remove();
       resolve(false);
@@ -822,7 +850,107 @@ export function alertUser(title, text, closeOthers) {
   });
 }
 
+export function editObject(
+  object,
+  options = {
+    backdrop: "static",
+    title: "Nachricht",
+    fullscreen: true,
+    scrollable: true,
+    verticallyCentered: true,
+    modalType: "ok | yes / no",
+  },
+  includeValueMultiple = false,
+  editKey = false,
+  ifEmtpy = new Object()
+) {
+  return new Promise((resolve, reject) => {
+    const [modal, bootstrapModal, modalBody, modalOuter] = createModal(options);
+    bootstrapModal.show();
 
+    modalBody.innerHTML = `
+    ${options?.text ?? ""}
+    <div id="editObject">
+      <div class="header">
+        <input type="text" class="form-control textInput" autocomplete="off">
+        <button type="button" class="btn btn-primary btn-sm submitBtn">Hinzufügen</button>
+        <button type="button" class="btn btn-info btn-sm reloadBtn">Neuladen</button>
+      </div>
+      
+      <div class="main"></div>
+    </div>
+    `;
+
+    let editObjectList = modalBody.querySelector("#editObject .main");
+    let submitBtn = modalBody.querySelector("#editObject .header .submitBtn");
+    let textInput = modalBody.querySelector("#editObject .header .textInput");
+    submitBtn.addEventListener("click", () => {
+      object[Number(Object.keys(object).length) + 1] = textInput.value;
+      update();
+    });
+    let reloadBtn = modalBody.querySelector("#editObject .header .reloadBtn");
+    reloadBtn.addEventListener("click", () => {
+      update();
+    });
+    let update = () => {
+      editObjectList.innerHTML = "";
+      if (!object) object = ifEmtpy;
+      if (includeValueMultiple) {
+        object = { ...Set(object) };
+      }
+      if (!Object.entries(object) > 0) {
+        editObjectList.innerText = "Leer";
+        return;
+      }
+      for (const [key, value] of Object.entries(object)) {
+        console.log("key", key, "value", value);
+        let item = document.createElement("div");
+        item.classList.add("item", "row");
+        editObjectList.appendChild(item);
+        item.innerHTML = `
+          <input type="text" class="textInput col-2" id="key" autocomplete="off" value="${key}">
+          <input type="text" class="col-9" id="value" autocomplete="off" value="${value}">
+          <button class="btn btn-danger remove col-1">X</button>
+        `;
+
+        let keyTextInput = item.querySelector("#key");
+        if (editKey) {
+          keyTextInput.addEventListener("input", () => {
+            delete object[key];
+            object[keyTextInput] = keyTextInput.value;
+          });
+        } else {
+          keyTextInput.disabled = true;
+        }
+
+        let valueTextInput = item.querySelector("#value");
+        valueTextInput.addEventListener("input", () => {
+          object[key] = valueTextInput.value;
+        });
+
+        let remove = item.querySelector(".remove");
+        remove.addEventListener("click", () => {
+          delete object[key];
+          update();
+        });
+      }
+    };
+    update();
+
+    let ok = modal.querySelector("#ok");
+    ok.addEventListener("click", (target) => {
+      bootstrapModal.hide();
+      modalOuter.remove();
+      resolve(makeJSON(JSON.stringify(object)));
+    });
+    let close = modal.querySelector("#close");
+    close.addEventListener("click", (target) => {
+      bootstrapModal.hide();
+      modalOuter.remove();
+      resolve(makeJSON(JSON.stringify(object)));
+    });
+  });
+}
 
 export function hideAllModals(check) {
   if (check) {
@@ -936,21 +1064,6 @@ export async function holdSererContact(fileGeneralFunctions) {
   }, 12000); //Every 12 Seconds
 }
 
-export function toggleLodingAnimation(container, status) {
-  if (!container) return;
-
-  let loadingAnimationContainer = document.createElement("div");
-  loadingAnimationContainer.classList.add("loadingAnimationContainer");
-
-  if (status == true) {
-    container.appendChild(loadingAnimationContainer);
-    loadingAnimationContainer.innerHTML =
-      " <div class='loadingAnimation'><div></div><div></div><div></div><div></div></div>";
-  } else {
-    container.removeChild(loadingAnimationContainer);
-  }
-}
-
 export function makeJSON(string) {
   try {
     if (!validJSON) {
@@ -977,9 +1090,9 @@ export function arrayIncludesValue(array, value) {
 }
 
 export function removeFromArray(array, value) {
-  return array.filter(function(ele){ 
+  return array.filter(function (ele) {
     return ele != value;
-});
+  });
 }
 
 Object.prototype.removeItem = function (key) {
@@ -1125,7 +1238,8 @@ export async function sendXhrREQUEST(
   showPermissionDenied = true,
   showErrors = true,
   logData = true,
-  responseType = "text", headers = {"key": "value"}
+  responseType = "text",
+  headers = { key: "value" }
 ) {
   //contentType = "application/x-www-form-urlencoded"
   return new Promise(async (resolve, reject) => {
@@ -2050,8 +2164,19 @@ export function boolToString(bool, data = { true: "Ja", false: "Nein" }) {
   }
 }
 
-export function valueToString(value, data = { true: "Ja", false: "Nein" }) {
-  return data[value] ?? value;
+export function valueToString(
+  value,
+  data = { true: "Ja", false: "Nein" },
+  emptyStringIfEmpty = false
+) {
+  if (emptyStringIfEmpty) {
+    if (!data[value] || isEmptyInput(data[value])) {
+      return "";
+    }
+    return data[value];
+  } else {
+    return data[value] ?? value;
+  }
 }
 
 export function swapArrayElements(arr, indexA, indexB) {
@@ -2080,6 +2205,7 @@ export function setMedia(
     mediaID: "1",
     type: "image",
     isOnlineSource: false,
+    volume: 100,
   },
   container,
   showAnyway = false
@@ -2107,6 +2233,12 @@ export function setMedia(
       );
       console.log("MEDIA DATA RECIEVED =>", mediaData);
       if (!mediaData) resolve(false);
+      if (data?.volume) {
+        mediaData = {
+          ...mediaData,
+          volume: parseFloat(data.volume > 0 ? data.volume / 100 : 1.0),
+        };
+      }
 
       if (makeJSON(window.localStorage.getItem("SETTING_lightDataUsage"))) {
         let warnContainer = document.createElement("div");
@@ -2456,12 +2588,15 @@ function setVideo(isOnlineSource, showAnyway, mediaData, container) {
           <video controls ${
             thumbnailURL.url ? `poster="${thumbnailURL.url}"` : ""
           } preload="metadata">
-            <source src="${data.url}" type="${data?.blob?.type ?? mediaData?.mimeType ?? ""}"/>
+            <source src="${data.url}" type="${
+            data?.blob?.type ?? mediaData?.mimeType ?? ""
+          }"/>
             Das Video wird von deinem Browser nicht unterstützt, klicke es stattdessen an: <a href="${
               data.url
             }" target="_blank">Zum Video</a>
           </video>
           `;
+          videoContainer.querySelector("video").volume = mediaData.volume;
           videoContainer.classList.remove("loading");
         },
         { once: true }
@@ -2478,12 +2613,15 @@ function setVideo(isOnlineSource, showAnyway, mediaData, container) {
       <video controls ${
         thumbnailURL.url ? `poster="${thumbnailURL.url}"` : ""
       } preload="metadata">
-        <source src="${data.url}" type="${data?.blob?.type ?? mediaData?.mimeType ?? ""}"/>
+        <source src="${data.url}" type="${
+        data?.blob?.type ?? mediaData?.mimeType ?? ""
+      }"/>
         Das Video wird von deinem Browser nicht unterstützt, klicke es stattdessen an: <a href="${
           data.url
         }" target="_blank">Zum Video</a>
       </video>
       `;
+      videoContainer.querySelector("video").volume = mediaData.volume;
       videoContainer.classList.remove("loading");
     }
 
@@ -2567,10 +2705,15 @@ function setAudio(isOnlineSource, showAnyway, mediaData, container) {
           let data = await getData(mediaData);
           audioContainer.innerHTML = `
           <audio controls>
-            <source src="${data.url}" type="${data?.blob?.type ?? mediaData?.mimeType ?? ""}">
-          Die Auio wird von deinem Browser nicht unterstützt, klicke sie stattdessen an: <a href="${data.url}" target="_blank">Zur Audio</a>
+            <source src="${data.url}" type="${
+            data?.blob?.type ?? mediaData?.mimeType ?? ""
+          }">
+          Die Auio wird von deinem Browser nicht unterstützt, klicke sie stattdessen an: <a href="${
+            data.url
+          }" target="_blank">Zur Audio</a>
             </audio>
           `;
+          audioContainer.querySelector("audio").volume = mediaData.volume;
           audioContainer.classList.remove("loading");
         },
         { once: true }
@@ -2581,10 +2724,15 @@ function setAudio(isOnlineSource, showAnyway, mediaData, container) {
       let data = await getData(mediaData);
       audioContainer.innerHTML = `
           <audio controls>
-            <source src="${data.url}" type="${data?.blob?.type ?? mediaData?.mimeType ?? ""}">
-          Die Auio wird von deinem Browser nicht unterstützt, klicke sie stattdessen an: <a href="${data.url}" target="_blank">Zur Audio</a>
+            <source src="${data.url}" type="${
+        data?.blob?.type ?? mediaData?.mimeType ?? ""
+      }">
+          Die Auio wird von deinem Browser nicht unterstützt, klicke sie stattdessen an: <a href="${
+            data.url
+          }" target="_blank">Zur Audio</a>
             </audio>
           `;
+      audioContainer.querySelector("audio").volume = mediaData.volume;
       audioContainer.classList.remove("loading");
     }
     resolve(true);
@@ -2665,8 +2813,11 @@ function setOtherMedia(isOnlineSource, showAnyway, mediaData, container) {
           warnContainer.classList.add("loading");
           let data = await getData(mediaData);
           console.log("DATA=>", data);
-          mediaContainer.innerHTML = `<object data="${data.url}" type="${data?.blob?.type ?? mediaData?.mimeType ?? ""}">
+          mediaContainer.innerHTML = `<object data="${data.url}" type="${
+            data?.blob?.type ?? mediaData?.mimeType ?? ""
+          }">
           </object>`;
+          mediaContainer.querySelector("object").volume = mediaData.volume;
           mediaContainer.classList.remove("loading");
         },
         { once: true }
@@ -2676,7 +2827,9 @@ function setOtherMedia(isOnlineSource, showAnyway, mediaData, container) {
       mediaContainer.classList.add("loading");
       let data = await getData(mediaData);
       console.log("DATA=>", data);
-      mediaContainer.innerHTML = `<object data="${data.url}" type="${data?.blob?.type ?? mediaData?.mimeType ?? ""}">
+      mediaContainer.innerHTML = `<object data="${data.url}" type="${
+        data?.blob?.type ?? mediaData?.mimeType ?? ""
+      }">
       </object>`;
       mediaContainer.classList.remove("loading");
     }
@@ -2750,7 +2903,7 @@ export async function getBLOBData(
         originURL: data.url ?? data.serverRequest.path,
       });
     } catch {
-      resolve({ url: data.url, originURL: data.url});
+      resolve({ url: data.url, originURL: data.url });
     }
   });
 }
