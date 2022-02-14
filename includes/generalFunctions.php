@@ -603,7 +603,6 @@ function removeFromArray($array, $toRemove, $keyOrValue = "value", $removeAll = 
         } else {
             $keys  = array_keys($array, $toRemove, true);
             if (!empty($keys)) {
-                debug_to_console($keys);
                 unset($array[$keys[0]]);
             }
         }
@@ -617,7 +616,7 @@ function removeFromArray($array, $toRemove, $keyOrValue = "value", $removeAll = 
         } else {
             $keys = array_keys($array);
             if (in_array($toRemove, $keys)) {
-                debug_to_console($keys);
+                // debug_to_console($keys);
                 unset($array[$toRemove]);
             }
         }
@@ -912,7 +911,6 @@ function getValueFromDatabase($conn, $table, $column, $where, $whereEqualTo, $li
                         }
                         return $resultArray;
                     } else {
-
                         foreach ($data as $current) {
                             if ($distinct) {
                                 return array_unique($current["Data"], SORT_REGULAR);
@@ -1088,24 +1086,18 @@ function setValueFromDatabase($conn, $table, $column, $where, $whereEqualTo, $ne
 {
     //checkifexists
     if (valueInDatabaseExists($conn, $table, $column, $where, $whereEqualTo)) {
-        //logWrite($conn, "pushout", "Existiert: $where = $whereEqualTo, $column, $table", true);
         try {
-            $stmt = $conn->prepare("UPDATE $table SET $column = ? WHERE $where = ?;");
+            $stmt = $conn->prepare("UPDATE $table SET $column = ? WHERE $where = ?");
             if ($stmt->execute([$newValue, $whereEqualTo])) {
                 if ($stmt->rowCount()) {
-                    //logWrite($conn, "pushout", "Konnte geupdated werden: Wo: $where = Ist: $whereEqualTo, Spalte: $column, Tablle: $table", true);
                     return true;
-                } else {
-                    //logWrite($conn, "pushout", "UPDATE $table SET $column = $newValue WHERE $where = $whereEqualTo", true);
                 }
             }
         } catch (Exception $e) {
-            //logWrite($conn, "pushout", "Fehler: $e", true);
+            logWrite($conn, "general", $e);
             return false;
         }
-        return false;
     } else {
-        //logWrite($conn, "pushout", "Existiert nicht: $where = $whereEqualTo, $column, $table", true);
         if ($insertIFNotExists) {
             try {
                 $stmt = $conn->prepare("INSERT INTO $table ($column) VALUES (?);");
@@ -1115,11 +1107,11 @@ function setValueFromDatabase($conn, $table, $column, $where, $whereEqualTo, $ne
                     }
                 }
             } catch (Exception $e) {
+                logWrite($conn, "general", $e);
                 return false;
             }
         }
     }
-
     return false;
 }
 
@@ -1186,6 +1178,7 @@ function removeFromArrayDatabase($conn, $table, $column, $where, $whereEqualTo, 
     } else {
         //Check if Valid Array
         if (json_validate($arrayFromDatabaseSTRING)) {
+           
             $arrayFromDatabase = json_decode($arrayFromDatabaseSTRING);
 
             $arrayFromDatabase = removeFromArray($arrayFromDatabase, $toRemove, "value", $removeAll, $reindexArray);
@@ -1247,7 +1240,6 @@ function addToArrayDatabase($conn, $table, $column, $where, $whereEqualTo, $newV
             } else {
                 if (!in_array($newValue, $arrayFromDatabase)) {
                     $arrayFromDatabase[] = $newValue;
-                    print_r($arrayFromDatabase);
                     if (insertArrayDatabase($conn, $table, $column, $where, $whereEqualTo, $arrayFromDatabase)) {
                         return true;
                     } else {

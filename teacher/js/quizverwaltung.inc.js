@@ -94,7 +94,7 @@ export async function editQuizdata(uniqueID) {
             shuffleCards: false,
             limitQuestions: false,
             showResultDirectly: true,
-            showTime: false,
+            showTimePassed: false,
             timeLimit: false,
           },
           quizCards: [],
@@ -176,19 +176,11 @@ export async function editQuizdata(uniqueID) {
                 <input type="number" id="numberInput" name="numberInput" min="" max="" autocomplete="off" value="">
             </div>
         </div>
-        <div id="showResultDirectly">
+        <div id="showTimePassed">
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="checkBox">
                 <label class="form-check-label" for="checkBox">
-                    Ergebnis direkt anzeigen
-                </label>
-            </div>
-        </div>
-        <div id="showTime">
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="checkBox">
-                <label class="form-check-label" for="checkBox">
-                  Zeitanzeige anzeigen
+                  Zeitzähler anzeigen
                 </label>
             </div>
         </div>
@@ -207,7 +199,7 @@ export async function editQuizdata(uniqueID) {
         <div id="information">
           <div id="points"><b>Gesamtpunktzahl:</b> <span class="content">${this.totalPoints()}</span></div>
           <div id="amountOfCards"><b>Karten:</b> <span class="content">${
-            this.quizJSON["quizCards"].length ?? 0
+            this.quizJSON?.["quizCards"]?.length ?? 0
           }</span></div>
         </div>
         `;
@@ -218,6 +210,7 @@ export async function editQuizdata(uniqueID) {
         // let amountTextBox = information.querySelector("#amountOfCards .content");
 
         let options = this.quizJSON["options"];
+        if (!options) options = {};
 
         let refreshBtn = this.generalContainer.querySelector("#refreshBtn");
         refreshBtn = Utils.removeAllEventlisteners(refreshBtn);
@@ -244,21 +237,15 @@ export async function editQuizdata(uniqueID) {
         let limitCardsNumberInput = limitCardsContainer.querySelector(
           ".inner #numberInput"
         );
-
-        //showResultDirectly
-        let showResultDirectlyContainer = this.generalContainer.querySelector(
-          "#showResultDirectly"
+        //showTimePassed
+        let showTimePassedCheckbox = this.generalContainer.querySelector(
+          "#showTimePassed #checkBox"
         );
-        let showResultDirectlyCheckbox =
-          showResultDirectlyContainer.querySelector("#checkBox");
-        showResultDirectlyCheckbox.checked = Boolean(
-          options["showResultDirectly"]
-        );
-        //showTime
-        let showTimeContainer =
-          this.generalContainer.querySelector("#showTime");
-        let showTimeCheckbox = showTimeContainer.querySelector("#checkBox");
-        showTimeCheckbox.checked = Boolean(options["showTime"]);
+        showTimePassedCheckbox.checked = options["showTimePassed"];
+        showTimePassedCheckbox.addEventListener("click", () => {
+          options["showTimePassed"] = showTimePassedCheckbox.checked;
+          this.logData();
+        });
         //Timelimit
         let timeLimitContainer =
           this.generalContainer.querySelector("#timeLimit");
@@ -380,25 +367,6 @@ export async function editQuizdata(uniqueID) {
           }
           this.logData();
         });
-        //show results directly
-        showResultDirectlyCheckbox.checked = Boolean(
-          options["showResultDirectly"]
-        );
-        showResultDirectlyCheckbox.addEventListener("input", () => {
-          let status = Boolean(showResultDirectlyCheckbox.checked);
-          //set status in JSON
-          options["showResultDirectly"] = status;
-          this.logData();
-        });
-        //showTime
-        showTimeCheckbox.checked = Boolean(options["showTime"]);
-        showTimeCheckbox.addEventListener("input", () => {
-          let status = Boolean(showTimeCheckbox.checked);
-          //set status in JSON
-          options["showTime"] = status;
-          this.logData();
-        });
-
         //timeLimit
         timeLimitCheckbox.checked = Boolean(options["timeLimit"]);
         if (Boolean(options["timeLimit"])) {
@@ -486,7 +454,9 @@ export async function editQuizdata(uniqueID) {
               this.refresh(true);
             } else if (action === "copyQuizdata") {
               if (
-                await Utils.copyTextToClipboard(JSON.stringify(this.quizJSON, null, 3))
+                await Utils.copyTextToClipboard(
+                  JSON.stringify(this.quizJSON, null, 3)
+                )
               ) {
                 Utils.alertUser("Nachricht", "Erfolgreich kopiert.");
               }
@@ -584,8 +554,11 @@ export async function editQuizdata(uniqueID) {
 
         if (refreshAll) {
           cardsContainer.innerHTML = ``;
+          //repair
+          if (!this.quizJSON["quizCards"]) {
+            this.quizJSON["quizCards"] = [];
+          }
           quizCards = this.quizJSON["quizCards"];
-
           //sort by id and points
           quizCards = quizCards.sort((a, b) => {
             if (!a.id) return 0;
@@ -685,18 +658,26 @@ export async function editQuizdata(uniqueID) {
                             Antworten durchmischen
                         </label>
                     </li>
-                    <li id="timeLimit">
+                    <li id="showTimePassed">
                       <div class="form-check">
                           <input class="form-check-input" type="checkbox" id="checkBox">
                           <label class="form-check-label" for="checkBox">
-                              Zeitlimit aktivieren
+                            Zeitzähler anzeigen
                           </label>
                       </div>
-                      <div class="inner">
-                          <input type="number" id="numberInput" name="numberInput" min="" max="" autocomplete="off" value="">
-                          <label class="form-check-label" for="numberInput">Angabe in Sekunden</label>
-                      </div> 
-                    </li>
+                  </li>
+                    <li id="timeLimit">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="checkBox">
+                        <label class="form-check-label" for="checkBox">
+                            Zeitlimit aktivieren
+                        </label>
+                    </div>
+                    <div class="inner">
+                        <input type="number" id="numberInput" name="numberInput" min="" max="" autocomplete="off" value="">
+                        <label class="form-check-label" for="numberInput">Angabe in Sekunden</label>
+                    </div> 
+                  </li>
                 </ul>
             </div>
             <div id="task">
@@ -778,7 +759,10 @@ export async function editQuizdata(uniqueID) {
             });
             let deleteCardBtn = itemHeader.querySelector("#deleteCard");
             deleteCardBtn.addEventListener("click", () => {
-              this.quizJSON["quizCards"] = Utils.removeFromArray(this.quizJSON["quizCards"], currentCard);
+              this.quizJSON["quizCards"] = Utils.removeFromArray(
+                this.quizJSON["quizCards"],
+                currentCard
+              );
               this.refresh(true);
             });
 
@@ -802,6 +786,15 @@ export async function editQuizdata(uniqueID) {
               options["shuffle"] = shuffleCardsCheckbox.checked;
               this.logData();
             });
+//showTimePassed
+let showTimePassedCheckbox = optionsContainer.querySelector(
+  "#showTimePassed #checkBox"
+);
+showTimePassedCheckbox.checked = options["showTimePassed"];
+showTimePassedCheckbox.addEventListener("click", () => {
+  options["showTimePassed"] = showTimePassedCheckbox.checked;
+  this.logData();
+});
 
             //Timelimit
             let timeLimitContainer =
@@ -1148,6 +1141,14 @@ export async function editQuizdata(uniqueID) {
                             Antworten durchmischen
                         </label>
                     </li>
+                    <li id="showTimePassed">
+                      <div class="form-check">
+                          <input class="form-check-input" type="checkbox" id="checkBox">
+                          <label class="form-check-label" for="checkBox">
+                            Zeitzähler anzeigen
+                          </label>
+                      </div>
+                    </li>
                     <li id="timeLimit">
                       <div class="form-check">
                           <input class="form-check-input" type="checkbox" id="checkBox">
@@ -1158,6 +1159,18 @@ export async function editQuizdata(uniqueID) {
                       <div class="inner">
                           <input type="number" id="numberInput" name="numberInput" min="" max="" autocomplete="off" value="">
                           <label class="form-check-label" for="numberInput">Angabe in Sekunden</label>
+                      </div> 
+                    </li>
+                    <li id="allMustBeCorrect">
+                      <div class="form-check">
+                          <input class="form-check-input" type="checkbox" id="checkBox">
+                          <label class="form-check-label" for="checkBox">
+                              Alle Antworten müssen stimmen
+                          </label>
+                      </div>
+                      <div class="inner">
+                          <input type="number" id="numberInput" name="numberInput" min="" max="" autocomplete="off" value="">
+                          <label class="form-check-label" for="numberInput">Anzahl der maximalen falschen Antworten, um richtig zu gelten</label>
                       </div> 
                     </li>
                 </ul>
@@ -1241,7 +1254,10 @@ export async function editQuizdata(uniqueID) {
             });
             let deleteCardBtn = itemHeader.querySelector("#deleteCard");
             deleteCardBtn.addEventListener("click", () => {
-              this.quizJSON["quizCards"] = Utils.removeFromArray(this.quizJSON["quizCards"], currentCard);
+              this.quizJSON["quizCards"] = Utils.removeFromArray(
+                this.quizJSON["quizCards"],
+                currentCard
+              );
               this.refresh(true);
             });
 
@@ -1327,6 +1343,88 @@ export async function editQuizdata(uniqueID) {
               timeLimitNumberInput =
                 Utils.removeAllEventlisteners(timeLimitNumberInput);
             }
+            //showTimePassed
+            let showTimePassedCheckbox = optionsContainer.querySelector(
+              "#showTimePassed #checkBox"
+            );
+            showTimePassedCheckbox.checked = options["showTimePassed"];
+            showTimePassedCheckbox.addEventListener("click", () => {
+              options["showTimePassed"] = showTimePassedCheckbox.checked;
+              this.logData();
+            });
+
+            //allMustBeCorrect --------------------
+
+            //allMustBeCorrect
+            let allMustBeCorrectContainer =
+              optionsContainer.querySelector("#allMustBeCorrect");
+            let allMustBeCorrectCheckbox =
+              allMustBeCorrectContainer.querySelector("#checkBox");
+
+            let maxWrongAnswersNumberInput =
+              allMustBeCorrectContainer.querySelector(".inner #numberInput");
+            allMustBeCorrectCheckbox.checked = Boolean(
+              options["allMustBeCorrect"]
+            );
+            if (Boolean(options["allMustBeCorrect"])) {
+              options["allMustBeCorrect"] = false;
+            } else {
+              maxWrongAnswersNumberInput.value = Number(
+                options["maxWrongAnswers"]
+              );
+            }
+            allMustBeCorrectCheckbox.addEventListener("input", () => {
+              let status = Boolean(allMustBeCorrectCheckbox.checked);
+              //set status in JSON
+              options["allMustBeCorrect"] = status;
+              if (!status) {
+                //Activate
+                maxWrongAnswersNumberInput = Utils.removeAllEventlisteners(
+                  maxWrongAnswersNumberInput
+                );
+                maxWrongAnswersNumberInput.disabled = false;
+                maxWrongAnswersNumberInput.addEventListener("input", () => {
+                  let value = Number(maxWrongAnswersNumberInput.value);
+                  if (value && value > 0) {
+                    options["maxWrongAnswers"] = value;
+                  } else {
+                    options["maxWrongAnswers"] = false;
+                  }
+                  this.logData();
+                });
+              } else {
+                //Deactivate
+                maxWrongAnswersNumberInput.disabled = true;
+                maxWrongAnswersNumberInput = Utils.removeAllEventlisteners(
+                  maxWrongAnswersNumberInput
+                );
+              }
+              this.logData();
+            });
+            if (Boolean(options["allMustBeCorrect"])) {
+              //Deactivate
+              maxWrongAnswersNumberInput.disabled = true;
+              maxWrongAnswersNumberInput = Utils.removeAllEventlisteners(
+                maxWrongAnswersNumberInput
+              );
+            } else {
+              //Activate
+              maxWrongAnswersNumberInput = Utils.removeAllEventlisteners(
+                maxWrongAnswersNumberInput
+              );
+              maxWrongAnswersNumberInput.disabled = false;
+              maxWrongAnswersNumberInput.addEventListener("input", () => {
+                let value = Number(maxWrongAnswersNumberInput.value);
+                if (value && value > 0) {
+                  options["maxWrongAnswers"] = value;
+                } else {
+                  options["maxWrongAnswers"] = false;
+                }
+                this.logData();
+              });
+            }
+
+            //--------------------------------------
 
             //Task
             let taskContainer = itemBody.querySelector("#task");
@@ -1611,6 +1709,14 @@ export async function editQuizdata(uniqueID) {
                             Groß- und Kleinschreibung wichtig
                         </label>
                     </li>
+                    <li id="showTimePassed">
+                      <div class="form-check">
+                          <input class="form-check-input" type="checkbox" id="checkBox">
+                          <label class="form-check-label" for="checkBox">
+                            Zeitzähler anzeigen
+                          </label>
+                      </div>
+                  </li>
                     <li id="timeLimit">
                       <div class="form-check">
                           <input class="form-check-input" type="checkbox" id="checkBox">
@@ -1723,7 +1829,10 @@ export async function editQuizdata(uniqueID) {
             });
             let deleteCardBtn = itemHeader.querySelector("#deleteCard");
             deleteCardBtn.addEventListener("click", () => {
-              this.quizJSON["quizCards"] = Utils.removeFromArray(this.quizJSON["quizCards"], currentCard);
+              this.quizJSON["quizCards"] = Utils.removeFromArray(
+                this.quizJSON["quizCards"],
+                currentCard
+              );
               this.refresh(true);
             });
 
@@ -1740,14 +1849,23 @@ export async function editQuizdata(uniqueID) {
             //Options
             let options = currentCard["options"];
             //caseSensitive
-            let caseSensitiveCheckbox =
-              optionsContainer.querySelector("#caseSensitive #checkbox");
-              caseSensitiveCheckbox.checked = Boolean(options["caseSensitive"]);
-              caseSensitiveCheckbox.addEventListener("click", () => {
+            let caseSensitiveCheckbox = optionsContainer.querySelector(
+              "#caseSensitive #checkbox"
+            );
+            caseSensitiveCheckbox.checked = Boolean(options["caseSensitive"]);
+            caseSensitiveCheckbox.addEventListener("click", () => {
               options["caseSensitive"] = caseSensitiveCheckbox.checked;
               this.logData();
             });
-
+            //showTimePassed
+            let showTimePassedCheckbox = optionsContainer.querySelector(
+              "#showTimePassed #checkBox"
+            );
+            showTimePassedCheckbox.checked = options["showTimePassed"];
+            showTimePassedCheckbox.addEventListener("click", () => {
+              options["showTimePassed"] = showTimePassedCheckbox.checked;
+              this.logData();
+            });
             //Timelimit
             let timeLimitContainer =
               optionsContainer.querySelector("#timeLimit");
@@ -1809,73 +1927,116 @@ export async function editQuizdata(uniqueID) {
               timeLimitNumberInput =
                 Utils.removeAllEventlisteners(timeLimitNumberInput);
             }
-             //size
-             let textSizeSelect =
-             optionsContainer.querySelector("#size #selectInput");
-           console.log(textSizeSelect);
-           Utils.selectListSelectItemBySelector(
-             textSizeSelect,
-             "data-value",
-             currentCard["size"]
-           );
-           textSizeSelect.addEventListener("change", () => {
-            currentCard["size"] =
-               textSizeSelect[textSizeSelect.selectedIndex].getAttribute(
-                 "data-value"
-               );
-             this.logData();
-           });
+            //size
+            let textSizeSelect =
+              optionsContainer.querySelector("#size #selectInput");
+            console.log(textSizeSelect);
+            Utils.selectListSelectItemBySelector(
+              textSizeSelect,
+              "data-value",
+              currentCard["size"]
+            );
+            textSizeSelect.addEventListener("change", () => {
+              currentCard["size"] =
+                textSizeSelect[textSizeSelect.selectedIndex].getAttribute(
+                  "data-value"
+                );
+              this.logData();
+            });
 
-
-           //wordsJustNeedToBeIncluded
+            //wordsJustNeedToBeIncluded
             let wordsJustNeedToBeIncludedContainer =
               optionsContainer.querySelector("#wordsJustNeedToBeIncluded");
-            let  wordsJustNeedToBeIncludedCheckbox =
+            let wordsJustNeedToBeIncludedCheckbox =
               wordsJustNeedToBeIncludedContainer.querySelector("#checkBox");
 
-            let wordsJustNeedToBeIncludedButton = wordsJustNeedToBeIncludedContainer.querySelector(
-              ".inner .editBtn"
+            let wordsJustNeedToBeIncludedButton =
+              wordsJustNeedToBeIncludedContainer.querySelector(
+                ".inner .editBtn"
+              );
+            wordsJustNeedToBeIncludedCheckbox.checked = Boolean(
+              options["wordsJustNeedToBeIncluded"]
             );
-            wordsJustNeedToBeIncludedCheckbox.checked = Boolean(options["wordsJustNeedToBeIncluded"]);
-           if (!options["wordsJustNeedToBeIncluded"] || !options["wordsJustNeedToBeIncluded"]?.length > 0) {
-            options["wordsJustNeedToBeIncluded"] = false;
-           }
-           wordsJustNeedToBeIncludedCheckbox.addEventListener("click", () => {
-             let status = Boolean(wordsJustNeedToBeIncludedCheckbox.checked);
-             //set status in JSON
-             options["wordsJustNeedToBeIncluded"] = status;
-             if (!status) {
-               //Deactivate
-               wordsJustNeedToBeIncludedButton.disabled = true;
-               wordsJustNeedToBeIncludedButton =
-                 Utils.removeAllEventlisteners(wordsJustNeedToBeIncludedButton);
-             } else {
-               //Activate
-               wordsJustNeedToBeIncludedButton =
-                 Utils.removeAllEventlisteners(wordsJustNeedToBeIncludedButton);
-                 wordsJustNeedToBeIncludedButton.disabled = false;
-                 wordsJustNeedToBeIncludedButton.addEventListener("click", async() => {
-                  options["wordsJustNeedToBeIncluded"] = Object.values(await Utils.editObject({...options["wordsJustNeedToBeIncluded"]}, {fullscreen: true, title: "Wörter, die enthalten sein müssen.", scrollable: true, modalType: "ok"}, false, false, new Array(), "Wörter, die enthalten sein müssen"));
-                   this.logData();
-               });
-             }
-             this.logData();
-           });
-           if (options["wordsJustNeedToBeIncluded"]) {
-             //Activate
-             wordsJustNeedToBeIncludedButton =
-             Utils.removeAllEventlisteners(wordsJustNeedToBeIncludedButton);
-             wordsJustNeedToBeIncludedButton.disabled = false;
-             wordsJustNeedToBeIncludedButton.addEventListener("click", async() => {
-              options["wordsJustNeedToBeIncluded"] = Object.values(await Utils.editObject({...options["wordsJustNeedToBeIncluded"]}, {fullscreen: true, title: "Wörter, die enthalten sein müssen.", scrollable: true, modalType: "ok"}, false, false, new Array(), "Wörter, die enthalten sein müssen"));
-               this.logData();
-           });
-           } else {
-             //Deactivate
-             wordsJustNeedToBeIncludedButton.disabled = true;
-             wordsJustNeedToBeIncludedButton =
-               Utils.removeAllEventlisteners(wordsJustNeedToBeIncludedButton);
-           }
+            if (
+              !options["wordsJustNeedToBeIncluded"] ||
+              !options["wordsJustNeedToBeIncluded"]?.length > 0
+            ) {
+              options["wordsJustNeedToBeIncluded"] = false;
+            }
+            wordsJustNeedToBeIncludedCheckbox.addEventListener("click", () => {
+              let status = Boolean(wordsJustNeedToBeIncludedCheckbox.checked);
+              //set status in JSON
+              options["wordsJustNeedToBeIncluded"] = status;
+              if (!status) {
+                //Deactivate
+                wordsJustNeedToBeIncludedButton.disabled = true;
+                wordsJustNeedToBeIncludedButton = Utils.removeAllEventlisteners(
+                  wordsJustNeedToBeIncludedButton
+                );
+              } else {
+                //Activate
+                wordsJustNeedToBeIncludedButton = Utils.removeAllEventlisteners(
+                  wordsJustNeedToBeIncludedButton
+                );
+                wordsJustNeedToBeIncludedButton.disabled = false;
+                wordsJustNeedToBeIncludedButton.addEventListener(
+                  "click",
+                  async () => {
+                    options["wordsJustNeedToBeIncluded"] = Object.values(
+                      await Utils.editObject(
+                        { ...options["wordsJustNeedToBeIncluded"] },
+                        {
+                          fullscreen: true,
+                          title: "Wörter, die enthalten sein müssen.",
+                          scrollable: true,
+                          modalType: "ok",
+                        },
+                        false,
+                        false,
+                        new Array(),
+                        "Wörter, die enthalten sein müssen"
+                      )
+                    );
+                    this.logData();
+                  }
+                );
+              }
+              this.logData();
+            });
+            if (options["wordsJustNeedToBeIncluded"]) {
+              //Activate
+              wordsJustNeedToBeIncludedButton = Utils.removeAllEventlisteners(
+                wordsJustNeedToBeIncludedButton
+              );
+              wordsJustNeedToBeIncludedButton.disabled = false;
+              wordsJustNeedToBeIncludedButton.addEventListener(
+                "click",
+                async () => {
+                  options["wordsJustNeedToBeIncluded"] = Object.values(
+                    await Utils.editObject(
+                      { ...options["wordsJustNeedToBeIncluded"] },
+                      {
+                        fullscreen: true,
+                        title: "Wörter, die enthalten sein müssen.",
+                        scrollable: true,
+                        modalType: "ok",
+                      },
+                      false,
+                      false,
+                      new Array(),
+                      "Wörter, die enthalten sein müssen"
+                    )
+                  );
+                  this.logData();
+                }
+              );
+            } else {
+              //Deactivate
+              wordsJustNeedToBeIncludedButton.disabled = true;
+              wordsJustNeedToBeIncludedButton = Utils.removeAllEventlisteners(
+                wordsJustNeedToBeIncludedButton
+              );
+            }
 
             //Task
             let taskContainer = itemBody.querySelector("#task");
@@ -2120,7 +2281,20 @@ export async function editQuizdata(uniqueID) {
             //Answers
             let changeAnswersBtn = itemBody.querySelector("#changeAnswers");
             changeAnswersBtn.addEventListener("click", async () => {
-              currentCard["correctAnswers"] = Object.values(await Utils.editObject({...currentCard["correctAnswers"]}, {fullscreen: true, title: "Richtige Antworten", scrollable: true, modalType: "ok"}, false, false, new Array()));
+              currentCard["correctAnswers"] = Object.values(
+                await Utils.editObject(
+                  { ...currentCard["correctAnswers"] },
+                  {
+                    fullscreen: true,
+                    title: "Richtige Antworten",
+                    scrollable: true,
+                    modalType: "ok",
+                  },
+                  false,
+                  false,
+                  new Array()
+                )
+              );
               this.refreshCards(false, id);
             });
           } else {
@@ -2583,7 +2757,7 @@ export async function changeAnswersMulitpleChoice(cardData) {
             Utils.selectListSelectItemBySelector(
               textSizeSelect,
               "data-value",
-              "small"
+              currentAnswer["size"]
             );
             textSizeSelect.addEventListener("change", () => {
               currentAnswer["size"] =
@@ -3100,7 +3274,9 @@ export async function changeAnswersMulitpleChoiceMulti(cardData) {
             let correctAnswerCheckbox = item.querySelector(
               ".header #correctAnswer #checkbox"
             );
-            correctAnswerCheckbox.checked = this.cardData["correctAnswersIDs"]?.includes?.(currentAnswer.answerID);
+            correctAnswerCheckbox.checked = this.cardData[
+              "correctAnswersIDs"
+            ]?.includes?.(currentAnswer.answerID);
             correctAnswerCheckbox.addEventListener("click", () => {
               if (correctAnswerCheckbox.checked) {
                 this.cardData["correctAnswersIDs"] = Utils.addToArray(
@@ -3118,7 +3294,6 @@ export async function changeAnswersMulitpleChoiceMulti(cardData) {
                 this.refreshAnswers(false, current.answerID);
               }
             });
-            
 
             //Move card
             let moveBtns = itemHeader.querySelectorAll("#moveCard button");
@@ -3266,18 +3441,19 @@ export async function changeAnswersMulitpleChoiceMulti(cardData) {
             let correctAnswerCheckbox = item.querySelector(
               ".header #correctAnswer #checkbox"
             );
-            correctAnswerCheckbox.checked =
-              currentAnswer.answerID == this.correctAnswerID;
+            correctAnswerCheckbox.checked = this.cardData[
+              "correctAnswersIDs"
+            ]?.includes?.(currentAnswer.answerID);
             correctAnswerCheckbox.addEventListener("click", () => {
               if (correctAnswerCheckbox.checked) {
-                this.correctAnswersIDs = Utils.addToArray(
-                  this.correctAnswersIDs,
+                this.cardData["correctAnswersIDs"] = Utils.addToArray(
+                  this.cardData["correctAnswersIDs"],
                   currentAnswer.answerID,
                   false
                 );
               } else {
-                this.correctAnswerID = Utils.removeFromArray(
-                  this.correctAnswersIDs,
+                this.cardData["correctAnswersIDs"] = Utils.removeFromArray(
+                  this.cardData["correctAnswersIDs"],
                   currentAnswer.answerID
                 );
               }
@@ -4004,43 +4180,47 @@ export async function editMedia(cardData) {
               });
 
               //volume
-            let volumeSlider = optionsContainer.querySelector(
-              "#volume .slidecontainer #rangeInput"
-            );
-            let volumeSliderCurrentValue = optionsContainer.querySelector(
-              "#volume .slidecontainer .currentValue"
-            );
-            if (currentItem["volume"]) {
-              volumeSlider.value = currentItem["volume"];
-              volumeSliderCurrentValue.innerText = currentItem["volume"];
-            }
-            volumeSliderCurrentValue.innerText = currentItem["volume"] ?? 100;
-            console.log(volumeSlider);
-            volumeSlider.addEventListener("input", () => {
-              console.log("volume:", Number(volumeSlider.value));
-              currentItem["volume"] = Number(volumeSlider.value);
-              volumeSliderCurrentValue.innerText = volumeSlider.value;
-            });
+              let volumeSlider = optionsContainer.querySelector(
+                "#volume .slidecontainer #rangeInput"
+              );
+              let volumeSliderCurrentValue = optionsContainer.querySelector(
+                "#volume .slidecontainer .currentValue"
+              );
+              if (currentItem["volume"]) {
+                volumeSlider.value = currentItem["volume"];
+                volumeSliderCurrentValue.innerText = currentItem["volume"];
+              }
+              volumeSliderCurrentValue.innerText = currentItem["volume"] ?? 100;
+              console.log(volumeSlider);
+              volumeSlider.addEventListener("input", () => {
+                console.log("volume:", Number(volumeSlider.value));
+                currentItem["volume"] = Number(volumeSlider.value);
+                volumeSliderCurrentValue.innerText = volumeSlider.value;
+              });
 
               //add / change media
-            let previewContainer = itemBody.querySelector(
-              "#media .previewContainer"
-            );
-            Utils.setMedia(currentItem, previewContainer, false);
-            let changeMediaBtn = itemBody.querySelector("#media .addBtn");
-            changeMediaBtn.addEventListener("click", async () => {
-              let media = await pickMedia(false, false);
-              console.log("Choosen Media:", media);
-              delete currentItem["volume"];
-              if (!media) {
-                currentItem["mediaID"] = false;
-              } else {
-                currentItem["mediaID"] = media["mediaID"] ?? false;
-                currentItem["volume"] = 100;
-              }
-              this.refreshSections(false, currentSectionKey, false, currentItemKey);
-            });
-
+              let previewContainer = itemBody.querySelector(
+                "#media .previewContainer"
+              );
+              Utils.setMedia(currentItem, previewContainer, false);
+              let changeMediaBtn = itemBody.querySelector("#media .addBtn");
+              changeMediaBtn.addEventListener("click", async () => {
+                let media = await pickMedia(false, false);
+                console.log("Choosen Media:", media);
+                delete currentItem["volume"];
+                if (!media) {
+                  currentItem["mediaID"] = false;
+                } else {
+                  currentItem["mediaID"] = media["mediaID"] ?? false;
+                  currentItem["volume"] = 100;
+                }
+                this.refreshSections(
+                  false,
+                  currentSectionKey,
+                  false,
+                  currentItemKey
+                );
+              });
             }
           }
         }

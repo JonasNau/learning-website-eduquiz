@@ -38,7 +38,7 @@ checkAccount($conn, $userID);
     <?php
     require_once 'navigation-bar.php';
     ?>
-    <div class="container d-block m-auto deleteAccountOuter main-content">
+    <div class="container d-block m-auto deleteAccountOuter main-content mt-4">
         <div class="details">
             <ul>
                 <li><b>Benutzername</b>: <?php echo $username ?></li>

@@ -59,35 +59,26 @@ require_once("./includes/userSystem/functions/permission-functions.php");
           <?php
           if (userHasPermissions($conn, $userID, ["accessLehrerpanel"=>1], false)) {
           ?>
-            <a href="./teacher" class="link-primary"><img src="./images/icons/stift.svg" alt="" style="height: 35px; margin: 5px;"></a>
+            <a href="./teacher" class="link-primary"><img src="./images/icons/stift.svg" alt="Lehrerpanel" style="height: 35px; margin: 5px;"></a>
           <?php
           }
           ?>
-          <a href="./account.php" class="link-primary"><img src="./images//icons/zahnrad.svg" alt="" style="height: 40px;"></a>
+          <a href="./account.php" class="link-primary"><img src="./images//icons/user.svg" alt="Accounteinstellungen" style="height: 40px;"></a>
         </div>
       <?php
       } else {
       ?>
         <div class="nav-item align-items-right">
           <a>Hallo, Gast!</a>
-          <a href="login.php" class="link-primary">Anmelden</a>
+          <a href="login.php" class="link-primary" style="margin: 0 5px 0 5px;;">Anmelden</a>
         </div>
       <?php
-
       }
       ?>
-      <?php
-      ?>
+       <a href="./settings.php" class="link-primary" style="margin: 0 5px 0 5px;"><img src="./images//icons/zahnrad.svg" alt="Einstellungen" style="height: 40px;"></a>
       <script type="module" src="includes/selectquiz.inc.js?v=?<?php echo  getNewestVersion(); ?>" defer></script>
-
-
-
-
-      <div class="nav-item align-items-right">
-        <div>
-          <span><?php echo getNumOnlineClients($conn);?> <b><span style="font-size: 0.8rem;">Online</span></b></span>
-        </div>
-        
+      <div class="nav-item align-items-right" style="text-align: center">
+         <?php echo getNumOnlineClients($conn)?> Online
       </div>
     </div>
   </div>

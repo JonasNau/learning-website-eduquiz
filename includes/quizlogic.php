@@ -42,7 +42,8 @@ if (isset($_POST["quiz"])) {
             $secondOperation = $_POST["secondOperation"];
 
             if ($secondOperation === "getAllQuizInformation") {
-                $quizparams = getColumsFromDatabaseMultipleWhere($conn , "selectquiz", ["uniqueID", "showQuizauswahl", "klassenstufe", "fach", "thema", "quizname", "quizId", "created", "createdBy", "changed", "changedBy", "quizdata", "description"], ["quizId"=>$quizId], 1, false, false);
+                $quizparams = getColumsFromDatabaseMultipleWhere($conn , "selectquiz", ["uniqueID", "showQuizauswahl", "klassenstufe", "fach", "thema", "quizname", "quizId", "created", "createdBy", "changed", "quizdata", "description"], ["quizId"=>$quizId], 1, false, false);
+                $quizparams["changedBy"] = json_validate(getValueFromDatabase($conn, "selectquiz", "changedBy", "quizID", $quizId, 1, false, false));
                 if (!$quizparams) {
                     returnMessage("failed", "Keine Quizparameter vorhanden");
                     die();

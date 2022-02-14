@@ -18,6 +18,8 @@ class Quiz {
     this.currentCardData = false;
     this.currentCardType = false;
 
+    this.preventScoreUpload = false; //If no error data is allowed to be passed in to the database
+
     this.totalPoints = () => {
       let allCards = this.quizdata["quizCards"] ?? new Array();
       let points = 0;
@@ -37,6 +39,8 @@ class Quiz {
     this.wrongCards = new Array();
     this.usersChoice = new Array();
     this.usersPoints = 0;
+    this.cardStartTime = false;
+    this.startTime = false;
 
     this.choosenAnswers = new Array();
 
@@ -99,13 +103,13 @@ class Quiz {
       </div>
       <div class="footer">
           <div id="created"><b>Erstellt:</b> ${formatDescription(
-            this.quizparams["createdReadable"]
+            this.quizparams["created"]
           )}</div>
           <div id="createdBy"><span id="description"><b>Erstellt von:</b> </span><span id="content"></span></div>
           <div id="changed"><b>Geändert:</b> ${formatDescription(
-            this.quizparams["changedReadable"]
+            this.quizparams["changed"]
           )}</div>
-          <div id="changedBy"><span id="description"><b>Geändert von:</b> </span><span id="content"></span></div>
+          <div id="changedBy"><span id="description"><b>Geändert von:</b></span> <span id="content"></span></div>
       </div>
   </div>
   <button type="button" id="startQuizBtn" class="btn btn-info">Quiz starten</button>
@@ -132,32 +136,28 @@ class Quiz {
           "#content"
         ).innerHTML = `${username} (${this.quizparams["createdBy"]})`;
       }
-      let changedBy =
-        quizinformationContainer.querySelector(".footer #changedBy");
+      let changedByContainer =
+        quizinformationContainer.querySelector(".footer #changedBy #content");
+
       if (
         Utils.emptyVariable(this.quizparams["createdBy"]) == false &&
         this.quizparams["changedBy"].length > 0
       ) {
-        //Get usernames instead of UserID
-        let currentArray = new Array();
-        for (const current of this.quizparams["changedBy"]) {
-          let username = await Utils.getAttributesFromServer(
-            getAttributesPath,
-            "userSystem",
-            "GET_username_FROM_userID",
-            "userID=" + current
-          );
-          if (!Utils.emptyVariable(username)) {
-            currentArray = Utils.addToArray(currentArray, username, false);
-          }
-        }
-        Utils.listOfArrayToHTML(
-          changedBy.querySelector("#content"),
-          currentArray,
-          "Noch nie"
+        let lastEditor = this.quizparams["changedBy"]?.[this.quizparams["changedBy"].length-1];
+        let username = await Utils.getAttributesFromServer(
+          getAttributesPath,
+          "userSystem",
+          "GET_username_FROM_userID",
+          "userID=" + lastEditor
         );
+        if (!username || Utils.isEmptyInput(username)) {
+          changedByContainer.innerHTML = `Benutzer mit der id: ${lastEditor}`;
+        } else {
+          changedByContainer.innerText = username;
+        }
+       
       } else {
-        changedBy.querySelector("#content").innerHTML = "Noch nie";
+        changedByContainer.querySelector("#content").innerHTML = "Noch nie";
       }
 
       let startBtn = startQuizContainer.querySelector("#startQuizBtn");
@@ -272,14 +272,52 @@ class Quiz {
      <div class="controls">
        <input type="checkbox" checked="checked" id="sounds">Sounds</button>
      </div>
+     <div class="timeLimit">
+     <div class="timePassedGlobal"></div>
+     <div class="timePassedCard"></div>
+      <div class="quiz"></div>
+      <div class="cardTime"></div>
+     </div>
      <div class="quizCard">
       
      </div>
      `;
 
+    //Time Limit
+    if (options?.["timeLimit"]) {
+      //Show timer -> if timer is at 0 make cards left as wrong show Results
+      let timerBox = this.container.querySelector(".timeLimit .quiz");
+      let seconds = Number(options?.["timeLimit"]);
+      let endTime = new Date();
+      endTime.setSeconds(endTime.getSeconds() + seconds);
+      console.log("Ende des Quizzes:", endTime, "Sekunden", seconds);
+
+      let checkTimeLimit = (endDate) => {
+        if (this.currentCardNumber >= this.totalCards) {
+          console.log("Global timer stopped!");
+          return;
+        }
+        if (endDate > new Date()) {
+          setTimeout(() => {
+            let secondsLeft = (endDate - new Date()) / 1000;
+            let timeLeftArray = Utils.secondsToArrayOrString(
+              secondsLeft,
+              "Array"
+            );
+            timerBox.innerHTML = `Zeit verbleibend (Quiz): ${timeLeftArray.minutes}:${timeLeftArray.seconds}`;
+            checkTimeLimit(endDate);
+          }, 1000);
+          return;
+        }
+        this.preventScoreUpload = true;
+        this.showResults();
+      };
+      checkTimeLimit(endTime);
+    }
     this.controlsContainer = this.container.querySelector(".controls");
     this.quizCardContainer = this.container.querySelector(".quizCard");
 
+    this.startTime = new Date();
     this.loadNextQuestion();
   }
 
@@ -303,7 +341,13 @@ class Quiz {
     }
   }
 
-  loadNextQuestion() {
+  async loadNextQuestion() {
+    //Check if there is a next question - If not showResults
+    this.currentCardNumber++;
+    if (this.currentCardNumber >= this.totalCards) {
+      this.showResults();
+      return true;
+    }
     this.calculateMarkByCurrentTotalPoints();
     this.updateScore();
     this.choosenAnswers = new Array();
@@ -324,16 +368,11 @@ class Quiz {
     this.cardMain = this.container.querySelector(".quizCard .main");
     this.cardFooter = this.container.querySelector(".quizCard .footer");
 
-    //Check if there is a next question - If not showResults
-    this.currentCardNumber++;
-    if (this.currentCardNumber >= this.totalCards) {
-      this.showResults();
-      return true;
-    }
-
+    let currentCardNumber = this.currentCardNumber;
     this.currentCardData = this.quizCards[this.currentCardNumber];
     this.currentCardType = this.currentCardData["type"];
     this.increaseCurrentTotalPoints();
+    this.cardStartTime = new Date();
 
     if (!this.currentCardData) {
       console.error("The current card doesn't have any data.");
@@ -354,6 +393,7 @@ class Quiz {
 
       if (Utils.emptyVariable(answers) || !answers.length > 0) {
         console.error("The current card doesn't have any answers.");
+        this.preventScoreUpload = true;
         //Logic for making the mark beeing fair calculated if there is no data
         this.loadNextQuestion();
         return false;
@@ -370,6 +410,96 @@ class Quiz {
         );
       }
 
+      //Global Timer
+      if (this.quizdata?.options["showTimePassed"]) {
+        let timePassedBox = this.container.querySelector(
+          ".timeLimit .timePassedGlobal"
+        );
+        let updateTimer = () => {
+          if (currentCardNumber <= this.totalCards && this.startTime) {
+            setTimeout(() => {
+              //Show timer -> if timer is at 0 make cards left as wrong show Results
+              if (!this.startTime) return;
+              let now = new Date();
+              let secondsPassed =
+                now.getSeconds() - this.startTime.getSeconds();
+              let timeLeftArray = Utils.secondsToArrayOrString(
+                secondsPassed,
+                "Array"
+              );
+              timePassedBox.innerHTML = `Zeit vergangen (gesamt): ${timeLeftArray.minutes}:${timeLeftArray.seconds}`;
+              updateTimer();
+            }, 1000);
+            return;
+          }
+          timePassedBox.innerHTML = "";
+        };
+        updateTimer();
+      }
+
+      //Current card timer
+      if (options["showTimePassed"]) {
+        let timePassedBox = this.container.querySelector(
+          ".timeLimit .timePassedCard"
+        );
+        let updateTimer = () => {
+          if (
+            currentCardNumber == this.currentCardNumber &&
+            this.cardStartTime
+          ) {
+            setTimeout(() => {
+              if (!this.cardStartTime) return;
+              //Show timer -> if timer is at 0 make cards left as wrong show Results
+              let now = new Date();
+              let secondsPassed =
+                now.getSeconds() - this.cardStartTime.getSeconds();
+              let timeLeftArray = Utils.secondsToArrayOrString(
+                secondsPassed,
+                "Array"
+              );
+              timePassedBox.innerHTML = `Zeit vergangen (Karte): ${timeLeftArray.minutes}:${timeLeftArray.seconds}`;
+              updateTimer();
+            }, 1000);
+            return;
+          }
+          timePassedBox.innerHTML = "";
+        };
+        updateTimer();
+      }
+
+      //Time Limit
+      if (options?.["timeLimit"]) {
+        let timerBox = this.container.querySelector(".timeLimit .cardTime");
+        timerBox.innerHTML = "";
+        let seconds = Number(options["timeLimit"]);
+        let endTime = new Date();
+        endTime.setSeconds(endTime.getSeconds() + seconds);
+        console.log("Ende der Karte:", endTime, "Sekunden", seconds);
+
+        let cardNumber = this.currentCardNumber;
+        let checkTimeLimit = (endDate) => {
+          if (cardNumber != this.currentCardNumber) {
+            console.log("Timer Stoped!");
+            return;
+          }
+          if (endDate > new Date()) {
+            window.setTimeout(() => {
+              let secondsLeft = (endDate - new Date()) / 1000;
+              let timeLeftArray = Utils.secondsToArrayOrString(
+                secondsLeft,
+                "Array"
+              );
+              timerBox.innerHTML = `Zeit verbleibend (Karte): ${timeLeftArray.minutes}:${timeLeftArray.seconds}`;
+              checkTimeLimit(endDate);
+            }, 1000);
+            return;
+          }
+          this.preventScoreUpload = true;
+          this.validateAnswer(cardType, false);
+        };
+        checkTimeLimit(endTime);
+      }
+
       this.cardMain.innerHTML = `
           <div class="task">${task || ""}</div>
             <div class="question">${question || ""}</div>
@@ -381,11 +511,15 @@ class Quiz {
                
             </div>
       `;
-
       let mediaContainer = this.cardMain.querySelector(".media");
       this.setMedia(media, mediaContainer);
       let answerContainer = this.cardMain.querySelector(".answerContainer");
       this.answerContainer = answerContainer;
+      if (!answers || !answers.length > 0) {
+        console.error("The current card doesn't provide any answers.");
+        this.preventScoreUpload = true;
+        this.loadNextQuestion();
+      }
       //Set answers
       for (const answer of answers) {
         let currentAnswerContainer = document.createElement("button");
@@ -394,20 +528,25 @@ class Quiz {
           answer["answerID"]
         );
         currentAnswerContainer.classList.add("answer", answer["type"]); //Normally answer['type'] is 'text'
-
         if (answer["type"] === "text") {
-          let size = answer["size"];
-          currentAnswerContainer.innerHTML = `<span class="${size}">${answer["text"]}</span>`;
-        } else if (answer["type"] === "image") {
-          currentAnswerContainer.innerHTML = `<img src="${answer["source"]}" alt="${answer["alt"]}" class="${answer["size"]}">`;
+          currentAnswerContainer.innerHTML = `<span>${answer["text"]}</span>`;
+          currentAnswerContainer;
         } else {
-          console.log("Answer type is not known: ", answer["type"]);
+          //Set Meida as answer
+          await Utils.setMedia(answer, currentAnswerContainer);
         }
-
+        currentAnswerContainer.setAttribute("data-size", answer["size"]);
         answerContainer.appendChild(currentAnswerContainer);
 
         //EventListener
-        currentAnswerContainer.addEventListener("click", () => {
+        currentAnswerContainer.addEventListener("click", (event) => {
+          if (
+            event.target.closest(".answer").classList.contains("media") &&
+            event.target.querySelector("mediaContainer")?.contains("image")
+          ) {
+            console.log("you have clicked on a media");
+            return;
+          }
           this.validateAnswer(cardType, answer["answerID"]);
         });
       }
@@ -439,6 +578,41 @@ class Quiz {
         );
       }
 
+      let timerBox = this.container.querySelector(".timeLimit .cardTime");
+      timerBox.innerHTML = "";
+      //Time Limit
+      if (options?.["timeLimit"]) {
+        //Show timer -> if timer is at 0 make cards left as wrong show Results
+
+        let seconds = Number(options["timeLimit"]);
+        let endTime = new Date();
+        endTime.setSeconds(endTime.getSeconds() + seconds);
+        console.log("Ende der Karte:", endTime, "Sekunden", seconds);
+
+        let cardNumber = this.currentCardNumber;
+        let checkTimeLimit = (endDate) => {
+          if (cardNumber != this.currentCardNumber) {
+            console.log("Timer Stoped!");
+            return;
+          }
+          if (endDate > new Date()) {
+            window.setTimeout(() => {
+              let secondsLeft = (endDate - new Date()) / 1000;
+              let timeLeftArray = Utils.secondsToArrayOrString(
+                secondsLeft,
+                "Array"
+              );
+              timerBox.innerHTML = `Zeit verbleibend (Karte): ${timeLeftArray.minutes}:${timeLeftArray.seconds}`;
+              checkTimeLimit(endDate);
+            }, 1000);
+            return;
+          }
+          this.preventScoreUpload = true;
+          this.validateAnswer(cardType, this.choosenAnswers);
+        };
+        checkTimeLimit(endTime);
+      }
+
       this.cardMain.innerHTML = `
           <div class="task">${task || ""}</div>
             <div class="question">${question || ""}</div>
@@ -455,7 +629,7 @@ class Quiz {
       <button type="button" class="btn btn-secondary" id="submitBtn">Antwort bestätigen</button>
       `;
 
-      let submitBtn = this.cardFooter.querySelector("#submitBtn");
+      let submitBtn = this.cardFooter?.querySelector("#submitBtn");
       submitBtn.addEventListener("click", () => {
         this.validateAnswer(cardType, this.choosenAnswers);
       });
@@ -472,21 +646,26 @@ class Quiz {
           answer["answerID"]
         );
         currentAnswerContainer.classList.add("answer", answer["type"]); //Normally answer['type'] is 'text'
-
         if (answer["type"] === "text") {
-          let size = answer["size"];
-          currentAnswerContainer.innerHTML = `<span class="${size}">${answer["text"]}</span>`;
-        } else if (answer["type"] === "image") {
-          currentAnswerContainer.innerHTML = `<img src="${answer["source"]}" alt="${answer["alt"]}" class="${answer["size"]}">`;
+          currentAnswerContainer.innerHTML = `<span>${answer["text"]}</span>`;
+          currentAnswerContainer;
         } else {
-          console.log("Answer type is not known: ", answer["type"]);
+          //Set Meida as answer
+          await Utils.setMedia(answer, currentAnswerContainer);
         }
-
+        currentAnswerContainer.setAttribute("data-size", answer["size"]);
         answerContainer.appendChild(currentAnswerContainer);
 
         //EventListener
-        currentAnswerContainer.addEventListener("click", () => {
+        currentAnswerContainer.addEventListener("click", (event) => {
           if (!this.userCanChoose) return false;
+          if (
+            event.target.closest(".answer").classList.contains("media") &&
+            event.target.querySelector("mediaContainer")?.contains("image")
+          ) {
+            console.log("you have clicked on a media");
+            return;
+          }
           //Toggle in array
           this.choosenAnswers = Utils.toggleValuesInArray(
             this.choosenAnswers,
@@ -538,19 +717,60 @@ class Quiz {
       if (options["size"] === "small") {
         //Just text input for a few numbers
         this.answerContainer.innerHTML = `
-        <input type="text" id="textInput" class="small" autofocus autocomplete="off">
+        <input type="text" id="textInput" data-size="small" autofocus autocomplete="off">
         `;
       } else if (options["size"] === "middle") {
         this.answerContainer.innerHTML = `
-        <input type="text" id="textInput" class="middle" autofocus autocomplete="off">
+        <input type="text" id="textInput" data-size="middle" autofocus autocomplete="off">
         `;
-      } else if (options["size"] === "large") {
+      } else {
         this.answerContainer.innerHTML = `
-        <textarea id="textInput" rows="4" cols="50" autofocus autocomplete="off" class="large"></textarea>
+        <textarea id="textInput" rows="4" cols="50" autofocus autocomplete="off" data-size="large"></textarea>
         `;
       }
 
+      let timerBox = this.container.querySelector(".timeLimit .cardTime");
+      timerBox.innerHTML = "";
+      //Time Limit
+      if (options?.["timeLimit"]) {
+        //Show timer -> if timer is at 0 make cards left as wrong show Results
+
+        let seconds = Number(options["timeLimit"]);
+        let endTime = new Date();
+        endTime.setSeconds(endTime.getSeconds() + seconds);
+        console.log("Ende der Karte:", endTime, "Sekunden", seconds);
+
+        let cardNumber = this.currentCardNumber;
+        let checkTimeLimit = (endDate) => {
+          if (cardNumber != this.currentCardNumber) {
+            console.log("Timer Stoped!");
+            return;
+          }
+          if (endDate > new Date()) {
+            window.setTimeout(() => {
+              let secondsLeft = (endDate - new Date()) / 1000;
+              let timeLeftArray = Utils.secondsToArrayOrString(
+                secondsLeft,
+                "Array"
+              );
+              timerBox.innerHTML = `Zeit verbleibend (Karte): ${timeLeftArray.minutes}:${timeLeftArray.seconds}`;
+              checkTimeLimit(endDate);
+            }, 1000);
+            return;
+          }
+          this.preventScoreUpload = true;
+          let textInput =
+            this.answerContainer.querySelector("#textInput").value;
+          this.validateAnswer(cardType, textInput);
+        };
+        checkTimeLimit(endTime);
+      }
+
       this.cardFooter.innerHTML = `
+      <div>Groß- und Kleinscheibung beachten: <b>${Utils.valueToString(
+        options["caseSensitive"],
+        { true: "Ja", undefined: "Nein", false: "Nein" }
+      )}</b></div>
       <button type="button" class="btn btn-secondary" id="submitBtn">Antwort bestätigen</button>
       `;
 
@@ -572,10 +792,12 @@ class Quiz {
     <div id="questionNumber"><span class="descrition">Aufgabe:</span> <span class="content">${
       this.currentQuestionNumber
     } / ${this.totalCards}</span></div>
-    <div id="score"><span class="descrition">Punkte:</span> <span class="content">${
+    <div id="points"><span class="descrition">Punkte:</span> <span class="content">${
       this.usersPoints
-    } / ${this.totalPoints()}</span></div>
-    <div id="score"><span class="descrition">Richtig:</span> <span class="content">${
+    } / ${this.totalPoints()}</span><span> Diese Karte: ${
+      this.currentCardData["points"] ?? 0
+    }</span></div>
+    <div id="correctCards"><span class="descrition">Richtig:</span> <span class="content">${
       this.correctCardsNumber
     }</span> | <span class="descrition">Falsch:</span> <span class="content">${
       this.wrongCardsNumber
@@ -592,7 +814,6 @@ class Quiz {
       return true;
     }
     console.log("Set Media:", media);
-
     for (const currentSection of media) {
       console.log("Media to ADd =>", currentSection);
 
@@ -631,10 +852,7 @@ class Quiz {
 
   addPoints() {
     //Add Points
-    let points = this.currentCardData["points"];
-    if (Utils.emptyVariable(points)) {
-      points = 0;
-    }
+    let points = Number(this.currentCardData["points"]) ?? 0;
     this.usersPoints += points;
   }
 
@@ -648,11 +866,6 @@ class Quiz {
     this.answerContainer.classList.remove("userCanChoose");
 
     if (type === "mchoice") {
-      if (!choosen) {
-        console.log("Your choice is empty");
-        return false;
-      }
-
       let correctAnswerID = this.currentCardData["correctAnswerID"];
       console.log(
         "Correct answerID:",
@@ -678,6 +891,8 @@ class Quiz {
             type: this.currentCardType,
             usersAnswerID: choosen,
             state: "correct",
+            cardStartTime: this.cardStartTime,
+            cardEndTime: new Date(),
           }
         );
 
@@ -689,9 +904,16 @@ class Quiz {
           if (currentAnswer.getAttribute("data-answerid") == correctAnswerID) {
             currentAnswer.classList.add("correct");
           }
+          let idContainer = document.createElement("div");
+          idContainer.classList.add("showID");
+          idContainer.innerText = `id: ${currentAnswer.getAttribute(
+            "data-answerid"
+          )}`;
+          currentAnswer.appendChild(idContainer);
         }
 
         this.cardFooter.innerHTML = `
+        <div class="description"><b>Richtig:</b> id: ${this.currentCardData["correctAnswerID"]}</div>
         <button type="button" class="btn btn-secondary continueBtn">Weiter</button>
         `;
         this.cardFooter.classList.add("correct");
@@ -720,6 +942,8 @@ class Quiz {
             type: this.currentCardType,
             usersAnswerID: choosen,
             state: "wrong",
+            cardStartTime: this.cardStartTime,
+            cardEndTime: new Date(),
           }
         );
 
@@ -734,10 +958,16 @@ class Quiz {
           } else if (currentAnswerID == choosen) {
             currentAnswer.classList.add("wrong");
           }
+          let idContainer = document.createElement("div");
+          idContainer.classList.add("showID");
+          idContainer.innerText = `id: ${currentAnswer.getAttribute(
+            "data-answerid"
+          )}`;
+          currentAnswer.appendChild(idContainer);
         }
 
         this.cardFooter.innerHTML = `
-        <div class="description"><b>Richtig:</b> ${this.currentCardData["correctAnswer"]}</div>
+        <div class="description"><b>Richtig:</b> id: ${this.currentCardData["correctAnswerID"]}</div>
         <button type="button" class="btn btn-secondary continueBtn">Weiter</button>
         `;
         this.cardFooter.classList.add("wrong");
@@ -755,7 +985,7 @@ class Quiz {
     } else if (type === "mchoice-multi") {
       let options = this.currentCardData["options"];
       console.log(options);
-      let allMustBeCorrect = options["allMustBeCorrect"];
+      let allMustBeCorrect = options["allMustBeCorrect"] ?? true;
       console.log("All must be correct:", allMustBeCorrect);
 
       if (allMustBeCorrect) {
@@ -813,6 +1043,13 @@ class Quiz {
           } else {
             console.log("Nothing");
           }
+          //Show IDs
+          let idContainer = document.createElement("div");
+          idContainer.classList.add("showID");
+          idContainer.innerText = `id: ${currentAnswer.getAttribute(
+            "data-answerid"
+          )}`;
+          currentAnswer.appendChild(idContainer);
         }
 
         if (
@@ -846,23 +1083,12 @@ class Quiz {
                 notChoosen: notChoosen,
               },
               state: "correct",
+              cardStartTime: this.cardStartTime,
+              cardEndTime: new Date(),
             }
           );
-          //Continue
-          this.cardFooter.innerHTML = `
-          <button type="button" class="btn btn-secondary continueBtn">Weiter</button>
-          `;
-          this.cardFooter.classList.add("correct");
 
-          let continueBtn = this.cardFooter.querySelector(".continueBtn");
-          continueBtn.addEventListener(
-            "click",
-            () => {
-              this.cardFooter.classList.remove("wrong");
-              this.loadNextQuestion();
-            },
-            { once: true }
-          );
+          this.cardFooter.classList.add("correct");
         } else {
           //User is wrong
 
@@ -884,26 +1110,11 @@ class Quiz {
                 notChoosen: notChoosen,
               },
               state: "wrong",
+              cardStartTime: this.cardStartTime,
+              cardEndTime: new Date(),
             }
           );
-          //Continue
-          this.cardFooter.innerHTML = `
-            <div class="description"><b>Richtig:</b> ${this.currentCardData[
-              "correctAnswers"
-            ].join(" <b>;</b>  ")}</div>
-            <button type="button" class="btn btn-secondary continueBtn">Weiter</button>
-            `;
           this.cardFooter.classList.add("wrong");
-
-          let continueBtn = this.cardFooter.querySelector(".continueBtn");
-          continueBtn.addEventListener(
-            "click",
-            () => {
-              this.cardFooter.classList.remove("wrong");
-              this.loadNextQuestion();
-            },
-            { once: true }
-          );
         }
       } else {
         let correctAnswerIDs = this.currentCardData["correctAnswersIDs"];
@@ -960,6 +1171,13 @@ class Quiz {
           } else {
             console.log("Nothing");
           }
+          //Show IDs
+          let idContainer = document.createElement("div");
+          idContainer.classList.add("showID");
+          idContainer.innerText = `id: ${currentAnswer.getAttribute(
+            "data-answerid"
+          )}`;
+          currentAnswer.appendChild(idContainer);
         }
 
         if (
@@ -992,25 +1210,13 @@ class Quiz {
                 correct: correctAnswers,
                 wrong: wrongAnswers,
                 notChoosen: notChoosen,
+                cardStartTime: this.cardStartTime,
+                cardEndTime: new Date(),
               },
               state: "correct",
             }
           );
-          //Continue
-          this.cardFooter.innerHTML = `
-          <button type="button" class="btn btn-secondary continueBtn">Weiter</button>
-          `;
           this.cardFooter.classList.add("correct");
-
-          let continueBtn = this.cardFooter.querySelector(".continueBtn");
-          continueBtn.addEventListener(
-            "click",
-            () => {
-              this.cardFooter.classList.remove("wrong");
-              this.loadNextQuestion();
-            },
-            { once: true }
-          );
         } else {
           //User is wrong
 
@@ -1030,30 +1236,40 @@ class Quiz {
                 correct: correctAnswers,
                 wrong: wrongAnswers,
                 notChoosen: notChoosen,
+                cardStartTime: this.cardStartTime,
+                cardEndTime: new Date(),
               },
               state: "wrong",
             }
           );
-          //Continue
-          this.cardFooter.innerHTML = `
-            <div class="description"><b>Richtig:</b> ${this.currentCardData[
-              "correctAnswers"
-            ].join(" <b>;</b>  ")}</div>
-            <button type="button" class="btn btn-secondary continueBtn">Weiter</button>
-            `;
           this.cardFooter.classList.add("wrong");
-
-          let continueBtn = this.cardFooter.querySelector(".continueBtn");
-          continueBtn.addEventListener(
-            "click",
-            () => {
-              this.cardFooter.classList.remove("wrong");
-              this.loadNextQuestion();
-            },
-            { once: true }
-          );
         }
       }
+      //Continue
+      this.cardFooter.innerHTML = `
+       <div class="description"><b>Richtige ids:</b><span class="correctList"></span></div>
+       <button type="button" class="btn btn-secondary continueBtn">Weiter</button>
+       `;
+      this.cardFooter.classList.add("correct");
+
+      let correctList = this.cardFooter.querySelector(
+        ".description .correctList"
+      );
+      Utils.listOfArrayToHTML(
+        correctList,
+        this.currentCardData["correctAnswersIDs"],
+        "keine Richtig"
+      );
+      let continueBtn = this.cardFooter.querySelector(".continueBtn");
+      continueBtn.addEventListener(
+        "click",
+        () => {
+          this.cardFooter.classList.remove("wrong");
+          this.cardFooter.classList.remove("correct");
+          this.loadNextQuestion();
+        },
+        { once: true }
+      );
     } else if (type === "textInput") {
       if (Utils.isEmptyInput(choosen, true)) {
         console.log("Your choice is empty");
@@ -1163,57 +1379,17 @@ class Quiz {
             type: this.currentCardType,
             usersAnswer: choosen,
             state: "correct",
+            cardStartTime: this.cardStartTime,
+            cardEndTime: new Date(),
           }
         );
-
-        this.cardFooter.innerHTML = `
-        <div class="description"><b>Richtig:</b><span class="correctList"></span></div>
-        <button type="button" class="btn btn-secondary continueBtn">Weiter</button>
-        `;
         this.cardFooter.classList.add("correct");
-
-        let correctList = this.cardFooter.querySelector(
-          ".description .correctList"
-        );
-        Utils.listOfArrayToHTML(
-          correctList,
-          this.currentCardData["correctAnswers"],
-          "keine"
-        );
-
-        if (
-          Utils.emptyVariable(wordsJustNeedToBeIncluded) == false &&
-          wordsJustNeedToBeIncluded !== false &&
-          wordsJustNeedToBeIncluded.length > 0
-        ) {
-          let description = this.cardFooter.querySelector(".description");
-          let div = document.createElement("div");
-          div.innerHTML = `<b>Oder Wörter, die enthalten sein müssen:</b><span class="alternativeWords"></span>`;
-          description.appendChild(div);
-          let alternativeWordsList = div.querySelector(".alternativeWords");
-          Utils.listOfArrayToHTML(
-            alternativeWordsList,
-            wordsJustNeedToBeIncluded,
-            "Keins"
-          );
-        }
-
-        let continueBtn = this.cardFooter.querySelector(".continueBtn");
-        continueBtn.addEventListener(
-          "click",
-          () => {
-            this.cardFooter.classList.remove("wrong");
-            this.loadNextQuestion();
-          },
-          { once: true }
-        );
       } else {
         this.playSound("userWrong");
         //Add to wrong Array
         this.wrongCardsNumber++;
         let cardId = this.currentCardData["id"];
         this.wrongCards = Utils.addToArray(this.wrongCards, cardId, false);
-
         //Add to result object
         this.resultObject["quizCards"] = Utils.addToArray(
           this.resultObject["quizCards"],
@@ -1222,58 +1398,81 @@ class Quiz {
             type: this.currentCardType,
             usersAnswer: choosen,
             state: "wrong",
+            cardStartTime: this.cardStartTime,
+            cardEndTime: new Date(),
           }
         );
-
-        this.cardFooter.innerHTML = `
-        <div class="description"><b>Richtig:</b><span class="correctList"></span></div>
-        <button type="button" class="btn btn-secondary continueBtn">Weiter</button>
-        `;
         this.cardFooter.classList.add("wrong");
+      }
+      this.cardFooter.innerHTML = `
+      <div class="description">
+        <b>Richtig:</b>
+        <span class="correctList"></span>
+      </div>
+      <button type="button" class="btn btn-secondary continueBtn">Weiter</button>
+      `;
 
-        let correctList = this.cardFooter.querySelector(
-          ".description .correctList"
-        );
+      //Alternative words
+      let description = this.cardFooter.querySelector(".description");
+
+      Utils.listOfArrayToHTML(
+        description.querySelector(".correctList"),
+        this.currentCardData["correctAnswers"],
+        "Nichts (Fehler)"
+      );
+      if (
+        Utils.emptyVariable(wordsJustNeedToBeIncluded) == false &&
+        wordsJustNeedToBeIncluded !== false &&
+        wordsJustNeedToBeIncluded.length > 0
+      ) {
+        let div = document.createElement("div");
+        div.innerHTML = `<b>Oder Wörter, die enthalten sein müssen:</b><span class="alternativeWords"></span>`;
+        description.appendChild(div);
+        let alternativeWordsList = div.querySelector(".alternativeWords");
         Utils.listOfArrayToHTML(
-          correctList,
-          this.currentCardData["correctAnswers"],
-          "keine"
-        );
-
-        if (
-          Utils.emptyVariable(wordsJustNeedToBeIncluded) == false &&
-          wordsJustNeedToBeIncluded !== false &&
-          wordsJustNeedToBeIncluded.length > 0
-        ) {
-          let description = this.cardFooter.querySelector(".description");
-          let div = document.createElement("div");
-          div.innerHTML = `<b>Oder Wörter, die enthalten sein müssen:</b><span class="alternativeWords"></span>`;
-          description.appendChild(div);
-          let alternativeWordsList = div.querySelector(".alternativeWords");
-          Utils.listOfArrayToHTML(
-            alternativeWordsList,
-            wordsJustNeedToBeIncluded,
-            "Keins"
-          );
-        }
-
-        let continueBtn = this.cardFooter.querySelector(".continueBtn");
-        continueBtn.addEventListener(
-          "click",
-          () => {
-            this.cardFooter.classList.remove("wrong");
-            this.loadNextQuestion();
-          },
-          { once: true }
+          alternativeWordsList,
+          wordsJustNeedToBeIncluded,
+          "Nicht gesetzt"
         );
       }
+
+      let continueBtn = this.cardFooter.querySelector(".continueBtn");
+      continueBtn.addEventListener(
+        "click",
+        () => {
+          this.cardFooter.classList.remove("wrong");
+          this.cardFooter.classList.remove("correct");
+          this.loadNextQuestion();
+        },
+        { once: true }
+      );
     }
     this.updateScore();
     this.updateHeader();
+    this.cardStartTime = false;
   }
 
   showResults() {
     this.calculateMarkByCurrentTotalPoints();
+
+    let now = new Date();
+
+    let getTotalTime = () => {
+      let secondsPassed = now.getSeconds() - this.startTime.getSeconds();
+      this.resultObject.timeNeeded = secondsPassed;
+      return Utils.secondsToArrayOrString(secondsPassed, "String");
+    };
+
+    let getTimeNeededCard = (start, end) => {
+      try {
+        let secondsPassed = end.getSeconds() - start.getSeconds();
+        return Utils.secondsToArrayOrString(secondsPassed, "String");
+      } catch (e) {
+        console.error(e);
+      }
+      return "";
+    };
+
     let resultPageHTML = `
     <h1 style="text-decoration: underline;">Dein Ergebnis</h1>
     <div class="resultContainer container">
@@ -1295,10 +1494,11 @@ class Quiz {
                 <div class="wrongCards">Falsche Karten: ${
                   this.wrongCardsNumber
                 }</div>
+                <div class="timePassed">Zeit vergangen: ${getTotalTime()}</div>
             </div>
         </div>
         <div id="viewAnswers">
-          <button class="btn btn-info" id="toggleChoosenAnswers" type="button" data-bs-toggle="collapse" data-bs-target="#choosenAnswers" aria-expanded="false" aria-controls="choosenAnswers">Genaueres anzeigen</button>
+          <button type="button" class="btn btn-info" id="toggleChoosenAnswers">Genaueres anzeigen</button>
           <div class="choosenAnswers collapse" id="choosenAnswers">
             <div id="content" class="row justify-content-center">
 
@@ -1318,14 +1518,30 @@ class Quiz {
     this.container.innerHTML = resultPageHTML;
 
     let resultContainer = this.container.querySelector(".resultContainer");
-
     let viewAnswersContainer = resultContainer.querySelector("#viewAnswers");
     let showUserAnswersContainer = viewAnswersContainer.querySelector(
       "#choosenAnswers #content"
     );
+    let toggleInformationBtn = viewAnswersContainer.querySelector(
+      "#toggleChoosenAnswers"
+    );
 
-    console.log("Result Object", this.resultObject);
+    //Show furhter information
+    toggleInformationBtn.addEventListener("click", () => {
+      let collapse = bootstrap.Collapse.getOrCreateInstance(
+        viewAnswersContainer.querySelector("#choosenAnswers")
+      );
+      collapse.toggle();
+    });
+
+    console.log(
+      "Result Object",
+      this.resultObject,
+      "quizCards",
+      this.resultObject["quizCards"]
+    );
     for (const currentUsersChoice of this.resultObject["quizCards"]) {
+      // if (!currentUsersChoice || !currentUsersChoice.length > 0) continue;
       console.log("currentUsersChoice", currentUsersChoice);
       let item = document.createElement("div");
       item.classList.add("item");
@@ -1340,15 +1556,15 @@ class Quiz {
       }
       console.log("QuizCard:", quizCard);
 
-      let appendAnswer = (container, data, type, description = "") => {
+      let appendAnswer = async (container, data, type, description = "") => {
+        console.log(type);
         let div = document.createElement("div");
         div.classList.add("answer");
         if (type === "text") {
           div.innerHTML = `<span class="answer">${data}</span> <span>${description}</span>`;
-        } else if (type === "image") {
-          let src = data["src"];
-          let alt = data["alt"];
-          div.innerHTML = `<img src="${src}" alt="${alt}" style="width: 50px; height: auto;"><span>${description}</span>`;
+        } else {
+          div.innerHTML = `<span class="answer"></span> <span>${description}</span>`;
+          Utils.setMedia(data, div.querySelector(".answer"), false);
         }
         container.appendChild(div);
       };
@@ -1376,6 +1592,10 @@ class Quiz {
             <div id="answers"><span class="description">Antworten:</span> <span class="content"></span></div>
             <div id="usersAnswers"><span class="description">Deine Antwort:</span> <span class="content"></span></div>
             <div id="correctAnswer"><span class="description">Richtige Antwort:</span> <span class="content"></span></div>
+            <div id="timeNeeded"><span class="description">Zeit benötigt:</span> ${getTimeNeededCard(
+              currentUsersChoice["cardStartTime"],
+              currentUsersChoice["cardEndTime"]
+            )}</div>
             `;
 
         let answersContainer = item.querySelector("#answers .content");
@@ -1390,6 +1610,7 @@ class Quiz {
         let answers = quizCard["answers"];
         let ul = document.createElement("ul");
         for (let answer of answers) {
+          console.log(answer);
           let li = document.createElement("li");
           console.log(answer);
           let type = answer["type"];
@@ -1400,13 +1621,8 @@ class Quiz {
               "text",
               `(id: ${answer["answerID"]})`
             );
-          } else if (type == "image") {
-            appendAnswer(
-              li,
-              { src: answer["source"], alt: answer["alt"] },
-              "image",
-              `(id: ${answer["answerID"]})`
-            );
+          } else {
+            appendAnswer(li, answer, "media", `(id: ${answer["answerID"]})`);
           }
           ul.appendChild(li);
         }
@@ -1427,8 +1643,12 @@ class Quiz {
         item.innerHTML = `
         <div id="id"><span class="description">id:</span> ${id}</div>
         <div id="status"><span class="description">Status:</span> ${status}</div>
-        <div id="task"><span class="description">Aufgabe:</span> ${quizCard["task"]}</div>
-        <div id="question"><span class="description">Frage:</span> ${quizCard["question"]}</div>
+        <div id="task"><span class="description">Aufgabe:</span> ${
+          quizCard["task"]
+        }</div>
+        <div id="question"><span class="description">Frage:</span> ${
+          quizCard["question"]
+        }</div>
         <div id="answers"><span class="description">Antworten:</span> <span class="content"></span></div>
         <div id="usersAnswers">
           <div class="description" id="correct">Korrekt:<span class="content"></span></div>
@@ -1436,6 +1656,10 @@ class Quiz {
           <div class="description" id="notChoosen">Nicht ausgewählt:<span class="content"></span></div>
         </div>
         <div id="correctAnswers"><span class="description">Richtige Antwort(en):</span> <span class="content"></span></div>
+        <div id="timeNeeded"><span class="description">Zeit benötigt:</span> ${getTimeNeededCard(
+          currentUsersChoice["cardStartTime"],
+          currentUsersChoice["cardEndTime"]
+        )}</div>
         `;
 
         let answersContainer = item.querySelector("#answers .content");
@@ -1466,13 +1690,8 @@ class Quiz {
               "text",
               `(id: ${answer["answerID"]})`
             );
-          } else if (type == "image") {
-            appendAnswer(
-              li,
-              { src: answer["source"], alt: answer["alt"] },
-              "image",
-              `(id: ${answer["answerID"]})`
-            );
+          } else {
+            appendAnswer(li, answer, "media", `(id: ${answer["answerID"]})`);
           }
           ul.appendChild(li);
         }
@@ -1529,7 +1748,7 @@ class Quiz {
         <div id="status"><span class="description">Status:</span> ${correctOrWrongToRichtigOrFalsch(
           status
         )}</div>
-        <div id="caseSensitive"><span class="description">Groß und Kleinschreibung missachen:</span> ${Utils.boolToString(
+        <div id="caseSensitive"><span class="description">Groß und Kleinschreibung beachten:</span> ${Utils.boolToString(
           quizCard["options"]["caseSensitive"]
         )}</div>
         <div id="task"><span class="description">Aufgabe:</span> ${
@@ -1539,48 +1758,47 @@ class Quiz {
           quizCard["question"]
         }</div>
         <div id="usersAnswers"><span class="description">Deine Antwort:</span> <span class="content"></span></div>
-        <div id="correctAnswers"><span class="description"><span>Richtige Antworten:<span> </span><span id="correctAnswersList"></span><span> Oder Wörter, die Enthalten sein müssen, um richtig zu sein:<span> </span><span id="wordsJustNeedToBeIncluded"></span></span></div>
+        <div id="correctAnswers"></div>
+          <span class="description">Richtige Antworten:</span>
+          <div class="correctList"></div>
+        </div>
+        <div id="timeNeeded"><span class="description">Zeit benötigt:</span> ${getTimeNeededCard(
+          currentUsersChoice["cardStartTime"],
+          currentUsersChoice["cardEndTime"]
+        )}</div>
+      
         `;
 
         let usersAnswersContainer = item.querySelector(
           "#usersAnswers .content"
-        );
-        let correctAnswersContainer = item.querySelector(
-          "#correctAnswers #correctAnswersList"
-        );
-        let wordsJustNeedToBeIncludedContainer = item.querySelector(
-          "#correctAnswers #wordsJustNeedToBeIncluded"
         );
 
         //Fill choosen
         let userInput = currentUsersChoice["usersAnswer"];
         appendAnswer(usersAnswersContainer, userInput, "text");
 
-        //Fill Correct Answers
-        let correctAnswers = quizCard["correctAnswers"];
-        if (correctAnswers && correctAnswers.length > 0) {
-          let ul = document.createElement("ul");
-          for (const answer of correctAnswers) {
-            let li = document.createElement("li");
-            appendAnswer(li, answer, "text");
-            ul.appendChild(li);
-          }
-          correctAnswersContainer.appendChild(ul);
-        }
-        //Fill wordsJustNeedToBeIncluded
-        let wordsJustNeedToBeeIncluded =
-          quizCard["options"]["wordJustNeedsToBeIncluded"];
+        let wordsJustNeedToBeIncluded =
+          quizCard["options"]?.["wordsJustNeedToBeIncluded"];
+        let correctList = item.querySelector(".correctList");
+        Utils.listOfArrayToHTML(
+          correctList,
+          quizCard["correctAnswers"],
+          "Nichts (Fehler)"
+        );
         if (
-          wordsJustNeedToBeeIncluded &&
-          wordsJustNeedToBeeIncluded.length > 0
+          Utils.emptyVariable(wordsJustNeedToBeIncluded) == false &&
+          wordsJustNeedToBeIncluded !== false &&
+          wordsJustNeedToBeIncluded.length > 0
         ) {
-          let ul = document.createElement("ul");
-          for (const word of wordsJustNeedToBeeIncluded) {
-            let li = document.createElement("li");
-            appendAnswer(li, word, "text");
-            ul.appendChild(li);
-          }
-          wordsJustNeedToBeIncludedContainer.appendChild(ul);
+          let div = document.createElement("div");
+          div.innerHTML = `<b>Oder Wörter, die enthalten sein müssen:</b><span class="alternativeWords"></span>`;
+          correctList.appendChild(div);
+          let alternativeWordsList = div.querySelector(".alternativeWords");
+          Utils.listOfArrayToHTML(
+            alternativeWordsList,
+            wordsJustNeedToBeIncluded,
+            "Nicht gesetzt"
+          );
         }
       }
       showUserAnswersContainer.appendChild(item);
@@ -1602,33 +1820,6 @@ if (!urlParams.has("quizId")) {
 let quizId = urlParams.get("quizId");
 let quiz = new Quiz(container, quizId);
 await quiz.showStartSite();
-
 if (urlParams.has("autostart") && urlParams.get("autostart") == "1") {
   quiz.startQuiz();
 }
-
-// Spoiler show
-
-document.addEventListener("click", (event) => {
-  try {
-    let target = event.target;
-    if (target == null) return;
-    //Remove Spoiler
-    if (target.classList.contains("spoiler")) {
-      target.classList.remove("spoiler");
-    } else if (target.parentElement.classList.contains("spoiler")) {
-      target.parentElement.classList.remove("spoiler");
-    }
-
-    if (
-      target.nodeName == "IMG" &&
-      target.parentElement.classList.contains("onlineSource")
-    ) {
-      target.setAttribute("src", target.getAttribute("data-source"));
-    }
-  } catch (e) {
-    console.log("Error:", e);
-  }
-
-  //console.log("Target: ", target, "Node name:", target.nodeName);
-});

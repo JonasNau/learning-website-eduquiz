@@ -44,7 +44,7 @@ if (getParameterFromUser($conn, $userID, "authenticated", "userID") != "1") {
     <?php
     require_once 'navigation-bar.php';
     ?>
-    <div class="container d-block m-auto">
+    <div class="container main-content mt-4 d-block m-auto">
         <div class="details">
             <ul>
                 <li><b>Benutzername</b>: <?php echo $username ?></li>

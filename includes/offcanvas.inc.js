@@ -463,7 +463,7 @@ class SelectQuizNav {
       if (error) {
         //Sollte nicht passieren
         this.quizzeContainer.innerHTML = `
-                <div class="quizAuswahlDescription">Keine Quize dazu gefunden.</div>
+                <div class="quizAuswahlDescription">Keine Quizze dazu gefunden.</div>
                 <ul class="results">
                     
                 <ul>
@@ -476,7 +476,7 @@ class SelectQuizNav {
         // console.log("Diese Quizze sind sortiert verfügbar: ", sorted);
 
         this.quizzeContainer.innerHTML = `
-                    <p class="quizAuswahlDescription"><b>Quize dazu gefunden</b> (${sorted.length})</p>
+                    <p class="quizAuswahlDescription"><b>Quizze dazu gefunden</b> (${sorted.length})</p>
                     <ul class="results">
                         
                     </ul>

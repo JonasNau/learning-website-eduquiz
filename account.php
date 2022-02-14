@@ -18,8 +18,6 @@ require_once("./global.php");
 
 require_once("./header-start.php");
 
-setPermissionGroup($conn, "PA-Gruppe", "accessLehrerpanel", 1);
-
 
 if (!isLoggedIn()) {
     $_SESSION["message"] = "Melde dich an, um deine Account Details anzusehen.";
@@ -119,22 +117,6 @@ if ($gruppen && count($gruppen) > 0) {
                             </span>
                         </li>
                         <li><b>Berechtigung</b>: <?php echo $gruppenText ?></li>
-                        <li id="saveData">
-                            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Damit werden Medien nur nach bestätigung heruntergeladen." tabindex="0"><b>Datensparmodus:</b></span> 
-                            <label class="switch">
-                                <input type="checkbox" id="checkbox">
-                                <span class="slider round"></span>
-                            </label>
-                            <div class="container">
-                            <script type="module" defer>
-                                import {makeJSON} from "/includes/utils.js";
-                                let saveDataSwitch = document.querySelector("#saveData #checkbox");
-                                saveDataSwitch.checked = makeJSON(window.localStorage.getItem("SETTING_lightDataUsage"));
-                                saveDataSwitch.addEventListener("change", () => {
-                                    window.localStorage.setItem("SETTING_lightDataUsage", saveDataSwitch.checked);
-                                });
-                            </script>
-                        </li>
                     </ul>
                     <div class="otherOptions">
                         <a href="changePassword.php" class="link">Passwort ändern</a>

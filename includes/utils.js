@@ -833,11 +833,13 @@ export function alertUser(title, text, closeOthers) {
     });
     modalBody.innerText = text;
     bootstrapModal.show();
+    popUpStatus(true);
     let ok = modal.querySelector("#ok");
     ok.addEventListener("click", (target) => {
       bootstrapModal.hide();
       hideAllModals(closeOthers);
       modalOuter.remove();
+      popUpStatus(true);
       resolve(true);
     });
     let close = modal.querySelector("#close");
@@ -845,6 +847,7 @@ export function alertUser(title, text, closeOthers) {
       bootstrapModal.hide();
       hideAllModals(closeOthers);
       modalOuter.remove();
+      popUpStatus(true);
       resolve(false);
     });
   });
@@ -1239,7 +1242,7 @@ export async function sendXhrREQUEST(
   showErrors = true,
   logData = true,
   responseType = "text",
-  headers = { key: "value" }
+  headers = false
 ) {
   //contentType = "application/x-www-form-urlencoded"
   return new Promise(async (resolve, reject) => {
@@ -1413,12 +1416,12 @@ export function secondsToArrayOrString(seconds, StringOrArray = "String") {
     return ret;
   }
   if (StringOrArray == "Array") {
-    let obj = (Object = {
+    let obj = {
       seconds: seconds,
       minutes: minutes,
       hours: hours,
       days: days,
-    });
+    };
     return obj;
   }
 }
@@ -2233,12 +2236,13 @@ export function setMedia(
       );
       console.log("MEDIA DATA RECIEVED =>", mediaData);
       if (!mediaData) resolve(false);
-      if (data?.volume) {
+
+      //Set volume functionality
         mediaData = {
           ...mediaData,
-          volume: parseFloat(data.volume > 0 ? data.volume / 100 : 1.0),
+          volume: parseFloat(data?.volume >= 0 ? data.volume / 100 : 1.0),
         };
-      }
+      
 
       if (makeJSON(window.localStorage.getItem("SETTING_lightDataUsage"))) {
         let warnContainer = document.createElement("div");
@@ -2325,6 +2329,10 @@ export function setMedia(
       }
     } else {
       if (!data?.url && !data?.path) resolve(false);
+      data = {
+        ...data,
+        olume: parseFloat(data?.volume >= 0 ? data.volume / 100 : 1.0),
+      };
       //Source is not saved in Table - Normal Source
       if (makeJSON(window.localStorage.getItem("SETTING_lightDataUsage"))) {
         let warnContainer = document.createElement("div");
@@ -2596,7 +2604,12 @@ function setVideo(isOnlineSource, showAnyway, mediaData, container) {
             }" target="_blank">Zum Video</a>
           </video>
           `;
-          videoContainer.querySelector("video").volume = mediaData.volume;
+          try {
+            videoContainer.querySelector("video").volume = mediaData.volume ?? 1.0;
+          } catch (e) {
+            console.log("Error in setting volume: ", mediaData.volume, e, videoContainer);
+          }
+          
           videoContainer.classList.remove("loading");
         },
         { once: true }
@@ -2621,7 +2634,11 @@ function setVideo(isOnlineSource, showAnyway, mediaData, container) {
         }" target="_blank">Zum Video</a>
       </video>
       `;
-      videoContainer.querySelector("video").volume = mediaData.volume;
+      try {
+        videoContainer.querySelector("video").volume = mediaData.volume ?? 1.0;
+      } catch (e) {
+        console.log("Error in setting volume: ", mediaData.volume, e, videoContainer);
+      }
       videoContainer.classList.remove("loading");
     }
 
@@ -2713,7 +2730,11 @@ function setAudio(isOnlineSource, showAnyway, mediaData, container) {
           }" target="_blank">Zur Audio</a>
             </audio>
           `;
-          audioContainer.querySelector("audio").volume = mediaData.volume;
+          try {
+            audioContainer.querySelector("audio").volume = mediaData.volume ?? 1.0;
+          } catch (e) {
+            console.log("Error in setting volume: ", mediaData.volume, e, audioContainer);
+          }
           audioContainer.classList.remove("loading");
         },
         { once: true }
@@ -2732,7 +2753,11 @@ function setAudio(isOnlineSource, showAnyway, mediaData, container) {
           }" target="_blank">Zur Audio</a>
             </audio>
           `;
-      audioContainer.querySelector("audio").volume = mediaData.volume;
+          try {
+            audioContainer.querySelector("audio").volume = mediaData.volume ?? 1.0;
+          } catch (e) {
+            console.log("Error in setting volume: ", mediaData.volume, e, audioContainer);
+          }
       audioContainer.classList.remove("loading");
     }
     resolve(true);
@@ -2817,7 +2842,12 @@ function setOtherMedia(isOnlineSource, showAnyway, mediaData, container) {
             data?.blob?.type ?? mediaData?.mimeType ?? ""
           }">
           </object>`;
-          mediaContainer.querySelector("object").volume = mediaData.volume;
+          try {
+            mediaContainer.querySelector("object").volume = mediaData.volume ?? 1.0;
+          } catch (e) {
+            console.log("Error in setting volume: ", mediaData.volume, e, mediaContainer);
+          }
+         
           mediaContainer.classList.remove("loading");
         },
         { once: true }
@@ -2831,6 +2861,11 @@ function setOtherMedia(isOnlineSource, showAnyway, mediaData, container) {
         data?.blob?.type ?? mediaData?.mimeType ?? ""
       }">
       </object>`;
+      try {
+        mediaContainer.querySelector("object").volume = mediaData.volume ?? 1.0;
+      } catch (e) {
+        console.log("Error in setting volume: ", mediaData.volume, e, mediaContainer);
+      }
       mediaContainer.classList.remove("loading");
     }
     resolve(true);

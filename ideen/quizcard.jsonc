@@ -3,7 +3,7 @@
     "shuffleCards": false,
     "limitQuestions": false,
     "showResultDirectly": false,
-    "showTime": false,
+    "showTimePassed": false,
     "timeLimit": false
   },
   "quizCards": [

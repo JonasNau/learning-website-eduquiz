@@ -998,6 +998,8 @@ if (isset($_POST["quizverwaltung"])) {
             if ($stmt->execute([$quizId, $created, $createdBy, $changedBy])) {
                 if ($stmt->rowCount()) {
                     $resultArray["uniqueID"] = $conn->lastInsertId();
+                    setValueFromDatabase($conn, "selectquiz", "createdBy", "uniqueID", $resultArray["uniqueID"], $userID);
+                    setValueFromDatabase($conn, "selectquiz", "created", "uniqueID", $resultArray["uniqueID"], getCurrentDateAndTime(1));
                 }
             }
         } catch (Exception $e) {
@@ -1022,7 +1024,7 @@ if (isset($_POST["quizverwaltung"])) {
         $quizdata = getValueFromDatabase($conn, "selectquiz", "quizdata", "uniqueID", $uniqueID, 1, false);
         logWrite($conn, "quizverwaltung", "Der Nutzer mit der userId $userID möchte das Quiz mit der uniqueID '$uniqueID' löschen.", true, false, "yellow");
         if (deleteRowFromDatabase($conn, "selectquiz", "uniqueID", "uniqueID", $uniqueID)) {
-            logWrite($conn, "quizverwaltung", "Der Nutzer mit der userId $userID (username: $username) hat das Quiz mit der uniqueID '$uniqueID' erfolgrich gelöscht. Quiz-Daten: $quizdata", true, false, "yellow");
+            logWrite($conn, "quizverwaltung", "Der Nutzer mit der userId $userID (username: $username) hat das Quiz mit der uniqueID '$uniqueID' erfolgrich gelöscht. Quiz-Daten:". PHP_EOL . json_encode(json_validate($quizdata)), true, false, "yellow");
             returnMessage("success", "Quiz erfolgreich gelöscht");
         }
         die();
@@ -1033,16 +1035,29 @@ if (isset($_POST["quizverwaltung"])) {
         }
         $uniqueID = $_POST["uniqueID"];
         if (!valueInDatabaseExists($conn, "selectquiz", "uniqueID", "uniqueID", $uniqueID)) {
+            returnMessage("failed", "Dieses Quiz existiert nicht (uniqueID: $uniqueID)");
+            die();
         }
+        $oldQuizdata = getValueFromDatabase($conn, "selectquiz", "quizdata", "uniqueID", $uniqueID, 1, false);
         $quizdata = json_validate($_POST["quizdata"]);
         if ($quizdata) {
             if (setValueFromDatabase($conn, "selectquiz", "quizdata", "uniqueID", $uniqueID, json_encode($quizdata))) {
+                
+                //Remove and add to the end of the array so the last element is the latest editor
                 returnMessage("success", "Die Quizdaten wurden erfolgreich geändert");
+                removeFromArrayDatabase($conn, "selectquiz", "changedBy", "uniqueID", $uniqueID, $userID, true, true);
+                addToArrayDatabase($conn, "selectquiz", "changedBy", "uniqueID", $uniqueID, $userID, false);
+               
+                setValueFromDatabase($conn, "selectquiz", "changed", "uniqueID", $uniqueID, getCurrentDateAndTime(1));
+                logWrite($conn, "quizverwaltung", "Die Quizdaten von dem Quiz mit der uniqueID '$uniqueID' wurden geändert. OLD: " . PHP_EOL . json_encode(json_validate($oldQuizdata)) . PHP_EOL . "NEW: " . PHP_EOL . json_encode(json_validate($quizdata)), true, false, "green");
+               
             } else {
                 returnMessage("success", "Die Quizdaten wurden nicht geändert.");
             }
         } else {
             returnMessage("failed", "Die Quizdaten sind nicht gültig");
+            logWrite($conn, "quizverwaltung", "Die Quizdaten von dem Quiz mit der uniqueID '$uniqueID' sind nicht gültig und wurden zurückgesetzt. Alte Daten: " . json_encode(json_validate($oldQuizdata)), true, true);
+            setValueFromDatabase($conn, "selectquiz", "quizdata", "uniqueID", $uniqueID, null);
         }
         die();
     }

@@ -105,7 +105,7 @@ class SelectQuizNav {
           )
         );
         if (response) {
-          this.setKlassenstufen(false, response);
+          await this.setKlassenstufen(false, response);
           resolve(true);
           return true;
         } else {
@@ -113,7 +113,7 @@ class SelectQuizNav {
           return false;
         }
       } catch (e) {
-        this.setKlassenstufen(true, false);
+        await this.setKlassenstufen(true, false);
         resolve(true);
       }
     });
@@ -252,15 +252,15 @@ class SelectQuizNav {
           )
         );
         if (response) {
-          this.setFaecher(false, response);
+          await this.setFaecher(false, response);
           resolve(true);
           return true;
         } else {
-          this.setFaecher(true, false);
+          await this.setFaecher(true, false);
           return false;
         }
       } catch (e) {
-        this.setFaecher(true, false);
+        await this.setFaecher(true, false);
         resolve(true);
       }
     });
@@ -403,15 +403,15 @@ class SelectQuizNav {
           )
         );
         if (response) {
-          this.setThemen(false, response);
+          await this.setThemen(false, response);
           resolve(true);
           return true;
         } else {
-          this.setThemen(true, false);
+          await this.setThemen(true, false);
           return false;
         }
       } catch (e) {
-        this.setThemen(true, false);
+        await this.setThemen(true, false);
         resolve(true);
       }
     });

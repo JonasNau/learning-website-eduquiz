@@ -38,7 +38,7 @@ accountExists($conn, $userID);
     <?php
     require_once 'navigation-bar.php';
     ?>
-    <div class="container">
+    <div class="container main-content mt-4">
         <div class="row d-flex">
             <div class="col-12 col-sm-10 col-md-9 col-lg-7 mb-4">
                 <form action="includes/userSystem/changePassword.inc.php" method="post">

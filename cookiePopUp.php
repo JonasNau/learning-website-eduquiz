@@ -20,9 +20,10 @@ if (!isLoggedIn()) {
             export async function cookieOk() {
                 let now = new Date(); // Aktuelles Datum
                 let nowSeconds = now.getSeconds(); // Millisekunden seit 1970 bis heute
-                let expires = await Utils.getSettingVal("./includes/generalFunctions.php", "CookieConsentTime");
+                let expires = await Utils.getSettingVal("CookieConsentTime");
                 const expiresDate = new Date();
                 expiresDate.setTime(expiresDate.getTime() + (expires*24*60*60*1000));
+                console.log(expiresDate)
                 console.log("Cookie expires:", expiresDate)
                 
                 Utils.setCookie("cookieConsent", `Set until ${expiresDate}`, expires);

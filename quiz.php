@@ -25,11 +25,11 @@ require_once 'header-start.php';
         
     </div>
 
-    <script type="module" src="includes/quizlogik.js?v=?<?php echo  getNewestVersion(); ?>" defer></script>
     <?php
     require_once("./footer.php");
     require_once 'body-scripts.php';
     ?>
+    <script type="module" src="includes/quizlogik.js?v=?<?php echo  getNewestVersion(); ?>" defer></script>
 </body>
 
 </html>

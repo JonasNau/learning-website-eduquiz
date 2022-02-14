@@ -812,7 +812,7 @@ class Quizverwaltung {
     let filterContainer = this.container.querySelector(".filter");
     if (!filterContainer) return "No filter container";
     this.filterContainer = filterContainer;
-    filterContainer.classList.add("hidden"); //Hide it if it loads
+
 
     //Filter Type Select (init)
     let chooseFilterTypeSelect = filterContainer.querySelector(
@@ -939,7 +939,9 @@ class Quizverwaltung {
     );
     if (!limiter) return "no limiter";
     this.limiter = limiter;
-
+    this.filterType = "all";
+    this.limiter.value = 20;
+    
     //Search While Typing
     let searchWhileTypingContainer = selectionFiltersContainer.querySelector(
       "#other #searchWhileTyping"

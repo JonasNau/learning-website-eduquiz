@@ -103,11 +103,11 @@ klassenstufenBoxesStartseite.insertBoxes();
 let mediaContainer = document.querySelector("#mediaContainer");
 console.log(
   "IMAGE RESPONSE =>",
-  await Utils.setMedia({ mediaID: "1" }, mediaContainer)
+  await Utils.setMedia({ mediaID: "1"}, mediaContainer)
 );
 console.log(
   "IMAGE RESPONSE =>",
-  await Utils.setMedia({ mediaID: "3" }, mediaContainer)
+  await Utils.setMedia({ mediaID: "3" , volume: 100}, mediaContainer)
 );
 console.log(
   "IMAGE RESPONSE =>",
