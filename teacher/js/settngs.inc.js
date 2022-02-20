@@ -33,7 +33,7 @@ export async function changeType(id) {
                 <div class="modal-dialog">
                   <div class="modal-content">
                     <div class="modal-header">
-                      <h5 class="modal-title" id="staticBackdropLabel">Gruppen bearbeiten</h5>
+                      <h5 class="modal-title" id="staticBackdropLabel">Typ bearbeiten</h5>
                       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close"></button>
                     </div>
                     <div class="modal-body">

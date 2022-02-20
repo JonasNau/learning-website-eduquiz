@@ -249,25 +249,10 @@ class Quizverwaltung {
       ) {
         return false;
       }
-      let availableThemen = Utils.sortItems(
-        await Utils.makeJSON(
-          await Utils.sendXhrREQUEST(
-            "POST",
-            "quizverwaltung&operation=other&type=getAllThemen",
-            "./includes/quizverwaltung.inc.php",
-            "application/x-www-form-urlencoded",
-            true,
-            true,
-            false,
-            true
-          )
-        )
-      );
       let choosen = await Utils.chooseFromArrayWithSearch(
-        availableThemen,
+        [],
         true,
-        "Thema auswählen",
-        false
+        "Thema auswählen", false, false, true, "quizverwaltung&operation=other&type=searchThema&input=", "./includes/quizverwaltung.inc.php"
       );
       if (choosen && choosen.length > 0) {
         choosen = choosen[0];
@@ -1333,20 +1318,6 @@ class Quizverwaltung {
       let addBtn = this.themaSelectContainer.querySelector("#addBtn");
       addBtn = Utils.removeAllEventlisteners(addBtn);
       addBtn.addEventListener("click", async () => {
-        let availableFaecher = Utils.sortItems(
-          await Utils.makeJSON(
-            await Utils.sendXhrREQUEST(
-              "POST",
-              "quizverwaltung&operation=other&type=getAllThemen",
-              "./includes/quizverwaltung.inc.php",
-              "application/x-www-form-urlencoded",
-              true,
-              true,
-              false,
-              true
-            )
-          )
-        );
 
         let remove = () => {
           this.themaSelect = false;
@@ -1354,10 +1325,9 @@ class Quizverwaltung {
         };
 
         let choosen = await Utils.chooseFromArrayWithSearch(
-          availableFaecher,
+          [],
           true,
-          "Thema auswählen",
-          false
+          "Thema auswählen", false, false, true, "quizverwaltung&operation=other&type=searchThema&input=", "./includes/quizverwaltung.inc.php"
         );
         if (choosen) {
           this.themaSelect = choosen[0];
@@ -2294,12 +2264,12 @@ class Quizverwaltung {
       <td id="description" style="min-width: 400px;">${result["description"]}</td>
       <td id="quizId">${result["quizId"]}</td>
       <td id="id">${result["uniqueID"]}</td>
-      <td id="showQuizAuswahl" class="${Utils.boolToString(result["showQuizAuswahl"], {"true": "angezeigt", "false": "ausgeblendet"})}">${Utils.boolToString(result["showQuizAuswahl"], {"true": "angezeigt", "false": "ausgeblendet"})}</td>
-      <td id="visibility" class="${Utils.boolToString(result["visibility"], {"true": "angezeigt", "false": "ausgeblendet"})}">${Utils.boolToString(result["visibility"], {"true": "angezeigt", "false": "ausgeblendet"})}</td>
-      <td id="requireKlassenstufe">${Utils.boolToString(result["requireKlassenstufe"], {"true": "benötigt", "false": "nicht benötigt"})}</td>
-      <td id="requireFach">${Utils.boolToString(result["requireFach"], {"true": "benötigt", "false": "nicht benötigt"})}</td>
-      <td id="requireThema">${Utils.boolToString(result["requireThema"], {"true": "benötigt", "false": "nicht benötigt"})}</td>
-      <td id="requireName">${Utils.boolToString(result["requireName"], {"true": "benötigt", "false": "nicht benötigt"})}</td>
+      <td id="showQuizAuswahl" class="${Utils.boolToString(result["showQuizAuswahl"], {true: "angezeigt", false: "ausgeblendet"})}">${Utils.boolToString(result["showQuizAuswahl"], {"true": "angezeigt", "false": "ausgeblendet"})}</td>
+      <td id="visibility" class="${Utils.boolToString(result["visibility"], {true: "angezeigt", false: "ausgeblendet"})}">${Utils.boolToString(result["visibility"], {"true": "angezeigt", "false": "ausgeblendet"})}</td>
+      <td id="requireKlassenstufe">${Utils.boolToString(result["requireKlassenstufe"], {true: "benötigt", false: "nicht benötigt"})}</td>
+      <td id="requireFach">${Utils.boolToString(result["requireFach"], {true: "benötigt", false: "nicht benötigt"})}</td>
+      <td id="requireThema">${Utils.boolToString(result["requireThema"], {true: "benötigt", false: "nicht benötigt"})}</td>
+      <td id="requireName">${Utils.boolToString(result["requireName"], {true: "benötigt", false: "nicht benötigt"})}</td>
       <td id="questions" style="min-width: 500px;"></td>
       <td id="lastUsed">${result["lastUsed"]}</td>
       <td id="created">${result["created"]}</td>
@@ -2441,40 +2411,40 @@ class Quizverwaltung {
           current["quizId"]
         }</span><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button><button class="btn btn-sm btn-warning" style="margin: 5px;" id="generateRandomQuizId">Zufall</button></td>
         <td id="id">${current["uniqueID"]}</td>
-        <td id="showQuizAuswahl" class="${Utils.boolToString(current["showQuizAuswahl"], {"true": "angezeigt", "false": "ausgeblendet"})}"><span>${Utils.boolToString(current["showQuizAuswahl"], {"true": "angezeigt", "false": "ausgeblendet"})}</span>
+        <td id="showQuizAuswahl" class="${Utils.boolToString(current["showQuizAuswahl"], {true: "angezeigt", false: "ausgeblendet"})}"><span>${Utils.boolToString(current["showQuizAuswahl"], {true: "angezeigt", false: "ausgeblendet"})}</span>
         <label class="switch">
               <input type="checkbox" id="checkbox">
               <span class="slider round"></span>
         </label>
         </td>
-        <td id="visibility" class="${Utils.boolToString(current["visibility"], {"true": "angezeigt", "false": "ausgeblendet"})}"><span>${Utils.boolToString(current["visibility"], {"true": "angezeigt", "false": "ausgeblendet"})}</span>
+        <td id="visibility" class="${Utils.boolToString(current["visibility"], {true: "angezeigt", false: "ausgeblendet"})}"><span>${Utils.boolToString(current["visibility"], {true: "angezeigt", false: "ausgeblendet"})}</span>
         <label class="switch">
               <input type="checkbox" id="checkbox">
               <span class="slider round"></span>
         </label>
         </td>
-        <td id="requireKlassenstufe"><span>${Utils.boolToString(current["requireKlassenstufe"], {"true": "benötigt", "false": "nicht benötigt"})}</span>
+        <td id="requireKlassenstufe"><span>${Utils.boolToString(current["requireKlassenstufe"], {true: "benötigt", false: "nicht benötigt"})}</span>
         <label class="switch">
               <input type="checkbox" id="checkbox">
               <span class="slider round"></span>
         </label>
         </td>
-        <td id="requireFach"><span>${Utils.boolToString(current["requireFach"], {"true": "benötigt", "false": "nicht benötigt"})}</span>
+        <td id="requireFach"><span>${Utils.boolToString(current["requireFach"], {true: "benötigt", false: "nicht benötigt"})}</span>
         <label class="switch">
               <input type="checkbox" id="checkbox">
               <span class="slider round"></span>
         </label>
         </td>
-        <td id="requireThema"><span>${Utils.boolToString(current["requireThema"], {"true": "benötigt", "false": "nicht benötigt"})}</span>
+        <td id="requireThema"><span>${Utils.boolToString(current["requireThema"], {true: "benötigt", false: "nicht benötigt"})}</span>
         <label class="switch">
               <input type="checkbox" id="checkbox">
               <span class="slider round"></span>
         </label>
         </td>
-        <td id="requireName"><span>${Utils.boolToString(current["requireName"], {"true": "benötigt", "false": "nicht benötigt"})}</span>
+        <td id="requireName"><span>${Utils.boolToString(current["requireName"], {true: "benötigt", false: "nicht benötigt"})}</span>
         <label class="switch">
               <input type="checkbox" id="checkbox">
-              <span class="slider round"></span>
+              <span class="slider round"><true
         </label>
         </td>
         <td id="questions" style="min-width: 400px;">${JSON.stringify(
@@ -2669,25 +2639,10 @@ class Quizverwaltung {
           ) {
             return false;
           }
-          let availableThemen = Utils.sortItems(
-            await Utils.makeJSON(
-              await Utils.sendXhrREQUEST(
-                "POST",
-                "quizverwaltung&operation=other&type=getAllThemen",
-                "./includes/quizverwaltung.inc.php",
-                "application/x-www-form-urlencoded",
-                true,
-                true,
-                false,
-                true
-              )
-            )
-          );
           let choosen = await Utils.chooseFromArrayWithSearch(
-            availableThemen,
+            [],
             true,
-            "Thema auswählen",
-            false
+            "Thema auswählen", false, false, true, "quizverwaltung&operation=other&type=searchThema&input=", "./includes/quizverwaltung.inc.php"
           );
           if (choosen && choosen.length > 0) {
             choosen = choosen[0];
@@ -2819,6 +2774,7 @@ class Quizverwaltung {
             ))
           ) {
             Utils.alertUser("Nachricht", "Keine Aktion unternommen", false);
+            this.edit([current["uniqueID"]], true);
             return false;
           }
           await Utils.makeJSON(
@@ -2942,6 +2898,7 @@ class Quizverwaltung {
               choosen = choosen[0];
             } else {
               await Utils.alertUser("Nachricht", "Keine Aktion unternommen.");
+              this.edit([current["uniqueID"]], true);
               return false;
             }
 
@@ -3018,6 +2975,7 @@ class Quizverwaltung {
               choosen = choosen[0];
             } else {
               await Utils.alertUser("Nachricht", "Keine Aktion unternommen.");
+              this.edit([current["uniqueID"]], true);
               return false;
             }
 
@@ -3040,7 +2998,6 @@ class Quizverwaltung {
               )
             );
           }
-
           this.edit([current["uniqueID"]], true);
         });
 
@@ -3070,30 +3027,16 @@ class Quizverwaltung {
               )
             );
           } else {
-            let availableThemen = Utils.sortItems(
-              await Utils.makeJSON(
-                await Utils.sendXhrREQUEST(
-                  "POST",
-                  "quizverwaltung&operation=other&type=getAllThemen",
-                  "./includes/quizverwaltung.inc.php",
-                  "application/x-www-form-urlencoded",
-                  true,
-                  true,
-                  false,
-                  true
-                )
-              )
-            );
             let choosen = await Utils.chooseFromArrayWithSearch(
-              availableThemen,
+              [],
               true,
-              "Thema auswählen",
-              false
+              "Thema auswählen", false, false, true, "quizverwaltung&operation=other&type=searchThema&input=", "./includes/quizverwaltung.inc.php"
             );
             if (choosen && choosen.length > 0) {
               choosen = choosen[0];
             } else {
               await Utils.alertUser("Nachricht", "Keine Aktion unternommen.");
+              this.edit([current["uniqueID"]], true);
               return false;
             }
 
@@ -3154,6 +3097,7 @@ class Quizverwaltung {
             );
             if (Utils.isEmptyInput(name)) {
               await Utils.alertUser("Nachricht", "Keine Aktion unternommen");
+              this.edit([current["uniqueID"]], true);
               return false;
             }
 

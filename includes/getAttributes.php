@@ -71,7 +71,11 @@ if (isset($_POST["getAttribute"])) {
             $thirdOperation = $_POST["thirdOperation"];
             if ($thirdOperation === "primary") {
                 $mediaID = $_POST["mediaID"];
-                echo getValueFromDatabase($conn, "medienVerwaltung", "blobData", "mediaID", $mediaID, 1, false);
+                $blob =  getValueFromDatabase($conn, "medienVerwaltung", "blobData", "mediaID", $mediaID, 1, false);
+                $type = getValueFromDatabase($conn, "medienVerwaltung", "mimeType", "mediaID", $mediaID, 1, false);
+                header("Content-Type: $type");
+                echo $blob;
+                die();
             } else if ($thirdOperation === "thumbnail") {
                 $mediaID = $_POST["mediaID"];
                 echo getValueFromDatabase($conn, "medienVerwaltung", "blobData", "mediaID", $mediaID, 1, false);

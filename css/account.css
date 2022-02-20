@@ -16,9 +16,12 @@
     flex: 0 1 auto;
 }
 
-.accountOptionen .content {
+.accountOptionen > .content {
     flex: 1 1 auto;
     padding: 30px;
+    width: 100%;
+    min-height: 10px;
+    background-color: whitesmoke;
 }
 
  .accountOptionen .nav .nav-link:hover {
@@ -27,12 +30,6 @@
 
  .accountOptionen .nav .nav-link:active {
     color: darkgray;
-}
-
-.accountOptionen .content {
-    width: 100%;
-    min-height: 10px;
-    background-color: whitesmoke;
 }
 
 .accountOptionen hr {
@@ -64,16 +61,137 @@
     color: red;
 }
 
-.accountDetails .details {
+#accountDetails .details {
     list-style-type: none;
     padding-left: 0;
 }
 
-.accountDetails .details li {
+#accountDetails .details li {
     font-size: 1.3rem;
     word-wrap: break-word;
 }
 
-.accountDetails .details .addEmail {
+#accountDetails .details .addEmail {
     font-size: 1rem;
 }
+
+
+
+.filter {
+    padding: 5px;
+    margin: 5px;
+  }
+  
+  .styled-table {
+    border-collapse: collapse;
+    margin: 25px 0;
+    font-size: 0.9em;
+    font-family: sans-serif;
+    min-width: 400px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+  }
+  
+  .styled-table thead tr {
+    background-color: #009879;
+    color: #ffffff;
+    text-align: left;
+  }
+  
+  .styled-table th,
+  .styled-table td {
+    padding: 12px 15px;
+  }
+  
+  .styled-table tbody tr {
+    border-bottom: 1px solid #dddddd;
+  }
+  
+  .styled-table tbody tr:last-of-type {
+    border-bottom: 2px solid #009879;
+  }
+  
+  .styled-table tbody tr.active-row {
+    font-weight: bold;
+    color: #009879;
+  }
+  
+  .delete-btn {
+    width: 40px;
+    position: relative;
+    display: block;
+  }
+  
+  .changeIcon {
+    height: 20px;
+    opacity: 0.65;
+    transition: 0.25s ease-in-out;
+  }
+  
+  .changeIcon:hover {
+    opacity: 1;
+  }
+  
+  .changeBtn {
+    background: none;
+    border: none;
+    transition: all 0.4s ease;
+  }
+  
+  .changeBtn:hover {
+    /* background: rgba(0, 0, 0, 0.1); */
+    border-radius: 5px;
+  }
+  
+  .changeBtn:active {
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+  }
+  
+  .styled-table tbody .select {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  #selectionFilters > * {
+    padding: 5px;
+    border: 2px solid gray;
+    border-radius: 5px;
+  }
+  
+  /* Berechtigungsverwaltung */
+  td.select {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    align-items: center;
+  }
+  
+  
+  td.select #select {
+    display: inline-block;
+    position: relative;
+    width: 20px;
+    height: 20px;
+    background-color: aquamarine;
+  }
+  
+  td.select #chooseOnly {
+    display: block;
+    position: relative;
+    width: 30px;
+    height: 30px;
+    background-color: aquamarine;
+    margin: 10px;
+  }
+  
+  td.select .copyMediaID {
+    min-width: 50px;
+    min-height: 30px;
+  }
+  
+  td.select #chooseOnly img {
+    width: 20px;
+    height: 20px;
+  }

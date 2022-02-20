@@ -742,7 +742,7 @@ function differenceOfTime($timeStart, $timeEnd)
     return $difference;
 }
 
-function secondsToArrayOrString($seconds, $StringOrArray = "String")
+function secondsToArrayOrStringOld($seconds, $StringOrArray = "String")
 {
 
     $ret = "";
@@ -791,6 +791,74 @@ function secondsToArrayOrString($seconds, $StringOrArray = "String")
     }
     if ($StringOrArray == "Array") {
         return array("seconds" => $seconds, "minutes" => $minutes, "hours" => $hours, "days" => $days);
+    }
+}
+
+
+function secondsToArrayOrString($seconds, $StringOrArray = "String", $options = array(
+
+    "wordspelling" => array(
+        "seconds" => array("singular" => "Sekunde", "plural" => "Sekunden"),
+        "minutes" => array("singular" => "Minute", "plural" => "Minuten"),
+        "hours" => array("singular" => "Stunde", "plural" => "Stunden"),
+        "days" => array("singular" => "Tag", "plural" => "Tage"),
+        "years" => array("singular" => "Jahr", "plural" => "Jahre"),
+    ),
+    "empty" => "keine"
+), $logConsole = false)
+{
+
+    $seconds = intval($seconds);
+
+    $yearsRemaining = floor($seconds / (60 * 60 * 24 * 365));
+    $daysRemaining = floor(($seconds / (60 * 60 * 24)) % 365);
+    $hoursRemaining = floor(($seconds / (60 * 60)) % 24);
+    $minutesRemaining = floor(($seconds / 60) % 60);
+    $secondsRemaining = floor($seconds % 60);
+
+    if ($logConsole) logWrite(false, "general", json_encode($yearsRemaining, $daysRemaining, $hoursRemaining, $minutesRemaining, $secondsRemaining), true, false, "yellow");
+
+    if ($StringOrArray === "Array") {
+        return
+            array(
+                "years" => $yearsRemaining,
+                "days" => $daysRemaining,
+                "hours" => $hoursRemaining,
+                "minutes" => $minutesRemaining,
+                "seconds" =>  $secondsRemaining
+            );
+    } else {
+        $string = "";
+        //Years
+        if ($yearsRemaining > 0 && $yearsRemaining == 1)
+            $string = "$string $yearsRemaining " . $options["wordspelling"]["years"]["singular"];
+        if ($yearsRemaining > 0 && $yearsRemaining > 1)
+            $string = "$string $yearsRemaining " . $options["wordspelling"]["years"]["plural"];
+        //Days
+        if ($daysRemaining > 0 && $daysRemaining == 1)
+            $string = "$string $daysRemaining " . $options["wordspelling"]["days"]["singular"];
+        if ($daysRemaining > 0 && $daysRemaining > 1)
+            $string = "$string $daysRemaining " . $options["wordspelling"]["days"]["plural"];
+        //Hours
+        if ($hoursRemaining > 0 && $hoursRemaining == 1)
+            $string = "$string $hoursRemaining " . $options["wordspelling"]["hours"]["singular"];
+        if ($hoursRemaining > 0 && $hoursRemaining > 1)
+            $string = "$string $hoursRemaining " . $options["wordspelling"]["hours"]["plural"];
+        //Minutes
+        if ($minutesRemaining > 0 && $minutesRemaining == 1)
+            $string = "$string $minutesRemaining " . $options["wordspelling"]["minutes"]["singular"];
+        if ($minutesRemaining > 0 && $minutesRemaining > 1)
+            $string = "$string $minutesRemaining " . $options["wordspelling"]["minutes"]["plural"];
+        //Seconds
+        if ($secondsRemaining > 0 && $secondsRemaining == 1)
+            $string = "$string $secondsRemaining " . $options["wordspelling"]["seconds"]["singular"];
+        if ($secondsRemaining > 0 && $secondsRemaining > 1)
+            $string = "$string $secondsRemaining " . $options["wordspelling"]["seconds"]["plural"];
+
+        if (empty($string)) {
+            return $options["empty"] ?? "";
+        }
+        return $string;
     }
 }
 
@@ -989,19 +1057,12 @@ function removeAllComebackMessages($conn, $userID)
 
 function checkPassword($password)
 {
-    $result = true;
     if (strlen($password) < 5) {
-        $_SESSION["message"] = "Das Passwort muss mindestens 5 Zeichen enthalten.";
+        $errorArray[] = "Das Passwort muss mindestens 5 Zeichen enthalten.";
         $result = false;
-        return $result;
+        return false;
     }
-
-    if (!preg_match("#[0-9]+#", $password)) {
-        $_SESSION["message"] = "Das Passwort muss mindestens eine Zahl enthalten";
-        $result = false;
-        return $result;
-    }
-    return $result;
+    return true;
 }
 
 function permissionDenied($message = "Keine Berechtigung zum ausführen der Aktion")

@@ -37,32 +37,6 @@
   color: #009879;
 }
 
-.edit-choosenUsers {
-  background-color: antiquewhite;
-  border-radius: 10px;
-  padding: 5px;
-}
-
-.edit-choosenUsers-Table {
-  border-collapse: collapse;
-  margin: 25px 0;
-  font-size: 0.9em;
-  font-family: sans-serif;
-  min-width: 400px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-}
-
-.edit-choosenUsers-Table thead tr {
-  background-color: #009879;
-  color: #ffffff;
-  text-align: left;
-}
-
-.edit-choosenUsers-Table th,
-.edit-choosenUsers-Table td {
-  padding: 12px 15px;
-}
-
 .delete-btn {
   width: 40px;
   position: relative;
@@ -96,34 +70,6 @@
 }
 
 
-#resultTable tbody .result .selectUser {
-  display: flex;
-  flex-direction: row;
-  position: relative;
-  justify-content: space-around;
-}
-
-#resultTable tbody .result .selectUser #select {
-  display: inline-block;
-  position: relative;
-  width: 20px;
-  height: 20px;
-  background-color: aquamarine;
-}
-
-#resultTable tbody .result .selectUser #chooseOnly {
-  display: block;
-  position: relative;
-  width: 30px;
-  height: 30px;
-  background-color: aquamarine;
-}
-
-#resultTable tbody .result .selectUser #chooseOnly img {
-  width: 20px;
-  height: 20px;
-}
-
 #selectionFilters > * {
   padding: 5px;
   border: 2px solid gray;
@@ -133,12 +79,13 @@
 /* Berechtigungsverwaltung */
 td.select {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   position: relative;
-  justify-content: space-around;
+  align-items: center;
 }
 
-td.select #checkbox {
+
+td.select #select {
   display: inline-block;
   position: relative;
   width: 20px;
@@ -152,6 +99,12 @@ td.select #chooseOnly {
   width: 30px;
   height: 30px;
   background-color: aquamarine;
+  margin: 10px;
+}
+
+td.select .copyMediaID {
+  min-width: 50px;
+  min-height: 30px;
 }
 
 td.select #chooseOnly img {
@@ -170,4 +123,9 @@ table.shrinkMedia .mediaContainer > * {
 table .mediaContainer {
   word-wrap: break-word;
   /* word-break: break-all; */
+}
+
+.copyMediaID-wrapper {
+  width: 120px !important;
+  height: 40px !important;
 }

@@ -53,6 +53,15 @@ if (isset($_POST["benutzerverwaltung"])) {
             $users = limitArray($users, $limitResults);
             $resultArray = array();
 
+
+            $wordspellingOptions = array("wordspelling" => array(
+                "seconds" => array("singular" => "Sekunde", "plural" => "Sekunden"),
+                "minutes" => array("singular" => "Minute", "plural" => "Minuten"),
+                "hours" => array("singular" => "Stunde", "plural" => "Stunden"),
+                "days" => array("singular" => "Tag", "plural" => "Tagen"),
+                "years" => array("singular" => "Jahr", "plural" => "Jahren"),
+            ));
+
             foreach ($users as $user) {
                 if ($user == null) continue;
                 $username = getValueFromDatabase($conn, "users", "username", "userID", $user, 1, false);
@@ -71,7 +80,7 @@ if (isset($_POST["benutzerverwaltung"])) {
                 if ($lastLoginRaw != null && $lastLoginRaw != "never") {
                     $lastLogin = new DateTime($lastLoginRaw);
                     $lastLogin = differenceOfTime($lastLogin, $now);
-                    $lastLoginString = secondsToArrayOrString($lastLogin, "String");
+                    $lastLoginString = secondsToArrayOrString($lastLogin, "String", $wordspellingOptions);
                 }
 
                 $createdString = "";
@@ -79,7 +88,7 @@ if (isset($_POST["benutzerverwaltung"])) {
                 if ($createdRaw != null && !empty($createdRaw)) {
                     $created = new DateTime($createdRaw);
                     $created = differenceOfTime($created, $now);
-                    $createdString = secondsToArrayOrString($created, "String");
+                    $createdString = secondsToArrayOrString($created, "String", $wordspellingOptions);
                 }
 
                 $lastPwdChangeString = "Noch nie";
@@ -87,7 +96,7 @@ if (isset($_POST["benutzerverwaltung"])) {
                 if ($lastPwdChangeRaw != null && !empty($lastPwdChangeRaw)) {
                     $lastPwdChange = new DateTime($lastPwdChangeRaw);
                     $lastPwdChange = differenceOfTime($lastPwdChange, $now);
-                    $lastPwdChangeString = secondsToArrayOrString($lastPwdChange, "String");
+                    $lastPwdChangeString = secondsToArrayOrString($lastPwdChange, "String", $wordspellingOptions);
                 }
 
                 $lastActivityString = "Noch Nie";
@@ -95,7 +104,7 @@ if (isset($_POST["benutzerverwaltung"])) {
                 if ($lastActivityRaw != null && !empty($lastActivityRaw)) {
                     $lastActivity = new DateTime($lastActivityRaw);
                     $lastActivity = differenceOfTime($lastActivity, $now);
-                    $lastActivityString = secondsToArrayOrString($lastActivity, "String");
+                    $lastActivityString = secondsToArrayOrString($lastActivity, "String", $wordspellingOptions);
                 }
 
                 $permissionsAllowed = json_validate(getValueFromDatabase($conn, "users", "permissions", "userID", $user, 1, false));
@@ -535,10 +544,10 @@ if (isset($_POST["benutzerverwaltung"])) {
                 permissionDenied();
                 die();
             }
-            $newPassword = $_POST["input"];
+            $newPassword = json_validate($_POST["input"])?->{"userInput"};
 
             $errorArray = array();
-            if (checkPassword($newPassword, $errorArray)) {
+            if (checkPassword($newPassword)) {
                 if (setNewPassword($conn, $sendUserID, password_hash($newPassword, PASSWORD_DEFAULT))) {
                     returnMessage("success", "Passwort des Benutzers erfolgreich geändert.");
                 } else {
@@ -546,7 +555,7 @@ if (isset($_POST["benutzerverwaltung"])) {
                 }
                 die();
             } else {
-                returnMessage("failed", json_encode($errorArray));
+                returnMessage("failed", "Fehler", false);
                 die();
             }
         } else if ($type === "logOutFromAllDevices") {
@@ -751,33 +760,6 @@ if (isset($_POST["benutzerverwaltung"])) {
         //Insert new Group and Permissions and deniedPermissions if these values are null in DB set it to valid json
 
         echo json_encode(array("userID" => $sendUserID, "username" => $username, "email" => $email, "klassenstufe" => $klassenstufe, "created" => $createdRaw, "lastLogin" => $lastLoginRaw, "lastPwdChange" => $lastPwdChange, "authenticated" => $authenticated, "groups" => $groups, "permissionsAllowed" => $permissionsAllowed, "permissionsForbidden" => $permissionsForbidden, "lastActivity" => $lastActivityRaw, "isOnline" => $isOnline, "lastLoginString" => $lastLoginString, "createdString" => $createdString, "lastPwdChangeString" => $lastPwdChangeString, "lastActivityString" => $lastActivityString, "nextMessages" => $usersnextMessages, "ranking" => $ranking, "showPublic" => $showPublic));
-        die();
-    } else if ($operation === "createUser") {
-        if (!userHasPermissions($conn, $userID, ["quizverwaltungADDandRemove" => gnVP($conn, "quizverwaltungADDandRemove")])) {
-            permissionDenied();
-            die();
-        }
-
-        $quizId = generateRandomUniqueName(3);
-        while (valueInDatabaseExists($conn, "selectquiz", "quizId", "quizId", $quizId)) {
-            $quizId = generateRandomUniqueName(3);
-        }
-
-        $resultArray = array();
-        $resultArray["quizId"] = $quizId;
-        try {
-            $stmt = $conn->prepare("INSERT INTO selectquiz (showQuizauswahl, requireKlassenstufe, requireFach, requireThema, requireQuizname, quizId, created, createdBy, changedBy, visibility) VALUES (0, 0, 0, 0, 0, ?, ?, ?, ?, 0);");
-            if ($stmt->execute([$quizId, $created, $createdBy, $changedBy])) {
-                if ($stmt->rowCount()) {
-                    $resultArray["uniqueID"] = $conn->lastInsertId();
-                }
-            }
-        } catch (Exception $e) {
-            returnMessage("failed", "Ein Fehler ist beim Erstellen des Quizes in der Datenbank aufgetreten: $e");
-            die();
-        }
-
-        returnMessage("success", "Quiz erfolgreich erstellt. Nun kann mit der Bearbeitung begonnen werden.", false, $resultArray);
         die();
     } else if ($operation === "deleteUser") {
         if (!userHasPermissions($conn, $userID, ["editUserInformation" => gnVP($conn, "editUserInformation"), "benutzerverwaltungDeleteUsers" => gnVP($conn, "benutzerverwaltungDeleteUsers")])) {
@@ -1236,7 +1218,7 @@ if (isset($_POST["benutzerverwaltung"])) {
             die();
         }
         $username = $_POST["username"];
-        $password = $_POST["password"];
+        $password = json_validate($_POST["password"])?->{"password"};
         $email = $_POST["email"];
 
         if (empty($username)) {

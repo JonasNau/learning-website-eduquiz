@@ -912,7 +912,45 @@ class SETTINGS {
               );
               this.edit([current["id"]], true);
             });
-          } else {
+          } else if (current["type"] === "json") {
+            settingBox.innerHTML = `
+              <button type="button" class="btn btn-secondary btn-sm" id="set">Ändern</button>
+              `;
+            let changeBtn = settingBox.querySelector("#set");
+
+            changeBtn.addEventListener("click", async () => {
+              let setting = await Utils.getUserInput("Einstellung ändern", "JSON", false, "textArea", JSON.stringify(current["setting"], null, 2), JSON.stringify(current["setting"], null, 2), true, false, false, true, false);
+              if (setting === false) {
+                await Utils.alertUser("Nachricht", "Keine Aktion unternommen", false);
+                return;
+              }
+              if (current["setting"] == setting) {
+                await Utils.alertUser(
+                  "Nachricht",
+                  "Keine Veränderung vorgenommen."
+                );
+                return false;
+              }
+              await Utils.makeJSON(
+                await Utils.sendXhrREQUEST(
+                  "POST",
+                  "settings&operation=changeValue&type=" +
+                    current["type"] +
+                    "&id=" +
+                    current["id"] +
+                    "&newValue=" +
+                    JSON.stringify(setting),
+                  "./includes/settings.inc.php",
+                  "application/x-www-form-urlencoded",
+                  true,
+                  true,
+                  false,
+                  true
+                )
+              );
+              this.edit([current["id"]], true);
+            });
+          }else {
             let changeTypeBtn = tableRow.querySelector("#setting #changeType");
             changeTypeBtn.setAttribute("style", "opacity: 1;");
           }
@@ -1087,7 +1125,6 @@ class SETTINGS {
           deleteSettingBtn.addEventListener("click", async () => {
             if (
               !(await Utils.userHasPermissions(
-                "../../includes/userSystem/checkPermissionsFromFrontend.php",
                 ["SettingsADDandREMOVE"]
               ))
             ) {

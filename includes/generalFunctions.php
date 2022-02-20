@@ -1081,6 +1081,32 @@ function getColumsFromDatabaseMultipleWhere($conn, $table, $columns = array(), $
     return false;
 }
 
+function customDatabaseCall($conn, $SQL, $VALUEARRAY, $fetchResults = true)
+{
+    $resultArray = array();
+
+    try {
+        $stmt = $conn->prepare($SQL);
+        if ($stmt->execute($VALUEARRAY)) {
+            if ($stmt->rowCount()) {
+                if (!$fetchResults) {
+                    return true;
+                }
+                //While because otherwhise there will be too much traffic (data) if there are more quizzes than 50
+                while ($currentResult = json_validate($stmt->fetch(PDO::FETCH_ASSOC))) {
+                   $resultArray[] = $currentResult;
+                }
+               return $resultArray;
+            }
+        }
+    } catch (Exception $e) {
+        logWrite($conn, "general", $e, true, true);
+        return false;
+    }
+
+    return false;
+}
+
 
 function setValueFromDatabase($conn, $table, $column, $where, $whereEqualTo, $newValue, $insertIFNotExists = false)
 {

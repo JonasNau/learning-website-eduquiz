@@ -78,9 +78,600 @@ class Medienverwaltung {
     //Change All
     let thead = this.editTable.querySelector("thead");
 
-    //ChangeAllKeywords
+    //description
+    let changeDescriptionBtn = thead.querySelector("#description #changeAll");
+    changeDescriptionBtn.addEventListener("click", async () => {
+      if (!Utils.userHasPermissions(["medienverwaltungChangeValues"])) {
+        Utils.permissionDENIED();
+        return false;
+      }
 
-    //DeleteAll
+      let newValue = await Utils.getUserInput(
+        "Beschreibung ändern",
+        "Ändere hier die Beschreibung",
+        false,
+        "textArea",
+        "",
+        "",
+        false,
+        false,
+        false,
+        false
+      );
+      if (newValue === false) {
+        await Utils.alertUser("Nachricht", "Keine Aktion unternommen", false);
+        return false;
+      }
+      for (const current of this.choosenArray) {
+        await Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "medienverwaltung&operation=changeValue&type=description&newValue=" +
+              newValue +
+              "&id=" +
+              current,
+            "/teacher/includes/medienverwaltung.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            false,
+            false,
+            true,
+            false
+          )
+        );
+        this.edit([current], true);
+      }
+    });
+    //keywords
+    let changeKeyWordsBtn = thead.querySelector("#keywords #changeAll");
+    changeKeyWordsBtn.addEventListener("click", async () => {
+      if (!Utils.userHasPermissions(["medienverwaltungChangeValues"])) {
+        Utils.permissionDENIED();
+        return false;
+      }
+
+      let newValue = Object.values(
+        await Utils.editObject(
+          {},
+          {
+            title: "Schlüsselwörter bearbeiten",
+            fullscreen: true,
+            modalType: "ok",
+          },
+          false,
+          false
+        )
+      );
+      if (!newValue) {
+        await Utils.alertUser("Nachricht", "Keine Aktion unternommen", false);
+        return false;
+      }
+      for (const current of this.choosenArray) {
+        await Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "medienverwaltung&operation=changeValue&type=keywords&newValue=" +
+              JSON.stringify(newValue) +
+              "&id=" +
+              current,
+            "/teacher/includes/medienverwaltung.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            false,
+            false,
+            true,
+            false
+          )
+        );
+      }
+      this.edit(this.choosenArray, false);
+    });
+    //isOnlineSource
+    let onlineSourceBtn = thead.querySelector("#isOnlineSource #changeAll");
+    onlineSourceBtn.addEventListener("click", async () => {
+      let status = await Utils.getUserInput(
+        "Onlinequelle ändern",
+        "Ausgewählte Medieneinträge sind Onlinequellen.",
+        false,
+        "select",
+        false,
+        false,
+        true,
+        { Ja: 1, Nein: 0 },
+        true,
+        false
+      );
+      if (status === false) {
+        await Utils.alertUser("Nachricht", "Keine Aktion unternommen");
+        return false;
+      }
+
+      for (const current of this.choosenArray) {
+        await Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "medienverwaltung&operation=changeValue&type=isOnlineSource&newValue=" +
+              JSON.stringify(status) +
+              "&id=" +
+              current,
+            "/teacher/includes/medienverwaltung.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            false,
+            false,
+            true,
+            false
+          )
+        );
+        this.edit([current], true);
+      }
+    });
+    //inMediaFolder
+    let inMediaFolderBtn = thead.querySelector("#inMediaFolder #changeAll");
+    inMediaFolderBtn.addEventListener("click", async () => {
+      let status = await Utils.getUserInput(
+        "In Media-Ordner ändern",
+        "Ausgewählte Medieneinträge sind im Media-Ordner.",
+        false,
+        "select",
+        false,
+        false,
+        true,
+        { Ja: 1, Nein: 0 },
+        true,
+        false
+      );
+      if (status === false) {
+        await Utils.alertUser("Nachricht", "Keine Aktion unternommen");
+        return false;
+      }
+      for (const current of this.choosenArray) {
+        await Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "medienverwaltung&operation=changeValue&type=inMediaFolder&newValue=" +
+              JSON.stringify(status) +
+              "&id=" +
+              current,
+            "/teacher/includes/medienverwaltung.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            false,
+            false,
+            true,
+            false
+          )
+        );
+        this.edit([current], true);
+      }
+    });
+    //path
+    let changePathBtn = thead.querySelector("#path #changeAll");
+    changePathBtn.addEventListener("click", async () => {
+      if (!Utils.userHasPermissions(["medienverwaltungChangeValues"])) {
+        Utils.permissionDENIED();
+        return false;
+      }
+      let newValue = await Utils.getUserInput(
+        "Pfad / URL ändern",
+        "Ändere hier den Pfad / URL",
+        false,
+        "textArea",
+        "",
+        "",
+        false,
+        false,
+        false,
+        false
+      );
+      if (newValue === false) {
+        await Utils.alertUser("Nachricht", "Keine Aktion unternommen", false);
+        return false;
+      }
+      for (const current of this.choosenArray) {
+        await Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "medienverwaltung&operation=changeValue&type=path&newValue=" +
+              JSON.stringify({ path: newValue }) +
+              "&id=" +
+              current,
+            "/teacher/includes/medienverwaltung.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            false,
+            false,
+            true,
+            false
+          )
+        );
+      }
+      this.edit(this.choosenArray, false);
+    });
+    //thumbnailData
+    let changeDataThumbanilBtn = thead.querySelector(
+      "#thumbnailData #changeAll"
+    );
+    changeDataThumbanilBtn.addEventListener("click", async () => {
+      if (!Utils.userHasPermissions(["medienverwaltungADDandREMOVE"])) {
+        Utils.permissionDENIED();
+        return false;
+      }
+      let secondOperation = await Utils.getUserInput(
+        "Aktion auswählen",
+        "Wie willst du das Vorschaubild (Thumbnail) ändern? (alle ausgewählten) -> jeweils seperater Upload",
+        false,
+        "select",
+        false,
+        false,
+        false,
+        {
+          "Datei hochladen (Dateisystem)": "uploadToFileSystem",
+          "Datei geschützt in die Datenbank hochladen (BLOB, bis 1GB)":
+            "uploadAsBlob",
+          "Eine Onlinequelle hinzufügen": "addOnlineSource",
+        },
+        true,
+        false
+      );
+      for (const current of this.choosenArray) {
+        if (secondOperation === "uploadToFileSystem") {
+          let choosenfile = await Utils.getUserInput(
+            "Dateieingabe",
+            "Füge hier deine gewünchte Datei ein (Bild)",
+            false,
+            "file",
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            { multiple: false }
+          );
+          //Create FormData object
+          let formData = new FormData();
+          formData.append("file", choosenfile);
+          formData.append(
+            "request",
+            "medienverwaltung&operation=changeValue&type=changeDataThumbnail&secondOperation=uploadToFileSystem"
+          );
+          formData.append("medienverwaltung", "selected");
+          formData.append("operation", "changeValue");
+          formData.append("type", "changeDataThumbnail");
+          formData.append("secondOperation", "uploadToFileSystem");
+          formData.append("id", current);
+          console.log("CHOOSEN FILE =>", choosenfile);
+          if (!choosenfile) {
+            await Utils.alertUser("Nachricht", "Keine Aktion unternommen");
+            return false;
+          }
+          let response = await Utils.makeJSON(
+            await Utils.sendXhrREQUESTCustomFormData(
+              formData,
+              "/teacher/includes/medienverwaltung.inc.php",
+              true,
+              false,
+              true,
+              false,
+              true,
+              "text",
+              false
+            )
+          );
+          this.edit([current], true);
+        } else if (secondOperation === "uploadAsBlob") {
+          let choosenfile = await Utils.getUserInput(
+            "Dateieingabe",
+            "Füge hier deine gewünchte Datei ein",
+            false,
+            "file",
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            { multiple: false }
+          );
+          //Create FormData object
+          let formData = new FormData();
+          formData.append("file", choosenfile);
+          formData.append(
+            "request",
+            "medienverwaltung&operation=changeValue&type=changeDataThumbnail&secondOperation=uploadAsBlob"
+          );
+          formData.append("medienverwaltung", "selected");
+          formData.append("operation", "changeValue");
+          formData.append("type", "changeDataThumbnail");
+          formData.append("secondOperation", "uploadAsBlob");
+          formData.append("id", current);
+          console.log("CHOOSEN FILE =>", choosenfile);
+          if (!choosenfile) {
+            await Utils.alertUser("Nachricht", "Keine Aktion unternommen");
+            return false;
+          }
+          let response = await Utils.makeJSON(
+            await Utils.sendXhrREQUESTCustomFormData(
+              formData,
+              "/teacher/includes/medienverwaltung.inc.php",
+              true,
+              false,
+              true,
+              false,
+              true,
+              "text",
+              false
+            )
+          );
+          this.edit([current], true);
+        } else if (secondOperation === "addOnlineSource") {
+          let url = await Utils.getUserInput(
+            "URL eingeben",
+            "Füge hier die URL zu der Onlinequelle ein.",
+            false,
+            "text",
+            false,
+            false,
+            false
+          );
+          if (!url || Utils.isEmptyInput(url)) {
+            await Utils.alertUser(
+              "Nachricht",
+              "Keine Aktion unternommen",
+              false
+            );
+            return false;
+          }
+          url = { url: url };
+          let response = await Utils.makeJSON(
+            await Utils.sendXhrREQUEST(
+              "POST",
+              "medienverwaltung&operation=changeValue&type=changeData&secondOperation=changeDataThumbnail&url=" +
+                JSON.stringify(url) +
+                "&id=" +
+                current,
+              "/teacher/includes/medienverwaltung.inc.php",
+              "application/x-www-form-urlencoded",
+              true,
+              false,
+              false,
+              true,
+              false
+            )
+          );
+          this.edit([current], true);
+        } else if (secondOperation === "remove") {
+          let response = await Utils.makeJSON(
+            await Utils.sendXhrREQUEST(
+              "POST",
+              "medienverwaltung&operation=changeValue&type=changeDataThumbnail&secondOperation=remove&id=" +
+                current,
+              "/teacher/includes/medienverwaltung.inc.php",
+              "application/x-www-form-urlencoded",
+              true,
+              false,
+              false,
+              true,
+              false
+            )
+          );
+          this.edit([current], true);
+        }
+      }
+    });
+    //Thumbnailfilename
+    let changethumbnailFilenameBtn = thead.querySelector(
+      "#thumbnailFileName #changeAll"
+    );
+    changethumbnailFilenameBtn.addEventListener("click", async () => {
+      if (!Utils.userHasPermissions(["medienverwaltungChangeValues"])) {
+        Utils.permissionDENIED();
+        return false;
+      }
+      let newValue = await Utils.getUserInput(
+        "Dateinamen ändern",
+        "Ändere hier den Dateinamen",
+        false,
+        "textArea",
+        "",
+        "",
+        false,
+        false,
+        false,
+        false
+      );
+      if (newValue === false) {
+        await Utils.alertUser("Nachricht", "Keine Aktion unternommen", false);
+        return false;
+      }
+      for (const current of this.choosenArray) {
+        await Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "medienverwaltung&operation=changeValue&type=thumbnailFileName&newValue=" +
+              JSON.stringify({ newValue: newValue }) +
+              "&id=" +
+              current,
+            "/teacher/includes/medienverwaltung.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            true,
+            false,
+            true,
+            false
+          )
+        );
+        this.edit([current], true);
+      }
+    });
+    //thumbnailIsOnlineSourceBtn
+    let thumbnailIsOnlineSourceBtn = thead.querySelector(
+      "#thumbnailIsOnlineSource #changeAll"
+    );
+    thumbnailIsOnlineSourceBtn.addEventListener("click", async () => {
+      let status = await Utils.getUserInput(
+        "Onlinequellen ändern",
+        "Ausgewählte Medieneinträge sind im Onlinequellen.",
+        false,
+        "select",
+        false,
+        false,
+        true,
+        { Ja: 1, Nein: 0 },
+        true,
+        false
+      );
+      if (status === false) {
+        await Utils.alertUser("Nachricht", "Keine Aktion unternommen");
+        return false;
+      }
+      for (const current of this.choosenArray) {
+        await Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "medienverwaltung&operation=changeValue&type=thumbnailIsOnlineSource&newValue=" +
+              JSON.stringify(status) +
+              "&id=" +
+              current,
+            "/teacher/includes/medienverwaltung.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            false,
+            false,
+            true,
+            false
+          )
+        );
+        this.edit([current], true);
+      }
+    });
+    //thumbnailPath
+    let changeThumbnailPathBtn = thead.querySelector(
+      "#thumbnailPath #changeAll"
+    );
+    changeThumbnailPathBtn.addEventListener("click", async () => {
+      if (!Utils.userHasPermissions(["medienverwaltungChangeValues"])) {
+        Utils.permissionDENIED();
+        return false;
+      }
+      let newValue = await Utils.getUserInput(
+        "Pfad / URL ändern",
+        "Ändere hier den Pfad / URL",
+        false,
+        "textArea",
+        "",
+        "",
+        false,
+        false,
+        false,
+        false
+      );
+      if (newValue === false) {
+        await Utils.alertUser("Nachricht", "Keine Aktion unternommen", false);
+        return false;
+      }
+      for (const current of this.choosenArray) {
+        await Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "medienverwaltung&operation=changeValue&type=thumbnailPath&newValue=" +
+              JSON.stringify({ path: newValue }) +
+              "&id=" +
+              current,
+            "/teacher/includes/medienverwaltung.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            false,
+            false,
+            true,
+            false
+          )
+        );
+        this.edit([current], true);
+      }
+    });
+    //thumbnailInMediaFolder
+    let thumbnailInMediaFolderBtn = thead.querySelector(
+      "#thumbnailInMediaFolder #changeAll"
+    );
+    thumbnailInMediaFolderBtn.addEventListener("click", async () => {
+      let status = await Utils.getUserInput(
+        "In Media-Ordner ändern",
+        "Ausgewählte Medieneinträge sind im Media-Ordner.",
+        false,
+        "select",
+        false,
+        false,
+        true,
+        { Ja: 1, Nein: 0 },
+        true,
+        false
+      );
+      if (status === false) {
+        await Utils.alertUser("Nachricht", "Keine Aktion unternommen");
+        return false;
+      }
+      for (const current of this.choosenArray) {
+        await Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "medienverwaltung&operation=changeValue&type=thumbnailInMediaFolder&newValue=" +
+              JSON.stringify(status) +
+              "&id=" +
+              current,
+            "/teacher/includes/medienverwaltung.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            false,
+            false,
+            true,
+            false
+          )
+        );
+        this.edit([current], true);
+      }
+    });
+    //removeAll
+    let deleteBtn = thead.querySelector("#remove #removeAll");
+    deleteBtn.addEventListener("click", async () => {
+      if (!Utils.userHasPermissions(["medienverwaltungADDandREMOVE"])) {
+        Utils.permissionDENIED();
+        return false;
+      }
+      if (
+        (await Utils.askUser(
+          "Medieneintrag löschen",
+          `Möchtest du alle ausgewählten Medieneinträge wirklich löschen? (${this.choosenArray.length}) Alle verknüpften Dateien werden gelöscht. In Quizzen verknüpfte Inhalte funktionieren dann nicht mehr und müssen geändert werden.`
+        )) !== false
+      ) {
+        for (const current of this.choosenArray) {
+          let response = await Utils.makeJSON(
+            await Utils.sendXhrREQUEST(
+              "POST",
+              "medienverwaltung&operation=removeMedia&id=" + current,
+              "/teacher/includes/medienverwaltung.inc.php",
+              "application/x-www-form-urlencoded",
+              true,
+              false,
+              false,
+              true,
+              false
+            )
+          );
+          if (response["status"] == "success") {
+            this.choosenArray = Utils.removeFromArray(
+              this.choosenArray,
+              current
+            );
+          }
+        }
+        this.edit(this.choosenArray, false);
+      } else {
+        await Utils.alertUser("Nachricht", "Keine Aktion unternommen");
+        return false;
+      }
+    });
   }
 
   async prepareSearch() {
@@ -384,21 +975,157 @@ class Medienverwaltung {
 
     //ADD Media
     addBtn.addEventListener("click", async () => {
-      if (!(await Utils.userHasPermissions(["medienverwaltungADDandREMOVE"]))) {
+      this.addMedia();
+    });
+  }
+
+  async addMedia() {
+    if (!Utils.userHasPermissions(["medienverwaltungADDandREMOVE"])) {
+      Utils.permissionDENIED();
+      return false;
+    }
+    let type = await Utils.getUserInput(
+      "Medieneintrag erstellen",
+      "Wie willst du einen Medieneintrag erstellen?",
+      false,
+      "select",
+      false,
+      false,
+      false,
+      {
+        "Datei hochladen (Dateisystem)": "uploadToFileSystem",
+        "Datei geschützt in die Datenbank hochladen (BLOB, bis 1GB)":
+          "uploadAsBlob",
+        "Eine Onlinequelle hinzufügen": "addOnlineSource",
+      },
+      true,
+      false
+    );
+    if (type === "uploadToFileSystem") {
+      let choosenfile = await Utils.getUserInput(
+        "Dateieingabe",
+        "Füge hier deine gewünchte Datei ein",
+        false,
+        "file",
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        { multiple: false }
+      );
+      //Create FormData object
+      let formData = new FormData();
+      formData.append("file", choosenfile);
+      formData.append(
+        "request",
+        "medienverwaltung&operation=addMedia&type=uploadToFileSystem"
+      );
+      formData.append("medienverwaltung", "selected");
+      formData.append("operation", "addMedia");
+      formData.append("type", "uploadToFileSystem");
+      console.log("CHOOSEN FILE =>", choosenfile);
+      if (!choosenfile) {
+        await Utils.alertUser("Nachricht", "Keine Aktion unternommen");
         return false;
       }
-
-      //User Input
-
-      if (Utils.isEmptyInput(userInput, true)) {
-        Utils.alertUser("Nachricht", "Berechtigung nicht erstellt.", false);
+      let response = await Utils.makeJSON(
+        await Utils.sendXhrREQUESTCustomFormData(
+          formData,
+          "/teacher/includes/medienverwaltung.inc.php",
+          true,
+          true,
+          true,
+          true,
+          true,
+          "text",
+          false
+        )
+      );
+      if (response && response["status"] === "success") {
+        let id = response["data"]?.["id"];
+        if (id) {
+          this.choosenArray = Utils.addToArray(this.choosenArray, id, false);
+          this.edit(this.choosenArray, false);
+          return;
+        }
+      } else {
+        Utils.alertUser("Fehler", "Datei konnte nicht hochgeladen werden");
+      }
+    } else if (type === "uploadAsBlob") {
+      let choosenfile = await Utils.getUserInput(
+        "Dateieingabe",
+        "Füge hier deine gewünchte Datei ein",
+        false,
+        "file",
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        { multiple: false }
+      );
+      //Create FormData object
+      let formData = new FormData();
+      formData.append("file", choosenfile);
+      formData.append(
+        "request",
+        "medienverwaltung&operation=addMedia&type=uploadAsBlob"
+      );
+      formData.append("medienverwaltung", "selected");
+      formData.append("operation", "addMedia");
+      formData.append("type", "uploadAsBlob");
+      console.log("CHOOSEN FILE =>", choosenfile);
+      if (!choosenfile) {
+        await Utils.alertUser("Nachricht", "Keine Aktion unternommen");
         return false;
       }
-      let res = await Utils.makeJSON(
+      let response = await Utils.makeJSON(
+        await Utils.sendXhrREQUESTCustomFormData(
+          formData,
+          "/teacher/includes/medienverwaltung.inc.php",
+          true,
+          true,
+          true,
+          true,
+          true,
+          "text",
+          false
+        )
+      );
+      if (response && response["status"] === "success") {
+        let id = response["data"]?.["id"];
+        if (id) {
+          this.choosenArray = Utils.addToArray(this.choosenArray, id, false);
+          this.edit(this.choosenArray, false);
+          return;
+        }
+      } else {
+        Utils.alertUser("Fehler", "Datei konnte nicht hochgeladen werden");
+      }
+    } else if (type === "addOnlineSource") {
+      let url = await Utils.getUserInput(
+        "URL eingeben",
+        "Füge hier die URL zu der Onlinequelle ein.",
+        false,
+        "text",
+        false,
+        false,
+        false
+      );
+      if (!url || Utils.isEmptyInput(url)) {
+        await Utils.alertUser("Nachricht", "Keine Aktion unternommen", false);
+        return false;
+      }
+      url = { url: url };
+      let response = await Utils.makeJSON(
         await Utils.sendXhrREQUEST(
           "POST",
-          "medienverwaltung&operation=uploadNewMedia",
-          "./includes/berechtigungsverwaltung.inc.php",
+          "medienverwaltung&operation=addMedia&type=addOnlineSource&url=" +
+            JSON.stringify(url),
+          "/teacher/includes/medienverwaltung.inc.php",
           "application/x-www-form-urlencoded",
           true,
           true,
@@ -407,14 +1134,20 @@ class Medienverwaltung {
           true
         )
       );
-      if (res["status"]) {
-        let id = res["data"];
-        this.choosenArray = Utils.addToArray(this.choosenArray, id, false);
-        this.edit(this.choosenArray);
+      if (response && response["status"] === "success") {
+        let id = response["data"]?.["id"];
+        if (id) {
+          this.choosenArray = Utils.addToArray(this.choosenArray, id, false);
+          this.edit(this.choosenArray, false);
+          return;
+        }
       } else {
-        this.search();
+        Utils.alertUser(
+          "Fehler",
+          "Medieneintrag konnte nicht erstellt werden."
+        );
       }
-    });
+    }
   }
 
   setFilterMode(value) {
@@ -1786,7 +2519,16 @@ class Medienverwaltung {
       tableRow.setAttribute("data-value", result["id"]);
 
       tableRow.innerHTML = `
-      <td class="select"><input type="checkbox" id="select"><button id="chooseOnly"><img src="../../images/icons/stift.svg" alt="Auswahl"></button></td>
+      <td class="select"><input type="checkbox" id="select"><button id="chooseOnly"><img src="../../images/icons/stift.svg" alt="Auswahl"></button>
+      <span class="loading-btn-wrapper copyMediaID-wrapper">
+      <button class="loading-btn copyMediaID">
+        <span class="loading-btn__text">
+          MediaID kopieren
+        </span>
+      </button>
+    </span>
+
+      </td>
       <td id="data"></td>
       <td id="description" style="min-width: 300px;">${
         result["description"]
@@ -1857,6 +2599,24 @@ class Medienverwaltung {
         this.updateEditBtn();
       });
 
+      let copyMediaIDBtn = tableRow.querySelector(".copyMediaID-wrapper .copyMediaID");
+      copyMediaIDBtn.addEventListener("click", () => {
+        copyMediaIDBtn.classList.add("loading-btn--pending");
+        if (Utils.copyTextToClipboard(result["mediaID"])) {
+          copyMediaIDBtn.classList.remove("loading-btn--pending");
+          copyMediaIDBtn.classList.add("loading-btn--success");
+          window.setTimeout(() => {
+            copyMediaIDBtn.classList.remove("loading-btn--success");
+          }, 1300);
+        } else {
+          copyMediaIDBtn.classList.remove("loading-btn--pending");
+          copyMediaIDBtn.classList.add("loading-btn--failed");
+          window.setTimeout(() => {
+            copyMediaIDBtn.classList.remove("loading-btn--failed");
+          }, 1300);
+        }
+      });
+
       //Keywords
       let keywordsContainer = tableRow.querySelector("#keywords");
       Utils.listOfArrayToHTML(
@@ -1869,30 +2629,35 @@ class Medienverwaltung {
       let oldCacheControl = window.localStorage.getItem("cacheControl");
       window.localStorage.setItem("cacheControl", "no-cache");
       //Data
-      await Utils.setMedia(
-        { mediaID: result["mediaID"] },
-        tableRow.querySelector("#data")
-      );
 
-      //Thumbnail
-      //GET thumbnail data if enabled
+      try {
+        Utils.setMedia(
+          { mediaID: result["mediaID"] },
+          tableRow.querySelector("#data")
+        );
 
-      if (result["thumbnail"]) {
-        let thumbnailData = await Utils.getThumbnailURL(result);
-        console.log(thumbnailData);
-        if (thumbnailData.url) {
-          await Utils.setMedia(
-            {
-              type: "image",
-              url: thumbnailData.url,
-              isOnlineSource: false,
-              urlIsBLOB: true,
-              blobData: thumbnailData,
-            },
-            tableRow.querySelector("#thumbnailData"),
-            true
-          );
+        //Thumbnail
+        //GET thumbnail data if enabled
+
+        if (result["thumbnail"]) {
+          let thumbnailData = await Utils.getThumbnailURL(result);
+          console.log(thumbnailData);
+          if (thumbnailData.url) {
+            Utils.setMedia(
+              {
+                type: "image",
+                url: thumbnailData.url,
+                isOnlineSource: false,
+                urlIsBLOB: true,
+                blobData: thumbnailData,
+              },
+              tableRow.querySelector("#thumbnailData"),
+              true
+            );
+          }
         }
+      } catch (e) {
+        console.error(e);
       }
 
       //set cacheControl to old value
@@ -1986,6 +2751,14 @@ class Medienverwaltung {
         <td id="data">
             <div class="content"></div>
             <div class="change"><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button></div>
+            <span class="loading-btn-wrapper copyMediaID-wrapper">
+            <button class="loading-btn copyMediaID">
+              <span class="loading-btn__text">
+                MediaID kopieren
+              </span>
+            </button>
+          </span>
+        </span>
         </td>
         <td id="description"><span>${
           current["description"] ?? "keine"
@@ -2004,8 +2777,8 @@ class Medienverwaltung {
                 <span class="slider round"></span>
             </label>
         </td>
-        <td id="type">image</td>
-        <td id="mimeType">image/jepg</td>
+        <td id="type">${current["type"]}</td>
+        <td id="mimeType">${current["mimeType"]}</td>
         <td id="isBlob">
             ${Utils.valueToString(current["isBlob"], {
               true: "Ja",
@@ -2086,12 +2859,28 @@ class Medienverwaltung {
         <td id="fileSize">${current["fileSize"] ?? 0}</td>
         <th id="remove"><button class="delete-btn"><img src="../../images/icons/delete.svg" alt="Löschen"></button></td>
   `;
-
+  let copyMediaIDBtn = tableRow.querySelector(".copyMediaID-wrapper .copyMediaID");
+  copyMediaIDBtn.addEventListener("click", () => {
+    copyMediaIDBtn.classList.add("loading-btn--pending");
+    if (Utils.copyTextToClipboard(current["mediaID"])) {
+      copyMediaIDBtn.classList.remove("loading-btn--pending");
+      copyMediaIDBtn.classList.add("loading-btn--success");
+      window.setTimeout(() => {
+        copyMediaIDBtn.classList.remove("loading-btn--success");
+      }, 1300);
+    } else {
+      copyMediaIDBtn.classList.remove("loading-btn--pending");
+      copyMediaIDBtn.classList.add("loading-btn--failed");
+      window.setTimeout(() => {
+        copyMediaIDBtn.classList.remove("loading-btn--failed");
+      }, 1300);
+    }
+  });
         //Keywords
         let keywordsContainer = tableRow.querySelector("#keywords .content");
         Utils.listOfArrayToHTML(
           keywordsContainer,
-          Utils.makeJSON(current["keywords"]),
+          current["keywords"],
           "keine"
         );
         //Disable cache for loading the newest version of media
@@ -2125,16 +2914,14 @@ class Medienverwaltung {
         //set cacheControl to old value
         window.localStorage.setItem("cacheControl", oldCacheControl);
 
-        //TODO: change
-
         //data
         let changeDataBtn = tableRow.querySelector("#data .change #change");
         changeDataBtn.addEventListener("click", async () => {
-          if (!Utils.userHasPermissions(["medienverwaltungChangeValues"])) {
+          if (!Utils.userHasPermissions(["medienverwaltungADDandREMOVE"])) {
             Utils.permissionDENIED();
             return false;
           }
-          let type = await Utils.getUserInput(
+          let secondOperation = await Utils.getUserInput(
             "Aktion auswählen",
             "Wie willst du die Mediendaten ändern?",
             false,
@@ -2144,14 +2931,15 @@ class Medienverwaltung {
             false,
             {
               "Datei hochladen (Dateisystem)": "uploadToFileSystem",
-              "Datei geschützt in die Datenbank hochladen (BLOB, bis 4GB)":
+              "Datei geschützt in die Datenbank hochladen (BLOB, bis 1GB)":
                 "uploadAsBlob",
               "Eine Onlinequelle hinzufügen": "addOnlineSource",
+              Entfernen: "remove",
             },
             true,
             false
           );
-          if (type === "uploadToFileSystem") {
+          if (secondOperation === "uploadToFileSystem") {
             let choosenfile = await Utils.getUserInput(
               "Dateieingabe",
               "Füge hier deine gewünchte Datei ein",
@@ -2167,54 +2955,799 @@ class Medienverwaltung {
             );
             //Create FormData object
             let formData = new FormData();
-            formData.append("file_to_append", choosenfile);
-            console.log(
-              "CHOOSEN FILE =>",
-              choosenfile,
-              "formData =>",
-              formData
+            formData.append("file", choosenfile);
+            formData.append(
+              "request",
+              "medienverwaltung&operation=changeValue&type=changeData&secondOperation=uploadToFileSystem"
             );
+            formData.append("medienverwaltung", "selected");
+            formData.append("operation", "changeValue");
+            formData.append("type", "changeData");
+            formData.append("secondOperation", "uploadToFileSystem");
+            formData.append("id", current["id"]);
+            console.log("CHOOSEN FILE =>", choosenfile);
             if (!choosenfile) {
               await Utils.alertUser("Nachricht", "Keine Aktion unternommen");
               return false;
             }
-            await Utils.makeJSON(
+            let response = await Utils.makeJSON(
+              await Utils.sendXhrREQUESTCustomFormData(
+                formData,
+                "/teacher/includes/medienverwaltung.inc.php",
+                true,
+                true,
+                true,
+                true,
+                true,
+                "text",
+                false
+              )
+            );
+            this.edit([current["id"]], true);
+          } else if (secondOperation === "uploadAsBlob") {
+            let choosenfile = await Utils.getUserInput(
+              "Dateieingabe",
+              "Füge hier deine gewünchte Datei ein",
+              false,
+              "file",
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              { multiple: false }
+            );
+            //Create FormData object
+            let formData = new FormData();
+            formData.append("file", choosenfile);
+            formData.append(
+              "request",
+              "medienverwaltung&operation=changeValue&type=changeData&secondOperation=uploadAsBlob"
+            );
+            formData.append("medienverwaltung", "selected");
+            formData.append("operation", "changeValue");
+            formData.append("type", "changeData");
+            formData.append("secondOperation", "uploadAsBlob");
+            formData.append("id", current["id"]);
+            console.log("CHOOSEN FILE =>", choosenfile);
+            if (!choosenfile) {
+              await Utils.alertUser("Nachricht", "Keine Aktion unternommen");
+              return false;
+            }
+            let response = await Utils.makeJSON(
+              await Utils.sendXhrREQUESTCustomFormData(
+                formData,
+                "/teacher/includes/medienverwaltung.inc.php",
+                true,
+                true,
+                true,
+                true,
+                true,
+                "text",
+                false
+              )
+            );
+            this.edit([current["id"]], true);
+          } else if (secondOperation === "addOnlineSource") {
+            let url = await Utils.getUserInput(
+              "URL eingeben",
+              "Füge hier die URL zu der Onlinequelle ein.",
+              false,
+              "text",
+              false,
+              false,
+              false
+            );
+            if (!url || Utils.isEmptyInput(url)) {
+              await Utils.alertUser(
+                "Nachricht",
+                "Keine Aktion unternommen",
+                false
+              );
+              return false;
+            }
+            url = { url: url };
+            let response = await Utils.makeJSON(
               await Utils.sendXhrREQUEST(
                 "POST",
-                "medienverwaltung&operation=changeValue&type=changeData&id=" +
-                  current["id"] +
-                  "&secondOperation=changeFileData&file=" +
-                  JSON.stringify(formData),
+                "medienverwaltung&operation=changeValue&type=changeData&secondOperation=addOnlineSource&url=" +
+                  JSON.stringify(url) +
+                  "&id=" +
+                  current["id"],
                 "/teacher/includes/medienverwaltung.inc.php",
                 "application/x-www-form-urlencoded",
                 true,
                 true,
                 false,
                 true,
-                false,
-                true,
-                "text/plain"
+                true
               )
             );
-          } else if (type === "uploadAsBlobuploadAsBlob") {
-          } else if (type === "addOnlineSource") {
+            this.edit([current["id"]], true);
+          } else if (secondOperation === "remove") {
+            let response = await Utils.makeJSON(
+              await Utils.sendXhrREQUEST(
+                "POST",
+                "medienverwaltung&operation=changeValue&type=changeData&secondOperation=remove&id=" +
+                  current["id"],
+                "/teacher/includes/medienverwaltung.inc.php",
+                "application/x-www-form-urlencoded",
+                true,
+                true,
+                false,
+                true,
+                true
+              )
+            );
+            this.edit([current["id"]], true);
           }
-          this.edit([current["id"]], true);
         });
         //description
+        let changeDescriptionBtn = tableRow.querySelector(
+          "#description #change"
+        );
+        changeDescriptionBtn.addEventListener("click", async () => {
+          if (!Utils.userHasPermissions(["medienverwaltungChangeValues"])) {
+            Utils.permissionDENIED();
+            return false;
+          }
+
+          let newValue = await Utils.getUserInput(
+            "Beschreibung ändern",
+            "Ändere hier die Beschreibung",
+            false,
+            "textArea",
+            current["description"],
+            current["description"],
+            false,
+            false,
+            false,
+            false
+          );
+          if (newValue === false) {
+            await Utils.alertUser(
+              "Nachricht",
+              "Keine Aktion unternommen",
+              false
+            );
+            return false;
+          }
+          await Utils.makeJSON(
+            await Utils.sendXhrREQUEST(
+              "POST",
+              "medienverwaltung&operation=changeValue&type=description&newValue=" +
+                newValue +
+                "&id=" +
+                current["id"],
+              "/teacher/includes/medienverwaltung.inc.php",
+              "application/x-www-form-urlencoded",
+              true,
+              true,
+              false,
+              true,
+              false
+            )
+          );
+          this.edit([current["id"]], true);
+        });
         //keywords
+        let changeKeyWordsBtn = tableRow.querySelector("#keywords #change");
+        changeKeyWordsBtn.addEventListener("click", async () => {
+          if (!Utils.userHasPermissions(["medienverwaltungChangeValues"])) {
+            Utils.permissionDENIED();
+            return false;
+          }
+
+          let newValue = Object.values(
+            await Utils.editObject(
+              { ...Utils.makeJSON(current["keywords"]) },
+              {
+                title: "Schlüsselwörter bearbeiten",
+                fullscreen: true,
+                modalType: "ok",
+              },
+              false,
+              false
+            )
+          );
+          if (!newValue) {
+            await Utils.alertUser(
+              "Nachricht",
+              "Keine Aktion unternommen",
+              false
+            );
+            return false;
+          }
+          await Utils.makeJSON(
+            await Utils.sendXhrREQUEST(
+              "POST",
+              "medienverwaltung&operation=changeValue&type=keywords&newValue=" +
+                JSON.stringify(newValue) +
+                "&id=" +
+                current["id"],
+              "/teacher/includes/medienverwaltung.inc.php",
+              "application/x-www-form-urlencoded",
+              true,
+              true,
+              false,
+              true,
+              false
+            )
+          );
+          this.edit([current["id"]], true);
+        });
         //isOnlineSource
+        let onlineSourceSlider = tableRow.querySelector(
+          "#isOnlineSource #checkbox"
+        );
+        onlineSourceSlider.checked = current["isOnlineSource"];
+        onlineSourceSlider.addEventListener("click", async () => {
+          let state = onlineSourceSlider.checked;
+          await Utils.makeJSON(
+            await Utils.sendXhrREQUEST(
+              "POST",
+              "medienverwaltung&operation=changeValue&type=isOnlineSource&newValue=" +
+                JSON.stringify(state) +
+                "&id=" +
+                current["id"],
+              "/teacher/includes/medienverwaltung.inc.php",
+              "application/x-www-form-urlencoded",
+              true,
+              true,
+              false,
+              true,
+              false
+            )
+          );
+          this.edit([current["id"]], true);
+        });
         //path
+        let changePathBtn = tableRow.querySelector("#path #change");
+        changePathBtn.addEventListener("click", async () => {
+          if (!Utils.userHasPermissions(["medienverwaltungChangeValues"])) {
+            Utils.permissionDENIED();
+            return false;
+          }
+
+          let newValue = await Utils.getUserInput(
+            "Pfad / URL ändern",
+            "Ändere hier den Pfad / URL",
+            false,
+            "textArea",
+            current["path"],
+            current["path"],
+            false,
+            false,
+            false,
+            false
+          );
+          if (newValue === false) {
+            await Utils.alertUser(
+              "Nachricht",
+              "Keine Aktion unternommen",
+              false
+            );
+            return false;
+          }
+          await Utils.makeJSON(
+            await Utils.sendXhrREQUEST(
+              "POST",
+              "medienverwaltung&operation=changeValue&type=path&newValue=" +
+                JSON.stringify({ path: newValue }) +
+                "&id=" +
+                current["id"],
+              "/teacher/includes/medienverwaltung.inc.php",
+              "application/x-www-form-urlencoded",
+              true,
+              true,
+              false,
+              true,
+              false
+            )
+          );
+          this.edit([current["id"]], true);
+        });
         //inMediaFolder
+        let inMediaFolderSlider = tableRow.querySelector(
+          "#inMediaFolder #checkbox"
+        );
+        inMediaFolderSlider.checked = current["inMediaFolder"];
+        inMediaFolderSlider.addEventListener("click", async () => {
+          let state = inMediaFolderSlider.checked;
+
+          await Utils.makeJSON(
+            await Utils.sendXhrREQUEST(
+              "POST",
+              "medienverwaltung&operation=changeValue&type=inMediaFolder&newValue=" +
+                JSON.stringify(state) +
+                "&id=" +
+                current["id"],
+              "/teacher/includes/medienverwaltung.inc.php",
+              "application/x-www-form-urlencoded",
+              true,
+              true,
+              false,
+              true,
+              false
+            )
+          );
+          this.edit([current["id"]], true);
+        });
         //filename
+        let changeFileNameBtn = tableRow.querySelector("#filename #change");
+        changeFileNameBtn.addEventListener("click", async () => {
+          if (!Utils.userHasPermissions(["medienverwaltungChangeValues"])) {
+            Utils.permissionDENIED();
+            return false;
+          }
+
+          let newValue = await Utils.getUserInput(
+            "Dateinamen ändern",
+            "Ändere hier den Dateinamen",
+            false,
+            "textArea",
+            current["filename"],
+            current["filename"],
+            false,
+            false,
+            false,
+            false
+          );
+          if (newValue === false) {
+            await Utils.alertUser(
+              "Nachricht",
+              "Keine Aktion unternommen",
+              false
+            );
+            return false;
+          }
+          await Utils.makeJSON(
+            await Utils.sendXhrREQUEST(
+              "POST",
+              "medienverwaltung&operation=changeValue&type=filename&newValue=" +
+                JSON.stringify({ newValue: newValue }) +
+                "&id=" +
+                current["id"],
+              "/teacher/includes/medienverwaltung.inc.php",
+              "application/x-www-form-urlencoded",
+              true,
+              true,
+              false,
+              true,
+              false
+            )
+          );
+          this.edit([current["id"]], true);
+        });
         //mediaID
+        let changeMediaIDBtn = tableRow.querySelector("#mediaID #change");
+        changeMediaIDBtn.addEventListener("click", async () => {
+          if (!Utils.userHasPermissions(["medienverwaltungChangeValues"])) {
+            Utils.permissionDENIED();
+            return false;
+          }
+
+          let newValue = await Utils.getUserInput(
+            "MediaID ändern",
+            "Ändere hier die MediaID",
+            false,
+            "textArea",
+            current["mediaID"],
+            current["mediaID"],
+            false,
+            false,
+            false,
+            false
+          );
+          if (newValue === false) {
+            await Utils.alertUser(
+              "Nachricht",
+              "Keine Aktion unternommen",
+              false
+            );
+            return false;
+          }
+          await Utils.makeJSON(
+            await Utils.sendXhrREQUEST(
+              "POST",
+              "medienverwaltung&operation=changeValue&type=mediaID&newValue=" +
+                JSON.stringify({ newValue: newValue }) +
+                "&id=" +
+                current["id"],
+              "/teacher/includes/medienverwaltung.inc.php",
+              "application/x-www-form-urlencoded",
+              true,
+              true,
+              false,
+              true,
+              false
+            )
+          );
+          this.edit([current["id"]], true);
+        });
         //thumbnail
-        //dataThumbnail
+        let thumbnailSlider = tableRow.querySelector("#thumbnail #checkbox");
+        thumbnailSlider.checked = current["thumbnail"];
+        thumbnailSlider.addEventListener("click", async () => {
+          let state = thumbnailSlider.checked;
+          await Utils.makeJSON(
+            await Utils.sendXhrREQUEST(
+              "POST",
+              "medienverwaltung&operation=changeValue&type=thumbnail&newValue=" +
+                JSON.stringify(state) +
+                "&id=" +
+                current["id"],
+              "/teacher/includes/medienverwaltung.inc.php",
+              "application/x-www-form-urlencoded",
+              true,
+              true,
+              false,
+              true,
+              false
+            )
+          );
+
+          this.edit([current["id"]], true);
+        });
+        //change dataThumbnail
+        let changeDataThumbanilBtn = tableRow.querySelector(
+          "#thumbnailData .change #change"
+        );
+        changeDataThumbanilBtn.addEventListener("click", async () => {
+          if (!Utils.userHasPermissions(["medienverwaltungADDandREMOVE"])) {
+            Utils.permissionDENIED();
+            return false;
+          }
+          let secondOperation = await Utils.getUserInput(
+            "Aktion auswählen",
+            "Wie willst du das Vorschaubild (Thumbnail) ändern?",
+            false,
+            "select",
+            false,
+            false,
+            false,
+            {
+              "Datei hochladen (Dateisystem)": "uploadToFileSystem",
+              "Datei geschützt in die Datenbank hochladen (BLOB, bis 1GB)":
+                "uploadAsBlob",
+              "Eine Onlinequelle hinzufügen": "addOnlineSource",
+            },
+            true,
+            false
+          );
+          if (secondOperation === "uploadToFileSystem") {
+            let choosenfile = await Utils.getUserInput(
+              "Dateieingabe",
+              "Füge hier deine gewünchte Datei ein (Bild)",
+              false,
+              "file",
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              { multiple: false }
+            );
+            //Create FormData object
+            let formData = new FormData();
+            formData.append("file", choosenfile);
+            formData.append(
+              "request",
+              "medienverwaltung&operation=changeValue&type=changeDataThumbnail&secondOperation=uploadToFileSystem"
+            );
+            formData.append("medienverwaltung", "selected");
+            formData.append("operation", "changeValue");
+            formData.append("type", "changeDataThumbnail");
+            formData.append("secondOperation", "uploadToFileSystem");
+            formData.append("id", current["id"]);
+            console.log("CHOOSEN FILE =>", choosenfile);
+            if (!choosenfile) {
+              await Utils.alertUser("Nachricht", "Keine Aktion unternommen");
+              return false;
+            }
+            let response = await Utils.makeJSON(
+              await Utils.sendXhrREQUESTCustomFormData(
+                formData,
+                "/teacher/includes/medienverwaltung.inc.php",
+                true,
+                true,
+                true,
+                true,
+                true,
+                "text",
+                false
+              )
+            );
+            this.edit([current["id"]], true);
+          } else if (secondOperation === "uploadAsBlob") {
+            let choosenfile = await Utils.getUserInput(
+              "Dateieingabe",
+              "Füge hier deine gewünchte Datei ein",
+              false,
+              "file",
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              { multiple: false }
+            );
+            //Create FormData object
+            let formData = new FormData();
+            formData.append("file", choosenfile);
+            formData.append(
+              "request",
+              "medienverwaltung&operation=changeValue&type=changeDataThumbnail&secondOperation=uploadAsBlob"
+            );
+            formData.append("medienverwaltung", "selected");
+            formData.append("operation", "changeValue");
+            formData.append("type", "changeDataThumbnail");
+            formData.append("secondOperation", "uploadAsBlob");
+            formData.append("id", current["id"]);
+            console.log("CHOOSEN FILE =>", choosenfile);
+            if (!choosenfile) {
+              await Utils.alertUser("Nachricht", "Keine Aktion unternommen");
+              return false;
+            }
+            let response = await Utils.makeJSON(
+              await Utils.sendXhrREQUESTCustomFormData(
+                formData,
+                "/teacher/includes/medienverwaltung.inc.php",
+                true,
+                true,
+                true,
+                true,
+                true,
+                "text",
+                false
+              )
+            );
+            this.edit([current["id"]], true);
+          } else if (secondOperation === "addOnlineSource") {
+            let url = await Utils.getUserInput(
+              "URL eingeben",
+              "Füge hier die URL zu der Onlinequelle ein.",
+              false,
+              "text",
+              false,
+              false,
+              false
+            );
+            if (!url || Utils.isEmptyInput(url)) {
+              await Utils.alertUser(
+                "Nachricht",
+                "Keine Aktion unternommen",
+                false
+              );
+              return false;
+            }
+            url = { url: url };
+            let response = await Utils.makeJSON(
+              await Utils.sendXhrREQUEST(
+                "POST",
+                "medienverwaltung&operation=changeValue&type=changeData&secondOperation=changeDataThumbnail&url=" +
+                  JSON.stringify(url) +
+                  "&id=" +
+                  current["id"],
+                "/teacher/includes/medienverwaltung.inc.php",
+                "application/x-www-form-urlencoded",
+                true,
+                true,
+                false,
+                true,
+                true
+              )
+            );
+            this.edit([current["id"]], true);
+          } else if (secondOperation === "remove") {
+            let response = await Utils.makeJSON(
+              await Utils.sendXhrREQUEST(
+                "POST",
+                "medienverwaltung&operation=changeValue&type=changeDataThumbnail&secondOperation=remove&id=" +
+                  current["id"],
+                "/teacher/includes/medienverwaltung.inc.php",
+                "application/x-www-form-urlencoded",
+                true,
+                true,
+                false,
+                true,
+                true
+              )
+            );
+            this.edit([current["id"]], true);
+          }
+        });
         //thumbnailFilename
+        let changethumbnailFilenameBtn = tableRow.querySelector(
+          "#thumbnailFileName #change"
+        );
+        changethumbnailFilenameBtn.addEventListener("click", async () => {
+          if (!Utils.userHasPermissions(["medienverwaltungChangeValues"])) {
+            Utils.permissionDENIED();
+            return false;
+          }
+
+          let newValue = await Utils.getUserInput(
+            "Dateinamen ändern",
+            "Ändere hier den Dateinamen",
+            false,
+            "textArea",
+            current["thumbnailFileName"],
+            current["thumbnailFileName"],
+            false,
+            false,
+            false,
+            false
+          );
+          if (newValue === false) {
+            await Utils.alertUser(
+              "Nachricht",
+              "Keine Aktion unternommen",
+              false
+            );
+            return false;
+          }
+          await Utils.makeJSON(
+            await Utils.sendXhrREQUEST(
+              "POST",
+              "medienverwaltung&operation=changeValue&type=thumbnailFileName&newValue=" +
+                JSON.stringify({ newValue: newValue }) +
+                "&id=" +
+                current["id"],
+              "/teacher/includes/medienverwaltung.inc.php",
+              "application/x-www-form-urlencoded",
+              true,
+              true,
+              false,
+              true,
+              false
+            )
+          );
+          this.edit([current["id"]], true);
+        });
         //thumbnailIsOnlineSource
+        let thumbnailIsOnlineSourceSlider = tableRow.querySelector(
+          "#thumbnailIsOnlineSource #checkbox"
+        );
+        thumbnailIsOnlineSourceSlider.checked =
+          current["thumbnailIsOnlineSource"];
+        thumbnailIsOnlineSourceSlider.addEventListener("click", async () => {
+          let state = thumbnailIsOnlineSourceSlider.checked;
+
+          await Utils.makeJSON(
+            await Utils.sendXhrREQUEST(
+              "POST",
+              "medienverwaltung&operation=changeValue&type=thumbnailIsOnlineSource&newValue=" +
+                JSON.stringify(state) +
+                "&id=" +
+                current["id"],
+              "/teacher/includes/medienverwaltung.inc.php",
+              "application/x-www-form-urlencoded",
+              true,
+              true,
+              false,
+              true,
+              false
+            )
+          );
+          this.edit([current["id"]], true);
+        });
         //thumbnailPath
+        let changethumbnailPathBtn = tableRow.querySelector(
+          "#thumbnailPath #change"
+        );
+        changethumbnailPathBtn.addEventListener("click", async () => {
+          if (!Utils.userHasPermissions(["medienverwaltungChangeValues"])) {
+            Utils.permissionDENIED();
+            return false;
+          }
+
+          let newValue = await Utils.getUserInput(
+            "Pfad / URL ändern",
+            "Ändere hier den Pfad / URL",
+            false,
+            "textArea",
+            current["thumbnailPath"],
+            current["thumbnailPath"],
+            false,
+            false,
+            false,
+            false
+          );
+          if (newValue === false) {
+            await Utils.alertUser(
+              "Nachricht",
+              "Keine Aktion unternommen",
+              false
+            );
+            return false;
+          }
+          await Utils.makeJSON(
+            await Utils.sendXhrREQUEST(
+              "POST",
+              "medienverwaltung&operation=changeValue&type=thumbnailPath&newValue=" +
+                JSON.stringify({ path: newValue }) +
+                "&id=" +
+                current["id"],
+              "/teacher/includes/medienverwaltung.inc.php",
+              "application/x-www-form-urlencoded",
+              true,
+              true,
+              false,
+              true,
+              false
+            )
+          );
+          this.edit([current["id"]], true);
+        });
         //thumbnailInMediaFolder
+        let thumbnailInMediaFolderSlider = tableRow.querySelector(
+          "#thumbnailInMediaFolder #checkbox"
+        );
+        thumbnailInMediaFolderSlider.checked =
+          current["thumbnailInMediaFolder"];
+        thumbnailInMediaFolderSlider.addEventListener("click", async () => {
+          let state = thumbnailInMediaFolderSlider.checked;
+
+          await Utils.makeJSON(
+            await Utils.sendXhrREQUEST(
+              "POST",
+              "medienverwaltung&operation=changeValue&type=thumbnailInMediaFolder&newValue=" +
+                JSON.stringify(state) +
+                "&id=" +
+                current["id"],
+              "/teacher/includes/medienverwaltung.inc.php",
+              "application/x-www-form-urlencoded",
+              true,
+              true,
+              false,
+              true,
+              false
+            )
+          );
+          this.edit([current["id"]], true);
+        });
         //delete
+        let deleteBtn = tableRow.querySelector("#remove .delete-btn");
+        deleteBtn.addEventListener("click", async () => {
+          if (!Utils.userHasPermissions(["medienverwaltungADDandREMOVE"])) {
+            Utils.permissionDENIED();
+            return false;
+          }
+          if (
+            (await Utils.askUser(
+              "Medieneintrag löschen",
+              "Möchtest du den Medieneintrag wirklich löschen? Alle verknüpften Dateien werden gelöscht. In Quizzen verknüpfte Inhalte funktionieren dann nicht mehr und müssen geändert werden."
+            )) !== false
+          ) {
+            let response = await Utils.makeJSON(
+              await Utils.sendXhrREQUEST(
+                "POST",
+                "medienverwaltung&operation=removeMedia&id=" + current["id"],
+                "/teacher/includes/medienverwaltung.inc.php",
+                "application/x-www-form-urlencoded",
+                true,
+                true,
+                false,
+                true,
+                false
+              )
+            );
+            if (response["status"] == "success") {
+              this.choosenArray = Utils.removeFromArray(
+                this.choosenArray,
+                current["id"]
+              );
+            }
+            this.edit(this.choosenArray, false);
+          } else {
+            await Utils.alertUser("Nachricht", "Keine Aktion unternommen");
+            return false;
+          }
+        });
 
         this.editContainer.classList.remove("hidden");
       }
@@ -2235,4 +3768,13 @@ if (!medienverwaltungsContainer) {
   let medienverwaltung = new Medienverwaltung(medienverwaltungCon);
   console.log(medienverwaltung.prepareSearch());
   console.log(medienverwaltung.prepareEdit());
+
+  let urlParams = Utils.getUrlParams();
+  if (urlParams.has("action")) {
+    let action = urlParams.get("action");
+
+    if (action === "addMedia") {
+      medienverwaltung.addMedia();
+    }
+  }
 }

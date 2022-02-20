@@ -204,7 +204,7 @@ if (userHasPermissions($conn, $userID, ["accessMediaVerwaltung" => gnVP($conn, "
                         <table class="styled-table shrinkMedia" id="resultTable">
                             <thead>
                                 <tr>
-                                    <th id="select">
+                                    <th id="select" style="min-width: 150px;">
                                         <div class="heading">Ausgewählt</div>
                                         <hr>
                                         <div><input type="checkbox" id="chooseall"> Alle auswählen</div>
@@ -293,7 +293,7 @@ if (userHasPermissions($conn, $userID, ["accessMediaVerwaltung" => gnVP($conn, "
                                         <th id="mimeType">Inhaltstyp (MIME-Type)</th>
                                         <th id="isBlob">Ist BLOB (direkt in der Datenbank)</th>
                                         <th id="path" style="min-width: 200px;"><span>Pfad / URL</span><button type="button" id="changeAll">alle ändern</button></th>
-                                        <th id="inMediaFolder">Im Media-Ordner</th>
+                                        <th id="inMediaFolder"><span>Im Media-Ordner</span><button type="button" id="changeAll">alle ändern</button></th>
                                         <th id="uploaded">Hochgeladen am / um</th>
                                         <th id="changed">Geändert am / um</th>
                                         <th id="filename" style="min-width: 200px;">Dateiname</th>
@@ -301,14 +301,14 @@ if (userHasPermissions($conn, $userID, ["accessMediaVerwaltung" => gnVP($conn, "
                                         <th id="mediaID">mediaID</th>
                                         <th id="thumbnail">Hat eine Miniaturansicht (Nur bei Videos)</th>
                                         <th id="thumbnailData"><span>Miniaturansicht</span><button type="button" id="changeAll">alle ändern</button></th>
-                                        <th id="thumbnailFileName">Miniaturansicht - Dateiname</th>
+                                        <th id="thumbnailFileName"><span>Miniaturansicht - Dateiname</span><button type="button" id="changeAll">alle ändern</button></th>
                                         <th id="thumbnailMimeType">Miniaturansicht - Inhaltstyp (MIME-Type)</th>
                                         <th id="thumbnailIsOnlineSource"><span>Miniaturansicht - Ist eine Onlinequelle</span><button type="button" id="changeAll">alle ändern</button></th>
                                         <th id="thumbnailIsBlob">Miniaturansicht - Ist BLOB</th>
                                         <th id="thumbnailPath"><span>Miniaturansicht - Pfad / URL</span><button type="button" id="changeAll">alle ändern</button></th>
                                         <th id="thumbnailInMediaFolder"><span>Miniaturansicht - Im Media-Ordner</span><button type="button" id="changeAll">alle ändern</button></th>
                                         <th id="fileSize">Dateigröße</th>
-                                        <th id="remove"><span>Entfernen</span><button type="button" id="changeAll">alle
+                                        <th id="remove"><span>Entfernen</span><button type="button" id="removeAll">alle
                                                 Entfernen</button></th>
 
 
@@ -317,8 +317,8 @@ if (userHasPermissions($conn, $userID, ["accessMediaVerwaltung" => gnVP($conn, "
                                 <tbody>
                                     <tr>
                                         <td id="data">
-                                           <div class="content"></div>
-                                           <div class="change"><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button></div>
+                                            <div class="content"></div>
+                                            <div class="change"><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button></div>
                                         </td>
                                         <td id="description"><span>Erlenmeyerkolben auf einem Tisch.</span><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button></td>
                                         <td id="keywords" style="min-width: 200px;"></td>

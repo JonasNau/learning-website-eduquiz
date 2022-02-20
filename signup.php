@@ -29,6 +29,7 @@ if (isLoggedIn()) {
     ?>
 
     <div class="container">
+    
         <div class="row">
             <div class="col-11 col-md-9 col-lg-8 m-auto">
                 <form action="includes/userSystem/signup.inc.php" method="post" id="signupform">
@@ -41,7 +42,7 @@ if (isLoggedIn()) {
                     <div class="form-group">
                         <div class="mb-3">
                             <label for="password" class="form-label">Passwort</label required>
-                            <input type="password" class="form-control showPasswordField" id="password" name="password">
+                            <input type="password" class="form-control showPasswordField" id="password" name="password" oncopy="return false;" oncut="return false;" onpaste="return false;">
                             <label for="showPassword" class="form-label">Passwort anzeigen</label>
                             <input type="checkbox" class="form-check-input" id="showPassword">
                         </div>
@@ -52,7 +53,7 @@ if (isLoggedIn()) {
                     <div class="form-group">
                         <div class="mb-3">
                             <label for="passwordRepeat" class="form-label" required>Passwort wiederholen</label>
-                            <input type="password" class="form-control showPasswordField" id="passwordRepeat" name="passwordRepeat">
+                            <input type="password" class="form-control showPasswordField" id="passwordRepeat" name="passwordRepeat" oncopy="return false;" oncut="return false;" onpaste="return false;">
                             <label for="showPassword" class="form-label">Passwort anzeigen</label>
                             <input type="checkbox" class="form-check-input" id="showPassword">
                         </div>
@@ -179,7 +180,7 @@ if (isLoggedIn()) {
             let stayLoggedIn = signupform.querySelector("#stayLoggedIn").checked;
 
 
-            let response = Utils.makeJSON(await Utils.sendXhrREQUEST("POST", "submitSignup&username=" + username + "&password=" + password + "&passwordRepeat=" + passwordRepeat + "&email=" + email + "&klasse=" + klassenstufe + "&stayLoggedIn=" + JSON.stringify(stayLoggedIn) + "&datenschutzOK=" + JSON.stringify(datenschutzOK), "includes/userSystem/signup.inc.php", "application/x-www-form-urlencoded", true, true, true, true, false));
+            let response = Utils.makeJSON(await Utils.sendXhrREQUEST("POST", "submitSignup&username=" + username + "&password=" + JSON.stringify({password}) + "&passwordRepeat=" + JSON.stringify({passwordRepeat}) + "&email=" + email + "&klasse=" + klassenstufe + "&stayLoggedIn=" + JSON.stringify(stayLoggedIn) + "&datenschutzOK=" + JSON.stringify(datenschutzOK), "includes/userSystem/signup.inc.php", "application/x-www-form-urlencoded", true, true, true, true, false));
             if (response["status"] == "success") {
                 signupform.reset();
             }

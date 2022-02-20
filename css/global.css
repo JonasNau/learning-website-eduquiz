@@ -1,3 +1,6 @@
+body {
+  position: relative;
+}
 .preventExternalMedia-warning {
   background-color: rgba(255, 0, 0, 0.4);
   min-height: 100%;

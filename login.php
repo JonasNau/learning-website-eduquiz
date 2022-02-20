@@ -65,7 +65,7 @@ require_once 'header-start.php';
                 let password = form.querySelector("#password").value;
                 let stayLoggedIn = form.querySelector("#stayloggedIn").checked;
 
-                let response = Utils.makeJSON(await Utils.sendXhrREQUEST("POST", "submitLogin&username=" + username + "&password=" + password + "&stayloggedIn=" + JSON.stringify(stayLoggedIn), "includes/userSystem/login.inc.php", "application/x-www-form-urlencoded", true, true, true, true, false));
+                let response = Utils.makeJSON(await Utils.sendXhrREQUEST("POST", "submitLogin&username=" + username + "&password=" + JSON.stringify({password}) + "&stayloggedIn=" + JSON.stringify(stayLoggedIn), "includes/userSystem/login.inc.php", "application/x-www-form-urlencoded", true, true, true, true, false));
                 if (response["status"] == "success") {
                     form.reset();
                 }

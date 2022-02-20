@@ -697,6 +697,7 @@ class Benutzerverwaltung {
           "Bestimmte Nachricht löschen": "removeSpecificComeBackmessage",
           "Alle Nachrichten löschen": "removeAllComeBackMessages",
           "Der Öffentlichkeit anzeigen": "showPublic",
+          "Passwort ändern": "changePassword"
         },
         true
       );
@@ -725,7 +726,7 @@ class Benutzerverwaltung {
               "benutzerverwaltung&operation=changeValue&type=password&userID=" +
                 current +
                 "&input=" +
-                userInput,
+                JSON.stringify({userInput}),
               "./includes/benutzerverwaltung.inc.php",
               "application/x-www-form-urlencoded",
               true,
@@ -2458,6 +2459,7 @@ class Benutzerverwaltung {
               "Bestimmte Nachricht löschen": "removeSpecificComeBackmessage",
               "Alle Nachrichten löschen": "removeAllComeBackMessages",
               "Der Öffentlichkeit anzeigen": "showPublic",
+              "Passwort ändern": "changePassword"
             },
             true
           );
@@ -2485,7 +2487,7 @@ class Benutzerverwaltung {
                 "benutzerverwaltung&operation=changeValue&type=password&userID=" +
                   current["userID"] +
                   "&input=" +
-                  userInput,
+                  JSON.stringify({userInput}),
                 "./includes/benutzerverwaltung.inc.php",
                 "application/x-www-form-urlencoded",
                 true,
@@ -2788,7 +2790,7 @@ createUserForm.addEventListener("submit", async (e) => {
       "benutzerverwaltung&operation=createNewUser&username=" +
         username +
         "&password=" +
-        password +
+        JSON.stringify({password}) +
         "&email=" +
         email,
       "./includes/benutzerverwaltung.inc.php",

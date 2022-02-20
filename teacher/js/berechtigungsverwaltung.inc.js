@@ -79,7 +79,7 @@ export async function changeType(id) {
 
     addBtn.addEventListener("click", () => {
       let input = textInput.value;
-      if (!Utils.isEmptyInput(input, false)) {
+      if (!Utils.isEmptyInput(input, true)) {
         resolve(input);
       }
     });
@@ -146,7 +146,7 @@ export async function changeType(id) {
       Utils.hideAllModals(false);
       let input =
         selectList[selectList.selectedIndex].getAttribute("data-value");
-      if (!Utils.isEmptyInput(input, false)) {
+      if (!Utils.isEmptyInput(input, true)) {
         resolve(input);
       }
       resolve();
@@ -247,7 +247,7 @@ export async function changeTypeAll() {
 
     addBtn.addEventListener("click", () => {
       let input = textInput.value;
-      if (!Utils.isEmptyInput(input, false)) {
+      if (!Utils.isEmptyInput(input, true)) {
         resolve(input);
       }
     });
@@ -292,7 +292,7 @@ export async function changeTypeAll() {
       Utils.hideAllModals(false);
       let input =
         selectList[selectList.selectedIndex].getAttribute("data-value");
-      if (!Utils.isEmptyInput(input, false)) {
+      if (!Utils.isEmptyInput(input, true)) {
         resolve(input);
       }
       resolve();
@@ -403,7 +403,7 @@ export async function changeUsedAt(id) {
 
     textInputAddBtn.addEventListener("click", async () => {
       let input = textInput.value;
-      if (!Utils.isEmptyInput(input, false)) {
+      if (!Utils.isEmptyInput(input, true)) {
         await add(input);
         update();
       }
@@ -411,7 +411,7 @@ export async function changeUsedAt(id) {
 
     addListAddBtn.addEventListener("click", async () => {
       let input = addList[addList.selectedIndex].getAttribute("data-value");
-      if (!Utils.isEmptyInput(input, false)) {
+      if (!Utils.isEmptyInput(input, true)) {
         await add(input);
         update();
       }
@@ -482,7 +482,7 @@ export async function changeUsedAt(id) {
 
     let add = async (input) => {
       return new Promise(async (resolve, reject) => {
-        if (!Utils.isEmptyInput(input, false)) {
+        if (!Utils.isEmptyInput(input, true)) {
           let res = resolve(
             await Utils.sendXhrREQUEST(
               "POST",
@@ -504,7 +504,7 @@ export async function changeUsedAt(id) {
 
     let remove = async (input) => {
       return new Promise(async (resolve, reject) => {
-        if (!Utils.isEmptyInput(input, false)) {
+        if (!Utils.isEmptyInput(input, true)) {
           let res = resolve(
             await Utils.sendXhrREQUEST(
               "POST",
@@ -645,8 +645,8 @@ export async function changeUsedAtAll() {
 
     textInputAddBtn.addEventListener("click", async () => {
       let input = textInput.value;
-      if (!Utils.isEmptyInput(input, false)) {
-        Utils.addToArray(choosenArray, input, false);
+      if (!Utils.isEmptyInput(input, true)) {
+        Utils.addToArray(choosenArray, input, true);
         update();
       }
     });
@@ -654,7 +654,7 @@ export async function changeUsedAtAll() {
     addBtn.addEventListener("click", async () => {
       let value =
         selectList.options[selectList.selectedIndex].getAttribute("data-value");
-      if (!Utils.isEmptyInput(value, false)) {
+      if (!Utils.isEmptyInput(value, true)) {
         Utils.addToArray(choosenArray, value, false);
         update();
       }
@@ -1776,7 +1776,7 @@ export async function changePermissions(group) {
             `Welchen Wert für alle ausgewählten Berechtigungen (${this.choosenArray.length})?`,
             false
           );
-          if (!Utils.isEmptyInput(value)) {
+          if (!Utils.isEmptyInput(value, true)) {
             for (const current of this.choosenArray) {
               await Utils.makeJSON(
                 await Utils.sendXhrREQUEST(
@@ -2499,7 +2499,7 @@ export async function changePermissions(group) {
                 "Welchen Wert?",
                 false
               );
-              if (!Utils.isEmptyInput(value)) {
+              if (!Utils.isEmptyInput(value, true)) {
                 await Utils.makeJSON(
                   await Utils.sendXhrREQUEST(
                     "POST",

@@ -38,7 +38,7 @@ checkAccount($conn, $userID);
     <?php
     require_once 'navigation-bar.php';
     ?>
-    <div class="container">
+    <div class="container main-content">
         <div class="row">
             <div class="col">
                 <p><b>Aktueller Name</b> <?php echo $username?></p>

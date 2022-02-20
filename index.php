@@ -45,9 +45,6 @@ logWrite($conn, "general", "Jemand hat die Webseite betreten! Connected Clients 
                 </div>
             </section>
         </div>
-        <div id="mediaContainer">
-            <p>Hier sollten Medien auftauchen</p>
-        </div>
 
 
 

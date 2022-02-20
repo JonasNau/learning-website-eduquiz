@@ -5,7 +5,8 @@ require_once("./getSettings.php");
 require_once("./userSystem/functions/generalFunctions.php");
 require_once("./organisationFunctions.inc.php");
 require_once("./quizlogic.inc.php");
-
+require_once("./userSystem/autologin.php");
+require_once("../global.php");
 
 $database = new Dbh();
 $conn = $database->connect();
@@ -64,6 +65,35 @@ if (isset($_POST["quiz"])) {
         } else if ($type === "getMark") {
             
         }
+    } else if ($operation === "insertNewResult") {
+        if (!boolval(getSettingVal($conn, "usersCanInsertResults"))) {
+            returnMessage("failed", "Das Eintragen neuer Ergebnisse ist zur Zeit deaktiviert.");
+            die();
+        }
+        mustBeLoggedIn();
+        $quizID = $_POST["quizID"];
+        $resultObject = json_validate($_POST["resultObject"]);
+
+        if (!$quizID || empty($quizID) || !$resultObject) {
+            returnMessage("failed", "Ergebnis konnte nicht eingetragen werden, da die Daten unvollständig sind.");
+            die();
+        }
+        $now = getCurrentDateAndTime(1);
+        //Insert into database
+        try {
+            $stmt = $conn->prepare("INSERT INTO scores (userID, quizID, date, results) VALUES (?, ?, ?, ?);");
+            if ($stmt->execute([$_SESSION["userID"], $quizID, $now, json_encode($resultObject)])) {
+                if ($stmt->rowCount()) {
+                    returnMessage("success", "Daten erfolgreich in die Datenbank eingetragen.");
+                    die();
+                }
+            }
+        } catch (Exception $e) {
+            returnMessage("success", "Daten konnten nicht eingetragen werden. $e");
+            die();
+        }
+        returnMessage("success", "Daten konnten nicht eingetragen werden.");
+        die();
     }
 }
 

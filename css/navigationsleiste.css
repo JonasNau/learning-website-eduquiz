@@ -48,10 +48,13 @@
     font-family: 'Josefin Sans', sans-serif;
 }
 
-.limitWidthOfText {
-    display: inline-block;
-    max-width: 210px;
-    white-space: nowrap;
-    overflow: hidden !important;
-    text-overflow: ellipsis;
+@media screen and (min-width: 768px) {
+    .limitWidthOfText{
+        display: inline-block;
+        max-width: 200px;
+        white-space: nowrap;
+        overflow: hidden !important;
+        text-overflow: ellipsis;
+    }
 }
+

@@ -136,14 +136,18 @@ class Quiz {
           "#content"
         ).innerHTML = `${username} (${this.quizparams["createdBy"]})`;
       }
-      let changedByContainer =
-        quizinformationContainer.querySelector(".footer #changedBy #content");
+      let changedByContainer = quizinformationContainer.querySelector(
+        ".footer #changedBy #content"
+      );
 
       if (
         Utils.emptyVariable(this.quizparams["createdBy"]) == false &&
         this.quizparams["changedBy"].length > 0
       ) {
-        let lastEditor = this.quizparams["changedBy"]?.[this.quizparams["changedBy"].length-1];
+        let lastEditor =
+          this.quizparams["changedBy"]?.[
+            this.quizparams["changedBy"].length - 1
+          ];
         let username = await Utils.getAttributesFromServer(
           getAttributesPath,
           "userSystem",
@@ -155,7 +159,6 @@ class Quiz {
         } else {
           changedByContainer.innerText = username;
         }
-       
       } else {
         changedByContainer.querySelector("#content").innerHTML = "Noch nie";
       }
@@ -318,6 +321,35 @@ class Quiz {
     this.quizCardContainer = this.container.querySelector(".quizCard");
 
     this.startTime = new Date();
+    //Global Timer
+    if (this.quizdata?.options["showTimePassed"]) {
+      let timePassedBox = this.container.querySelector(
+        ".timeLimit .timePassedGlobal"
+      );
+      let updateTimer = () => {
+        if (this.currentCardNumber <= this.totalCards && this.startTime) {
+          setTimeout(() => {
+            //Show timer -> if timer is at 0 make cards left as wrong show Results
+            if (!this.startTime) return;
+            let now = new Date();
+            console.log(this.startTime);
+            let secondsPassed = (now - this.startTime) / 1000;
+            let timeLeftArray = Utils.secondsToArrayOrString(
+              secondsPassed,
+              "Array"
+            );
+            console.log(secondsPassed);
+            if (secondsPassed < 0) return;
+            timePassedBox.innerHTML = `Zeit vergangen (gesamt): ${timeLeftArray.minutes}:${timeLeftArray.seconds}`;
+            updateTimer();
+          }, 1000);
+          return;
+        }
+        timePassedBox.innerHTML = "";
+      };
+      updateTimer();
+    }
+
     this.loadNextQuestion();
   }
 
@@ -410,33 +442,6 @@ class Quiz {
         );
       }
 
-      //Global Timer
-      if (this.quizdata?.options["showTimePassed"]) {
-        let timePassedBox = this.container.querySelector(
-          ".timeLimit .timePassedGlobal"
-        );
-        let updateTimer = () => {
-          if (currentCardNumber <= this.totalCards && this.startTime) {
-            setTimeout(() => {
-              //Show timer -> if timer is at 0 make cards left as wrong show Results
-              if (!this.startTime) return;
-              let now = new Date();
-              let secondsPassed =
-                now.getSeconds() - this.startTime.getSeconds();
-              let timeLeftArray = Utils.secondsToArrayOrString(
-                secondsPassed,
-                "Array"
-              );
-              timePassedBox.innerHTML = `Zeit vergangen (gesamt): ${timeLeftArray.minutes}:${timeLeftArray.seconds}`;
-              updateTimer();
-            }, 1000);
-            return;
-          }
-          timePassedBox.innerHTML = "";
-        };
-        updateTimer();
-      }
-
       //Current card timer
       if (options["showTimePassed"]) {
         let timePassedBox = this.container.querySelector(
@@ -451,8 +456,7 @@ class Quiz {
               if (!this.cardStartTime) return;
               //Show timer -> if timer is at 0 make cards left as wrong show Results
               let now = new Date();
-              let secondsPassed =
-                now.getSeconds() - this.cardStartTime.getSeconds();
+              let secondsPassed = (now - this.cardStartTime) / 1000;
               let timeLeftArray = Utils.secondsToArrayOrString(
                 secondsPassed,
                 "Array"
@@ -541,7 +545,7 @@ class Quiz {
         //EventListener
         currentAnswerContainer.addEventListener("click", (event) => {
           if (
-            event.target.closest(".answer").classList.contains("media") &&
+            event.target.closest(".answer")?.classList.contains("media") &&
             event.target.querySelector("mediaContainer")?.contains("image")
           ) {
             console.log("you have clicked on a media");
@@ -585,6 +589,7 @@ class Quiz {
         //Show timer -> if timer is at 0 make cards left as wrong show Results
 
         let seconds = Number(options["timeLimit"]);
+
         let endTime = new Date();
         endTime.setSeconds(endTime.getSeconds() + seconds);
         console.log("Ende der Karte:", endTime, "Sekunden", seconds);
@@ -660,7 +665,7 @@ class Quiz {
         currentAnswerContainer.addEventListener("click", (event) => {
           if (!this.userCanChoose) return false;
           if (
-            event.target.closest(".answer").classList.contains("media") &&
+            event.target.closest(".answer")?.classList.contains("media") &&
             event.target.querySelector("mediaContainer")?.contains("image")
           ) {
             console.log("you have clicked on a media");
@@ -790,7 +795,7 @@ class Quiz {
     if (!this.cardHeader) return false;
     this.cardHeader.innerHTML = `
     <div id="questionNumber"><span class="descrition">Aufgabe:</span> <span class="content">${
-      this.currentQuestionNumber
+      this.currentCardNumber + 1
     } / ${this.totalCards}</span></div>
     <div id="points"><span class="descrition">Punkte:</span> <span class="content">${
       this.usersPoints
@@ -1452,14 +1457,16 @@ class Quiz {
     this.cardStartTime = false;
   }
 
-  showResults() {
+  async showResults() {
     this.calculateMarkByCurrentTotalPoints();
 
     let now = new Date();
 
     let getTotalTime = () => {
-      let secondsPassed = now.getSeconds() - this.startTime.getSeconds();
+      console.log(this.startTime);
+      let secondsPassed = (now - this.startTime) / 1000;
       this.resultObject.timeNeeded = secondsPassed;
+      this.startTime = false;
       return Utils.secondsToArrayOrString(secondsPassed, "String");
     };
 
@@ -1472,6 +1479,13 @@ class Quiz {
       }
       return "";
     };
+
+    this.resultObject.totalPoints = this.totalPoints();
+    this.calculateMarkByTotalPoints();
+    this.resultObject.scoredPoints = this.usersPoints;
+    this.resultObject.mark = this.usersMark;
+
+
 
     let resultPageHTML = `
     <h1 style="text-decoration: underline;">Dein Ergebnis</h1>
@@ -1597,7 +1611,6 @@ class Quiz {
               currentUsersChoice["cardEndTime"]
             )}</div>
             `;
-
         let answersContainer = item.querySelector("#answers .content");
         let usersAnswersContainer = item.querySelector(
           "#usersAnswers .content"
@@ -1803,6 +1816,24 @@ class Quiz {
       }
       showUserAnswersContainer.appendChild(item);
       item.classList = `${currentUsersChoice["state"]} col-11 col-sm-6 col-md-4 col-lg-4 item col-centered`;
+    }
+
+    //Insert result into database if logged in
+    if (Utils.makeJSON(window.sessionStorage.getItem("loggedIn"))) {
+      console.log("INSERT result into database:", this.resultObject);
+
+      let response = await Utils.makeJSON(
+        await Utils.sendXhrREQUEST(
+          "POST",
+          "quiz&operation=insertNewResult&quizID=" + this.quizId + "&resultObject=" + JSON.stringify(this.resultObject),
+          "/includes/quizlogic.php",
+          "application/x-www-form-urlencoded",
+          true,
+          true,
+          false,
+          true
+        )
+      );
     }
   }
 }

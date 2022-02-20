@@ -624,6 +624,7 @@ class SelectQuizNav {
         sorted.forEach((element) => {
           let link = document.createElement("li");
           link.innerHTML = `<a class="dropdown-item selectQuizItem" value="${element["quizId"]}">${element["quizname"]}</a>`;
+          link.setAttribute("style", "min-width: 35vw");
           this.dropDownLinkContainerQuizze.appendChild(link);
         });
 

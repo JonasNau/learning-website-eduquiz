@@ -79,17 +79,6 @@
     overflow: auto;
 }
 
-/* Hide scrollbar for Chrome, Safari and Opera */
-/* .quizContainer .header::-webkit-scrollbar {
-    display: none;
-  }
-   */
-  /* Hide scrollbar for IE, Edge and Firefox */
-  .quizContainer .header {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-  }
-
 .header .description > span {
     display: block;
 }

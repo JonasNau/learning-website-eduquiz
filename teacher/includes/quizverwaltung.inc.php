@@ -54,12 +54,12 @@ if (isset($_POST["quizverwaltung"])) {
                 $thema = getValueFromDatabase($conn, "selectquiz", "thema", "uniqueID", $currentQuizUniqueID, 1, false);
                 $description = getValueFromDatabase($conn, "selectquiz", "description", "uniqueID", $currentQuizUniqueID, 1, false);
                 $quizId = getValueFromDatabase($conn, "selectquiz", "quizId", "uniqueID", $currentQuizUniqueID, 1, false);
-                $showQuizAuswahl = getValueFromDatabase($conn, "selectquiz", "showQuizAuswahl", "uniqueID", $currentQuizUniqueID, 1, false);
-                $visibility = getValueFromDatabase($conn, "selectquiz", "visibility", "uniqueID", $currentQuizUniqueID, 1, false);
-                $requireKlassenstufe = getValueFromDatabase($conn, "selectquiz", "requireKlassenstufe", "uniqueID", $currentQuizUniqueID, 1, false);
-                $requireFach = getValueFromDatabase($conn, "selectquiz", "requireFach", "uniqueID", $currentQuizUniqueID, 1, false);
-                $requireThema = getValueFromDatabase($conn, "selectquiz", "requireThema", "uniqueID", $currentQuizUniqueID, 1, false);
-                $requireName = getValueFromDatabase($conn, "selectquiz", "requireQuizname", "uniqueID", $currentQuizUniqueID, 1, false);
+                $showQuizAuswahl = boolval(getValueFromDatabase($conn, "selectquiz", "showQuizAuswahl", "uniqueID", $currentQuizUniqueID, 1, false));
+                $visibility = boolval(getValueFromDatabase($conn, "selectquiz", "visibility", "uniqueID", $currentQuizUniqueID, 1, false));
+                $requireKlassenstufe = boolval(getValueFromDatabase($conn, "selectquiz", "requireKlassenstufe", "uniqueID", $currentQuizUniqueID, 1, false));
+                $requireFach = boolval(getValueFromDatabase($conn, "selectquiz", "requireFach", "uniqueID", $currentQuizUniqueID, 1, false));
+                $requireThema = boolval(getValueFromDatabase($conn, "selectquiz", "requireThema", "uniqueID", $currentQuizUniqueID, 1, false));
+                $requireName = boolval(getValueFromDatabase($conn, "selectquiz", "requireQuizname", "uniqueID", $currentQuizUniqueID, 1, false));
                 $questions = searchQuestionsOneQuiz($conn, false, $currentQuizUniqueID);
                 $lastUsed = getValueFromDatabase($conn, "selectquiz", "lastUsed", "uniqueID", $currentQuizUniqueID, 1, false);
                 $created = getValueFromDatabase($conn, "selectquiz", "created", "uniqueID", $currentQuizUniqueID, 1, false);
@@ -920,7 +920,8 @@ if (isset($_POST["quizverwaltung"])) {
             }
             echo json_encode($resultArray);
             die();
-        } else if ($type === "getAllThemen") {
+        } else if ($type === "searchThema") {
+            $input = $_POST["input"];
             $themaNormal = getAllValuesFromDatabase($conn, "themenVerwaltung", "thema", 0, true, true);
             $themaBackup = getAllValuesFromDatabase($conn, "backupThemen", "themaBackup", 0, true, true);
 
@@ -933,6 +934,11 @@ if (isset($_POST["quizverwaltung"])) {
             if ($themaBackup) {
                 foreach ($themaBackup as $current) {
                     $resultArray[] = $current;
+                }
+            }
+            foreach ($resultArray as $currentThema) {
+                if (!str_contains(strtolower($currentThema), strtolower($input) && !str_contains(strtoupper($currentThema), strtoupper($input)))) {
+                    $resultArray = removeFromArray($resultArray, $currentThema, "value", true, true);
                 }
             }
             echo json_encode($resultArray);
@@ -965,12 +971,12 @@ if (isset($_POST["quizverwaltung"])) {
         $thema = getValueFromDatabase($conn, "selectquiz", "thema", "uniqueID", $id, 1, false);
         $description = getValueFromDatabase($conn, "selectquiz", "description", "uniqueID", $id, 1, false);
         $quizId = getValueFromDatabase($conn, "selectquiz", "quizId", "uniqueID", $id, 1, false);
-        $showQuizAuswahl = getValueFromDatabase($conn, "selectquiz", "showQuizAuswahl", "uniqueID", $id, 1, false);
-        $visibility = getValueFromDatabase($conn, "selectquiz", "visibility", "uniqueID", $id, 1, false);
-        $requireKlassenstufe = getValueFromDatabase($conn, "selectquiz", "requireKlassenstufe", "uniqueID", $id, 1, false);
-        $requireFach = getValueFromDatabase($conn, "selectquiz", "requireFach", "uniqueID", $id, 1, false);
-        $requireThema = getValueFromDatabase($conn, "selectquiz", "requireThema", "uniqueID", $id, 1, false);
-        $requireName = getValueFromDatabase($conn, "selectquiz", "requireQuizname", "uniqueID", $id, 1, false);
+        $showQuizAuswahl = boolval(getValueFromDatabase($conn, "selectquiz", "showQuizAuswahl", "uniqueID", $id, 1, false));
+        $visibility = boolval(getValueFromDatabase($conn, "selectquiz", "visibility", "uniqueID", $id, 1, false));
+        $requireKlassenstufe = boolval(getValueFromDatabase($conn, "selectquiz", "requireKlassenstufe", "uniqueID", $id, 1, false));
+        $requireFach = boolval(getValueFromDatabase($conn, "selectquiz", "requireFach", "uniqueID", $id, 1, false));
+        $requireThema = boolval(getValueFromDatabase($conn, "selectquiz", "requireThema", "uniqueID", $id, 1, false));
+        $requireName = boolval(getValueFromDatabase($conn, "selectquiz", "requireQuizname", "uniqueID", $id, 1, false));
         $questions = searchQuestionsOneQuiz($conn, false, $id);
         $lastUsed = getValueFromDatabase($conn, "selectquiz", "lastUsed", "uniqueID", $id, 1, false);
         $created = getValueFromDatabase($conn, "selectquiz", "created", "uniqueID", $id, 1, false);

@@ -85,7 +85,12 @@ if (isset($_POST["settings"])) {
                 $min = getValueFromDatabase($conn, "settings", "min", "id", $result, 1, false);
                 $max = getValueFromDatabase($conn, "settings", "max", "id", $result, 1, false);
 
-                $resultArray[] = array("id" => intval($result), "name" => $name, "type" => $type, "description" => $description, "setting" => $setting, "normalValue" => $normalValue, "usedAt" => $usedAt, "usedAt" => $usedAt, "permissionNeeded" => $permissionNeeded, "userIsAllowed" => $userIsAllowed, "min" => $min, "max" => $max, "");
+                if (json_validate($setting)) {
+                    $setting = json_validate($setting);
+                }
+
+                $resultArray[] = array("id" => intval($result), "name" => $name, "type" => $type, "description" => $description, "normalValue" => $normalValue, "usedAt" => $usedAt, "usedAt" => $usedAt, "permissionNeeded" => $permissionNeeded, "userIsAllowed" => $userIsAllowed, "min" => $min, "max" => $max, "setting" => $setting);
+
             }
             echo json_encode($resultArray);
         }
@@ -259,7 +264,6 @@ if (isset($_POST["settings"])) {
             }
         } else if ($type === "text") {
             $newValue = $_POST["newValue"];
-
             if (setValueFromDatabase($conn, "settings", "setting", "id", $id, $newValue)) {
                 returnMessage("success", "Wert erfolgreich geändert.");
                 die();
@@ -302,6 +306,15 @@ if (isset($_POST["settings"])) {
             }
             returnMessage("success", "Erfolgreich alle User ausgeloggt, für die du Berechtigungen hast. Du selbst wurdest nicht ausgeloggt.");
             die();
+        } else if ($type === "json") {
+            $newValue = json_validate($_POST["newValue"]);
+            if (setValueFromDatabase($conn, "settings", "setting", "id", $id, json_encode($newValue))) {
+                returnMessage("success", "Wert erfolgreich geändert.");
+                die();
+            } else {
+                returnMessage("failed", "Wert konnte nicht geändert werden.");
+                die();
+            }
         }
     } else if ($operation === "changeOtherValues") {
         $id = $_POST["id"];

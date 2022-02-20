@@ -35,8 +35,8 @@ if (getSettingVal($conn, "usersCanSignUp") != 1) {
 if (isset($_POST["submitSignup"])) {
 
     $username = $_POST["username"];
-    $password = $_POST["password"];
-    $passwordRepeat = $_POST["passwordRepeat"];
+    $password = json_validate($_POST["password"])?->{"password"};
+    $passwordRepeat = json_validate($_POST["passwordRepeat"])?->{"passwordRepeat"};
 
     #Optional
     $email = $_POST["email"];
@@ -161,6 +161,7 @@ if (isset($_POST["submitSignup"])) {
             }
         }
     }
+
     die();
 }
 

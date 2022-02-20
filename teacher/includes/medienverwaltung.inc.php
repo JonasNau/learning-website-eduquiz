@@ -1,4 +1,242 @@
 <?php
+
+function checkValidMimeType($type, $allowedTypes)
+{
+    if (!$type) return false;
+    if (!$allowedTypes || !count($allowedTypes) > 0) return false;
+    if (in_array($type, $allowedTypes)) {
+        return true;
+    }
+    return false;
+}
+
+function createEntryMedienverwaltung($conn)
+{
+    //Create mediaID
+    $mediaID = generateNewMediaID($conn);
+    try {
+        $stmt = $conn->prepare("INSERT INTO medienVerwaltung (mediaID) VALUES (?);");
+        if ($stmt->execute([$mediaID])) {
+            if ($stmt->rowCount()) {
+                return $mediaID;
+            }
+        }
+    } catch (Exception $e) {
+        logWrite($conn, "general", $e, true, true);
+    }
+    return false;
+}
+
+function generateNewMediaID($conn)
+{
+    $mediaID = generateRandomUniqueName(6);
+    while (valueInDatabaseExists($conn, "medienVerwaltung", "mediaID", "mediaID", $mediaID)) {
+        $mediaID = generateRandomUniqueName(6);
+    }
+    return $mediaID;
+}
+
+
+function generateFileName($conn, $pathToFolder, $filename, $extension)
+{;
+    $fileName = $filename . "." . $extension;
+    $counter = 0;
+    while (valueInDatabaseExists($conn, "medienVerwaltung", "filename", "filename", $fileName) || file_exists($pathToFolder . "/" . $fileName)) {
+        $counter++;
+        $fileName = $filename . "_" . $counter . "." . $extension;
+        logWrite($conn, "general", "FileName:" . $fileName);
+    }
+    logWrite($conn, "general", "FileName:" . $fileName);
+    return $fileName;
+}
+
+function generateFileNameBLOB($conn, $filename, $extension)
+{;
+    $fileName = $filename . "." . $extension;
+    $counter = 0;
+    while (valueInDatabaseExists($conn, "medienVerwaltung", "filename", "filename", $fileName)) {
+        $counter++;
+        $fileName = $filename . "_" . $counter . "." . $extension;
+        logWrite($conn, "general", "FileName:" . $fileName);
+    }
+    logWrite($conn, "general", "FileName:" . $fileName);
+    return $fileName;
+}
+
+function getFullPath($conn, $isOnlineSource, $path, $inMediaFolder)
+{
+    if ($isOnlineSource) return $path;
+    if ($inMediaFolder) {
+        $mediaFolderPath = getSettingVal($conn, "mediaPATH");
+        $serverPATH = getSettingVal($conn, "serverPATH");
+        $fullPath = $serverPATH . $mediaFolderPath . $path;
+        return $fullPath;
+    }
+    return $path;
+}
+
+function removeFileOrLinkToFile($conn, $id)
+{
+    if (!$id) return false;
+
+    $isBlob = boolval(getValueFromDatabase($conn, "medienVerwaltung", "isBlob", "id", $id, 1, false));
+    $isOnlineSource = boolval(getValueFromDatabase($conn, "medienVerwaltung", "isOnlineSource", "id", $id, 1, false));
+    $inMediaFolder = boolval(getValueFromDatabase($conn, "medienVerwaltung", "inMediaFolder", "id", $id, 1, false));
+    $path = getValueFromDatabase($conn, "medienVerwaltung", "path", "id", $id, 1, false);
+
+    if ($isOnlineSource) {
+        //Remove URL and BLOB for data saving purposes
+        setValueFromDatabase($conn, "medienVerwaltung", "path", "id", $id, null);
+        setValueFromDatabase($conn, "medienVerwaltung", "blobData", "id", $id, null);
+        setValueFromDatabase($conn, "medienVerwaltung", "isBlob", "id", $id, 0);
+        setValueFromDatabase($conn, "medienVerwaltung", "isOnlineSource", "id", $id, 0);
+        setValueFromDatabase($conn, "medienVerwaltung", "inMediaFolder", "id", $id, 0);
+        setValueFromDatabase($conn, "medienVerwaltung", "uploaded", "id", $id, null);
+        setValueFromDatabase($conn, "medienVerwaltung", "filename", "id", $id, null);
+        setValueFromDatabase($conn, "medienVerwaltung", "fileSize", "id", $id, null);
+        setValueFromDatabase($conn, "medienVerwaltung", "mimeType", "id", $id, null);
+        setValueFromDatabase($conn, "medienVerwaltung", "type", "id", $id, null);
+        setValueFromDatabase($conn, "medienVerwaltung", "changed", "id", $id, getCurrentDateAndTime(1));
+        setChangedAndChangedBy($conn, $id, $_SESSION["userID"]);
+        return true;
+    }
+    if ($isBlob) {
+        setValueFromDatabase($conn, "medienVerwaltung", "path", "id", $id, null);
+        setValueFromDatabase($conn, "medienVerwaltung", "blobData", "id", $id, null);
+        setValueFromDatabase($conn, "medienVerwaltung", "isBlob", "id", $id, 0);
+        setValueFromDatabase($conn, "medienVerwaltung", "isOnlineSource", "id", $id, 0);
+        setValueFromDatabase($conn, "medienVerwaltung", "fileSize", "id", $id, null);
+        setValueFromDatabase($conn, "medienVerwaltung", "inMediaFolder", "id", $id, 0);
+        setValueFromDatabase($conn, "medienVerwaltung", "uploaded", "id", $id, null);
+        setValueFromDatabase($conn, "medienVerwaltung", "filename", "id", $id, null);
+        setValueFromDatabase($conn, "medienVerwaltung", "mimeType", "id", $id, null);
+        setValueFromDatabase($conn, "medienVerwaltung", "type", "id", $id, null);
+        setValueFromDatabase($conn, "medienVerwaltung", "changed", "id", $id, getCurrentDateAndTime(1));
+        setChangedAndChangedBy($conn, $id, $_SESSION["userID"]);
+        return true;
+    }
+    $filename = getValueFromDatabase($conn, "medienVerwaltung", "filename", "id", $id, 1, false);
+    $type = getValueFromDatabase($conn, "medienVerwaltung", "type", "id", $id, 1, false);
+    if (empty($filename)) {
+        return false;
+    }
+    //On Filesystem
+    $finalPath = null;
+    if ($inMediaFolder) {
+        $mediaFolderPath = getMediaFolderPath($conn);
+        $finalPath = $mediaFolderPath . "/" . $type . "/" . $filename;
+    } else {
+        $finalPath = $path;
+    }
+
+    if (!file_exists($finalPath)) {
+        logWrite($conn, "medienVerwaltung", "Die Datei '$finalPath' existiert nicht.", true, true);
+        return false;
+    }
+    if (unlink($finalPath)) {
+        logWrite($conn, "medienVerwaltung", "Die Datei '$finalPath' wurde erfolgreich gelöscht.", true, false, "yellow");
+        setValueFromDatabase($conn, "medienVerwaltung", "path", "id", $id, null);
+        setValueFromDatabase($conn, "medienVerwaltung", "blobData", "id", $id, null);
+        setValueFromDatabase($conn, "medienVerwaltung", "isBlob", "id", $id, 0);
+        setValueFromDatabase($conn, "medienVerwaltung", "isOnlineSource", "id", $id, 0);
+        setValueFromDatabase($conn, "medienVerwaltung", "inMediaFolder", "id", $id, 0);
+        setValueFromDatabase($conn, "medienVerwaltung", "fileSize", "id", $id, null);
+        setValueFromDatabase($conn, "medienVerwaltung", "uploaded", "id", $id, null);
+        setValueFromDatabase($conn, "medienVerwaltung", "filename", "id", $id, null);
+        setValueFromDatabase($conn, "medienVerwaltung", "mimeType", "id", $id, null);
+        setValueFromDatabase($conn, "medienVerwaltung", "type", "id", $id, null);
+        setValueFromDatabase($conn, "medienVerwaltung", "changed", "id", $id, getCurrentDateAndTime(1));
+        setChangedAndChangedBy($conn, $id, $_SESSION["userID"]);
+        return true;
+    } else {
+        logWrite($conn, "medienVerwaltung", "Die Datei '$finalPath' konnte nicht gelöscht werden.", true, true);
+    }
+    return false;
+}
+
+function removeFileOrLinkToFileThumbnail($conn, $id)
+{
+    if (!$id) return false;
+
+    $isBlob = boolval(getValueFromDatabase($conn, "medienVerwaltung", "thumbnailIsBlob", "id", $id, 1, false));
+    $isOnlineSource = boolval(getValueFromDatabase($conn, "medienVerwaltung", "thumbnailIsOnlineSource", "id", $id, 1, false));
+    $inMediaFolder = boolval(getValueFromDatabase($conn, "medienVerwaltung", "thumbnailInMediaFolder", "id", $id, 1, false));
+    $path = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailPath", "id", $id, 1, false);
+
+    if ($isOnlineSource) {
+        //Remove URL and BLOB for data saving purposes
+        setValueFromDatabase($conn, "medienVerwaltung", "thumbnailPath", "id", $id, null);
+        setValueFromDatabase($conn, "medienVerwaltung", "blobDataThumbnail", "id", $id, null);
+        setValueFromDatabase($conn, "medienVerwaltung", "thumbnailIsBlob", "id", $id, 0);
+        setValueFromDatabase($conn, "medienVerwaltung", "thumbnailIsOnlineSource", "id", $id, 0);
+        setValueFromDatabase($conn, "medienVerwaltung", "thumbnailInMediaFolder", "id", $id, 0);
+        setValueFromDatabase($conn, "medienVerwaltung", "thumbnailFileName", "id", $id, null);
+        setValueFromDatabase($conn, "medienVerwaltung", "thumbnailMimeType", "id", $id, null);
+        setValueFromDatabase($conn, "medienVerwaltung", "changed", "id", $id, getCurrentDateAndTime(1));
+        setChangedAndChangedBy($conn, $id, $_SESSION["userID"]);
+        return true;
+    }
+    if ($isBlob) {
+        setValueFromDatabase($conn, "medienVerwaltung", "thumbnailPath", "id", $id, null);
+        setValueFromDatabase($conn, "medienVerwaltung", "blobDataThumbnail", "id", $id, null);
+        setValueFromDatabase($conn, "medienVerwaltung", "thumbnailIsBlob", "id", $id, 0);
+        setValueFromDatabase($conn, "medienVerwaltung", "thumbnailIsOnlineSource", "id", $id, 0);
+        setValueFromDatabase($conn, "medienVerwaltung", "thumbnailInMediaFolder", "id", $id, 0);
+        setValueFromDatabase($conn, "medienVerwaltung", "thumbnailFileName", "id", $id, null);
+        setValueFromDatabase($conn, "medienVerwaltung", "thumbnailMimeType", "id", $id, null);
+        setValueFromDatabase($conn, "medienVerwaltung", "changed", "id", $id, getCurrentDateAndTime(1));
+        return true;
+    }
+    $filename = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailFileName", "id", $id, 1, false);
+    setChangedAndChangedBy($conn, $id, $_SESSION["userID"]);
+    if (empty($filename)) {
+        return false;
+    }
+    //On Filesystem
+    $finalPath = null;
+    if ($inMediaFolder) {
+        $mediaFolderPath = getMediaFolderPath($conn);
+        $finalPath = $mediaFolderPath . "/" . "thumbnails" . "/" . $filename;
+    } else {
+        $finalPath = $path;
+    }
+
+    if (!file_exists($finalPath)) {
+        logWrite($conn, "medienVerwaltung", "Die Datei '$finalPath' existiert nicht.", true, true);
+        return false;
+    }
+    if (unlink($finalPath)) {
+        logWrite($conn, "medienVerwaltung", "Die Datei '$finalPath' wurde erfolgreich gelöscht.", true, false, "yellow");
+        setValueFromDatabase($conn, "medienVerwaltung", "thumbnailPath", "id", $id, null);
+        setValueFromDatabase($conn, "medienVerwaltung", "blobDataThumbnail", "id", $id, null);
+        setValueFromDatabase($conn, "medienVerwaltung", "thumbnailIsBlob", "id", $id, 0);
+        setValueFromDatabase($conn, "medienVerwaltung", "thumbnailIsOnlineSource", "id", $id, 0);
+        setValueFromDatabase($conn, "medienVerwaltung", "thumbnailInMediaFolder", "id", $id, 0);
+        setValueFromDatabase($conn, "medienVerwaltung", "thumbnailFileName", "id", $id, null);
+        setValueFromDatabase($conn, "medienVerwaltung", "thumbnailMimeType", "id", $id, null);
+        setValueFromDatabase($conn, "medienVerwaltung", "changed", "id", $id, getCurrentDateAndTime(1));
+        setChangedAndChangedBy($conn, $id, $_SESSION["userID"]);
+        return true;
+    } else {
+        logWrite($conn, "medienVerwaltung", "Die Datei '$finalPath' konnte nicht gelöscht werden.", true, true);
+    }
+    return false;
+}
+
+function getMediaFolderPath($conn)
+{
+    return getSettingVal($conn, "serverPATH") . getSettingVal($conn, "mediaPATH");
+}
+
+function setChangedAndChangedBy($conn, $id, $userID)
+{
+    setValueFromDatabase($conn, "medienVerwaltung", "changed", "id", $id, getCurrentDateAndTime(1));
+    removeFromArrayDatabase($conn, "medienVerwaltung", "changedBy", "id", $id, $userID, true, true);
+    addToArrayDatabase($conn, "medienVerwaltung", "changedBy", "id", $id, $userID, false);
+    return true;
+}
+
+
 require_once("../../includes/dbh.incPDO.php");
 require_once("../../includes/getSettings.php");
 require_once("../../includes/userSystem/functions/permission-functions.php");
@@ -16,7 +254,6 @@ $userID = $_SESSION['userID'];
 
 $database = new dbh();
 $conn = $database->connect();
-
 
 if (isset($_POST["medienverwaltung"])) {
     require_once("../../includes/organisationFunctions.inc.php");
@@ -57,14 +294,14 @@ if (isset($_POST["medienverwaltung"])) {
                 $thumbnailFileName = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailFileName", "id", $result, 1, false);
                 $thumbnailInMediaFolder = boolval(getValueFromDatabase($conn, "medienVerwaltung", "thumbnailInMediaFolder", "id", $result, 1, false));
                 $thumbnailMimeType = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailMimeType", "id", $result, 1, false);
-                $thumbnailPath = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailPath", "mediaID", $result, 1, false);
-                $description = getValueFromDatabase($conn, "medienVerwaltung", "description", "mediaID", $result, 1, false);
-                $keywords = json_validate(getValueFromDatabase($conn, "medienVerwaltung", "keywords", "mediaID", $result, 1, false));
-                $fileSize = getValueFromDatabase($conn, "medienVerwaltung", "fileSize", "mediaID", $result, 1, false);
-                $changed = getValueFromDatabase($conn, "medienVerwaltung", "changed", "mediaID", $result, 1, false);
-                $uploaded = getValueFromDatabase($conn, "medienVerwaltung", "uploaded", "mediaID", $result, 1, false);
-                $uploadedBy = getValueFromDatabase($conn, "medienVerwaltung", "uploadedBy", "mediaID", $result, 1, false);
-                $changedBy = json_validate(getValueFromDatabase($conn, "medienVerwaltung", "changedBy", "mediaID", $result, 1, false));
+                $thumbnailPath = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailPath", "id", $result, 1, false);
+                $description = getValueFromDatabase($conn, "medienVerwaltung", "description", "id", $result, 1, false);
+                $keywords = json_validate(getValueFromDatabase($conn, "medienVerwaltung", "keywords", "id", $result, 1, false));
+                $fileSize = getValueFromDatabase($conn, "medienVerwaltung", "fileSize", "id", $result, 1, false);
+                $changed = getValueFromDatabase($conn, "medienVerwaltung", "changed", "id", $result, 1, false);
+                $uploaded = getValueFromDatabase($conn, "medienVerwaltung", "uploaded", "id", $result, 1, false);
+                $uploadedBy = getValueFromDatabase($conn, "medienVerwaltung", "uploadedBy", "id", $result, 1, false);
+                $changedBy = json_validate(getValueFromDatabase($conn, "medienVerwaltung", "changedBy", "id", $result, 1, false));
 
                 $resultArray[] = array("id" => $result, "mediaID" => $mediaID, "uploadedBy" => $uploadedBy, "changedBy" => $changedBy, "uploaded" => $uploaded, "changed" => $changed, "thumbnailIsBlob" => $thumbnailIsBlob, "thumbnailIsOnlineSource" => $thumbnailIsOnlineSource, "thumbnail" => $thumbnail, "isBlob" => $isBlob, "isOnlineSource" => $isOnlineSource, "inMediaFolder" => $inMediaFolder, "uploaded" => $uploaded, "filename" => $filename, "mimeType" => $mimeType, "type" => $type, "path" => $path, "thumbnailFileName" => $thumbnailFileName, "thumbnailMimeType" => $thumbnailMimeType, "thumbnailPath" => $thumbnailPath, "description" => $description, "keywords" => $keywords, "fileSize" => $fileSize, "thumbnailInMediaFolder" => $thumbnailInMediaFolder);
             }
@@ -589,180 +826,542 @@ if (isset($_POST["medienverwaltung"])) {
             returnMessage("failed", "Der Medieneintrag, den du bearbeiten möchtest gibt es nicht. (id: $id)");
             die();
         }
-        if (!userHasPermissions($conn, $userID, ["medienverwaltungChangeValues"=>gnVP($conn, "medienverwaltungChangeValues")])) {
+        if (!userHasPermissions($conn, $userID, ["medienverwaltungChangeValues" => gnVP($conn, "medienverwaltungChangeValues")])) {
             permissionDenied();
             die();
         }
         $type = $_POST["type"];
 
+
+
         if ($type === "changeData") {
-           $secondOperation = $_POST["secondOperation"] ?? "";
-           if ($secondOperation === "changeFileData") {
-            $files = json_validate($_POST["file"]);
-            echo json_encode($files);
-            echo "hre";
+            $secondOperation = $_POST["secondOperation"] ?? "";
+            if (!userHasPermissions($conn, $userID, ["medienverwaltungChangeValues" => gnVP($conn, "medienverwaltungChangeValues"), "medienverwaltungADDandREMOVE" => gnVP($conn, "medienverwaltungADDandREMOVE")])) {
+                permissionDenied();
+                die();
+            }
+            if ($secondOperation == "uploadToFileSystem") {
+                if (isset($_FILES['file']["name"])) {
+                    // print_r($_FILES);
+                    $file = $_FILES['file'];
+                    if ($file["error"]) {
+                        returnMessage("failed", "Ein Fehler beim Hochladen ist aufgetreten (file['error'] = 1).");
+                        die();
+                    }
+                    // MediaFolder PATH
+                    $mediaFolderPath = getMediaFolderPath($conn);
+
+                    $mimeType = $file["type"];
+                    $filename = $file['name'];
+                    $size = $file['size'];
+                    $tmpname = $file["tmp_name"]; //Where the file is cached on the server
+
+                    if (!checkValidMimeType($mimeType, json_validate(getSettingVal($conn, "Medienverwaltung_validMimeTypes")))) {
+                        returnMessage("failed", "Dieser Dateityp wird nicht unterstützt.  Eine Liste der unterstützten Dateitypen findest du Oben bei der Medienverwaltung.");
+                        die();
+                    }
+
+                    $type = explode("/", $mimeType, 2)[0];
+
+
+                    $path_parts = pathinfo($mediaFolderPath . "/" . $filename);
+                    $dirname = $path_parts['dirname'];
+                    $basename = $path_parts['basename'];
+                    $extension =  $path_parts['extension'];
+                    $filenameFromPathParts =  $path_parts['filename'];
+
+                    $pathToFolder = $mediaFolderPath . "/" . $type;
+                    //Create Folder if not exists
+                    if (!file_exists($pathToFolder)) {
+                        $oldmask = umask(0);
+                        mkdir($pathToFolder, 0777, true);
+                        umask($oldmask);
+                    }
+
+
+                    $finalfilename = generateFileName($conn, $pathToFolder, $filenameFromPathParts, $extension);
+
+                    $finalPath =  $pathToFolder . "/" . $finalfilename;
+                    if (file_exists($finalPath)) {
+                        returnMessage("failed", "Eine Datei mit diesem Namen in $finalPath existiert schon");
+                        die();
+                    }
+
+                    //Delete Old file (onFilesystem, Blob, OnlineSource)
+                    removeFileOrLinkToFile($conn, $id);
+
+                    // Upload file
+                    if (move_uploaded_file($tmpname, $finalPath)) {
+                        //Add parameters to database
+                        setValueFromDatabase($conn, "medienVerwaltung", "isOnlineSource", "id", $id, 0);
+                        setValueFromDatabase($conn, "medienVerwaltung", "inMediaFolder", "id", $id, 1);
+                        setValueFromDatabase($conn, "medienVerwaltung", "uploaded", "id", $id, getCurrentDateAndTime(1));
+                        setValueFromDatabase($conn, "medienVerwaltung", "filename", "id", $id, $finalfilename);
+                        setValueFromDatabase($conn, "medienVerwaltung", "mimeType", "id", $id, $mimeType);
+                        setValueFromDatabase($conn, "medienVerwaltung", "path", "id", $id, "/" . $type);
+                        setValueFromDatabase($conn, "medienVerwaltung", "type", "id", $id, $type);
+                        setValueFromDatabase($conn, "medienVerwaltung", "uploadedBy", "id", $id, $userID);
+                        setValueFromDatabase($conn, "medienVerwaltung", "fileSize", "id", $id, $size);
+
+                        returnMessage("success", "Datei erfolgreich hochgeldaden.", false, array("id" => $id, "finalPath" => $finalPath));
+                        die();
+                    } else {
+                        returnMessage("failed", "Ein Fehler beim Verschieben der Datei ist aufgetreten.");
+                        die();
+                    }
+                } else {
+                    returnMessage("failed", "Ein Fehler beim Hochladen ist aufgetreten. Keine Datei vorhanden.");
+                    die();
+                }
+            } else if ($secondOperation == "uploadAsBlob") {
+                if (isset($_FILES['file']["name"])) {
+                    // print_r($_FILES);
+                    $file = $_FILES['file'];
+                    if ($file["error"]) {
+                        returnMessage("failed", "Ein Fehler beim Hochladen ist aufgetreten (file['error'] = 1).");
+                        die();
+                    }
+
+                    $mimeType = $file["type"];
+                    $filename = $file['name'];
+                    $size = $file['size'];
+                    $tmpname = $file["tmp_name"]; //Where the file is cached on the server
+
+                    if (!checkValidMimeType($mimeType, json_validate(getSettingVal($conn, "Medienverwaltung_validMimeTypes")))) {
+                        returnMessage("failed", "Dieser Dateityp wird nicht unterstützt.  Eine Liste der unterstützten Dateitypen findest du Oben bei der Medienverwaltung.");
+                        die();
+                    }
+
+                    $type = explode("/", $mimeType, 2)[0];
+
+
+                    $path_parts = pathinfo($filename);
+                    $dirname = $path_parts['dirname'];
+                    $basename = $path_parts['basename'];
+                    $extension =  $path_parts['extension'];
+                    $filenameFromPathParts =  $path_parts['filename'];
+
+
+                    $finalfilename = generateFileNameBLOB($conn, $filenameFromPathParts, $extension);
+
+                    //Delete Old file (onFilesystem, Blob, OnlineSource)
+                    if (!removeFileOrLinkToFile($conn, $id)) {
+                        returnMessage("failed", "Die alte Datei konnte nicht gelöscht werden.");
+                        die();
+                    }
+
+                    $blob = file_get_contents($tmpname);
+                    if (!$blob) {
+                        returnMessage("failed", "Ein Fehler beim Erstellen des BLOBs ist aufgetreten.");
+                        die();
+                    }
+                    // Upload file
+                    if (setValueFromDatabase($conn, "medienVerwaltung", "blobData", "id", $id, $blob)) {
+                        //Add parameters to database
+                        setValueFromDatabase($conn, "medienVerwaltung", "isBlob", "id", $id, 1);
+                        setValueFromDatabase($conn, "medienVerwaltung", "isOnlineSource", "id", $id, 0);
+                        setValueFromDatabase($conn, "medienVerwaltung", "inMediaFolder", "id", $id, 0);
+                        setValueFromDatabase($conn, "medienVerwaltung", "uploaded", "id", $id, getCurrentDateAndTime(1));
+                        setValueFromDatabase($conn, "medienVerwaltung", "filename", "id", $id, $finalfilename);
+                        setValueFromDatabase($conn, "medienVerwaltung", "mimeType", "id", $id, $mimeType);
+                        setValueFromDatabase($conn, "medienVerwaltung", "type", "id", $id, $type);
+                        setValueFromDatabase($conn, "medienVerwaltung", "uploadedBy", "id", $id, $userID);
+                        setValueFromDatabase($conn, "medienVerwaltung", "fileSize", "id", $id, $size);
+
+                        returnMessage("success", "Datei erfolgreich hochgeldaden.", false, array("id" => $id));
+                        die();
+                    } else {
+                        returnMessage("failed", "Ein Fehler beim Verschieben der Datei ist aufgetreten.");
+                        die();
+                    }
+                } else {
+                    returnMessage("failed", "Ein Fehler beim Hochladen ist aufgetreten. Keine Datei vorhanden.");
+                    die();
+                }
+            } else if ($secondOperation == "addOnlineSource") {
+                $url = json_decode($_POST["url"]);
+                $url = $url->{"url"};
+               
+                //Delete Old file (onFilesystem, Blob, OnlineSource)
+                if (!removeFileOrLinkToFile($conn, $id)) {
+                    returnMessage("failed", "Die alte Datei konnte nicht gelöscht werden.");
+                    die();
+                }
+
+                setValueFromDatabase($conn, "medienVerwaltung", "isOnlineSource", "id", $id, 1);
+                setValueFromDatabase($conn, "medienVerwaltung", "path", "id", $id, $url);
+                setValueFromDatabase($conn, "medienVerwaltung", "type", "id", $id, "Onlinequelle");
+                returnMessage("success", "Medieneintrag erfolgreich geändert..", false, array("id" => $id));
+                die();
+            } else if ($secondOperation == "remove") {
+                if (removeFileOrLinkToFile($conn, $id)) {
+                    returnMessage("success", "Datei erfolgreich entfernt.");
+                } else {
+                    returnMessage("failed", "Datei konnte nicht entfernt werden.");
+                }
+                die();
+            }
+        } else if ($type === "description") {
+            $newValue = $_POST["newValue"];
+            if (setValueFromDatabase($conn, "medienVerwaltung", "description", "id", $id, $newValue)) {
+                setChangedAndChangedBy($conn, $id, $userID);
+                returnMessage("success", "Beschreibung erfolgreich geändert");
+            } else {
+                returnMessage("failed", "Beschreibung wurde nicht geändert");
+            }
             die();
-           } else if ($secondOperation === "changeBlobData") {
+        } else if ($type === "keywords") {
+            $newValue = json_validate($_POST["newValue"]);
+            if (setValueFromDatabase($conn, "medienVerwaltung", "keywords", "id", $id, json_encode($newValue))) {
+                setChangedAndChangedBy($conn, $id, $userID);
+                returnMessage("success", "Schlüsselwörter erfolgreich geändert");
+            } else {
+                returnMessage("failed", "Schlüsselwörter wurde nicht geändert");
+            }
+            die();
+        } else if ($type === "isOnlineSource") {
+            $newValue = intval(json_validate($_POST["newValue"]));
+            if (setValueFromDatabase($conn, "medienVerwaltung", "isOnlineSource", "id", $id, $newValue)) {
+                setChangedAndChangedBy($conn, $id, $userID);
+                returnMessage("success", "Wert erfolgreich geändert");
+            } else {
+                returnMessage("failed", "Wert wurde nicht geändert");
+            }
+            die();
+        } else if ($type === "path") {
+            $newValue = json_validate($_POST["newValue"])?->{"path"};
+            if (setValueFromDatabase($conn, "medienVerwaltung", "path", "id", $id, $newValue)) {
+                setChangedAndChangedBy($conn, $id, $userID);
+                returnMessage("success", "Pfad / URL erfolgreich geändert");
+            } else {
+                returnMessage("failed", "Pfad / URL wurde nicht geändert");
+            }
+            die();
+        } else if ($type === "inMediaFolder") {
+            $newValue = intval(json_validate($_POST["newValue"]));
+            if (setValueFromDatabase($conn, "medienVerwaltung", "inMediaFolder", "id", $id, $newValue)) {
+                setChangedAndChangedBy($conn, $id, $userID);
+                returnMessage("success", "Wert erfolgreich geändert");
+            } else {
+                returnMessage("failed", "Wert wurde nicht geändert");
+            }
+            die();
+        } else if ($type === "filename") {
+            $newName = json_validate($_POST["newValue"])?->{"newValue"};
 
-           } else if ($secondOperation === "changeOnlineData") {
+            $isOnlineSource = boolval(getValueFromDatabase($conn, "medienVerwaltung", "isOnlineSource", "id", $id, 1, false));
+            $isBlob = boolval(getValueFromDatabase($conn, "medienVerwaltung", "isBlob", "id", $id, 1, false));
+            $path = getValueFromDatabase($conn, "medienVerwaltung", "path", "id", $id, 1, false);
+            $inMediaFolder = boolval(getValueFromDatabase($conn, "medienVerwaltung", "inMediaFolder", "id", $id, 1, false));
+            $filename = getValueFromDatabase($conn, "medienVerwaltung", "filename", "id", $id, 1, false);
 
-           }
-
-        } else if ($type === "changeType") {
-            $rankingPermission = getValueFromDatabase($conn, "permissions", "ranking", "id", $id, 1, false);
-            if (!userHasPermissionRanking($conn, $userID, $rankingPermission)) {
-                returnMessage(false, "Du hast nicht den benötigten Rang. Dein Rang: $usersRank | Benötigter Rang: $rankingPermission");
-                die();
-            }
-            $type = $_POST["input"];
-            if (empty($type) || !$type) {
-                returnMessage("failed", "Der Typ darf nicht leer sein (Eingabe: $type)");
-                die();
-            }
-            if (setValueFromDatabase($conn, "permissions", "type", "id", $id, $type, false)) {
-                returnMessage("success", "Erfolg! Typ von id: $id wurde auf $type gesetzt.");
-                die();
-            } else {
-                returnMessage("failed", "Fehler beim ändern des Types.");
-                die();
-            }
-        } else if ($type === "deletePermission") {
-            $rankingPermission = getValueFromDatabase($conn, "permissions", "ranking", "id", $id, 1, false);
-            if (!userHasPermissionRanking($conn, $userID, $rankingPermission)) {
-                returnMessage(false, "Du hast nicht den benötigten Rang. Dein Rang: $usersRank | Benötigter Rang: $rankingPermission");
-                die();
-            }
-            logWrite($conn, "berechtigungsverwaltung", "Berechtigung $id soll von Benutzer mit id: $userID gelöscht werden");
-            if (deleteRowFromDatabase($conn, "permissions", "type", "id", $id)) {
-                returnMessage("success", "Erfolg! Erfolgreich gelöscht.");
-                die();
-            } else {
-                returnMessage("failed", "Fehler beim Löschen");
-                die();
-            }
-        } else if ($type === "changeDescription") {
-            $input = $_POST["input"];
-            if (empty($input)) {
-                $input = null;
-            }
-            if (setValueFromDatabase($conn, "permissions", "description", "id", $id, $input, false)) {
-                returnMessage("success", "Beschreibung erfolgreich geändert.");
-                die();
-            } else {
-                returnMessage("failed", "Fehler beim ändern der Beschreibung.");
-                die();
-            }
-        } else if ($type === "changeHinweis") {
-            $input = $_POST["input"];
-            if (empty($input)) {
-                $input = null;
-            }
-            if (setValueFromDatabase($conn, "permissions", "hinweis", "id", $id, $input, false)) {
-                returnMessage("success", "Hinweis erfolgreich geändert.");
-                die();
-            } else {
-                returnMessage("failed", "Fehler beim ändern des Hinweises.");
-                die();
-            }
-        } else if ($type === "changeRank") {
-            $newRank = intval($_POST["rank"]);
-            if (empty($newRank)) {
-                returnMessage("failed", "Der Rang darf nicht leer sein (Eingabe: $newRank)");
-                die();
-            }
-            $usersRank = getPermissionRanking($conn, $userID);
-            $rankingPermission = getValueFromDatabase($conn, "permissions", "ranking", "id", $id, 1, false);
-            if ($rankingPermission === false) {
-                returnMessage(false, "Fehler, Berechtigung hat keinen Rang. Frage einen Administrator.");
-                die();
-            }
-
-            if (!userHasPermissionRanking($conn, $userID, $newRank)) {
-                returnMessage(false, "Du hast nicht den benötigten Rang. Dein Rang: $usersRank | Benötigter Rang, den du setzen möchtest: $newRank");
-                die();
-            }
-            if (!userHasPermissionRanking($conn, $userID, $rankingPermission)) {
-                returnMessage(false, "Du hast nicht den benötigten Rang. Dein Rang: $usersRank | Benötigter Rang: $rankingPermission");
-                die();
-            }
-            if (setValueFromDatabase($conn, "permissions", "ranking", "id", $id, $newRank, false)) {
-                returnMessage("success", "Erfolg! Rang von id: $id wurde auf $newRank gesetzt.");
-                die();
-            } else {
-                returnMessage("failed", "Fehler beim ändern des Ranges.");
-                die();
-            }
-        } else if ($type === "changeNormalValue") {
-            $newValue = intval($_POST["input"]);
-            if (empty($newValue)) {
-                returnMessage("failed", "Der Wert darf nicht leer sein (Eingabe: $newValue)");
-                die();
-            }
-            $usersRank = getPermissionRanking($conn, $userID);
-            $rankingPermission = getValueFromDatabase($conn, "permissions", "ranking", "id", $id, 1, false);
-            if (!userHasPermissionRanking($conn, $userID, $rankingPermission)) {
-                returnMessage(false, "Du hast nicht den benötigten Rang. Dein Rang: $usersRank | Benötigter Rang: $rankingPermission");
-                die();
-            }
-            if (setValueFromDatabase($conn, "permissions", "normalValue", "id", $id, $newValue, false)) {
-                returnMessage("success", "Erfolg! normalerWert von id: $id wurde auf $newValue gesetzt.");
-                die();
-            } else {
-                returnMessage("failed", "Fehler beim ändern des Wertes.");
-                die();
-            }
-        } else if ($type === "changeUsedAt") {
-            $secondOperation = "";
-            if (isset($_POST["secondOperation"])) {
-                $secondOperation = $_POST["secondOperation"];
-            } else {
-                returnMessage("failed", "Keine operation angegeben. (add; remove)");
-                die();
-            }
-
-            if ($secondOperation === "add") {
-                $toAdd = $_POST["toAdd"];
-                if (empty($toAdd)) {
-                    returnMessage("failed", "Leere Eingabe");
-                }
-                if (addToArrayDatabase($conn, "permissions", "usedAt", "id", $id, $toAdd, false)) {
-                    returnMessage("success", "Erfolgreich hinzugefügt");
+            if ($isBlob) {
+                if (setValueFromDatabase($conn, "medienVerwaltung", "filename", "id", $id, $newName)) {
+                    setChangedAndChangedBy($conn, $id, $userID);
+                    returnMessage("success", "Name erfolgreich geändert");
                 } else {
-                    returnMessage("failed", "Fehler beim hinzufügen");
+                    returnMessage("failed", "Name wurde nicht geändert");
                 }
-                die();
-            } else if ($secondOperation === "remove") {
-                $toRemove = $_POST["toRemove"];
-                if (empty($toRemove)) {
-                    returnMessage("failed", "Leere Eingabe");
-                }
-                if (removeFromArrayDatabase($conn, "permissions", "usedAt", "id", $id, $toRemove, true, true)) {
-                    returnMessage("success", "Erfolgreich entfernt");
-                } else {
-                    returnMessage("failed", "Fehler beim entfernen");
-                }
-                die();
-            } else if ($secondOperation === "removeAll") {
-                if (insertArrayDatabase($conn, "permissions", "usedAt", "id", $id, array())) {
-                    returnMessage("success", "Erfolgreich geleert.");
-                } else {
-                    returnMessage("failed", "Fehler beim leeren.");
-                }
-                die();
-            }
-        } else if ($type === "changecustomID") {
-            $input = $_POST["input"];
-            if (empty($input)) {
-                $input = null;
-            }
-            if (setValueFromDatabase($conn, "permissions", "customID", "id", $id, $input, false)) {
-                returnMessage("success", "CustomID erfolgreich geändert.");
-                die();
             } else {
-                returnMessage("failed", "Fehler beim ändern der CustomID.");
+                if ($isOnlineSource) {
+                    returnMessage("failed", "Der Dateiname von einer Onlinequelle kann nicht geändert werden.");
+                    die();
+                }
+                //File is on fileSystem
+                $fullPath = getFullPath($conn, $isOnlineSource, $path, $inMediaFolder);
+                logWrite($conn, "general", "fullPath:" . $fullPath);
+                $path = $fullPath . "/" . $filename;
+                if (file_exists($fullPath . "/" . $newName)) {
+                    returnMessage("failed", "Auf dem Dateisystem mit dem Pfad $fullPath existiert bereits eine Datei mit dem Namen $newName");
+                    die();
+                } else {
+                    setValueFromDatabase($conn, "medienVerwaltung", "filename", "id", $id, $newName); //Change even if the acual file can't be renamed
+                    if (rename($fullPath . "/" . $filename, $fullPath . "/" . $newName, null)) {
+                        returnMessage("success", "Datei erfolgreich von '$filename' zu '$newName' umbenannt");
+                        setChangedAndChangedBy($conn, $id, $userID);
+                        die();
+                    } else {
+                        setValueFromDatabase($conn, "medienVerwaltung", "filename", "id", $id, $newName);
+                        returnMessage("failed", "Ein Fehler beim Umbenennen ist aufgetreten. Versuche es erneut.");
+                        die();
+                    }
+                }
+            }
+            die();
+        } else if ($type === "mediaID") {
+            $newValue = json_validate($_POST["newValue"])?->{"newValue"};
+            if (valueInDatabaseExists($conn, "medienVerwaltung", "mediaID", "mediaID", $newValue)) {
+                returnMessage("failed", "Es existiert bereits ein Medienentrag mit der mediaID '$newValue'");
                 die();
             }
-        }
+            if (setValueFromDatabase($conn, "medienVerwaltung", "mediaID", "id", $id, $newValue)) {
+                setChangedAndChangedBy($conn, $id, $userID);
+                returnMessage("success", "MediaID erfolgreich geändert");
+            } else {
+                returnMessage("failed", "MediaID wurde nicht geändert");
+            }
+            die();
+        } else if ($type === "thumbnail") {
+            $newValue = intval(json_validate($_POST["newValue"]));
+            if (!boolval($newValue)) {
+                //Set to false -> remove thumbnail
+                if (!removeFileOrLinkToFileThumbnail($conn, $id)) {
+                    returnMessage("failed", "Die alte Thumbnail-Datei konnte nicht entfernt werden.");
+                    die();
+                }
+            }
+            if (setValueFromDatabase($conn, "medienVerwaltung", "thumbnail", "id", $id, $newValue)) {
+                setChangedAndChangedBy($conn, $id, $userID);
+                returnMessage("success", "Wert erfolgreich geändert");
+            } else {
+                returnMessage("failed", "Wert wurde nicht geändert");
+            }
+            die();
+        } else if ($type === "changeDataThumbnail") {
+            $secondOperation = $_POST["secondOperation"] ?? "";
+            if (!userHasPermissions($conn, $userID, ["medienverwaltungChangeValues" => gnVP($conn, "medienverwaltungChangeValues"), "medienverwaltungADDandREMOVE" => gnVP($conn, "medienverwaltungADDandREMOVE")])) {
+                permissionDenied();
+                die();
+            }
+            if (!boolval(getValueFromDatabase($conn, "medienVerwaltung", "thumbnail", "id", $id, 1, false))) {
+                returnMessage("failed", "Aktiviere zuerst das Thumbail bei diesem Medieneintrag.");
+                die();
+            }
+            if ($secondOperation == "uploadToFileSystem") {
+                if (isset($_FILES['file']["name"])) {
+                    // print_r($_FILES);
+                    $file = $_FILES['file'];
+                    if ($file["error"]) {
+                        returnMessage("failed", "Ein Fehler beim Hochladen ist aufgetreten (file['error'] = 1).");
+                        die();
+                    }
+                    // MediaFolder PATH
+                    $mediaFolderPath = getMediaFolderPath($conn);
+
+                    $mimeType = $file["type"];
+                    $filename = $file['name'];
+                    $size = $file['size'];
+                    $tmpname = $file["tmp_name"]; //Where the file is cached on the server
+
+                    if (!checkValidMimeType($mimeType, json_validate(getSettingVal($conn, "Medienverwaltung_validMimeTypes")))) {
+                        returnMessage("failed", "Dieser Dateityp wird nicht unterstützt.  Eine Liste der unterstützten Dateitypen findest du Oben bei der Medienverwaltung.");
+                        die();
+                    }
+
+                    $type = explode("/", $mimeType, 2)[0];
+                    if ($type != "image") {
+                        returnMessage("failed", "Als Miniaturansicht können nur Bilder verwendet werden.");
+                        die();
+                    }
+
+
+                    $path_parts = pathinfo($mediaFolderPath . "/" . $filename);
+                    $dirname = $path_parts['dirname'];
+                    $basename = $path_parts['basename'];
+                    $extension =  $path_parts['extension'];
+                    $filenameFromPathParts =  $path_parts['filename'];
+
+                    $pathToFolder = $mediaFolderPath . "/" . "thumbnails";
+
+                    $finalfilename = generateFileName($conn, $pathToFolder, $filenameFromPathParts, $extension);
+
+                    $finalPath =  $pathToFolder . "/" . $finalfilename;
+                    if (file_exists($finalPath)) {
+                        returnMessage("failed", "Eine Datei mit diesem Namen in $finalPath existiert schon");
+                        die();
+                    }
+
+                    //Delete Old file (onFilesystem, Blob, OnlineSource)
+                    removeFileOrLinkToFileThumbnail($conn, $id);
+
+                    // Upload file
+                    if (move_uploaded_file($tmpname, $finalPath)) {
+                        //Add parameters to database
+                        setValueFromDatabase($conn, "medienVerwaltung", "thumbnailIsOnlineSource", "id", $id, 0);
+                        setValueFromDatabase($conn, "medienVerwaltung", "thumbnailInMediaFolder", "id", $id, 1);
+                        setValueFromDatabase($conn, "medienVerwaltung", "thumbnailFileName", "id", $id, $finalfilename);
+                        setValueFromDatabase($conn, "medienVerwaltung", "thumbnailMimeType", "id", $id, $mimeType);
+                        setValueFromDatabase($conn, "medienVerwaltung", "thumbnailPath", "id", $id, "/" . "thumbnails");
+                        setChangedAndChangedBy($conn, $id, $userID);
+                        returnMessage("success", "Datei erfolgreich hochgeldaden.", false, array("id" => $id, "finalPath" => $finalPath));
+                        die();
+                    } else {
+                        returnMessage("failed", "Ein Fehler beim Verschieben der Datei ist aufgetreten.");
+                        die();
+                    }
+                } else {
+                    returnMessage("failed", "Ein Fehler beim Hochladen ist aufgetreten. Keine Datei vorhanden.");
+                    die();
+                }
+            } else if ($secondOperation == "uploadAsBlob") {
+                if (isset($_FILES['file']["name"])) {
+                    // print_r($_FILES);
+                    $file = $_FILES['file'];
+                    if ($file["error"]) {
+                        returnMessage("failed", "Ein Fehler beim Hochladen ist aufgetreten (file['error'] = 1).");
+                        die();
+                    }
+
+                    $mimeType = $file["type"];
+                    $filename = $file['name'];
+                    $size = $file['size'];
+                    $tmpname = $file["tmp_name"]; //Where the file is cached on the server
+
+                    if (!checkValidMimeType($mimeType, json_validate(getSettingVal($conn, "Medienverwaltung_validMimeTypes")))) {
+                        returnMessage("failed", "Dieser Dateityp wird nicht unterstützt.  Eine Liste der unterstützten Dateitypen findest du Oben bei der Medienverwaltung.");
+                        die();
+                    }
+
+                    $type = explode("/", $mimeType, 2)[0];
+                    if ($type != "image") {
+                        returnMessage("failed", "Als Miniaturansicht können nur Bilder verwendet werden.");
+                        die();
+                    }
+
+                    $path_parts = pathinfo($filename);
+                    $dirname = $path_parts['dirname'];
+                    $basename = $path_parts['basename'];
+                    $extension =  $path_parts['extension'];
+                    $filenameFromPathParts =  $path_parts['filename'];
+
+
+                    $finalfilename = generateFileNameBLOB($conn, $filenameFromPathParts, $extension);
+
+                    //Delete Old file (onFilesystem, Blob, OnlineSource)
+                    removeFileOrLinkToFile($conn, $id);
+
+                    $blob = file_get_contents($tmpname);
+                    if (!$blob) {
+                        returnMessage("failed", "Ein Fehler beim Erstellen des BLOBs ist aufgetreten.");
+                        die();
+                    }
+                    // Upload file
+                    if (setValueFromDatabase($conn, "medienVerwaltung", "blobData", "id", $id, $blob)) {
+                        //Add parameters to database
+                        setValueFromDatabase($conn, "medienVerwaltung", "thumbnailIsBlob", "id", $id, 1);
+                        setValueFromDatabase($conn, "medienVerwaltung", "thumbnailIsOnlineSource", "id", $id, 0);
+                        setValueFromDatabase($conn, "medienVerwaltung", "thumbnailInMediaFolder", "id", $id, 0);
+                        setValueFromDatabase($conn, "medienVerwaltung", "thumbnailFileName", "id", $id, $finalfilename);
+                        setValueFromDatabase($conn, "medienVerwaltung", "thumbnailMimeType", "id", $id, $mimeType);
+                        setChangedAndChangedBy($conn, $id, $userID);
+                        returnMessage("success", "Datei erfolgreich hochgeldaden.", false, array("id" => $id));
+                        die();
+                    } else {
+                        returnMessage("failed", "Ein Fehler beim Verschieben der Datei ist aufgetreten.");
+                        deleteRowFromDatabase($conn, "medienVerwaltung", "id", "id", $id);
+                        die();
+                    }
+                } else {
+                    returnMessage("failed", "Ein Fehler beim Hochladen ist aufgetreten. Keine Datei vorhanden.");
+                    die();
+                }
+            } else if ($secondOperation == "addOnlineSource") {
+                $url = json_decode($_POST["url"]);
+                $url = $url->{"url"};
+               
+                //Delete Old file (onFilesystem, Blob, OnlineSource)
+                if (!removeFileOrLinkToFile($conn, $id)) {
+                    returnMessage("failed", "Die alte Datei konnte nicht gelöscht werden.");
+                    die();
+                }
+
+                setValueFromDatabase($conn, "medienVerwaltung", "thumbnailIsOnlineSource", "id", $id, 1);
+                setValueFromDatabase($conn, "medienVerwaltung", "thumbnailPath", "id", $id, $url);
+                returnMessage("success", "Medieneintrag erfolgreich geändert..", false, array("id" => $id));
+                die();
+            } else if ($secondOperation == "remove") {
+                if (removeFileOrLinkToFileThumbnail($conn, $id)) {
+                    returnMessage("success", "Datei erfolgreich entfernt.");
+                } else {
+                    returnMessage("failed", "Datei konnte nicht entfernt werden.");
+                }
+                die();
+            }
+        } else if ($type === "thumbnailFileName") {
+            $newName = json_validate($_POST["newValue"])?->{"newValue"};
+
+            $isOnlineSource = boolval(getValueFromDatabase($conn, "medienVerwaltung", "thumbnailIsOnlineSource", "id", $id, 1, false));
+            $isBlob = boolval(getValueFromDatabase($conn, "medienVerwaltung", "thumbnailIsBlob", "id", $id, 1, false));
+            $path = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailPath", "id", $id, 1, false);
+            $inMediaFolder = boolval(getValueFromDatabase($conn, "medienVerwaltung", "thumbnailInMediaFolder", "id", $id, 1, false));
+            $filename = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailFileName", "id", $id, 1, false);
+            if (!boolval(getValueFromDatabase($conn, "medienVerwaltung", "thumbnail", "id", $id, 1, false))) {
+                returnMessage("failed", "Aktiviere zuerst das Thumbail bei diesem Medieneintrag.");
+                die();
+            }
+
+            if ($isBlob) {
+                if (setValueFromDatabase($conn, "medienVerwaltung", "thumbnailFileName", "id", $id, $newName)) {
+                    setChangedAndChangedBy($conn, $id, $userID);
+                    returnMessage("success", "Name erfolgreich geändert");
+                } else {
+                    returnMessage("failed", "Name wurde nicht geändert");
+                }
+            } else {
+                if ($isOnlineSource) {
+                    returnMessage("failed", "Der Dateiname von einer Onlinequelle kann nicht geändert werden.");
+                    die();
+                }
+                //File is on fileSystem
+                $fullPath = getFullPath($conn, $isOnlineSource, $path, $inMediaFolder);
+                logWrite($conn, "general", "fullPath:" . $fullPath);
+                $path = $fullPath . "/" . $filename;
+                if (file_exists($fullPath . "/" . $newName)) {
+                    returnMessage("failed", "Auf dem Dateisystem mit dem Pfad $fullPath existiert bereits eine Datei mit dem Namen $newName");
+                    die();
+                } else {
+                    setValueFromDatabase($conn, "medienVerwaltung", "thumbnailFileName", "id", $id, $newName);
+                    if (rename($fullPath . "/" . $filename, $fullPath . "/" . $newName, null)) {
+                        returnMessage("success", "Datei erfolgreich von '$filename' zu '$newName' umbenannt");
+                        setChangedAndChangedBy($conn, $id, $userID);
+                        die();
+                    } else {
+                        returnMessage("failed", "Ein Fehler beim Umbenennen ist aufgetreten. Versuche es erneut.");
+                        die();
+                    }
+                }
+            }
+            die();
+        } else if ($type === "thumbnailIsOnlineSource") {
+            if (!boolval(getValueFromDatabase($conn, "medienVerwaltung", "thumbnail", "id", $id, 1, false))) {
+                returnMessage("failed", "Aktiviere zuerst das Thumbail bei diesem Medieneintrag.");
+                die();
+            }
+            $newValue = intval(json_validate($_POST["newValue"]));
+            if (setValueFromDatabase($conn, "medienVerwaltung", "thumbnailIsOnlineSource", "id", $id, $newValue)) {
+                setChangedAndChangedBy($conn, $id, $userID);
+                returnMessage("success", "Wert erfolgreich geändert");
+            } else {
+                returnMessage("failed", "Wert wurde nicht geändert");
+            }
+            die();
+        } else if ($type === "thumbnailPath") {
+            if (!boolval(getValueFromDatabase($conn, "medienVerwaltung", "thumbnail", "id", $id, 1, false))) {
+                returnMessage("failed", "Aktiviere zuerst das Thumbail bei diesem Medieneintrag.");
+                die();
+            }
+            $newValue = json_validate($_POST["newValue"])?->{"path"};
+            if (setValueFromDatabase($conn, "medienVerwaltung", "thumbnailPath", "id", $id, $newValue)) {
+                setChangedAndChangedBy($conn, $id, $userID);
+                returnMessage("success", "Pfad / URL erfolgreich geändert");
+            } else {
+                returnMessage("failed", "Pfad / URL wurde nicht geändert");
+            }
+            die();
+        } else if ($type === "thumbnailInMediaFolder") {
+            if (!boolval(getValueFromDatabase($conn, "medienVerwaltung", "thumbnail", "id", $id, 1, false))) {
+                returnMessage("failed", "Aktiviere zuerst das Thumbail bei diesem Medieneintrag.");
+                die();
+            }
+            $newValue = intval(json_validate($_POST["newValue"]));
+            if (setValueFromDatabase($conn, "medienVerwaltung", "inMediaFolder", "id", $id, $newValue)) {
+                setChangedAndChangedBy($conn, $id, $userID);
+                returnMessage("success", "Wert erfolgreich geändert");
+            } else {
+                returnMessage("failed", "Wert wurde nicht geändert");
+            }
+            die();
+        } 
     } else if ($operation === "getFullInfromation") {
 
         $id = $_POST['id'];
@@ -786,41 +1385,201 @@ if (isset($_POST["medienverwaltung"])) {
         $thumbnailFileName = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailFileName", "id", $id, 1, false);
         $thumbnailInMediaFolder = boolval(getValueFromDatabase($conn, "medienVerwaltung", "thumbnailInMediaFolder", "id", $id, 1, false));
         $thumbnailMimeType = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailMimeType", "id", $id, 1, false);
-        $thumbnailPath = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailPath", "mediaID", $id, 1, false);
-        $description = getValueFromDatabase($conn, "medienVerwaltung", "description", "mediaID", $id, 1, false);
-        $keywords = json_validate(getValueFromDatabase($conn, "medienVerwaltung", "keywords", "mediaID", $id, 1, false));
-        $fileSize = getValueFromDatabase($conn, "medienVerwaltung", "fileSize", "mediaID", $id, 1, false);
-        $changed = getValueFromDatabase($conn, "medienVerwaltung", "changed", "mediaID", $id, 1, false);
-        $uploaded = getValueFromDatabase($conn, "medienVerwaltung", "uploaded", "mediaID", $id, 1, false);
-        $uploadedBy = getValueFromDatabase($conn, "medienVerwaltung", "uploadedBy", "mediaID", $id, 1, false);
-        $changedBy = json_validate(getValueFromDatabase($conn, "medienVerwaltung", "changedBy", "mediaID", $id, 1, false));
+        $thumbnailPath = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailPath", "id", $id, 1, false);
+        $description = getValueFromDatabase($conn, "medienVerwaltung", "description", "id", $id, 1, false);
+        $keywords = json_validate(getValueFromDatabase($conn, "medienVerwaltung", "keywords", "id", $id, 1, false));
+        $fileSize = getValueFromDatabase($conn, "medienVerwaltung", "fileSize", "id", $id, 1, false);
+        $changed = getValueFromDatabase($conn, "medienVerwaltung", "changed", "id", $id, 1, false);
+        $uploaded = getValueFromDatabase($conn, "medienVerwaltung", "uploaded", "id", $id, 1, false);
+        $uploadedBy = getValueFromDatabase($conn, "medienVerwaltung", "uploadedBy", "id", $id, 1, false);
+        $changedBy = json_validate(getValueFromDatabase($conn, "medienVerwaltung", "changedBy", "id", $id, 1, false));
 
         echo json_encode(array("id" => $id, "mediaID" => $mediaID, "uploadedBy" => $uploadedBy, "changedBy" => $changedBy, "uploaded" => $uploaded, "changed" => $changed, "thumbnailIsBlob" => $thumbnailIsBlob, "thumbnailIsOnlineSource" => $thumbnailIsOnlineSource, "thumbnail" => $thumbnail, "isBlob" => $isBlob, "isOnlineSource" => $isOnlineSource, "inMediaFolder" => $inMediaFolder, "uploaded" => $uploaded, "filename" => $filename, "mimeType" => $mimeType, "type" => $type, "path" => $path, "thumbnailFileName" => $thumbnailFileName, "thumbnailMimeType" => $thumbnailMimeType, "thumbnailPath" => $thumbnailPath, "description" => $description, "keywords" => $keywords, "fileSize" => $fileSize, "thumbnailInMediaFolder" => $thumbnailInMediaFolder));
         die();
-    } else if ($operation === "getValues") {
-        $id = $_POST["id"];
-        if (!valueInDatabaseExists($conn, "permissions", "id", "id", $id)) {
-            returnMessage("failed", "Die Berechtigung, die du bearbeiten möchtest gibt es nicht. (id: $id)");
+    } else if ($operation === "addMedia") {
+        if (!userHasPermissions($conn, $userID, ["medienverwaltungChangeValues" => gnVP($conn, "medienverwaltungChangeValues"), "medienverwaltungADDandREMOVE" => gnVP($conn, "medienverwaltungADDandREMOVE")])) {
+            permissionDenied();
             die();
         }
         $type = $_POST["type"];
-        if ($type === "getType") {
-            echo getValueFromDatabase($conn, "permissions", "type", "id", $id, 1, false);
-            die();
-        } else if ($type === "getCurrentUsed") {
-            echo json_encode(json_validate(getValueFromDatabase($conn, "permissions", "usedAt", "id", $id, 1, false)));
+        if ($type == "uploadToFileSystem") {
+            if (isset($_FILES['file']["name"])) {
+                // print_r($_FILES);
+                $file = $_FILES['file'];
+                if ($file["error"]) {
+                    returnMessage("failed", "Ein Fehler beim Hochladen ist aufgetreten (file['error'] = 1).");
+                    die();
+                }
+                // MediaFolder PATH
+                $mediaFolderPath = $mediaFolderPath = getMediaFolderPath($conn);
+
+                $mimeType = $file["type"];
+                $filename = $file['name'];
+                $size = $file['size'];
+                $tmpname = $file["tmp_name"]; //Where the file is cached on the server
+
+                if (!checkValidMimeType($mimeType, json_validate(getSettingVal($conn, "Medienverwaltung_validMimeTypes")))) {
+                    returnMessage("failed", "Dieser Dateityp wird nicht unterstützt.  Eine Liste der unterstützten Dateitypen findest du Oben bei der Medienverwaltung.");
+                    die();
+                }
+
+                $type = explode("/", $mimeType, 2)[0];
+
+
+                $path_parts = pathinfo($mediaFolderPath . "/" . $filename);
+                $dirname = $path_parts['dirname'];
+                $basename = $path_parts['basename'];
+                $extension =  $path_parts['extension'];
+                $filenameFromPathParts =  $path_parts['filename'];
+
+                $pathToFolder = $mediaFolderPath . "/" . $type;
+                //Create Folder if not exists
+                if (!file_exists($pathToFolder)) {
+                    $oldmask = umask(0);
+                    mkdir($pathToFolder, 0777, true);
+                    umask($oldmask);
+                }
+
+
+                $finalfilename = generateFileName($conn, $pathToFolder, $filenameFromPathParts, $extension);
+
+                $finalPath =  $pathToFolder . "/" . $finalfilename;
+                if (file_exists($finalPath)) {
+                    returnMessage("failed", "Eine Datei mit diesem Namen in $finalPath existiert schon");
+                    die();
+                }
+
+                $mediaID = createEntryMedienverwaltung($conn);
+                $id = getValueFromDatabase($conn, "medienVerwaltung", "id", "mediaID", $mediaID, 1, false);
+                if (!$mediaID || !$id) {
+                    returnMessage("failed", "Ein Fehler beim Erstellen des Medienentrages ist aufgetreten.");
+                    die();
+                }
+
+                // Upload file
+                if (move_uploaded_file($tmpname, $finalPath)) {
+                    //Add parameters to database
+                    setValueFromDatabase($conn, "medienVerwaltung", "isOnlineSource", "id", $id, 0);
+                    setValueFromDatabase($conn, "medienVerwaltung", "inMediaFolder", "id", $id, 1);
+                    setValueFromDatabase($conn, "medienVerwaltung", "uploaded", "id", $id, getCurrentDateAndTime(1));
+                    setValueFromDatabase($conn, "medienVerwaltung", "filename", "id", $id, $finalfilename);
+                    setValueFromDatabase($conn, "medienVerwaltung", "mimeType", "id", $id, $mimeType);
+                    setValueFromDatabase($conn, "medienVerwaltung", "path", "id", $id, "/" . $type);
+                    setValueFromDatabase($conn, "medienVerwaltung", "type", "id", $id, $type);
+                    setValueFromDatabase($conn, "medienVerwaltung", "uploadedBy", "id", $id, $userID);
+                    setValueFromDatabase($conn, "medienVerwaltung", "fileSize", "id", $id, $size);
+
+                    returnMessage("success", "Datei erfolgreich hochgeldaden.", false, array("id" => $id, "finalPath" => $finalPath));
+                    die();
+                } else {
+                    returnMessage("failed", "Ein Fehler beim Verschieben der Datei ist aufgetreten.");
+                    deleteRowFromDatabase($conn, "medienVerwaltung", "id", "id", $id);
+                    die();
+                }
+            } else {
+                returnMessage("failed", "Ein Fehler beim Hochladen ist aufgetreten. Keine Datei vorhanden.");
+                die();
+            }
+        } else if ($type == "uploadAsBlob") {
+            if (isset($_FILES['file']["name"])) {
+                // print_r($_FILES);
+                $file = $_FILES['file'];
+                if ($file["error"]) {
+                    returnMessage("failed", "Ein Fehler beim Hochladen ist aufgetreten (file['error'] = 1).");
+                    die();
+                }
+
+                $mimeType = $file["type"];
+                $filename = $file['name'];
+                $size = $file['size'];
+                $tmpname = $file["tmp_name"]; //Where the file is cached on the server
+
+                if (!checkValidMimeType($mimeType, json_validate(getSettingVal($conn, "Medienverwaltung_validMimeTypes")))) {
+                    returnMessage("failed", "Dieser Dateityp wird nicht unterstützt.  Eine Liste der unterstützten Dateitypen findest du Oben bei der Medienverwaltung.");
+                    die();
+                }
+
+                $type = explode("/", $mimeType, 2)[0];
+
+
+                $path_parts = pathinfo($filename);
+                $dirname = $path_parts['dirname'];
+                $basename = $path_parts['basename'];
+                $extension =  $path_parts['extension'];
+                $filenameFromPathParts =  $path_parts['filename'];
+
+
+                $finalfilename = generateFileNameBLOB($conn, $filenameFromPathParts, $extension);
+
+                $mediaID = createEntryMedienverwaltung($conn);
+                $id = getValueFromDatabase($conn, "medienVerwaltung", "id", "mediaID", $mediaID, 1, false);
+                if (!$mediaID || !$id) {
+                    returnMessage("failed", "Ein Fehler beim Erstellen des Medienentrages ist aufgetreten.");
+                    die();
+                }
+
+                $blob = file_get_contents($tmpname);
+                if (!$blob) {
+                    returnMessage("failed", "Ein Fehler beim Erstellen des BLOBs ist aufgetreten.");
+                    die();
+                }
+                // Upload file
+                if (setValueFromDatabase($conn, "medienVerwaltung", "blobData", "id", $id, $blob)) {
+                    //Add parameters to database
+                    setValueFromDatabase($conn, "medienVerwaltung", "isBlob", "id", $id, 1);
+                    setValueFromDatabase($conn, "medienVerwaltung", "isOnlineSource", "id", $id, 0);
+                    setValueFromDatabase($conn, "medienVerwaltung", "inMediaFolder", "id", $id, 0);
+                    setValueFromDatabase($conn, "medienVerwaltung", "uploaded", "id", $id, getCurrentDateAndTime(1));
+                    setValueFromDatabase($conn, "medienVerwaltung", "filename", "id", $id, $finalfilename);
+                    setValueFromDatabase($conn, "medienVerwaltung", "mimeType", "id", $id, $mimeType);
+                    setValueFromDatabase($conn, "medienVerwaltung", "type", "id", $id, $type);
+                    setValueFromDatabase($conn, "medienVerwaltung", "uploadedBy", "id", $id, $userID);
+                    setValueFromDatabase($conn, "medienVerwaltung", "fileSize", "id", $id, $size);
+
+                    returnMessage("success", "Datei erfolgreich hochgeldaden.", false, array("id" => $id));
+                    die();
+                } else {
+                    returnMessage("failed", "Ein Fehler beim Verschieben der Datei ist aufgetreten.");
+                    deleteRowFromDatabase($conn, "medienVerwaltung", "id", "id", $id);
+                    die();
+                }
+            } else {
+                returnMessage("failed", "Ein Fehler beim Hochladen ist aufgetreten. Keine Datei vorhanden.");
+                die();
+            }
+        } else if ($type == "addOnlineSource") {
+            $url = json_decode($_POST["url"]);
+            $url = $url->{"url"};
+            $mediaID = createEntryMedienverwaltung($conn);
+            $id = getValueFromDatabase($conn, "medienVerwaltung", "id", "mediaID", $mediaID, 1, false);
+            if (!$mediaID || !$id) {
+                returnMessage("failed", "Ein Fehler beim Erstellen des Medienentrages ist aufgetreten.");
+                die();
+            }
+            setValueFromDatabase($conn, "medienVerwaltung", "isOnlineSource", "id", $id, 1);
+            setValueFromDatabase($conn, "medienVerwaltung", "path", "id", $id, $url);
+            setValueFromDatabase($conn, "medienVerwaltung", "type", "id", $id, "Onlinequelle");
+            returnMessage("success", "Medieneintrag erfolgreich erstellt.", false, array("id" => $id));
             die();
         }
-    } else if ($operation === "createPermission") {
-        $permissionName = $_POST["name"];
-        if (valueInDatabaseExists($conn, "permissions", "name", "name", $permissionName)) {
-            returnMessage("success", "Die Berechtigung $permissionName existiert bereits.", getValueFromDatabase($conn, "permissions", "id", "name", $permissionName, 1, false));
+    } else if ($operation === "removeMedia") {
+        if (!userHasPermissions($conn, $userID, ["medienverwaltungChangeValues" => gnVP($conn, "medienverwaltungChangeValues"), "medienverwaltungADDandREMOVE" => gnVP($conn, "medienverwaltungADDandREMOVE")])) {
+            permissionDenied();
             die();
         }
-        if (setValueFromDatabase($conn, "permissions", "name", false, false, $permissionName, true)) {
-            returnMessage("success", "Berechtigung <b>$permissionName</b> erfolgreich erstellt.", false, getValueFromDatabase($conn, "permissions", "id", "name", $permissionName, 1, false));
+        $id = $_POST["id"];
+        if (!valueInDatabaseExists($conn, "medienVerwaltung", "id", "id", $id)) {
+            returnMessage("failed", "Der Medieneintrag, den du bearbeiten möchtest gibt es nicht. (id: $id)");
+            die();
+        }
+        removeFileOrLinkToFile($conn, $id);
+        removeFileOrLinkToFileThumbnail($conn, $id);
+
+        if (deleteRowFromDatabase($conn, "medienVerwaltung", "id", "id", $id)) {
+            returnMessage("success", "Der Medieneintrag wurde erfolgreich gelöscht.");
         } else {
-            returnMessage("failed", "Ein Fehler ist aufgetreten");
+            returnMessage("error", "Der Medieneintrag konnte nicht vollständig gelöscht werden. Dateien wurden möglicherweise trotzdem entfernt.");
         }
+        die();
     }
 }

@@ -14,6 +14,8 @@
             <li><a href="/changes.php">Letzte Veränderungen</a></li>
         </ul>
         <div id="fullscreenContainer" class="fullscreenToggle"><span style="font-size: 1.3rem;">Zeit verbleibend bis zur Abgabe:</span><span id="timeLeft" style="font-size: 2rem; color: white;"> <?php echo $inWords; ?></span></div>
+        <div class="notice">Diese Webseite kann noch nicht prodiktiv eingesetzt werden, da einige Datenschutz und Sicherheitsbestimmungen noch nicht vollständig umgesetzt sind und umgesetzt werden können, daher ist beispielsweise im Impressum Max Mustermann angegeben.</div>
+        <div class="version"><strong>Ver. 1.0</strong></div>
     </div>
 </section>
 
@@ -23,10 +25,8 @@
         let timeElement = document.getElementById("timeLeft");
 
         let now = new Date();
-        // console.log(now);
-        let enddate = new Date(2022, 2, 11, 7, 0, 0, 0);
-
-        let timeLeft  = (enddate - now) / 1000;
+        let enddate = new Date("Mar 11 2022 08:00:00 GMT+0100");
+        let timeLeft  = (enddate - now) / 1000; //in seconds
         let timeLeftString = Utils.secondsToArrayOrString(timeLeft, "String");
         timeElement.innerHTML = timeLeftString;
     }

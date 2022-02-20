@@ -165,7 +165,7 @@ export async function changeGroups(userID) {
 
       let ul = modal.querySelector("#usersGroupsList");
       ul.innerHTML = "";
-      if (usersGroups.length > 0) {
+      if (usersGroups?.length > 0) {
         usersGroups.forEach((group) => {
           let li = document.createElement("li");
           li.setAttribute("data-value", group);
@@ -602,7 +602,7 @@ export async function changePermissions(userID) {
             `Welchen Wert für alle ausgewählten Berechtigungen (${this.choosenArray.length})?`,
             false
           );
-          if (!Utils.isEmptyInput(value)) {
+          if (!Utils.isEmptyInput(value, true)) {
             for (const current of this.choosenArray) {
               await Utils.makeJSON(
                 await Utils.sendXhrREQUEST(
@@ -1326,7 +1326,7 @@ export async function changePermissions(userID) {
                 "Welchen Wert?",
                 false
               );
-              if (!Utils.isEmptyInput(value)) {
+              if (!Utils.isEmptyInput(value, true)) {
                 await Utils.makeJSON(
                   await Utils.sendXhrREQUEST(
                     "POST",
@@ -3862,27 +3862,27 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
           //Username
           let username =
             this.usernameSelectContainer.querySelector("#textInput").value;
-          if (Utils.isEmptyInput(username)) {
+          if (Utils.isEmptyInput(username, true)) {
             username = false;
           }
     
           //Email
           let email = this.emailSelectContainer.querySelector("#textInput").value;
-          if (Utils.isEmptyInput(email)) {
+          if (Utils.isEmptyInput(email, true)) {
             email = false;
           }
     
           //userID
           let userID =
             this.userIDSelectContainer.querySelector("#numberInput").value;
-          if (Utils.isEmptyInput(userID)) {
+          if (Utils.isEmptyInput(userID, true)) {
             userID = false;
           }
     
           //ranking
           let ranking =
             this.rankingSelectContainer.querySelector("#numberInput").value;
-          if (Utils.isEmptyInput(ranking)) {
+          if (Utils.isEmptyInput(ranking, true)) {
             ranking = false;
           }
     
@@ -3903,7 +3903,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
             this.isOnlineSelectContainer.querySelector("#selectInput");
           let isOnline =
             isOnlineSelect[isOnlineSelect.selectedIndex].getAttribute("data-value");
-          if (Utils.isEmptyInput(isOnline)) {
+          if (Utils.isEmptyInput(isOnline, true)) {
             isOnline = false;
           }
     
@@ -3914,7 +3914,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
             authenticatedSelect[authenticatedSelect.selectedIndex].getAttribute(
               "data-value"
             );
-          if (Utils.isEmptyInput(authenticated)) {
+          if (Utils.isEmptyInput(authenticated, true)) {
             authenticated = false;
           }
     

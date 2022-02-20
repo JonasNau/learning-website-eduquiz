@@ -1,4 +1,4 @@
-import * as Utils from "./utils.js";
+import * as Utils from "/includes/utils.js";
 
 function moreThanZeroInArray(array) {
   let result = false;
@@ -549,8 +549,21 @@ if (quizIDInputTextbox && quizIDInputBtn) {
     inputHandler();
   });
 }
+
+let inputMediaIDBtn = document.querySelector("#inputMediaIDBtn");
+inputMediaIDBtn.addEventListener("click", async() => {
+  let mediaID = await Utils.getUserInput("MediaID eingeben", "Gebe hier deine MediaID ein, um ein Medium anzuschauen", false, "text",);
+
+  if (!Utils.isEmptyInput(mediaID, false)) {
+    window.location.href = "/getMedia.php?mediaID=" + mediaID;
+  }
+})
+
 var myOffcanvas = document.getElementById("offcanvasChoosequiz");
 var bsOffcanvas = new bootstrap.Offcanvas(myOffcanvas);
+
+
+
 
 //Open with Hotkey
 document.addEventListener("keydown", (key) => {

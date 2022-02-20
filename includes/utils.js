@@ -575,7 +575,9 @@ export function getUserInput(
           <div class="modal-body">
             <div class="description">
               <p>${text}</p>
-              <textarea class="form-control" id="textInput" rows="3"></textarea>
+              <textarea class="form-control" id="textInput" rows="3">${
+                textContent ?? ""
+              }</textarea>
             </div>
           </div>
           <div class="modal-footer">
@@ -591,9 +593,6 @@ export function getUserInput(
 
       let textInput = modal.querySelector("#textInput");
 
-      if (textContent) {
-        textInput.setAttribute("value", textContent);
-      }
       if (placeholder) {
         textInput.setAttribute("placeholder", placeholder);
       }
@@ -831,7 +830,7 @@ export function alertUser(title, text, closeOthers) {
       verticallyCentered: false,
       modalType: "ok",
     });
-    modalBody.innerText = text;
+    modalBody.innerHTML = text;
     bootstrapModal.show();
     popUpStatus(true);
     let ok = modal.querySelector("#ok");
@@ -853,6 +852,36 @@ export function alertUser(title, text, closeOthers) {
   });
 }
 
+export function createToast() {
+  let toastContainer = document.querySelector(".toast-container");
+
+  if (toastContainer == null) {
+    toastContainer = document.createElement("div");
+    toastContainer.classList =
+      "toast-container position-fixed bottom-0 end-0 p-3";
+    document.body.appendChild(toastContainer);
+    console.log(toastContainer);
+  }
+
+  if (!document.querySelector(".toast-container")) {
+    alert("no toast container found");
+    return false;
+  }
+  let number = 1;
+  let toasts = toastContainer.querySelectorAll(".toast");
+  console.log(toasts);
+  if (toasts.length > 0) {
+    number = toasts.length + 1;
+  }
+  console.log("Number of Toasts", number);
+
+  let toast = document.createElement("div");
+  toast.classList.add("toast");
+  toast.setAttribute("id", number);
+  toastContainer.appendChild(toast);
+  return toast;
+}
+
 export function editObject(
   object,
   options = {
@@ -864,8 +893,7 @@ export function editObject(
     modalType: "ok | yes / no",
   },
   includeValueMultiple = false,
-  editKey = false,
-  ifEmtpy = new Object()
+  editKey = false
 ) {
   return new Promise((resolve, reject) => {
     const [modal, bootstrapModal, modalBody, modalOuter] = createModal(options);
@@ -897,7 +925,7 @@ export function editObject(
     });
     let update = () => {
       editObjectList.innerHTML = "";
-      if (!object) object = ifEmtpy;
+      if (!object) object = new Object();
       if (includeValueMultiple) {
         object = { ...Set(object) };
       }
@@ -958,16 +986,32 @@ export function editObject(
 export function hideAllModals(check) {
   if (check) {
     let number = 0;
-    let modals = modalContainer.querySelectorAll(".modal");
+    let modals = document.querySelector("#modalContainer .modal");
     console.log(modals);
     if (modals && modals.length > 0) {
-      number = modals.length + 1;
-
-      modals.forEach((element) => {
+      for (const element of modals) {
         var myModal = bootstrap.Modal.getOrCreateInstance(element); // Returns a Bootstrap modal instance
         myModal.dispose();
         element.parentElement.remove();
-      });
+      }
+      return true;
+    }
+  } else {
+    return false;
+  }
+}
+
+export async function hideAllToasts(check) {
+  if (check) {
+    let number = 0;
+    let toasts = document.querySelector(".toast-container .toast");
+    console.log(toasts);
+    if (toasts && toasts.length > 0) {
+      for (const element of toasts) {
+        var myToast = bootstrap.Toast.getOrCreateInstance(element); // Returns a Bootstrap toast instance
+        myToast.dispose();
+        element.remove();
+      }
       return true;
     }
   } else {
@@ -1029,14 +1073,14 @@ export async function holdSererContact(fileGeneralFunctions) {
           openAlert();
         }
       }
-
-      if (makeJSON(sessionStorage.getItem("popupOpen")) != true) {
+      if (true) {
         let oldLogin = makeJSON(sessionStorage.getItem("loggedIn"));
         let logincheck = await sendData("CHECK_LOGIN");
         if (logincheck["data"]) {
-          let newStatus = logincheck["data"]["loginStatus"];
+          let newStatus = logincheck["data"]?.["loginStatus"];
+          console.log("login status:", newStatus);
           sessionStorage.setItem("loggedIn", newStatus);
-          if (oldLogin != newStatus) {
+          if (oldLogin != newStatus && makeJSON(sessionStorage.getItem("popupOpen")) != true) {
             window.location.reload();
           }
         } else {
@@ -1044,7 +1088,7 @@ export async function holdSererContact(fileGeneralFunctions) {
         }
       }
     } catch (e) {
-      alertUser("Nachricht", "Verbindung zum Server unterbrochen" + e, true);
+      console.log("Connection lost", e);
     }
   }
 
@@ -1052,7 +1096,11 @@ export async function holdSererContact(fileGeneralFunctions) {
     try {
       await sendData("HOLDCONTACT");
     } catch (e) {
-      alertUser("Nachricht", "Verbindung zum Server unterbrochen " + e, true);
+      await alertUser(
+        "Nachricht",
+        "Verbindung zum Server unterbrochen " + e,
+        true
+      );
     }
   }
 
@@ -1064,7 +1112,7 @@ export async function holdSererContact(fileGeneralFunctions) {
   setInterval(() => {
     connectToServer();
     getMessage();
-  }, 12000); //Every 12 Seconds
+  }, parseInt(await getSettingVal("serverConnectTime")) * 1000);
 }
 
 export function makeJSON(string) {
@@ -1230,6 +1278,35 @@ export function objectKEYVALUEToHTML(container, object, ifEmpty = "") {
   }
 }
 
+export function calculateFileProgress(
+  loadedBytes,
+  totalBytes,
+  lastTime,
+  lastBytes,
+  timeStarted
+) {
+  let now = new Date().getTime();
+  let percent = Math.round((loadedBytes / totalBytes) * 100 * 10) / 10;
+
+  let uploadedBytes = (loadedBytes - lastBytes);
+  console.log(uploadedBytes / 1000000, "Uploaded MB in elapsed time")
+  let elapsed = (now - lastTime) / 1000; //in seconds
+  console.log("Elapsed:", elapsed);
+  console.log(elapsed);
+  let bps = Math.round(elapsed ? (uploadedBytes / elapsed) : 0);
+  console.log({uploadedBytes, elapsed}, uploadedBytes / elapsed);
+  let kbps = Math.round(bps / 1000);
+  let mbps = Math.round(bps / 1000000);
+  let mbits = Math.round((bps / 1000000) * 8);
+  lastBytes = loadedBytes;
+  lastTime = now;
+
+  let timeRemaining = ((totalBytes - loadedBytes) / bps);
+  console.log("time remaining:", timeRemaining, secondsToArrayOrString(timeRemaining, "String"));
+
+  return { percent, bps, kbps, mbps, mbits, lastBytes, lastTime, elapsed, timeRemaining };
+}
+
 export async function sendXhrREQUEST(
   METHOD,
   request,
@@ -1242,12 +1319,15 @@ export async function sendXhrREQUEST(
   showErrors = true,
   logData = true,
   responseType = "text",
-  headers = false
+  headers = false,
+  showPercentageInToast = false,
+  percentageOptions = { download: true, upload: false }, hideDelay = 1000
 ) {
   //contentType = "application/x-www-form-urlencoded"
   return new Promise(async (resolve, reject) => {
     var xhr = new XMLHttpRequest();
     xhr.open(METHOD, FILEorURL, ascncrounously);
+
     xhr.setRequestHeader("Content-Type", contentType);
     if (headers && Object.keys(headers).length > 0) {
       for (let [key, value] of Object.keys(headers)) {
@@ -1255,9 +1335,139 @@ export async function sendXhrREQUEST(
       }
     }
     xhr.responseType = responseType;
+    xhr.addEventListener("error", (e) => {
+      console.log(e);
+      resolve(false);
+    });
+    xhr.addEventListener("abort", (e) => {
+      console.log(e);
+      resolve(false);
+    });
+
+    let bootstrapToast;
+    let toast;
+    if (showPercentageInToast) {
+      toast = createToast();
+
+      toast.classList = `toast`;
+      toast.setAttribute("role", "status");
+      toast.setAttribute("data-bs-autohide", "false");
+      toast.setAttribute("aria-live", "polite");
+
+      toast.innerHTML = `
+      <div class="toast-header">
+        <strong class="me-auto">Status</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">
+      </div>
+      `;
+      let toastBody = toast.querySelector(".toast-body");
+
+      bootstrapToast = new bootstrap.Toast(toast);
+      bootstrapToast.show();
+
+      //Close Btn
+      let closebtn = toast.querySelector(".btn-close");
+      closebtn.addEventListener("click", () => {
+        bootstrapToast.hide();
+        toast.remove();
+      });
+
+      if (percentageOptions?.upload) {
+        let uploadContainer = document.createElement("div");
+        uploadContainer.classList.add("uploadStatus");
+        toastBody.appendChild(uploadContainer);
+        let lastTime = new Date().getTime();
+        let lastBytes = 0;
+        let timeStarted = new Date().getTime();
+        xhr.upload.onprogress = async (evt) => {
+          if (evt.lengthComputable) {
+            let fileProgress = calculateFileProgress(
+              evt.loaded,
+              evt.total,
+              lastTime,
+              lastBytes,
+              timeStarted
+            );
+            lastBytes = fileProgress.lastBytes; //Set last bytes
+            lastTime = new Date().getTime();
+            if (toast && uploadContainer) {
+              uploadContainer.innerHTML = `<span>Hochladen:</span><progress value=${
+                fileProgress.percent
+              } max=100></progress> <span>${
+                fileProgress.percent
+              } %</span><div>Zeit verbleibend: ${secondsToArrayOrString(
+                fileProgress.timeRemaining,
+                "String"
+              )}</div>`;
+              if (fileProgress.percent === 100) {
+                window.setTimeout(async () => {
+                  await bootstrapToast.hide();
+                  toast.remove();
+                }, hideDelay);
+              }
+            }
+          } else {
+            console.log("event is not computable");
+          }
+        };
+      }
+
+      if (percentageOptions?.download) {
+        let downloadContainer = document.createElement("div");
+        downloadContainer.classList.add("downloadStatus");
+        toastBody.appendChild(downloadContainer);
+        let lastTime = new Date().getTime();
+        let lastBytes = 0;
+        let timeStarted = new Date().getTime();
+        xhr.onprogress = async (evt) => {
+          console.log(evt.loaded);
+          if (evt.lengthComputable) {
+            let fileProgress = calculateFileProgress(
+              evt.loaded,
+              evt.total,
+              lastTime,
+              lastBytes,
+              timeStarted
+            );
+            lastBytes = fileProgress.lastBytes; //Set last bytes
+            lastTime = new Date().getTime();
+            if (toast && downloadContainer) {
+              downloadContainer.innerHTML = `<span>Herunterladen:</span><progress value=${
+                fileProgress.percent
+              } max=100></progress> <span>${
+                fileProgress.percent
+              } %</span><div>Zeit verbleibend: ${secondsToArrayOrString(
+                fileProgress.timeRemaining,
+                "String"
+              )}</div>`;
+            } else {
+              console.log("DOWNLOAD: Percent completed:", percentComplete);
+            }
+          } else {
+            console.log("event is not computable");
+          }
+        };
+      }
+
+      if (!percentageOptions?.download && !percentageOptions?.upload) {
+        bootstrapToast.hide();
+        toast.remove();
+      }
+
+    }
+
     xhr.send(request);
+
     //Wenn Antwort
     xhr.onload = async () => {
+      if (showPercentageInToast) {
+        window.setTimeout(async () => {
+          bootstrapToast?.hide();
+          toast?.remove();
+        }, hideDelay);
+      }
       if (xhr.status == 200) {
         if (logData) {
           console.log(xhr.response);
@@ -1300,10 +1510,209 @@ export async function sendXhrREQUEST(
           }
         }
         resolve(xhr.response);
+      } else if (xhr.status == 404 || xhr.status == 0 || xhr.status == 500) {
+        console.error("XHR Error", xhr.status, FILEorURL);
+        resolve(false);
+      }
+    };
+  });
+}
+
+export async function sendXhrREQUESTCustomFormData(
+  formData,
+  FILEorURL,
+  showMessages = false,
+  allowRedirect = false,
+  showPermissionDenied = true,
+  showErrors = true,
+  logData = true,
+  responseType = "text",
+  headers = false,
+  showPercentageInToast = true,
+  percentageOptions = { download: false, upload: true }, hideDelay
+) {
+  return new Promise(async (resolve, reject) => {
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", FILEorURL, true);
+    if (headers && Object.keys(headers).length > 0) {
+      for (let [key, value] of Object.keys(headers)) {
+        xhr.setRequestHeader(key, value);
+      }
+    }
+    xhr.responseType = responseType;
+
+    let bootstrapToast;
+    let toast;
+    if (showPercentageInToast) {
+      toast = createToast();
+
+      toast.classList = `toast`;
+      toast.setAttribute("role", "status");
+      toast.setAttribute("data-bs-autohide", "false");
+      toast.setAttribute("aria-live", "polite");
+
+      toast.innerHTML = `
+      <div class="toast-header">
+        <strong class="me-auto">Status</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">
+      </div>
+      `;
+      let toastBody = toast.querySelector(".toast-body");
+
+      bootstrapToast = new bootstrap.Toast(toast);
+      bootstrapToast.show();
+
+      //Close Btn
+      let closebtn = toast.querySelector(".btn-close");
+      closebtn.addEventListener("click", () => {
+        bootstrapToast.hide();
+        toast.remove();
+      });
+
+      if (percentageOptions?.upload) {
+        let uploadContainer = document.createElement("div");
+        uploadContainer.classList.add("uploadStatus");
+        toastBody.appendChild(uploadContainer);
+        let lastTime = new Date().getTime();
+        let lastBytes = 0;
+        let timeStarted = new Date().getTime();
+        xhr.upload.onprogress = async (evt) => {
+          if (evt.lengthComputable) {
+            let fileProgress = calculateFileProgress(
+              evt.loaded,
+              evt.total,
+              lastTime,
+              lastBytes,
+              timeStarted
+            );
+            lastBytes = fileProgress.lastBytes; //Set last bytes
+            lastTime = new Date().getTime();
+            if (toast && uploadContainer) {
+              uploadContainer.innerHTML = `<span>Hochladen:</span><progress value=${
+                fileProgress.percent
+              } max=100></progress> <span>${
+                fileProgress.percent
+              } %</span><div>Zeit verbleibend: ${secondsToArrayOrString(
+                fileProgress.timeRemaining,
+                "String"
+              )}</div>`;
+              if (fileProgress.percent === 100) {
+                window.setTimeout(async () => {
+                  await bootstrapToast.hide();
+                  toast.remove();
+                }, hideDelay);
+              }
+            }
+          } else {
+            console.log("event is not computable");
+          }
+        };
+      }
+
+      if (percentageOptions?.download) {
+        let downloadContainer = document.createElement("div");
+        downloadContainer.classList.add("downloadStatus");
+        toastBody.appendChild(downloadContainer);
+        let lastTime = new Date().getTime();
+        let lastBytes = 0;
+        let timeStarted = new Date().getTime();
+        xhr.onprogress = async (evt) => {
+          console.log(evt.loaded);
+          if (evt.lengthComputable) {
+            let fileProgress = calculateFileProgress(
+              evt.loaded,
+              evt.total,
+              lastTime,
+              lastBytes,
+              timeStarted
+            );
+            lastBytes = fileProgress.lastBytes; //Set last bytes
+            lastTime = new Date().getTime();
+            if (toast && downloadContainer) {
+              downloadContainer.innerHTML = `<span>Herunterladen:</span><progress value=${
+                fileProgress.percent
+              } max=100></progress> <span>${
+                fileProgress.percent
+              } %</span><div>Zeit verbleibend: ${secondsToArrayOrString(
+                fileProgress.timeRemaining,
+                "String"
+              )}</div>`;
+            } else {
+              console.log("DOWNLOAD: Percent completed:", percentComplete);
+            }
+          } else {
+            console.log("event is not computable");
+          }
+        };
+      }
+
+      if (!percentageOptions?.download && !percentageOptions?.upload) {
+        bootstrapToast.hide();
+        toast.remove();
+      }
+    }
+
+    xhr.send(formData);
+
+    //Wenn Antwort
+    xhr.onload = async () => {
+      if (showPercentageInToast) {
+        window.setTimeout(async () => {
+          bootstrapToast?.hide();
+          toast?.remove();
+        }, hideDelay);
+      }
+      if (xhr.status == 200) {
+        if (logData) {
+          console.log(xhr.response);
+        }
+        let jsonResponse = makeJSON(xhr.response);
+        if (showMessages) {
+          try {
+            if (jsonResponse) {
+              let message = jsonResponse["message"];
+              if (message) {
+                await alertUser("Nachricht", message, false);
+              }
+            }
+          } catch (e) {
+            console.log("Fehler", e);
+          }
+        }
+        if (showErrors && jsonResponse) {
+          let status = jsonResponse["status"];
+          if (status == "failed" || status === false || status == "error") {
+            await alertUser("Fehler", jsonResponse["message"], false);
+          }
+        }
+        if (allowRedirect) {
+          let redirectTo = makeJSON(xhr.response);
+          redirectTo = redirectTo["redirect"];
+          if (redirectTo) {
+            window.location.href = redirectTo;
+          }
+        }
+        if (logData) {
+          console.log(makeJSON(xhr.response));
+        }
+        if (showPermissionDenied && jsonResponse) {
+          let permissionDenied = jsonResponse["permissionDenied"];
+          if (permissionDenied == true) {
+            let message = jsonResponse["message"];
+            await permissionDENIED(message);
+            resolve(false);
+          }
+        }
+        resolve(xhr.response);
+      } else if (xhr.status == 404 || xhr.status == 0 || xhr.status == 500) {
+        console.error("XHR Error", xhr.status, FILEorURL);
+        resolve(false);
       }
     };
     xhr.onerror = () => {
-      reject();
+      resolve(false);
     };
   });
 }
@@ -1370,59 +1779,83 @@ export function fillListWithValues(
   return true;
 }
 
-export function secondsToArrayOrString(seconds, StringOrArray = "String") {
-  let ret = "";
+export function secondsToArrayOrString(
+  seconds,
+  StringOrArray = "String",
+  options = {
+    wordspelling: {
+      seconds: { singular: "Sekunde", plural: "Sekunden" },
+      minutes: { singular: "Minute", plural: "Minuten" },
+      hours: { singular: "Stunde", plural: "Stunden" },
+      days: { singular: "Tag", plural: "Tage" },
+      years: { singular: "Jahr", plural: "Jahre" },
+    },
+    empty: "keine"
+  },
+  logConsole = false
+) {
+  seconds = Number(seconds);
 
-  /*** get the days ***/
-  let days = Math.floor(parseInt(seconds) / (3600 * 24)); //Floor because just cut decimal part
-  if (days > 0) {
-    if (days > 1) {
-      ret = `${ret} ${days} Tage`;
-    } else {
-      ret = `${ret} ${days} Tag`;
-    }
-  }
+  let yearsRemaining = Math.floor(seconds / (60 * 60 * 24 * 365));
+  let daysRemaining = Math.floor((seconds / (60 * 60 * 24)) % 365);
+  let hoursRemaining = Math.floor((seconds / (60 * 60)) % 24);
+  let minutesRemaining = Math.floor((seconds / 60) % 60);
+  let secondsRemaining = Math.floor(seconds % 60);
 
-  /*** get the hours ***/
-  let hours = Math.round(parseInt(seconds) / 3600) % 24;
-  if (hours > 0) {
-    if (hours > 1) {
-      ret = `${ret} ${hours} Stunden`;
-    } else {
-      ret = `${ret} ${hours} Stunde`;
-    }
-  }
+  if (logConsole)
+    console.log({
+      years: yearsRemaining,
+      days: daysRemaining,
+      hours: hoursRemaining,
+      minutes: minutesRemaining,
+      secondsRemaining,
+    });
 
-  /*** get the minutes ***/
-  let minutes = Math.round(parseInt(seconds) / 60) % 60;
-  if (minutes > 0) {
-    if (minutes > 1) {
-      ret = `${ret} ${minutes} Minuten`;
-    } else {
-      ret = `${ret} ${minutes} Minute`;
-    }
-  }
-
-  /*** get the seconds ***/
-  seconds = Math.round(parseInt(seconds) % 60);
-  if (seconds > 0) {
-    if (seconds > 1) {
-      ret = `${ret} ${seconds} Sekunden`;
-    } else {
-      ret = `${ret} ${seconds} Sekunde`;
-    }
-  }
-  if (StringOrArray == "String") {
-    return ret;
-  }
-  if (StringOrArray == "Array") {
-    let obj = {
-      seconds: seconds,
-      minutes: minutes,
-      hours: hours,
-      days: days,
+  if (StringOrArray === "Array") {
+    return {
+      years: yearsRemaining,
+      days: daysRemaining,
+      hours: hoursRemaining,
+      minutes: minutesRemaining,
+      seconds: secondsRemaining,
     };
-    return obj;
+  } else {
+    let string = "";
+    //Years
+    if (yearsRemaining > 0 && yearsRemaining == 1)
+      string = `${string} ${yearsRemaining} ${options?.wordspelling?.years.singular}`;
+    if (yearsRemaining > 0 && yearsRemaining > 1)
+      string = `${string} ${yearsRemaining} ${options?.wordspelling?.years.plural}`;
+    //Days
+    // console.log("1", string);
+    if (daysRemaining > 0 && daysRemaining == 1)
+      string = `${string} ${daysRemaining} ${options?.wordspelling?.days.singular}`;
+    if (daysRemaining > 0 && daysRemaining > 1)
+      string = `${string} ${daysRemaining} ${options?.wordspelling?.days.plural}`;
+    //Hours
+    // console.log("2", string);
+    if (hoursRemaining > 0 && hoursRemaining == 1)
+      string = `${string} ${hoursRemaining} ${options?.wordspelling?.hours.singular}`;
+    if (hoursRemaining > 0 && hoursRemaining > 1)
+      string = `${string} ${hoursRemaining} ${options?.wordspelling?.hours.plural}`;
+    //Minutes
+    // console.log("3", string);
+    if (minutesRemaining > 0 && minutesRemaining == 1)
+      string = `${string} ${minutesRemaining} ${options?.wordspelling?.minutes.singular}`;
+    if (minutesRemaining > 0 && minutesRemaining > 1)
+      string = `${string} ${minutesRemaining} ${options?.wordspelling?.minutes.plural}`;
+    //Seconds
+    // console.log("4", string);
+    if (secondsRemaining > 0 && secondsRemaining == 1)
+      string = `${string} ${secondsRemaining} ${options?.wordspelling?.seconds.singular}`;
+    if (secondsRemaining > 0 && secondsRemaining > 1)
+      string = `${string} ${secondsRemaining} ${options?.wordspelling?.seconds.plural}`;
+    // console.log("5", string)
+
+    if (isEmptyInput(string)) {
+      return options?.empty ?? "";
+    }
+    return string;
   }
 }
 
@@ -2238,11 +2671,10 @@ export function setMedia(
       if (!mediaData) resolve(false);
 
       //Set volume functionality
-        mediaData = {
-          ...mediaData,
-          volume: parseFloat(data?.volume >= 0 ? data.volume / 100 : 1.0),
-        };
-      
+      mediaData = {
+        ...mediaData,
+        volume: parseFloat(data?.volume >= 0 ? data.volume / 100 : 1.0),
+      };
 
       if (makeJSON(window.localStorage.getItem("SETTING_lightDataUsage"))) {
         let warnContainer = document.createElement("div");
@@ -2286,7 +2718,7 @@ export function setMedia(
               );
             } else {
               await setOtherMedia(
-                isOnlineSource,
+                mediaData.isOnlineSource,
                 showAnyway,
                 mediaData,
                 container
@@ -2491,7 +2923,9 @@ export async function getThumbnailURL(mediaData) {
     } else {
       if (mediaData.thumbnailInMediaFolder) {
         return await getBLOBData({
-          url: `${mediaData.mediaFolderPath}${media.thumbnailPath}/${mediaData.thumbnailFileName}`,
+          url: `${
+            mediaData?.mediaFolderPath ?? (await getSettingVal("mediaPATH"))
+          }${mediaData?.thumbnailPath}/${mediaData?.thumbnailFileName}`,
         });
       } else {
         if (mediaData.thumbnailIsBlob) {
@@ -2605,11 +3039,17 @@ function setVideo(isOnlineSource, showAnyway, mediaData, container) {
           </video>
           `;
           try {
-            videoContainer.querySelector("video").volume = mediaData.volume ?? 1.0;
+            videoContainer.querySelector("video").volume =
+              mediaData.volume ?? 1.0;
           } catch (e) {
-            console.log("Error in setting volume: ", mediaData.volume, e, videoContainer);
+            console.log(
+              "Error in setting volume: ",
+              mediaData.volume,
+              e,
+              videoContainer
+            );
           }
-          
+
           videoContainer.classList.remove("loading");
         },
         { once: true }
@@ -2617,7 +3057,6 @@ function setVideo(isOnlineSource, showAnyway, mediaData, container) {
       videoContainer.appendChild(warnContainer);
     } else {
       videoContainer.classList.add("loading");
-      warnContainer.classList.add("loading");
       let data = await getData(mediaData);
       //GET thumbnail data if enabled
       let thumbnailURL = (await getThumbnailURL(mediaData)) ?? false;
@@ -2637,7 +3076,12 @@ function setVideo(isOnlineSource, showAnyway, mediaData, container) {
       try {
         videoContainer.querySelector("video").volume = mediaData.volume ?? 1.0;
       } catch (e) {
-        console.log("Error in setting volume: ", mediaData.volume, e, videoContainer);
+        console.log(
+          "Error in setting volume: ",
+          mediaData.volume,
+          e,
+          videoContainer
+        );
       }
       videoContainer.classList.remove("loading");
     }
@@ -2731,9 +3175,15 @@ function setAudio(isOnlineSource, showAnyway, mediaData, container) {
             </audio>
           `;
           try {
-            audioContainer.querySelector("audio").volume = mediaData.volume ?? 1.0;
+            audioContainer.querySelector("audio").volume =
+              mediaData.volume ?? 1.0;
           } catch (e) {
-            console.log("Error in setting volume: ", mediaData.volume, e, audioContainer);
+            console.log(
+              "Error in setting volume: ",
+              mediaData.volume,
+              e,
+              audioContainer
+            );
           }
           audioContainer.classList.remove("loading");
         },
@@ -2753,11 +3203,16 @@ function setAudio(isOnlineSource, showAnyway, mediaData, container) {
           }" target="_blank">Zur Audio</a>
             </audio>
           `;
-          try {
-            audioContainer.querySelector("audio").volume = mediaData.volume ?? 1.0;
-          } catch (e) {
-            console.log("Error in setting volume: ", mediaData.volume, e, audioContainer);
-          }
+      try {
+        audioContainer.querySelector("audio").volume = mediaData.volume ?? 1.0;
+      } catch (e) {
+        console.log(
+          "Error in setting volume: ",
+          mediaData.volume,
+          e,
+          audioContainer
+        );
+      }
       audioContainer.classList.remove("loading");
     }
     resolve(true);
@@ -2843,11 +3298,17 @@ function setOtherMedia(isOnlineSource, showAnyway, mediaData, container) {
           }">
           </object>`;
           try {
-            mediaContainer.querySelector("object").volume = mediaData.volume ?? 1.0;
+            mediaContainer.querySelector("object").volume =
+              mediaData.volume ?? 1.0;
           } catch (e) {
-            console.log("Error in setting volume: ", mediaData.volume, e, mediaContainer);
+            console.log(
+              "Error in setting volume: ",
+              mediaData.volume,
+              e,
+              mediaContainer
+            );
           }
-         
+
           mediaContainer.classList.remove("loading");
         },
         { once: true }
@@ -2864,7 +3325,12 @@ function setOtherMedia(isOnlineSource, showAnyway, mediaData, container) {
       try {
         mediaContainer.querySelector("object").volume = mediaData.volume ?? 1.0;
       } catch (e) {
-        console.log("Error in setting volume: ", mediaData.volume, e, mediaContainer);
+        console.log(
+          "Error in setting volume: ",
+          mediaData.volume,
+          e,
+          mediaContainer
+        );
       }
       mediaContainer.classList.remove("loading");
     }
@@ -2896,7 +3362,7 @@ export async function getBLOBData(
       path: "/includes/data.php",
     },
     url: "",
-    cache: "no - auto - daily",
+    cache: "no - auto - daily"
   }
 ) {
   return new Promise(async (resolve, reject) => {
@@ -2914,7 +3380,8 @@ export async function getBLOBData(
           false,
           false,
           false,
-          "blob"
+          "blob",
+          false, false
         );
       } else if (data.serverRequest) {
         blob = await sendXhrREQUEST(
@@ -2928,7 +3395,8 @@ export async function getBLOBData(
           false,
           false,
           false,
-          "blob"
+          "blob",
+         false, false
         );
       }
       let newURL = window.URL.createObjectURL(blob);

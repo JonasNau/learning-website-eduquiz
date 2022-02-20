@@ -116,6 +116,7 @@ require_once("./includes/userSystem/functions/permission-functions.php");
 
 
     </div>
+    <button type="button" class="btn btn-primary" id="inputMediaIDBtn">Du hast eine MediaID?</button>
   </div>
 </div>
 

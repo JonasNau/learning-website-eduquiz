@@ -1,4 +1,5 @@
 import * as Utils from "./utils.js";
+window.sessionStorage.setItem("popupOpen", false);
 
 document.addEventListener("click", (event) => {
   let target = event.target;
