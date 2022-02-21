@@ -31,54 +31,64 @@ if (isset($_POST["scoreverwaltung"])) {
 
         $limitResults = $_POST["limitResults"];
 
-        function returnResults($conn, $results, $limitResults)
+        function returnResults($conn, $results, $limitResults = 0)
         {
-            if (!$results) {
-                echo 0;
-                die();
-            }
-
-            $results = limitArray($results, $limitResults);
+            if (!$results) return false;
             $resultArray = array();
 
+            $results = limitArray($results, $limitResults);
             foreach ($results as $current) {
-                logWrite($conn, "general", gettype($current));
-                if (gettype($current) == "object") {
-                    $current = $current->{"quizID"} ?? false;
-                    if (!$current) continue;
-                }
-                $exists = boolval(valueInDatabaseExists($conn, "selectquiz", "uniqueID", "quizID", $current));
-                $date = getValueFromDatabase($conn, "scores", "date", "quizID", $current, 1, false);
-                $usersResults = json_validate(getValueFromDatabase($conn, "scores", "results", "quizID", $current, 1, false));
-                $klassenstufe = getValueFromDatabase($conn, "selectquiz", "klassenstufe", "quizID", $current, 1, false);
-                $fach = getValueFromDatabase($conn, "selectquiz", "fach", "quizID", $current, 1, false);
-                $thema = getValueFromDatabase($conn, "selectquiz", "thema", "quizID", $current, 1, false);
-                $quizname = getValueFromDatabase($conn, "selectquiz", "quizname", "quizID", $current, 1, false);
+                $quizID = false;
+                $id = false;
 
-                $resultArray[] = array("quizID" => $current, "date" => $date, "results" => $usersResults, "exists" => $exists, "klassenstufe" => $klassenstufe, "fach" => $fach, "thema" => $thema, "quizname" => $quizname);
+                if (gettype($current) == "object") {
+                    $id = $current->id ?? false;
+                } else if (gettype($current) == "array") {
+                    $id = $current["id"] ?? false;
+                } else {
+                    $id = intval($current);
+                }
+                if (!$current || !$id) continue;
+                $quizID = getValueFromDatabase($conn, "scores", "quizID", "id", $id, 1, false);
+                $exists = boolval(valueInDatabaseExists($conn, "selectquiz", "uniqueID", "quizID", $quizID));
+                $date = getValueFromDatabase($conn, "scores", "date", "id", $id, 1, false);
+                $usersResults = json_validate(getValueFromDatabase($conn, "scores", "results", "id", $id, 1, false));
+                $klassenstufe = getValueFromDatabase($conn, "selectquiz", "klassenstufe", "quizID", $quizID, 1, false);
+                $fach = getValueFromDatabase($conn, "selectquiz", "fach", "quizID", $quizID, 1, false);
+                $thema = getValueFromDatabase($conn, "selectquiz", "thema", "quizID", $quizID, 1, false);
+                $quizname = getValueFromDatabase($conn, "selectquiz", "quizname", "quizID", $quizID, 1, false);
+
+                $resultArray[] = array("quizID" => $quizID, "date" => $date, "results" => $usersResults, "exists" => $exists, "klassenstufe" => $klassenstufe, "fach" => $fach, "thema" => $thema, "quizname" => $quizname, "id" => $id);
             }
             echo json_encode($resultArray);
-            return true;
         }
 
         function getFullData($conn, $results)
         {
-            if (!$results) {
-                echo 0;
-                die();
-            }
+            if (!$results) return false;
             $resultArray = array();
 
             foreach ($results as $current) {
-                $exists = boolval(valueInDatabaseExists($conn, "selectquiz", "uniqueID", "quizID", $current));
-                $date = getValueFromDatabase($conn, "scores", "date", "quizID", $current, 1, false);
-                $usersResults = json_validate(getValueFromDatabase($conn, "scores", "results", "quizID", $current, 1, false));
-                $klassenstufe = getValueFromDatabase($conn, "selectquiz", "klassenstufe", "quizID", $current, 1, false);
-                $fach = getValueFromDatabase($conn, "selectquiz", "fach", "quizID", $current, 1, false);
-                $thema = getValueFromDatabase($conn, "selectquiz", "fach", "quizID", $current, 1, false);
-                $quizname = getValueFromDatabase($conn, "selectquiz", "quizname", "quizID", $current, 1, false);
+                $quizID = false;
+                $id = false;
+                if (gettype($current) == "object") {
+                    $id = $current->id ?? false;
+                } else if (gettype($current) == "array") {
+                    $id = $current["id"] ?? false;
+                } else {
+                    $id = intval($current);
+                }
+                if (!$current || !$id) continue;
+                $quizID = getValueFromDatabase($conn, "scores", "quizID", "id", $id, 1, false);
+                $exists = boolval(valueInDatabaseExists($conn, "selectquiz", "uniqueID", "quizID", $quizID));
+                $date = getValueFromDatabase($conn, "scores", "date", "id", $id, 1, false);
+                $usersResults = json_validate(getValueFromDatabase($conn, "scores", "results", "id", $id, 1, false));
+                $klassenstufe = getValueFromDatabase($conn, "selectquiz", "klassenstufe", "quizID", $quizID, 1, false);
+                $fach = getValueFromDatabase($conn, "selectquiz", "fach", "quizID", $quizID, 1, false);
+                $thema = getValueFromDatabase($conn, "selectquiz", "thema", "quizID", $quizID, 1, false);
+                $quizname = getValueFromDatabase($conn, "selectquiz", "quizname", "quizID", $quizID, 1, false);
 
-                $results[] = array("quizID" => $current, "date" => $date, "results" => $usersResults, "exists" => $exists, "klassenstufe" => $klassenstufe, "fach" => $fach, "thema" => $thema, "quizname" => $quizname);
+                $resultArray[] = array("quizID" => $quizID, "date" => $date, "results" => $usersResults, "exists" => $exists, "klassenstufe" => $klassenstufe, "fach" => $fach, "thema" => $thema, "quizname" => $quizname, "id" => $id);
             }
             return $resultArray;
         }
@@ -86,510 +96,256 @@ if (isset($_POST["scoreverwaltung"])) {
         if ($type === "result") {
             $filterBy = $_POST["filterBy"];
 
-            $allScores = customDatabaseCall($conn, "SELECT id, userID, quizID, date, results FROM scores WHERE userID = ? ORDER BY id DESC", [$searchForUserID]);
-            foreach ($allScores as $currentScore) {
-                if (json_validate($currentScore->{"results"})) {
-                    $currentScore->{"results"} = json_validate($currentScore->{"results"});
-                }
-                if ($filterBy === "bestFirst") {
-                    usort($allScores, function($a, $b) {return $a->{"results"}->{"mark"} > $b->{"results"}->{"mark"};});
-                } else if ($filterBy === "worstFirst") {
-                    usort($allScores, function($a, $b) {return $a->{"results"}->{"mark"} > $b->{"results"}->{"mark"};});
-                }
+            $allScores = getFullData($conn, customDatabaseCall($conn, "SELECT id FROM scores WHERE userID = ? ORDER BY id DESC", [$searchForUserID]));
+            if ($filterBy === "bestFirst") {
+                usort($allScores, function ($a, $b) {
+                    return $a["results"]->{"mark"} > $b["results"]->{"mark"};
+                });
+            } else if ($filterBy === "worstFirst") {
+                usort($allScores, function ($a, $b) {
+                    return $a["results"]->{"mark"} < $b["results"]->{"mark"};
+                });
             }
             returnResults($conn, $allScores, $limitResults);
             die();
         } else if ($type === "date") {
             $startDate = getUnixTimestampFromStartOfTheDay($_POST["startDate"]);
             $endDate = getUnixTimestampFromStartOfTheDay($_POST["endDate"]);
-
             $allScores = customDatabaseCall($conn, "SELECT id, userID, quizID, date, results FROM scores WHERE userID = ? ORDER BY id DESC", [$searchForUserID]);
             foreach ($allScores as $currentScore) {
                 if (json_validate($currentScore->{"results"})) {
                     $currentScore->{"results"} = json_validate($currentScore->{"results"});
                 }
-                
+
                 $unixTimestampScore = getUnixTimestampFromStartOfTheDay(getUnixTimestampFromDate($currentScore->{"date"}));
                 //Remove all what is smaller than start date
-                if (!empty($startDate)) {
-                    echo $unixTimestampScore . " | ";
-                    echo $startDate . " | ";
-                    if ($unixTimestampScore < $startDate)  {
-                        $allScores = removeFromArray($allScores, $currentScore, "value", true);
+                if ($startDate) {
+                    if ($unixTimestampScore < $startDate) {
+                        $allScores = removeFromArray($allScores, $currentScore, "value", false);
                     }
                 }
 
                 //Remove all what is bigger than end date
-                if (!empty($endDate)) {
-                    if ($unixTimestampScore > $endDate)  {
-                        $allScores = removeFromArray($allScores, $currentScore, "value", true);
+                if ($endDate && $startDate <= $endDate) {
+                    if ($unixTimestampScore > $endDate) {
+                        $allScores = removeFromArray($allScores, $currentScore, "value", false);
                     }
                 }
             }
             returnResults($conn, $allScores, $limitResults);
             die();
         } else if ($type === "klassenstufe") {
-            $input = $_POST["input"];
-            $resultArray = array();
-            $allQuizzes = getAllValuesFromDatabase($conn, "selectquiz", "uniqueID", 0, true);
-            if (!$allQuizzes) {
-                returnFoundQuizzes($conn, false, $limitResults);
-                die();
-            }
-            foreach ($allQuizzes as $currentQuizUniqueID) {
-                $klassenstufe = getValueFromDatabase($conn, "selectquiz", "klassenstufe", "uniqueID", $currentQuizUniqueID, 1, false);
-                if ($klassenstufe == $input) {
-                    $resultArray[] = $currentQuizUniqueID;
+            $filterKlassenstufen = json_validate($_POST["klassenstufen"]);
+            $allScores = getFullData($conn, customDatabaseCall($conn, "SELECT id FROM scores WHERE userID = ? ORDER BY id DESC", [$searchForUserID]));
+            foreach ($allScores as $currentScore) {
+                $quizID = $currentScore["quizID"] ?? false;
+                $klassenstufe = getValueFromDatabase($conn, "selectquiz", "klassenstufe", "quizID", $quizID, 1, false);
+                if (!in_array($klassenstufe, $filterKlassenstufen)) {
+                    $allScores = removeFromArray($allScores, $currentScore, "value", false);
                 }
             }
-            returnFoundQuizzes($conn, $resultArray, $limitResults);
+            returnResults($conn, $allScores, $limitResults);
             die();
         } else if ($type === "fach") {
-            $input = $_POST["input"];
-            $resultArray = array();
-            $allQuizzes = getAllValuesFromDatabase($conn, "selectquiz", "uniqueID", 0, true);
-            if (!$allQuizzes) {
-                returnFoundQuizzes($conn, false, $limitResults);
-                die();
-            }
-            foreach ($allQuizzes as $currentQuizUniqueID) {
-                $fach = getValueFromDatabase($conn, "selectquiz", "fach", "uniqueID", $currentQuizUniqueID, 1, false);
-                if ($fach == $input) {
-                    $resultArray[] = $currentQuizUniqueID;
+            $filterFaecher = json_validate($_POST["faecher"]);
+            $allScores = getFullData($conn, customDatabaseCall($conn, "SELECT id FROM scores WHERE userID = ? ORDER BY id DESC", [$searchForUserID]));
+            foreach ($allScores as $currentScore) {
+                $quizID = $currentScore["quizID"] ?? false;
+                $fach = getValueFromDatabase($conn, "selectquiz", "fach", "quizID", $quizID, 1, false);
+                if (!in_array($fach, $filterFaecher)) {
+                    $allScores = removeFromArray($allScores, $currentScore, "value", false);
                 }
             }
-            returnFoundQuizzes($conn, $resultArray, $limitResults);
+            returnResults($conn, $allScores, $limitResults);
             die();
         } else if ($type === "thema") {
-            $input = $_POST["input"];
-            $resultArray = array();
-            $allQuizzes = getAllValuesFromDatabase($conn, "selectquiz", "uniqueID", 0, true);
-            if (!$allQuizzes) {
-                returnFoundQuizzes($conn, false, $limitResults);
-                die();
-            }
-            foreach ($allQuizzes as $currentQuizUniqueID) {
-                $thema = getValueFromDatabase($conn, "selectquiz", "thema", "uniqueID", $currentQuizUniqueID, 1, false);
-                if ($thema == $input) {
-                    $resultArray[] = $currentQuizUniqueID;
+            $filterThemen = json_validate($_POST["themen"]);
+            $allScores = getFullData($conn, customDatabaseCall($conn, "SELECT id FROM scores WHERE userID = ? ORDER BY id DESC", [$searchForUserID]));
+            foreach ($allScores as $currentScore) {
+                $quizID = $currentScore["quizID"] ?? false;
+                $thema = getValueFromDatabase($conn, "selectquiz", "thema", "quizID", $quizID, 1, false);
+                if (!in_array($thema, $filterThemen)) {
+                    $allScores = removeFromArray($allScores, $currentScore, "value", false);
                 }
             }
-            returnFoundQuizzes($conn, $resultArray, $limitResults);
+            returnResults($conn, $allScores, $limitResults);
             die();
-        } else if ($type === "name") {
-            $input = $_POST["input"];
-            $resultArray = array();
-            $allQuizzes = getAllValuesFromDatabase($conn, "selectquiz", "uniqueID", 0, true);
-            if (!$allQuizzes) {
-                returnFoundQuizzes($conn, false, $limitResults);
-                die();
-            }
-            foreach ($allQuizzes as $currentQuizUniqueID) {
-                $name = getValueFromDatabase($conn, "selectquiz", "quizname", "uniqueID", $currentQuizUniqueID, 1, false);
-                if (str_contains(strToLower($name), strToLower($input)) || str_contains(strToUpper($name), strToUpper($input))) {
-                    $resultArray[] = $currentQuizUniqueID;
+        } else if ($type === "quizname") {
+            $input = json_validate($_POST["input"])?->input;
+            $allScores = getFullData($conn, customDatabaseCall($conn, "SELECT id FROM scores WHERE userID = ? ORDER BY id DESC", [$searchForUserID]));
+            foreach ($allScores as $currentScore) {
+                $quizID = $currentScore["quizID"] ?? false;
+                $quizname = getValueFromDatabase($conn, "selectquiz", "quizname", "quizID", $quizID, 1, false);
+                if (!str_contains(strtolower($quizname), strtolower($input) && !str_contains(strtoupper($quizname), strtoupper($input)))) {
+                    $allScores = removeFromArray($allScores, $currentScore, "value", false);
                 }
             }
-            returnFoundQuizzes($conn, $resultArray, $limitResults);
+            returnResults($conn, $allScores, $limitResults);
             die();
-        } else if ($type === "description") {
-            $input = $_POST["input"];
-            $resultArray = array();
-            $allQuizzes = getAllValuesFromDatabase($conn, "selectquiz", "uniqueID", 0, true);
-            if (!$allQuizzes) {
-                returnFoundQuizzes($conn, false, $limitResults);
-                die();
-            }
-            foreach ($allQuizzes as $currentQuizUniqueID) {
-                $description = getValueFromDatabase($conn, "selectquiz", "description", "uniqueID", $currentQuizUniqueID, 1, false);
-                if (str_contains(strToLower($description), strToLower($input)) || str_contains(strToUpper($description), strToUpper($input))) {
-                    $resultArray[] = $currentQuizUniqueID;
+        } else if ($type === "quizID") {
+            $input = json_validate($_POST["input"])?->input;
+            $allScores = getFullData($conn, customDatabaseCall($conn, "SELECT id FROM scores WHERE userID = ? ORDER BY id DESC", [$searchForUserID]));
+            foreach ($allScores as $currentScore) {
+                $quizID = $currentScore["quizID"] ?? false;
+                if (!$quizID == $input) {
+                    $allScores = removeFromArray($allScores, $currentScore, "value", false);
                 }
             }
-            returnFoundQuizzes($conn, $resultArray, $limitResults);
+            returnResults($conn, $allScores, $limitResults);
             die();
-        } else if ($type === "quizId") {
-            $input = $_POST["input"];
-            $resultArray = array();
-            $allQuizzes = getAllValuesFromDatabase($conn, "selectquiz", "uniqueID", 0, true);
-            if (!$allQuizzes) {
-                returnFoundQuizzes($conn, false, $limitResults);
-                die();
-            }
-            foreach ($allQuizzes as $currentQuizUniqueID) {
-                $quizId = getValueFromDatabase($conn, "selectquiz", "quizId", "uniqueID", $currentQuizUniqueID, 1, false);
-                if (str_contains(strToLower($quizId), strToLower($input)) || str_contains(strToUpper($quizId), strToUpper($input))) {
-                    $resultArray[] = $currentQuizUniqueID;
-                }
-            }
-            returnFoundQuizzes($conn, $resultArray, $limitResults);
-            die();
-        } else if ($type === "id") {
-            $input = $_POST["input"];
-            $resultArray = array();
-            $allQuizzes = getAllValuesFromDatabase($conn, "selectquiz", "uniqueID", 0, true);
-            if (!$allQuizzes) {
-                returnFoundQuizzes($conn, false, $limitResults);
-                die();
-            }
-            foreach ($allQuizzes as $currentQuizUniqueID) {
-                if ($currentQuizUniqueID == $input) {
-                    $resultArray[] = $currentQuizUniqueID;
-                }
-            }
-            returnFoundQuizzes($conn, $resultArray, $limitResults);
-            die();
-        } else  if ($type === "requireKlassenstufe") {
-            $input = $_POST["input"];
-            $resultArray = array();
-            $allQuizzes = getAllValuesFromDatabase($conn, "selectquiz", "uniqueID", 0, true);
-            if (!$allQuizzes) {
-                returnFoundQuizzes($conn, false, $limitResults);
-                die();
-            }
-            foreach ($allQuizzes as $currentQuizUniqueID) {
-                $requireKlassenstufe = getValueFromDatabase($conn, "selectquiz", "requireKlassenstufe", "uniqueID", $currentQuizUniqueID, 1, false);
-                if ($requireKlassenstufe == $input) {
-                    $resultArray[] = $currentQuizUniqueID;
-                }
-            }
-            returnFoundQuizzes($conn, $resultArray, $limitResults);
-            die();
-        } else  if ($type === "requireFach") {
-            $input = $_POST["input"];
-            $resultArray = array();
-            $allQuizzes = getAllValuesFromDatabase($conn, "selectquiz", "uniqueID", 0, true);
-            if (!$allQuizzes) {
-                returnFoundQuizzes($conn, false, $limitResults);
-                die();
-            }
-            foreach ($allQuizzes as $currentQuizUniqueID) {
-                $requireFach = getValueFromDatabase($conn, "selectquiz", "requireFach", "uniqueID", $currentQuizUniqueID, 1, false);
-                if ($requireFach == $input) {
-                    $resultArray[] = $currentQuizUniqueID;
-                }
-            }
-            returnFoundQuizzes($conn, $resultArray, $limitResults);
-            die();
-        } else  if ($type === "requireThema") {
-            $input = $_POST["input"];
-            $resultArray = array();
-            $allQuizzes = getAllValuesFromDatabase($conn, "selectquiz", "uniqueID", 0, true);
-            if (!$allQuizzes) {
-                returnFoundQuizzes($conn, false, $limitResults);
-                die();
-            }
-            foreach ($allQuizzes as $currentQuizUniqueID) {
-                $requireThema = getValueFromDatabase($conn, "selectquiz", "requireThema", "uniqueID", $currentQuizUniqueID, 1, false);
-                if ($requireThema == $input) {
-                    $resultArray[] = $currentQuizUniqueID;
-                }
-            }
-            returnFoundQuizzes($conn, $resultArray, $limitResults);
-            die();
-        } else  if ($type === "requireName") {
-            $input = $_POST["input"];
-            $resultArray = array();
-            $allQuizzes = getAllValuesFromDatabase($conn, "selectquiz", "uniqueID", 0, true);
-            if (!$allQuizzes) {
-                returnFoundQuizzes($conn, false, $limitResults);
-                die();
-            }
-            foreach ($allQuizzes as $currentQuizUniqueID) {
-                $requireName = getValueFromDatabase($conn, "selectquiz", "requireQuizname", "uniqueID", $currentQuizUniqueID, 1, false);
-                if ($requireThema == $input) {
-                    $resultArray[] = $currentQuizUniqueID;
-                }
-            }
-            returnFoundQuizzes($conn, $resultArray, $limitResults);
-            die();
-        } else  if ($type === "questions") {
-            $input = json_validate($_POST["input"]);
-            $resultArray = array();
-            $allQuizzes = getAllValuesFromDatabase($conn, "selectquiz", "uniqueID", 0, true);
-            if (!$allQuizzes) {
-                returnFoundQuizzes($conn, false, $limitResults);
-                die();
-            }
-            foreach ($allQuizzes as $currentQuizUniqueID) {
-                $allQuestions = searchQuestionsOneQuiz($conn, false, $currentQuizUniqueID);
-                if ($allQuestions == false || !count($allQuestions) > 0) {
-                    continue;
-                }
-                if (array_contains_all_values($allQuestions, $input, true)) {
-                    $resultArray[] = $currentQuizUniqueID;
-                }
-            }
-            returnFoundQuizzes($conn, $resultArray, $limitResults);
-            die();
-        } else if ($type === "numberOfQuizCards") {
-            $input = intval($_POST["input"]);
-            $resultArray = array();
-            $allQuizzes = getAllValuesFromDatabase($conn, "selectquiz", "uniqueID", 0, true);
-            if (!$allQuizzes) {
+        } else if ($type === "timeNeeded") {
+            $minTime = intval($_POST["minTime"]);
+            $maxTime = intval($_POST["maxTime"]);
 
-                returnFoundQuizzes($conn, false, $limitResults);
-                die();
-            }
-            foreach ($allQuizzes as $currentQuizUniqueID) {
-                $numberOfQuizCards = count(searchQuestionsOneQuiz($conn, false, $currentQuizUniqueID));
-                if ($numberOfQuizCards == $input) {
-                    $resultArray[] = $currentQuizUniqueID;
+            $allScores = customDatabaseCall($conn, "SELECT id, userID, quizID, date, results FROM scores WHERE userID = ? ORDER BY id DESC", [$searchForUserID]);
+            foreach ($allScores as $currentScore) {
+                if (json_validate($currentScore->{"results"})) {
+                    $currentScore->{"results"} = json_validate($currentScore->{"results"});
+                }
+
+                $timeNeeded = intval($currentScore->{"results"}->timeNeeded);
+                //Remove all what is smaller than the number
+                if ($minTime) {
+                    if ($timeNeeded < $minTime) {
+                        $allScores = removeFromArray($allScores, $currentScore, "value", false);
+                    }
+                }
+                //Remove all what is bigger than the number
+                if ($maxTime && $minTime <= $maxTime) {
+                    if ($timeNeeded > $maxTime) {
+                        $allScores = removeFromArray($allScores, $currentScore, "value", false);
+                    }
                 }
             }
-            returnFoundQuizzes($conn, $resultArray, $limitResults);
-            die();
-        } else if ($type === "created") {
-            $input = $_POST["input"];
-            $resultArray = array();
-            $allQuizzes = getAllValuesFromDatabase($conn, "selectquiz", "uniqueID", 0, true);
-            if (!$allQuizzes) {
-                returnFoundQuizzes($conn, false, $limitResults);
-                die();
-            }
-            foreach ($allQuizzes as $currentQuizUniqueID) {
-                $created = getValueFromDatabase($conn, "selectquiz", "created", "uniqueID", $currentQuizUniqueID, 1, false);
-                if (str_contains($created, $input)) {
-                    $resultArray[] = $currentQuizUniqueID;
-                }
-            }
-            returnFoundQuizzes($conn, $resultArray, $limitResults);
-            die();
-        } else if ($type === "createdBy") {
-            $input = $_POST["input"];
-            $resultArray = array();
-            $allQuizzes = getAllValuesFromDatabase($conn, "selectquiz", "uniqueID", 0, true);
-            if (!$allQuizzes) {
-                returnFoundQuizzes($conn, false, $limitResults);
-                die();
-            }
-            foreach ($allQuizzes as $currentQuizUniqueID) {
-                $createdBy = getValueFromDatabase($conn, "selectquiz", "createdBy", "uniqueID", $currentQuizUniqueID, 1, false);
-                if ($createdBy == $input) {
-                    $resultArray[] = $currentQuizUniqueID;
-                }
-            }
-            returnFoundQuizzes($conn, $resultArray, $limitResults);
-            die();
-        } else if ($type === "changed") {
-            $input = $_POST["input"];
-            $resultArray = array();
-            $allQuizzes = getAllValuesFromDatabase($conn, "selectquiz", "uniqueID", 0, true);
-            if (!$allQuizzes) {
-                returnFoundQuizzes($conn, false, $limitResults);
-                die();
-            }
-            foreach ($allQuizzes as $currentQuizUniqueID) {
-                $changed = getValueFromDatabase($conn, "selectquiz", "changed", "uniqueID", $currentQuizUniqueID, 1, false);
-                if (str_contains($changed, $input)) {
-                    $resultArray[] = $currentQuizUniqueID;
-                }
-            }
-            returnFoundQuizzes($conn, $resultArray, $limitResults);
-            die();
-        } else if ($type === "changedBy") {
-            $input = json_validate($_POST["input"]);
-            $resultArray = array();
-            $allQuizzes = getAllValuesFromDatabase($conn, "selectquiz", "uniqueID", 0, true);
-            if (!$allQuizzes) {
-                returnFoundQuizzes($conn, false, $limitResults);
-                die();
-            }
-            foreach ($allQuizzes as $currentQuizUniqueID) {
-                $changedBy = json_validate(getValueFromDatabase($conn, "selectquiz", "changedBy", "uniqueID", $currentQuizUniqueID, 1, false));
-                if (array_contains_all_values($changedBy, $input, true)) {
-                    $resultArray[] = $currentQuizUniqueID;
-                }
-            }
-            returnFoundQuizzes($conn, $resultArray, $limitResults);
+            returnResults($conn, $allScores, $limitResults);
             die();
         } else if ($type === "multiple") {
-            $showQuizAuswahl = $_POST["showQuizAuswahl"];
-            $visibility = $_POST["visibility"];
-            $klassenstufe = $_POST["klassenstufe"];
-            $fach = $_POST["fach"];
-            $thema = $_POST["thema"];
-            $name = $_POST["name"];
-            $description = $_POST["description"];
-            $quizId = $_POST["quizId"];
-            $uniqueID = $_POST["uniqueID"];
-            $requireKlassenstufe = $_POST["requireKlassenstufe"];
-            $requireFach = $_POST["requireFach"];
-            $requireThema = $_POST["requireThema"];
-            $requireName = $_POST["requireName"];
-            $questions = json_validate($_POST["questions"]);
-            $numberOfQuizCards = $_POST["numberOfQuizCards"];
-            $created = $_POST["created"];
-            $createdBy = $_POST["createdBy"];
-            $changed = $_POST["changed"];
-            $changedBy = json_validate($_POST["changedBy"]);
+            $result = $_POST["result"];
+            $startDate = $_POST["startDate"];
+            $endDate = $_POST["endDate"];
+            $klassenstufen = json_validate($_POST["klassenstufen"]);
+            $faecher = json_validate($_POST["faecher"]);
+            $themen = json_validate($_POST["themen"]);
+            $quizname = json_validate($_POST["quizname"])?->quizname;
+            $quizID = json_validate($_POST["quizID"])?->quizID;
+            $minTime = $_POST["minTime"];
+            $maxTime = $_POST["maxTime"];
 
-            $allQuizzes = getAllValuesFromDatabase($conn, "selectquiz", "uniqueID", 0, true);
-            if (!$allQuizzes || !count($allQuizzes) > 0) {
-                returnFoundQuizzes($conn, false, $limitResults);
-                die();
-            }
+            $allScores = getFullData($conn, customDatabaseCall($conn, "SELECT id FROM scores WHERE userID = ? ORDER BY id DESC", [$searchForUserID]));
 
-            if ($showQuizAuswahl !== false && count($allQuizzes) > 0 && $showQuizAuswahl != "false") {
-                foreach ($allQuizzes as $currentQuizUniqueID) {
-                    $showQuizAuswahlCurrent = getValueFromDatabase($conn, "selectquiz", "showQuizAuswahl", "uniqueID", $currentQuizUniqueID, 1, false);
-                    if ($showQuizAuswahlCurrent != $showQuizAuswahl) {
-                        $allQuizzes = removeFromArray($allQuizzes, $currentQuizUniqueID, "value", true, true);
-                    }
+            //Results
+            if ($result !== false && count($allScores) > 0 && $result != "false") {
+                if ($result === "bestFirst") {
+                    usort($allScores, function ($a, $b) {
+                        return $a["results"]->{"mark"} > $b["results"]->{"mark"};
+                    });
+                } else if ($result === "worstFirst") {
+                    usort($allScores, function ($a, $b) {
+                        return $a["results"]->{"mark"} < $b["results"]->{"mark"};
+                    });
                 }
             }
-            if ($visibility !== false && count($allQuizzes) > 0 && $visibility != "false") {
-                foreach ($allQuizzes as $currentQuizUniqueID) {
-                    $visibilitylCurrent = getValueFromDatabase($conn, "selectquiz", "visibility", "uniqueID", $currentQuizUniqueID, 1, false);
-                    if ($visibilitylCurrent != $visibility) {
-                        $allQuizzes = removeFromArray($allQuizzes, $currentQuizUniqueID, "value", true, true);
+            //startDate + endDate
+            if ($startDate !== false || $endDate !== false && count($allScores) > 0 && $startDate != "false" || $endDate != "false") {
+                $startDate = getUnixTimestampFromStartOfTheDay($startDate);
+                $endDate = getUnixTimestampFromStartOfTheDay($endDate);
+                foreach ($allScores as $currentScore) {
+                    if (json_validate($currentScore->{"results"})) {
+                        $currentScore->{"results"} = json_validate($currentScore->{"results"});
                     }
-                }
-            }
-            if ($klassenstufe !== false && count($allQuizzes) > 0 && $klassenstufe != "false") {
-                foreach ($allQuizzes as $currentQuizUniqueID) {
-                    $klassenstufeCurrent = getValueFromDatabase($conn, "selectquiz", "klassenstufe", "uniqueID", $currentQuizUniqueID, 1, false);
-                    if ($klassenstufeCurrent != $klassenstufe) {
-                        $allQuizzes = removeFromArray($allQuizzes, $currentQuizUniqueID, "value", true, true);
+                    $unixTimestampScore = getUnixTimestampFromStartOfTheDay(getUnixTimestampFromDate($currentScore["date"]));
+                    //Remove all what is smaller than start date
+                    if ($startDate) {
+                        if ($unixTimestampScore < $startDate) {
+                            $allScores = removeFromArray($allScores, $currentScore, "value", false);
+                        }
                     }
-                }
-            }
-            if ($fach !== false && count($allQuizzes) > 0 && $fach != "false") {
-                foreach ($allQuizzes as $currentQuizUniqueID) {
-                    $fachCurrent = getValueFromDatabase($conn, "selectquiz", "fach", "uniqueID", $currentQuizUniqueID, 1, false);
-                    if ($fachCurrent != $fach) {
-                        $allQuizzes = removeFromArray($allQuizzes, $currentQuizUniqueID, "value", true, true);
-                    }
-                }
-            }
-            if ($thema !== false && count($allQuizzes) > 0 && $thema != "false") {
-                foreach ($allQuizzes as $currentQuizUniqueID) {
-                    $themaCurrent = getValueFromDatabase($conn, "selectquiz", "thema", "uniqueID", $currentQuizUniqueID, 1, false);
-                    if ($themaCurrent != $thema) {
-                        $allQuizzes = removeFromArray($allQuizzes, $currentQuizUniqueID, "value", true, true);
-                    }
-                }
-            }
-            if ($name !== false && count($allQuizzes) > 0 && $name != "false") {
-                foreach ($allQuizzes as $currentQuizUniqueID) {
-                    $nameCurrent = getValueFromDatabase($conn, "selectquiz", "quizname", "uniqueID", $currentQuizUniqueID, 1, false);
-                    if (str_contains(strToLower($nameCurrent), strToLower($name)) == false && str_contains(strToUpper($nameCurrent), strToUpper($name)) == false) {
-                        $allQuizzes = removeFromArray($allQuizzes, $currentQuizUniqueID, "value", true, true);
-                    }
-                }
-            }
-            if ($description !== false && count($allQuizzes) > 0 && $description != "false") {
-                foreach ($allQuizzes as $currentQuizUniqueID) {
-                    $descriptionCurrent = getValueFromDatabase($conn, "selectquiz", "description", "uniqueID", $currentQuizUniqueID, 1, false);
-                    if (str_contains(strToLower($descriptionCurrent), strToLower($description)) == false && str_contains(strToUpper($descriptionCurrent), strToUpper($description)) == false) {
-                        $allQuizzes = removeFromArray($allQuizzes, $currentQuizUniqueID, "value", true, true);
-                    }
-                }
-            }
-            if ($quizId !== false && count($allQuizzes) > 0 && $quizId != "false") {
-                foreach ($allQuizzes as $currentQuizUniqueID) {
-                    $quizIdCurrent = getValueFromDatabase($conn, "selectquiz", "quizId", "uniqueID", $currentQuizUniqueID, 1, false);
-                    if ($quizIdCurrent != $quizId) {
-                        $allQuizzes = removeFromArray($allQuizzes, $currentQuizUniqueID, "value", true, true);
-                    }
-                }
-            }
-            if ($uniqueID !== false && count($allQuizzes) > 0 && $uniqueID != "false") {
-                foreach ($allQuizzes as $currentQuizUniqueID) {
-                    if ($currentQuizUniqueID != $uniqueID) {
-                        $allQuizzes = removeFromArray($allQuizzes, $currentQuizUniqueID, "value", true, true);
-                    }
-                }
-            }
-            if ($requireKlassenstufe !== false && count($allQuizzes) > 0 && $requireKlassenstufe != "false") {
-                foreach ($allQuizzes as $currentQuizUniqueID) {
-                    $requireKlassenstufeCurrent = getValueFromDatabase($conn, "selectquiz", "requireKlassenstufe", "uniqueID", $currentQuizUniqueID, 1, false);
-                    if ($requireKlassenstufeCurrent != $requireKlassenstufe) {
-                        $allQuizzes = removeFromArray($allQuizzes, $currentQuizUniqueID, "value", true, true);
-                    }
-                }
-            }
-            if ($requireFach !== false && count($allQuizzes) > 0 && $requireFach != "false") {
-                foreach ($allQuizzes as $currentQuizUniqueID) {
-                    $requireFachCurrent = getValueFromDatabase($conn, "selectquiz", "requireFach", "uniqueID", $currentQuizUniqueID, 1, false);
-                    if ($requireFachCurrent != $requireFach) {
-                        $allQuizzes = removeFromArray($allQuizzes, $currentQuizUniqueID, "value", true, true);
-                    }
-                }
-            }
-            if ($requireThema !== false && count($allQuizzes) > 0 && $requireThema != "false") {
-                foreach ($allQuizzes as $currentQuizUniqueID) {
-                    $requireThemaCurrent = getValueFromDatabase($conn, "selectquiz", "requireThema", "uniqueID", $currentQuizUniqueID, 1, false);
-                    if ($requireThemaCurrent != $requireFach) {
-                        $allQuizzes = removeFromArray($allQuizzes, $currentQuizUniqueID, "value", true, true);
-                    }
-                }
-            }
-            if ($requireName !== false && count($allQuizzes) > 0 && $requireName != "false") {
-                foreach ($allQuizzes as $currentQuizUniqueID) {
-                    $requireNameCurrent = getValueFromDatabase($conn, "selectquiz", "requireQuizname", "uniqueID", $currentQuizUniqueID, 1, false);
-                    if ($requireNameCurrent != $requireName) {
-                        $allQuizzes = removeFromArray($allQuizzes, $currentQuizUniqueID, "value", true, true);
-                    }
-                }
-            }
-            if ($questions !== false && count($allQuizzes) > 0 && $questions != "false") {
-                foreach ($allQuizzes as $currentQuizUniqueID) {
-                    $allQuestions = searchQuestionsOneQuiz($conn, false, $currentQuizUniqueID);
-                    if ($allQuestions == false || !count($allQuestions) > 0) {
-                        $allQuizzes = removeFromArray($allQuizzes, $currentQuizUniqueID, "value", true, true);
-                    }
-                    if (!array_contains_all_values($allQuestions, $questions)) {
-                        $allQuizzes = removeFromArray($allQuizzes, $currentQuizUniqueID, "value", true, true);
-                    }
-                }
-            }
-            if ($numberOfQuizCards !== false && count($allQuizzes) > 0 && $numberOfQuizCards != "false") {
-                foreach ($allQuizzes as $currentQuizUniqueID) {
-                    $numberOfQuizCards = count(searchQuestionsOneQuiz($conn, false, $currentQuizUniqueID));
-                    if ($numberOfQuizCards != $numberOfQuizCards) {
-                        $allQuizzes = removeFromArray($allQuizzes, $currentQuizUniqueID, "value", true, true);
-                    }
-                }
-            }
-            if ($created !== false && count($allQuizzes) > 0 && $created != "false") {
-                foreach ($allQuizzes as $currentQuizUniqueID) {
-                    $createdCurrent = getValueFromDatabase($conn, "selectquiz", "created", "uniqueID", $currentQuizUniqueID, 1, false);
-                    if (!str_contains($createdCurrent, $created)) {
-                        $allQuizzes = removeFromArray($allQuizzes, $currentQuizUniqueID, "value", true, true);
-                    }
-                }
-            }
-            if ($createdBy !== false && count($allQuizzes) > 0 && $createdBy != "false") {
-                foreach ($allQuizzes as $currentQuizUniqueID) {
-                    $createdByCurrent = getValueFromDatabase($conn, "selectquiz", "createdBy", "uniqueID", $currentQuizUniqueID, 1, false);
-                    if ($createdByCurrent != $createdBy) {
-                        $allQuizzes = removeFromArray($allQuizzes, $currentQuizUniqueID, "value", true, true);
-                    }
-                }
-            }
-            if ($changed !== false && count($allQuizzes) > 0 && $changed != "false") {
-                foreach ($allQuizzes as $currentQuizUniqueID) {
-                    $changedCurrent = getValueFromDatabase($conn, "selectquiz", "changed", "uniqueID", $currentQuizUniqueID, 1, false);
-                    if (!str_contains($changedCurrent, $created)) {
-                        $allQuizzes = removeFromArray($allQuizzes, $currentQuizUniqueID, "value", true, true);
-                    }
-                }
-            }
-            if ($changedBy !== false && count($allQuizzes) > 0 && $changedBy != "false") {
-                foreach ($allQuizzes as $currentQuizUniqueID) {
-                    $changedByCurrent = json_validate(getValueFromDatabase($conn, "selectquiz", "changedBy", "uniqueID", $currentQuizUniqueID, 1, false));
-                    if (!array_contains_all_values($changedByCurrent, $changedBy, true)) {
-                        $allQuizzes = removeFromArray($allQuizzes, $currentQuizUniqueID, "value", true, true);
+                    //Remove all what is bigger than end date
+                    if ($endDate && $startDate <= $endDate) {
+                        if ($unixTimestampScore > $endDate) {
+                            $allScores = removeFromArray($allScores, $currentScore, "value", false);
+                        }
                     }
                 }
             }
 
-            returnFoundQuizzes($conn, $allQuizzes, $limitResults);
+            //klassenstufen
+            if ($klassenstufen !== false && count($klassenstufen) > 0 && count($allScores) > 0 && $klassenstufen != "false") {
+                foreach ($allScores as $currentScore) {
+                    $quizID = $currentScore["quizID"] ?? false;
+                    $klassenstufe = getValueFromDatabase($conn, "selectquiz", "klassenstufe", "quizID", $quizID, 1, false);
+                    if (!in_array($klassenstufe, $klassenstufen)) {
+                        $allScores = removeFromArray($allScores, $currentScore, "value", false);
+                    }
+                }
+            }
+            //faecher
+            if ($faecher !== false && count($faecher) > 0 && count($allScores) > 0 && $faecher != "false") {
+                foreach ($allScores as $currentScore) {
+                    $quizID = $currentScore["quizID"] ?? false;
+                    $fach = getValueFromDatabase($conn, "selectquiz", "fach", "quizID", $quizID, 1, false);
+                    if (!in_array($fach, $faecher)) {
+                        $allScores = removeFromArray($allScores, $currentScore, "value", false);
+                    }
+                }
+            }
+            //themen
+            if ($themen !== false && count($themen) > 0 && count($allScores) > 0 && $themen != "false") {
+                foreach ($allScores as $currentScore) {
+                    $quizID = $currentScore["quizID"] ?? false;
+                    $thema = getValueFromDatabase($conn, "selectquiz", "thema", "quizID", $quizID, 1, false);
+                    if (!in_array($thema, $themen)) {
+                        $allScores = removeFromArray($allScores, $currentScore, "value", false);
+                    }
+                }
+            }
+            //quizname
+            if ($quizname !== false > 0 && count($allScores) > 0 && $quizname != "false") {
+                foreach ($allScores as $currentScore) {
+                    $quizID = $currentScore["quizID"] ?? false;
+                    $quiznameCurrent = getValueFromDatabase($conn, "selectquiz", "quizname", "quizID", $quizID, 1, false);
+                    if (!str_contains(strtolower($quiznameCurrent), strtolower($quizname) && !str_contains(strtoupper($quiznameCurrent), strtoupper($quizname)))) {
+                        $allScores = removeFromArray($allScores, $currentScore, "value", false);
+                    }
+                }
+            }
+            //quizID
+            if ($quizID !== false > 0 && count($allScores) > 0 && $quizID != "false") {
+                foreach ($allScores as $currentScore) {
+                    $quizIDCurrent = $currentScore["quizID"] ?? false;
+                    if (!$quizIDCurrent == $quizID) {
+                        $allScores = removeFromArray($allScores, $currentScore, "value", false);
+                    }
+                }
+            }
+            if ($minTime !== false || $maxTime !== false && count($allScores) > 0 && $minTime != "false" || $maxTime != "false") {
+                $minTime = intval($maxTime);
+                $maxTime = intval($maxTime);
+                foreach ($allScores as $currentScore) {
+                    if (json_validate($currentScore->{"results"})) {
+                        $currentScore->{"results"} = json_validate($currentScore->{"results"});
+                    }
+    
+                    $timeNeeded = intval($currentScore->{"results"}->timeNeeded);
+                    //Remove all what is smaller than the number
+                    if ($minTime) {
+                        if ($timeNeeded < $minTime) {
+                            $allScores = removeFromArray($allScores, $currentScore, "value", false);
+                        }
+                    }
+                    //Remove all what is bigger than the number
+                    if ($maxTime && $minTime <= $maxTime) {
+                        if ($timeNeeded > $maxTime) {
+                            $allScores = removeFromArray($allScores, $currentScore, "value", false);
+                        }
+                    }
+                }
+            }
+            returnResults($conn, $allScores, $limitResults);
             die();
         } else if ($type === "all") {
-            $allQuizzes = getAllValuesFromDatabase($conn, "selectquiz", "uniqueID", 0, true);
-            returnFoundQuizzes($conn, $allQuizzes, $limitResults);
+            $allScores = customDatabaseCall($conn, "SELECT id FROM scores WHERE userID = ? ORDER BY id DESC", [$searchForUserID]);
+            returnResults($conn, $allScores, $limitResults);
             die();
         }
     } else if ($operation === "changeValue") {
@@ -926,34 +682,5 @@ if (isset($_POST["scoreverwaltung"])) {
             echo json_encode($themen);
             die();
         }
-    } else if ($operation === "getFullInformation") {
-        $id = $_POST['id'];
-
-        if ($id == false || !valueInDatabaseExists($conn, "selectquiz", "uniqueID", "uniqueID", $id)) {
-            returnMessage(404, "Das Quiz mit der id '$id' gibt es nicht.");
-            die();
-        }
-
-        $name = getValueFromDatabase($conn, "selectquiz", "quizname", "uniqueID", $id, 1, false);
-        $klassenstufe = getValueFromDatabase($conn, "selectquiz", "klassenstufe", "uniqueID", $id, 1, false);
-        $fach = getValueFromDatabase($conn, "selectquiz", "fach", "uniqueID", $id, 1, false);
-        $thema = getValueFromDatabase($conn, "selectquiz", "thema", "uniqueID", $id, 1, false);
-        $description = getValueFromDatabase($conn, "selectquiz", "description", "uniqueID", $id, 1, false);
-        $quizId = getValueFromDatabase($conn, "selectquiz", "quizId", "uniqueID", $id, 1, false);
-        $showQuizAuswahl = boolval(getValueFromDatabase($conn, "selectquiz", "showQuizAuswahl", "uniqueID", $id, 1, false));
-        $visibility = boolval(getValueFromDatabase($conn, "selectquiz", "visibility", "uniqueID", $id, 1, false));
-        $requireKlassenstufe = boolval(getValueFromDatabase($conn, "selectquiz", "requireKlassenstufe", "uniqueID", $id, 1, false));
-        $requireFach = boolval(getValueFromDatabase($conn, "selectquiz", "requireFach", "uniqueID", $id, 1, false));
-        $requireThema = boolval(getValueFromDatabase($conn, "selectquiz", "requireThema", "uniqueID", $id, 1, false));
-        $requireName = boolval(getValueFromDatabase($conn, "selectquiz", "requireQuizname", "uniqueID", $id, 1, false));
-        $questions = searchQuestionsOneQuiz($conn, false, $id);
-        $lastUsed = getValueFromDatabase($conn, "selectquiz", "lastUsed", "uniqueID", $id, 1, false);
-        $created = getValueFromDatabase($conn, "selectquiz", "created", "uniqueID", $id, 1, false);
-        $createdBy = getValueFromDatabase($conn, "selectquiz", "createdBy", "uniqueID", $id, 1, false);
-        $changed = getValueFromDatabase($conn, "selectquiz", "changed", "uniqueID", $id, 1, false);
-        $changedBy = json_validate(getValueFromDatabase($conn, "selectquiz", "changedBy", "uniqueID", $id, 1, false));
-
-        echo json_encode(array("uniqueID" => $id, "name" => $name, "klassenstufe" => $klassenstufe, "fach" => $fach, "thema" => $thema, "description" => $description, "quizId" => $quizId, "showQuizAuswahl" => $showQuizAuswahl, "visibility" => $visibility, "requireKlassenstufe" => $requireKlassenstufe, "requireFach" => $requireFach, "requireThema" => $requireThema, "requireName" => $requireName, "questions" => $questions, "lastUsed" => $lastUsed, "created" => $created, "createdBy" => $createdBy, "changed" => $changed, "changedBy" => $changedBy));
-        die();
     }
 }

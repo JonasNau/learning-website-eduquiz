@@ -2874,7 +2874,9 @@ function setImage(isOnlineSource, showAnyway, mediaData, container) {
     };
 
     let imageContainer = document.createElement("div");
-    imageContainer.classList.add("mediaContainer", "image");
+    // imageContainer.classList.add("mediaContainer", "image", "fullscreenToggle");
+    // imageContainer.setAttribute("id", "fullscreenContainer");
+
     container.appendChild(imageContainer);
     if (isOnlineSource && !showAnyway) {
       let warnContainer = document.createElement("div");

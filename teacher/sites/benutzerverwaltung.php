@@ -140,7 +140,7 @@ if (userHasPermissions($conn, $userID, ["accessBenutzerverwaltung" => 1])) {
                                     <th id="authenticated">Verifiziert</th>
                                     <th id="isOnline">Onlinestatus</th>
                                     <th id="lastActivity" style="min-width: 150px;">Letzte Aktivität</th>
-                                    <th id="lastQuiz" style="min-width: 200px;">Letztes Quiz</th>
+                                    <th id="lastQuiz" style="min-width: 200px;">Letztes Quiz (QuizID)</th>
                                     <th id="lastLogin" style="min-width: 150px;">Letzter Login</th>
                                     <th id="groups" style="min-width: 150px;">Gruppen</th>
                                     <th id="permissionsAllowed" style="min-width: 150px;">Berechtigungen (erlaubt)</th>

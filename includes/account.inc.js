@@ -666,7 +666,15 @@ class ShowScores {
       );
     } else if (this.filterType === "date") {
       let startDateInput = this.dateSelectContainer.querySelector("#startDate");
+      let startDate = false;
+      if (!Utils.isEmptyInput(startDateInput.value)) {
+        startDate = new Date(startDateInput.value).getTime() / 1000; 
+      }
       let endDateInput = this.dateSelectContainer.querySelector("#endDate");
+      let endDate = false;
+      if (!Utils.isEmptyInput(endDateInput.value)) {
+        endDate = new Date(endDateInput.value).getTime() / 1000; 
+      }
 
       this.showResults(
         Utils.makeJSON(
@@ -674,52 +682,10 @@ class ShowScores {
             await Utils.sendXhrREQUEST(
               "POST",
               "scoreverwaltung&operation=search&type=date&startDate=" +
-                new Date(startDateInput.value).getTime() + "&endDate=" + new Date(endDateInput.value).getTime() + 
+                startDate + "&endDate=" + endDate + 
                 "&limitResults=" +
                 this.limiter.value,
               "/includes/account.inc.php",
-              "application/x-www-form-urlencoded",
-              true,
-              true,
-              false,
-              true
-            )
-          )
-        )
-      );
-    } else if (this.filterType === "userID") {
-      let input =
-        this.userIDSelectContainer.querySelector("#numberInput").value;
-      this.showResults(
-        Utils.makeJSON(
-          await Utils.makeJSON(
-            await Utils.sendXhrREQUEST(
-              "POST",
-              "benutzerverwaltung&operation=search&type=userID&input=" +
-                input +
-                "&limitResults=" +
-                this.limiter.value,
-              "./includes/benutzerverwaltung.inc.php",
-              "application/x-www-form-urlencoded",
-              true,
-              true,
-              false,
-              true
-            )
-          )
-        )
-      );
-    } else if (this.filterType === "groups") {
-      this.showResults(
-        Utils.makeJSON(
-          await Utils.makeJSON(
-            await Utils.sendXhrREQUEST(
-              "POST",
-              "benutzerverwaltung&operation=search&type=groups&input=" +
-                JSON.stringify(this.groupsSearchArray) +
-                "&limitResults=" +
-                this.limiter.value,
-              "./includes/benutzerverwaltung.inc.php",
               "application/x-www-form-urlencoded",
               true,
               true,
@@ -735,11 +701,11 @@ class ShowScores {
           await Utils.makeJSON(
             await Utils.sendXhrREQUEST(
               "POST",
-              "benutzerverwaltung&operation=search&type=klassenstufe&input=" +
-                JSON.stringify(this.klassenstufenSearchArray) +
+              "scoreverwaltung&operation=search&type=klassenstufe&klassenstufen=" +
+                JSON.stringify(this.klassenstufenSearchArray)+
                 "&limitResults=" +
                 this.limiter.value,
-              "./includes/benutzerverwaltung.inc.php",
+              "/includes/account.inc.php",
               "application/x-www-form-urlencoded",
               true,
               true,
@@ -749,17 +715,17 @@ class ShowScores {
           )
         )
       );
-    } else if (this.filterType === "permissionsAllowed") {
+    } else if (this.filterType === "fach") {
       this.showResults(
         Utils.makeJSON(
           await Utils.makeJSON(
             await Utils.sendXhrREQUEST(
               "POST",
-              "benutzerverwaltung&operation=search&type=permissionsAllowed&input=" +
-                JSON.stringify(this.permissionsAllowedObject) +
+              "scoreverwaltung&operation=search&type=fach&faecher=" +
+                JSON.stringify(this.fachSearchArray)+
                 "&limitResults=" +
                 this.limiter.value,
-              "./includes/benutzerverwaltung.inc.php",
+              "/includes/account.inc.php",
               "application/x-www-form-urlencoded",
               true,
               true,
@@ -769,17 +735,17 @@ class ShowScores {
           )
         )
       );
-    } else if (this.filterType === "permissionsForbidden") {
+    } else if (this.filterType === "thema") {
       this.showResults(
         Utils.makeJSON(
           await Utils.makeJSON(
             await Utils.sendXhrREQUEST(
               "POST",
-              "benutzerverwaltung&operation=search&type=permissionsForbidden&input=" +
-                JSON.stringify(this.permissionsForbiddenArray) +
+              "scoreverwaltung&operation=search&type=thema&themen=" +
+                JSON.stringify(this.themaSearchArray)+
                 "&limitResults=" +
                 this.limiter.value,
-              "./includes/benutzerverwaltung.inc.php",
+              "/includes/account.inc.php",
               "application/x-www-form-urlencoded",
               true,
               true,
@@ -789,19 +755,18 @@ class ShowScores {
           )
         )
       );
-    } else if (this.filterType === "ranking") {
-      let input =
-        this.rankingSelectContainer.querySelector("#numberInput").value;
+    } else if (this.filterType === "quizname") {
+      let input = this.quiznameSelectContainer.querySelector("#textInput").value;
       this.showResults(
         Utils.makeJSON(
           await Utils.makeJSON(
             await Utils.sendXhrREQUEST(
               "POST",
-              "benutzerverwaltung&operation=search&type=ranking&input=" +
-                input +
+              "scoreverwaltung&operation=search&type=quizname&input=" +
+                JSON.stringify({input}) +
                 "&limitResults=" +
                 this.limiter.value,
-              "./includes/benutzerverwaltung.inc.php",
+              "/includes/account.inc.php",
               "application/x-www-form-urlencoded",
               true,
               true,
@@ -811,20 +776,18 @@ class ShowScores {
           )
         )
       );
-    } else if (this.filterType == "authenticated") {
-      let select =
-        this.authenticatedSelectContainer.querySelector("#selectInput");
-      let input = select[select.selectedIndex].getAttribute("data-value");
+    } else if (this.filterType === "quizID") {
+      let input = this.quizIDSelectContainer.querySelector("#textInput").value;
       this.showResults(
         Utils.makeJSON(
           await Utils.makeJSON(
             await Utils.sendXhrREQUEST(
               "POST",
-              "benutzerverwaltung&operation=search&type=authenticated&input=" +
-                input +
+              "scoreverwaltung&operation=search&type=quizID&input=" +
+                JSON.stringify({input}) +
                 "&limitResults=" +
                 this.limiter.value,
-              "./includes/benutzerverwaltung.inc.php",
+              "/includes/account.inc.php",
               "application/x-www-form-urlencoded",
               true,
               true,
@@ -834,19 +797,21 @@ class ShowScores {
           )
         )
       );
-    } else if (this.filterType === "isOnline") {
-      let select = this.isOnlineSelectContainer.querySelector("#selectInput");
-      let input = select[select.selectedIndex].getAttribute("data-value");
+    }  else if (this.filterType === "timeNeeded") {
+      let minTime =
+        this.timeNeededSelectContainer.querySelector("#from").value;
+      let maxTime = this.timeNeededSelectContainer.querySelector("#to").value;
+
       this.showResults(
         Utils.makeJSON(
           await Utils.makeJSON(
             await Utils.sendXhrREQUEST(
               "POST",
-              "benutzerverwaltung&operation=search&type=isOnline&input=" +
-                input +
+              "scoreverwaltung&operation=search&type=timeNeeded&minTime=" +
+                Number(minTime) + "&maxTime=" + Number(maxTime) + 
                 "&limitResults=" +
                 this.limiter.value,
-              "./includes/benutzerverwaltung.inc.php",
+              "/includes/account.inc.php",
               "application/x-www-form-urlencoded",
               true,
               true,
@@ -875,88 +840,50 @@ class ShowScores {
         )
       );
     } else if (this.filterType == "multiple") {
-      //Username
-      let username =
-        this.usernameSelectContainer.querySelector("#textInput").value;
-      if (Utils.isEmptyInput(username)) {
-        username = false;
+      //result
+      let resultSelect =
+        this.resultSelectContainer.querySelector("#selectInput");
+      let result =
+      resultSelect[resultSelect.selectedIndex].getAttribute("data-value");
+      if (Utils.isEmptyInput(result)) {
+        result = false;
       }
 
-      //Email
-      let email = this.emailSelectContainer.querySelector("#textInput").value;
-      if (Utils.isEmptyInput(email)) {
-        email = false;
+      //date
+      let startDateInput = this.dateSelectContainer.querySelector("#startDate");
+      let startDate = false;
+      if (!Utils.isEmptyInput(startDateInput.value)) {
+        startDate = new Date(startDateInput.value).getTime() / 1000; 
       }
-
-      //userID
-      let userID =
-        this.userIDSelectContainer.querySelector("#numberInput").value;
-      if (Utils.isEmptyInput(userID)) {
-        userID = false;
+      let endDateInput = this.dateSelectContainer.querySelector("#endDate");
+      let endDate = false;
+      if (!Utils.isEmptyInput(endDateInput.value)) {
+        endDate = new Date(endDateInput.value).getTime() / 1000; 
       }
-
-      //ranking
-      let ranking =
-        this.rankingSelectContainer.querySelector("#numberInput").value;
-      if (Utils.isEmptyInput(ranking)) {
-        ranking = false;
-      }
-
-      //Groups
-      let groups = this.groupsSearchArray;
-      if (!groups.length > 0) {
-        groups = false;
-      }
-
-      //Klassenstufe
+      //klassenstufe
       let klassenstufen = this.klassenstufenSearchArray;
-      if (!klassenstufen.length > 0) {
-        klassenstufen = false;
-      }
-
-      //isOnline
-      let isOnlineSelect =
-        this.isOnlineSelectContainer.querySelector("#selectInput");
-      let isOnline =
-        isOnlineSelect[isOnlineSelect.selectedIndex].getAttribute("data-value");
-      if (Utils.isEmptyInput(isOnline)) {
-        isOnline = false;
-      }
-
-      //authenticated
-      let authenticatedSelect =
-        this.authenticatedSelectContainer.querySelector("#selectInput");
-      let authenticated =
-        authenticatedSelect[authenticatedSelect.selectedIndex].getAttribute(
-          "data-value"
-        );
-      if (Utils.isEmptyInput(authenticated)) {
-        authenticated = false;
-      }
-
-      //permissionsAllowed
-      let permissionsAllowed = this.permissionsAllowedObject;
-      if (!Object.keys(permissionsAllowed).length) {
-        permissionsAllowed = false;
-      }
-
-      //permissionsForbidden
-      let permissionsForbidden = this.permissionsForbiddenArray;
-      if (!permissionsForbidden.length > 0) {
-        permissionsForbidden = false;
-      }
+      if (!klassenstufen.length > 0) klassenstufen = false;
+      //fach
+      let faecher = this.fachSearchArray;
+      if (!faecher.length > 0) faecher = false;
+      //thema
+      let themen = this.themaSearchArray;
+      if (!themen.length > 0) themen = false;
+      //quizname
+      let quizname = this.quiznameSelectContainer.querySelector("#textInput").value;
+      if (Utils.isEmptyInput(quizname)) quizname = false;
+      //quizID
+      let quizID = this.quizIDSelectContainer.querySelector("#textInput").value;
+      if (Utils.isEmptyInput(quizID)) quizID = false;
+      //timeNeeded
+      let minTime =
+      this.timeNeededSelectContainer.querySelector("#from").value;
+      if (Utils.isEmptyInput(minTime)) minTime = false;
+      let maxTime = this.timeNeededSelectContainer.querySelector("#to").value;
+      if (Utils.isEmptyInput(maxTime)) maxTime = false;
 
       console.log(
-        username,
-        email,
-        userID,
-        ranking,
-        groups,
-        klassenstufen,
-        isOnline,
-        authenticated,
-        permissionsAllowed,
-        permissionsForbidden
+        {result, startDate, endDate, klassenstufen, faecher, themen, quizname, quizID, minTime, maxTime}
       );
 
       this.showResults(
@@ -964,29 +891,29 @@ class ShowScores {
           await Utils.makeJSON(
             await Utils.sendXhrREQUEST(
               "POST",
-              "benutzerverwaltung&operation=search&type=multiple&username=" +
-                username +
-                "&email=" +
-                email +
-                "&userID=" +
-                userID +
-                "&ranking=" +
-                ranking +
-                "&groups=" +
-                JSON.stringify(groups) +
+              "scoreverwaltung&operation=search&type=multiple&result=" +
+                result +
+                "&startDate=" +
+                startDate +
+                "&endDate=" +
+                endDate +
                 "&klassenstufen=" +
                 JSON.stringify(klassenstufen) +
-                "&isOnline=" +
-                isOnline +
-                "&authenticated=" +
-                authenticated +
-                "&permissionsAllowed=" +
-                JSON.stringify(permissionsAllowed) +
-                "&permissionsForbidden=" +
-                JSON.stringify(permissionsForbidden) +
+                "&faecher=" +
+                JSON.stringify(faecher) +
+                "&themen=" +
+                JSON.stringify(themen) +
+                "&quizname=" +
+                JSON.stringify({quizname}) +
+                "&quizID=" +
+                JSON.stringify({quizID}) +
+                "&minTime=" +
+                minTime +
+                "&maxTime=" +
+                maxTime +
                 "&limitResults=" +
                 this.limiter.value,
-              "./includes/benutzerverwaltung.inc.php",
+              "/includes/account.inc.php",
               "application/x-www-form-urlencoded",
               true,
               true,
@@ -1041,7 +968,7 @@ class ShowScores {
         
       </td>
       <td id="actions"></td>
-      <td id="information">Weitere Information</td>
+      <td id="information"></td>
       `;
       this.tableBody.append(tableRow);
 

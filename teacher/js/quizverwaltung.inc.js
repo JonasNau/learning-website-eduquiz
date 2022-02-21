@@ -1936,6 +1936,7 @@ showTimePassedCheckbox.addEventListener("click", () => {
               "data-value",
               currentCard["size"]
             );
+            
             textSizeSelect.addEventListener("change", () => {
               currentCard["size"] =
                 textSizeSelect[textSizeSelect.selectedIndex].getAttribute(
@@ -3868,7 +3869,7 @@ export async function editMedia(cardData) {
 
             this.cardData["media"][currentSectionKey] = Utils.addToArray(
               this.cardData["media"][currentSectionKey],
-              { type: type }
+              { type: type, size: "middle" }
             );
             this.logData();
             this.refresh(true);

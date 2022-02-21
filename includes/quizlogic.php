@@ -66,12 +66,14 @@ if (isset($_POST["quiz"])) {
             
         }
     } else if ($operation === "insertNewResult") {
+        mustBeLoggedIn();
+        $quizID = $_POST["quizID"];
+        setValueFromDatabase($conn, "users", "lastQuiz", "userID", $_SESSION["userID"], $quizID); //Set last Quiz form user
         if (!boolval(getSettingVal($conn, "usersCanInsertResults"))) {
             returnMessage("failed", "Das Eintragen neuer Ergebnisse ist zur Zeit deaktiviert.");
             die();
         }
-        mustBeLoggedIn();
-        $quizID = $_POST["quizID"];
+        
         $resultObject = json_validate($_POST["resultObject"]);
 
         if (!$quizID || empty($quizID) || !$resultObject) {

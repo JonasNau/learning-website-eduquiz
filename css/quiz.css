@@ -146,15 +146,32 @@
   margin: auto;
   display: block;
 }
-#mainContainer .quizCard .main .answerContainer .answer.media[data-size='small'] .mediaContainer > * {
- max-width: 100%;
-}
 
 #mainContainer .quizCard .main .answerContainer .answer.media[data-size='middle'] .mediaContainer > *  {
   max-width: 50%;
 }
+
 #mainContainer .quizCard .main .answerContainer .answer.media[data-size='large'] .mediaContainer > *  {
-  max-width: 75%;
+  max-width: 100%;
+}
+
+#mainContainer .quizCard .main .answerContainer .answer.media[data-size='large'] .mediaContainer.other > *  {
+  width: 100%;
+}
+
+
+@media screen and (min-width: 768px){
+  #mainContainer .quizCard .main .answerContainer .answer.media[data-size='small'] .mediaContainer {
+    max-width: 30%;
+  }
+  
+  #mainContainer .quizCard .main .answerContainer .answer.media[data-size='middle'] .mediaContainer > *  {
+    max-width: 50%;
+  }
+  
+  #mainContainer .quizCard .main .answerContainer .answer.media[data-size='large'] .mediaContainer > *  {
+    max-width: 60%;
+  }
 }
 
 #mainContainer
@@ -293,6 +310,13 @@
   margin: auto;
 }
 
+#mainContainer .quizCard .main > .media .item .mediaContainer.other > * {
+  width: 100%;
+  position: relative;
+  display: block;
+  margin: auto;
+}
+
 #mainContainer .quizCard .main > .media .item.text {
   text-align: center;
 }
@@ -317,6 +341,21 @@
 #mainContainer .quizCard .main > .media .item[data-size='large'] {
   max-width: 100%;
   margin: auto;
+}
+
+@media screen and (min-width: 768px){
+  #mainContainer .quizCard .main > .media .item[data-size='small'] {
+    max-width: 30%;
+    margin: auto;
+  }
+  #mainContainer .quizCard .main > .media .item[data-size='middle'] {
+    max-width: 50%;
+    margin: auto;
+  }
+  #mainContainer .quizCard .main > .media .item[data-size='large'] {
+    max-width: 60%;
+    margin: auto;
+  }
 }
 
 /* Footer */

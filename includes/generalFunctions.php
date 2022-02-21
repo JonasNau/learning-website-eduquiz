@@ -1397,7 +1397,7 @@ function generateRandomString($length = 10)
 
 function generateRandomUniqueName($randomStringLength = 10)
 {
-    $microtime = microtime();
+    $microtime = intval(microtime(true));
     $randomString = generateRandomString($randomStringLength);
     return $microtime . $randomString;
 }
