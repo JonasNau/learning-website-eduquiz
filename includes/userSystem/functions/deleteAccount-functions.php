@@ -20,6 +20,7 @@ function deleteAccount($conn, $userID)
     //Delete Stay Logged in tokens and other data
     deleteOldConfirmEntry($conn, $userID, "userID");
     deleteAllStayLoggedInTokens($conn, $userID, "userID"); //Prevents too many redirects
+    customDatabaseCall($conn, "DELETE FROM scores WHERE userID = ?", [$userID], false);
     return true;
 
 }

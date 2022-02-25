@@ -2573,7 +2573,7 @@ class Medienverwaltung {
         result["thumbnailInMediaFolder"],
         { true: "Ja", false: "Nein" }
       )}</td>
-      <td id="fileSize">${result["fileSize"]}</td>
+      <td id="fileSize">${Math.round((Number(result["fileSize"]) / 1000000) * 100) / 100}</td>
       <td id="uploadedBy">${result["uploadedBy"]}</td>
       <td id="changedBy">${JSON.stringify(
         Utils.makeJSON(result["changedBy"], null, 2)
@@ -2856,7 +2856,7 @@ class Medienverwaltung {
                 <span class="slider round"></span>
             </label>
         </td>
-        <td id="fileSize">${current["fileSize"] ?? 0}</td>
+        <td id="fileSize">${Math.round((Number(current["fileSize"]) / 1000000) * 100) / 100}</td>
         <th id="remove"><button class="delete-btn"><img src="../../images/icons/delete.svg" alt="Löschen"></button></td>
   `;
   let copyMediaIDBtn = tableRow.querySelector(".copyMediaID-wrapper .copyMediaID");

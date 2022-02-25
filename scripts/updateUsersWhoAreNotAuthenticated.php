@@ -78,7 +78,6 @@ function deleteAccountsWhichAreTooOld($conn)
     
         if ($timeOffline > $deleteOlderThanFactor) {
             if (deleteAccount($conn, $user)) {
-
                 $log = "Deleted User: userID = $user; username = $username; time Offline = $timeOffline this means: $timeOfflineWord" . PHP_EOL;
                 echo $log."<hr>";
                 logWrite($conn, "deletedAccounts_Log_", $log);

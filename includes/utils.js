@@ -823,7 +823,7 @@ export function createModal(
 }
 
 export function alertUser(title, text, closeOthers) {
-  return new Promise((resolve, reject) => {
+  return new Promise(async(resolve, reject) => {
     const [modal, bootstrapModal, modalBody, modalOuter] = createModal({
       title: title,
       fullscreen: false,
@@ -838,7 +838,7 @@ export function alertUser(title, text, closeOthers) {
       bootstrapModal.hide();
       hideAllModals(closeOthers);
       modalOuter.remove();
-      popUpStatus(true);
+      popUpStatus(false);
       resolve(true);
     });
     let close = modal.querySelector("#close");
@@ -846,7 +846,7 @@ export function alertUser(title, text, closeOthers) {
       bootstrapModal.hide();
       hideAllModals(closeOthers);
       modalOuter.remove();
-      popUpStatus(true);
+      popUpStatus(false);
       resolve(false);
     });
   });
@@ -2874,8 +2874,7 @@ function setImage(isOnlineSource, showAnyway, mediaData, container) {
     };
 
     let imageContainer = document.createElement("div");
-    imageContainer.classList.add("mediaContainer", "image", "fullscreenToggle");
-    // imageContainer.setAttribute("id", "fullscreenContainer");
+    imageContainer.classList.add("mediaContainer", "image");
 
     container.appendChild(imageContainer);
     if (isOnlineSource && !showAnyway) {
@@ -4759,4 +4758,33 @@ export function selectListSelectItemBySelector(selectList, attribute, value) {
       return;
     }
   }
+}
+
+export function StringReplaceAt(string, index, replacement) {
+  return string.substring(0, index) + replacement + string.substring(index + replacement.length);
+}
+
+
+export function escapeSpecialCharsInStringToUnicode(string) {
+  if (typeof string != "string") return string;
+  let escapeList = ["+", "-", ">", "<", "(", ")"];
+
+  for (let i = 0; i < string.length; i++) {
+   let currentChar = string[i];
+   if (currentChar == "") continue;
+
+   if (!escapeList.includes(currentChar)) continue;
+
+   let charCode = string.charCodeAt(i);
+   if (!charCode) continue;
+   //Escape in string
+   string = StringReplaceAt(string, i,`\\u${charCode}`);
+
+   alert(String.fromCharCode(charCode));
+   console.log(string, i);
+  }
+
+  console.log(string);
+
+
 }

@@ -2802,77 +2802,31 @@ export async function addPermission(hidePermissions) {
   });
 }
 
-export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
-  return new Promise(async function (resolve, reject) {
-    let modalContainer = document.querySelector("#modalContainer");
-
-    if (modalContainer == null) {
-      modalContainer = document.createElement("div");
-      modalContainer.setAttribute("id", "modalContainer");
-      document.body.appendChild(modalContainer);
-    }
-
-    if (document.querySelector("#modalContainer") == null) {
-      alert("no modal container found");
-      reject();
-    }
-    let number = 1;
-    let modals = modalContainer.querySelectorAll(".modal");
-    console.log(modals);
-    if (modals.length > 0) {
-      number = modals.length + 1;
-    }
-    console.log("Number of Modals", number);
-
-    let modalOuter = document.createElement("div");
-    modalOuter.classList.add("modal-div");
-    modalOuter.setAttribute("id", number);
-    modalContainer.appendChild(modalOuter);
-
-    let modalHTML = `
-    <!-- Modal -->
-    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="true" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-fullscreen">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="staticBackdropLabel">Berechtigungen ändern</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close"></button>
-        </div>
-        <div class="modal-body">
-         
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-danger" id="no">Nein</button>
-          <button type="button" class="btn btn-success" id="yes">Ja</button>
-        </div>
-      </div>
-    </div>
-    </div>
-                 `;
-
-    modalOuter.innerHTML = modalHTML;
-    let modal = modalOuter.querySelector(".modal");
-    let modalBody = modal.querySelector(".modal-body");
-
-    modalBody.innerHTML = `
-    <div class="container" id="benutzerverwaltung">
+export async function editScores(userID) {
+  return new Promise(async(resolve, reject) => {
+    const [modal, bootstrapModal, modalBody, modalOuter] = Utils.createModal({
+      title: "Scores bearbeiten",
+      fullscreen: true,
+      verticallyCentered: false,
+      modalType: "yes/no",
+    });
+    modalBody.innerHTML = 
+    `
+    <div class="container" id="scoreVerwaltung">
     <div class="filter">
-
         <div id="chooseFilterTypeContainer">
             <label for="chooseFilter" class="form-label">Filtern nach</label>
             <select id="chooseFilter" class="form-select">
-                <option data-value="username">Benutzername</option>
-                <option data-value="groups">Gruppen</option>
-                <option data-value="email">Email</option>
-                <option data-value="isOnline">Onlinestatus</option>
-                <option data-value="userID">Benutzer ID</option>
-                <option data-value="authenticated">Bestätigt / Nicht bestätigt</option>
-                <option data-value="klassenstufe">Klassenstufe</option>
-                <option data-value="permissionsAllowed">Berechtigung (erlaubt)</option>
-                <option data-value="permissionsForbidden">Berechtigung (verboten)</option>
-                <option data-value="ranking">Rang</option>
-                <option data-value="multiple">Mehreres</option>
                 <option data-value="all">Alle anzeigen</option>
+                <option data-value="date">Zeitspanne</option>
+                <option data-value="klassenstufe">Klassenstufe</option>
+                <option data-value="fach">Fach</option>
+                <option data-value="thema">Thema</option>
+                <option data-value="quizname">Quizname</option>
+                <option data-value="quizID">QuizID</option>
+                <option data-value="timeNeeded">Zeit benötigt</option>
+                <option data-value="result">Ergebnis</option>
+                <option data-value="multiple">Mehreres</option>
             </select>
         </div>
 
@@ -2884,63 +2838,53 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
                     <input type="checkbox" id="allowSearchWhileTyping">
                 </div>
             </div>
-            <div class="mt-2" id="username">
-                <label for="textInput" class="form-label">Filtern nach Benutzername</label>
-                <input type="text" id="textInput" class="form-control" placeholder="Benutzername" autocomplete="off">
+            <div class="mt-2" id="result">
+                <label for="selectInput" class="form-label">Filtern nach Ergebnis</label>
+                <select class="form-select" aria-label="Bestätigt Filter" id="selectInput">
+                    <option data-value="" selected="selected">Auswahl</option>
+                    <option data-value="bestFirst">bestes zuerst</option>
+                    <option data-value="worstFirst">schlechtestes zuerst</option>
+                </select>
             </div>
-            <div class="mt-2" id="email">
-                <label for="textInput" class="form-label">Filtern nach Email</label>
-                <input type="text" id="textInput" class="form-control" placeholder="Email" autocomplete="off">
-            </div>
-            <div class="mt-2" id="userID">
-                <label for="numberInput" class="form-label">Filtern nach UserID</label>
-                <input type="number" id="numberInput" name="numberInput" min="0" autocomplete="off">
-            </div>
-            <div class="mt-2" id="ranking">
-                <label for="numberInput" class="form-label">Filtern nach Rang</label>
-                <input type="number" id="numberInput" name="numberInput" min="0" autocomplete="off">
+            <div class="mt-2" id="date">
+                <label class="form-label">Filtern nach Zeitraum</label>
+                <br>
+                <label for="startDate" class="form-label">Startdatum:</label>
+                <input type="date" id="startDate">
+                <label for="endDate" class="form-label">Enddatum:</label>
+                <input type="date" id="endDate">
             </div>
             <div class="mt-2" id="klassenstufe">
                 <label for="select" class="form-label">Filtern nach Klassenstufe (Oder):</label>
                 <button class="btn btn-sm btn-primary" id="addBtn">Hinzufügen</button>
                 <div id="choosen"></div>
             </div>
-            <div class="mt-2" id="groups">
-                <label for="select" class="form-label">Filtern nach Gruppen (Und):</label>
+            <div class="mt-2" id="fach">
+                <label for="select" class="form-label">Filtern nach Fach (Oder):</label>
                 <button class="btn btn-sm btn-primary" id="addBtn">Hinzufügen</button>
-                <ul id="choosen">
-
-                </ul>
+                <div id="choosen"></div>
             </div>
-            <div class="mt-2" id="permissionsAllowed">
-                <label for="select" class="form-label">Filtern nach Berechtigungen (erlaubt):</label>
+            <div class="mt-2" id="thema">
+                <label for="select" class="form-label">Filtern nach Thema (Oder):</label>
                 <button class="btn btn-sm btn-primary" id="addBtn">Hinzufügen</button>
-                <ul id="choosen">
-
-                </ul>
+                <div id="choosen"></div>
             </div>
-            <div class="mt-2" id="permissionsForbidden">
-                <label for="select" class="form-label">Filtern nach Berechtigungen (verboten):</label>
-                <button class="btn btn-sm btn-primary" id="addBtn">Hinzufügen</button>
-                <ul id="choosen">
-
-                </ul>
+            <div class="mt-2" id="quizname">
+                <label for="textInput" class="form-label">Filtern nach Quizname</label>
+                <input type="text" id="textInput" class="form-control" autocomplete="off">
             </div>
-            <div class="mt-2" id="authenticated">
-                <label for="selectInput" class="form-label">Filtern nach "Bestätigtungsstatus"</label>
-                <select class="form-select" aria-label="Bestätigt Filter" id="selectInput">
-                    <option data-value="" selected="selected">Auswahl</option>
-                    <option data-value="1" value="1">Ja</option>
-                    <option data-value="0">Nein</option>
-                </select>
+            <div class="mt-2" id="quizID">
+                <label for="textInput" class="form-label">Filtern nach QuizID</label>
+                <input type="text" id="textInput" class="form-control" autocomplete="off">
             </div>
-            <div class="mt-2" id="isOnline">
-                <label for="selectInput" class="form-label">Filtern nach "Onlinestatus"</label>
-                <select class="form-select" aria-label="Bestätigt Filter" id="selectInput">
-                    <option data-value="" selected="selected">Auswahl</option>
-                    <option data-value="1" value="1">Online</option>
-                    <option data-value="0">Offline</option>
-                </select>
+            <div class="mt-2" id="timeNeeded">
+                <label class="form-label">Filtern nach Zeit benötigt</label>
+                <br>
+                <label for="from" class="form-label">von</label>
+                <input type="number" id="from" name="numberInput" min="0" placeholder="0" autocomplete="off">
+                <label for="to" class="form-label">bis</label>
+                <input type="number" id="to" name="numberInput" min="0" placeholder="60" autocomplete="off">
+                <label for="to" class="form-label">In Sekunden</label>
             </div>
             <div class="mt-2" id="limitResults">
                 <label for="numberInput" class="form-label">Ergebnisse Limitieren</label>
@@ -2955,32 +2899,25 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
     <div class="resultDesciption">
 
     </div>
+    <style>
+        .copyQuizID-wrapper {
+            width: 120px !important;
+            height: 40px !important;
+        }
+    </style>
     <div class="overflow-auto">
         <table class="styled-table" id="resultTable">
             <thead>
                 <tr>
-                    <th>
-                        <div class="heading">Ausgewählt</div>
-                        <hr>
-                        <div><input type="checkbox" id="chooseall"> Alle auswählen</div>
-                    </th>
-                    <th id="username" style="min-width: 150px;">Username</th>
-                    <th id="email" style="min-width: 190px;">E-Mail</th>
+                    <th id="date" style="min-width: 150px;">Datum & Uhrzeit</th>
+                    <th id="results" style="min-width: 300px;">Ergebnis</th>
                     <th id="klassenstufe">Klassenstufe</th>
-                    <th id="authenticated">Verifiziert</th>
-                    <th id="isOnline">Onlinestatus</th>
-                    <th id="lastActivity" style="min-width: 150px;">Letzte Aktivität</th>
-                    <th id="lastQuiz" style="min-width: 200px;">Letztes Quiz</th>
-                    <th id="lastLogin" style="min-width: 150px;">Letzter Login</th>
-                    <th id="groups" style="min-width: 150px;">Gruppen</th>
-                    <th id="permissionsAllowed" style="min-width: 150px;">Berechtigungen (erlaubt)</th>
-                    <th id="permissionsForbidden" style="min-width: 150px;">Berechtigungen (verboten)</th>
-                    <th id="created" style="min-width: 150px;">Erstellt</th>
-                    <th id="lastPwdChange" style="min-width: 150px;">Passwort geändert</th>
-                    <th id="userID">UserID</th>
-                    <th id="nextMessages" style="min-width: 350px;">Ausstehende Nachrichten</th>
-                    <th id="ranking">Rang</th>
-                    <th id="showPublic">öffentlich anzeigen</th>
+                    <th id="fach">Fach</th>
+                    <th id="thema" style="min-width: 300px;">Thema</th>
+                    <th id="quizname" style="min-width: 300px;">Quizname</th>
+                    <th id="quizID" style="min-width: 300px;">QuizID</th>
+                    <th id="actions" style="min-width: 150px;">Weitere Aktionen</th>
+                    <th id="information">Weitere Information</th>
                 </tr>
             </thead>
             <tbody>
@@ -2990,11 +2927,31 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
     </div>
 </div>
     `;
+    bootstrapModal.show();
 
-    //Class
-    class Benutzerverwaltung {
-      constructor(container) {
+    let close = modal.querySelector("#close");
+    let yes = modal.querySelector("#yes");
+    let no = modal.querySelector("#no");
+
+    yes.addEventListener("click", (target) => {
+          modalOuter.remove();
+          resolve(true);
+    });
+
+    no.addEventListener("click", (target) => {
+      modalOuter.remove();
+      resolve(false);
+    });
+
+    close.addEventListener("click", (target) => {
+      modalOuter.remove();
+      resolve(false);
+    });
+   
+    class EditScores {
+      constructor(container, userID) {
         this.container = container;
+        this.userID = userID;
         this.searchBtn = null;
         this.chooseFilterTypeSelect = null;
         this.filterContainer = null;
@@ -3002,28 +2959,19 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
         this.limiter = null;
     
         //Filters
-        this.usernameSelectContainer = null;
-        this.emailSelectContainer = null;
-        this.userIDSelectContainer = null;
-        this.klassenstufeSelectContainer = null;
-        this.groupsSelectContainer = null;
-        this.authenticatedSelectContainer = null;
-        this.isOnlineSelectContainer = null;
-        this.rankingSelectContainer = null;
-
-        this.hideUsersIDS = null;
-    
-        this.permissionsAllowedSelectContainer = null;
-        this.permissionsAllowedObject = new Object();
-        this.permissionsForbiddenSelectContainer = null;
-        this.permissionsForbiddenArray = new Array();
-    
-        this.groupsSearchArray = new Array();
+        this.dateSelectContainer = null;
+        this.klassenstufenSelectContainer = null;
         this.klassenstufenSearchArray = new Array();
+        this.fachSelectContainer = null;
+        this.fachSearchArray = new Array();
+        this.themaSelectContainer = null;
+        this.themaSearchArray = new Array();
+        this.quiznameSelectContainer = null;
+        this.quizIDSelectContainer = null;
+        this.timeNeededSelectContainer = null;
+        this.resultSelectContainer = null;
     
         //Selection
-        this.choosenArray = new Array();
-        this.oldCheckedArray = new Array();
     
         //others
         this.searchWhileTyping = false;
@@ -3031,7 +2979,6 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
         this.resultBox = null;
     
         this.searchReloadBtn = null;
-        this.editReloadBtn = null;
       }
     
       async prepareSearch() {
@@ -3063,61 +3010,50 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
         this.selectionFiltersContainer = selectionFiltersContainer;
     
         //Initialize filters
-        let usernameSelectContainer =
-          selectionFiltersContainer.querySelector("#username");
-        let emailSelectContainer =
-          selectionFiltersContainer.querySelector("#email");
-        let userIDSelectContainer =
-          selectionFiltersContainer.querySelector("#userID");
-        let isOnlineSelectContainer =
-          selectionFiltersContainer.querySelector("#isOnline");
-        let klassenstufeSelectContainer =
+        let dateSelectContainer = selectionFiltersContainer.querySelector("#date");
+        let klassenstufenSelectContainer =
           selectionFiltersContainer.querySelector("#klassenstufe");
-        let groupsSelectContainer =
-          selectionFiltersContainer.querySelector("#groups");
-        let authenticatedSelectContainer =
-          selectionFiltersContainer.querySelector("#authenticated");
-        let permissionsAllowedSelectContainer =
-          selectionFiltersContainer.querySelector("#permissionsAllowed");
-        let permissionsForbiddenSelectContainer =
-          selectionFiltersContainer.querySelector("#permissionsForbidden");
-        let rankingSelectContainer =
-          selectionFiltersContainer.querySelector("#ranking");
+        let fachSelectContainer = selectionFiltersContainer.querySelector("#fach");
+        let themaSelectContainer =
+          selectionFiltersContainer.querySelector("#thema");
+        let quiznameSelectContainer =
+          selectionFiltersContainer.querySelector("#quizname");
+        let quizIDSelectContainer =
+          selectionFiltersContainer.querySelector("#quizID");
+        let timeNeededSelectContainer =
+          selectionFiltersContainer.querySelector("#timeNeeded");
+        let resultSelectContainer =
+          selectionFiltersContainer.querySelector("#result");
+    
         if (
-          !usernameSelectContainer ||
-          !emailSelectContainer ||
-          !userIDSelectContainer ||
-          !klassenstufeSelectContainer ||
-          !groupsSelectContainer ||
-          !authenticatedSelectContainer ||
-          !isOnlineSelectContainer ||
-          !permissionsAllowedSelectContainer ||
-          !permissionsForbiddenSelectContainer ||
-          !rankingSelectContainer
+          !dateSelectContainer ||
+          !klassenstufenSelectContainer ||
+          !fachSelectContainer ||
+          !quiznameSelectContainer ||
+          !quizIDSelectContainer ||
+          !timeNeededSelectContainer ||
+          !resultSelectContainer
         )
           return "Error in initializing Filters";
-        this.usernameSelectContainer = usernameSelectContainer;
-        this.emailSelectContainer = emailSelectContainer;
-        this.userIDSelectContainer = userIDSelectContainer;
-        this.isOnlineSelectContainer = isOnlineSelectContainer;
-        this.klassenstufeSelectContainer = klassenstufeSelectContainer;
-        this.groupsSelectContainer = groupsSelectContainer;
-        this.permissionsAllowedSelectContainer = permissionsAllowedSelectContainer;
-        this.permissionsForbiddenSelectContainer =
-          permissionsForbiddenSelectContainer;
-        this.authenticatedSelectContainer = authenticatedSelectContainer;
-        this.rankingSelectContainer = rankingSelectContainer;
+    
+        this.dateSelectContainer = dateSelectContainer;
+        this.klassenstufenSelectContainer = klassenstufenSelectContainer;
+        this.fachSelectContainer = fachSelectContainer;
+        this.themaSelectContainer = themaSelectContainer;
+        this.quiznameSelectContainer = quiznameSelectContainer;
+        this.quizIDSelectContainer = quizIDSelectContainer;
+        this.timeNeededSelectContainer = timeNeededSelectContainer;
+        this.resultSelectContainer = resultSelectContainer;
     
         //hide all
-        this.usernameSelectContainer.classList.add("hidden");
-        this.userIDSelectContainer.classList.add("hidden");
-        this.emailSelectContainer.classList.add("hidden");
-        this.isOnlineSelectContainer.classList.add("hidden");
-        this.klassenstufeSelectContainer.classList.add("hidden");
-        this.groupsSelectContainer.classList.add("hidden");
-        this.permissionsAllowedSelectContainer.classList.add("hidden");
-        this.authenticatedSelectContainer.classList.add("hidden");
-        this.rankingSelectContainer.classList.add("hidden");
+        this.dateSelectContainer.classList.add("hidden");
+        this.klassenstufenSelectContainer.classList.add("hidden");
+        this.fachSelectContainer.classList.add("hidden");
+        this.themaSelectContainer.classList.add("hidden");
+        this.quiznameSelectContainer.classList.add("hidden");
+        this.quizIDSelectContainer.classList.add("hidden");
+        this.timeNeededSelectContainer.classList.add("hidden");
+        this.resultSelectContainer.classList.add("hidden");
     
         //Init limiter
         let limiter = selectionFiltersContainer.querySelector(
@@ -3170,52 +3106,6 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
         this.tableBody = tableBody;
         this.clear(this.tableBody);
     
-        ///ChooseAllBtn
-        this.chooseAllBtn = this.resultTable.querySelector("thead #chooseall");
-        if (!this.chooseAllBtn) return "No choose all btn";
-        //Make Choose All -------
-    
-        this.chooseAllBtn.addEventListener("change", (event) => {
-          if (event.target.checked) {
-            console.log("checked");
-            this.oldCheckedArray = Utils.copyArray(this.choosenArray);
-            let allCheckBtns = this.resultTable.querySelectorAll(".result #select");
-    
-            allCheckBtns.forEach((element) => {
-              let dataValue = element.closest(".result").getAttribute("data-value");
-              element.checked = true;
-              this.choosenArray = Utils.addToArray(
-                this.choosenArray,
-                dataValue,
-                false
-              );
-            });
-          } else {
-            console.log("unchecked");
-            let allCheckBtns = this.resultTable.querySelectorAll(".result #select");
-    
-            allCheckBtns.forEach((element) => {
-              let dataValue = element.closest(".result").getAttribute("data-value");
-    
-              if (this.oldCheckedArray.includes(dataValue)) {
-                element.checked = true;
-                this.choosenArray = Utils.addToArray(
-                  this.choosenArray,
-                  dataValue,
-                  false
-                );
-              } else {
-                element.checked = false;
-                this.choosenArray = Utils.removeFromArray(
-                  this.choosenArray,
-                  dataValue
-                );
-              }
-            });
-          }
-          this.updateEditBtn();
-        });
-    
         //Result Desription
         let resultDescriptionContainer =
           this.container.querySelector(".resultDesciption");
@@ -3223,14 +3113,6 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
           return "no discription container";
         }
         this.resultDescriptionContainer = resultDescriptionContainer;
-    
-        let editBtn = this.container.querySelector("#editBtn");
-        if (!editBtn) return "no editBtn";
-        this.editBtn = editBtn;
-        this.updateEditBtn();
-        editBtn.addEventListener("click", () => {
-          this.edit(this.choosenArray);
-        });
     
         searchBtn.addEventListener("click", () => {
           this.search(this.arraySearch);
@@ -3247,76 +3129,55 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
         });
     
         //First shown mode automatically
-        this.setFilterMode("username");
-    
-        //Edit Container
-        let editContainer = this.container.querySelector("#editContainer");
-        if (!editContainer) return "no edit container";
-        this.editContainer = editContainer;
-        let editTable = editContainer.querySelector("#editTable");
-        if (!editTable) return "no editTable";
-        this.editTable = editTable;
-        let editTableBody = editTable.querySelector("tbody");
-        if (!editTableBody) return "no editTableBody";
-        this.editTableBody = editTableBody;
-      }
-    
-      updateEditBtn() {
-        console.log(this.choosenArray.length);
-        if (this.choosenArray.length > 0) {
-          this.editBtn.disabled = false;
-        } else {
-          this.editBtn.disabled = true;
-        }
+        this.setFilterMode("all");
       }
     
       async setFilterMode(value) {
         if (!value) return false;
         this.filterType = value;
-        //Hide All and clear
-        this.usernameSelectContainer.classList.add("hidden");
-        this.emailSelectContainer.classList.add("hidden");
-        this.userIDSelectContainer.classList.add("hidden");
-        this.groupsSelectContainer.classList.add("hidden");
-        this.klassenstufeSelectContainer.classList.add("hidden");
-        this.permissionsAllowedSelectContainer.classList.add("hidden");
-        this.permissionsForbiddenSelectContainer.classList.add("hidden");
-        this.authenticatedSelectContainer.classList.add("hidden");
-        this.isOnlineSelectContainer.classList.add("hidden");
-        this.rankingSelectContainer.classList.add("hidden");
     
-        if (value === "username") {
-          this.enableFilter(this.usernameSelectContainer);
-        } else if (value === "email") {
-          this.enableFilter(this.emailSelectContainer);
-        } else if (value === "userID") {
-          this.enableFilter(this.userIDSelectContainer);
-        } else if (value === "groups") {
-          this.enableFilter(this.groupsSelectContainer);
+        Utils.selectListSelectItemBySelector(
+          this.container.querySelector("#chooseFilter"),
+          "data-value",
+          value
+        );
+        //hide all
+        this.dateSelectContainer.classList.add("hidden");
+        this.klassenstufenSelectContainer.classList.add("hidden");
+        this.fachSelectContainer.classList.add("hidden");
+        this.themaSelectContainer.classList.add("hidden");
+        this.quiznameSelectContainer.classList.add("hidden");
+        this.quizIDSelectContainer.classList.add("hidden");
+        this.timeNeededSelectContainer.classList.add("hidden");
+        this.resultSelectContainer.classList.add("hidden");
+    
+        if (value === "all") {
+          //No filter to enable
+        } else if (value === "date") {
+          this.enableFilter(this.dateSelectContainer);
         } else if (value === "klassenstufe") {
-          this.enableFilter(this.klassenstufeSelectContainer);
-        } else if (value === "permissionsAllowed") {
-          this.enableFilter(this.permissionsAllowedSelectContainer);
-        } else if (value === "permissionsForbidden") {
-          this.enableFilter(this.permissionsForbiddenSelectContainer);
-        } else if (value === "ranking") {
-          this.enableFilter(this.rankingSelectContainer);
-        } else if (value === "authenticated") {
-          this.enableFilter(this.authenticatedSelectContainer);
-        } else if (value === "isOnline") {
-          this.enableFilter(this.isOnlineSelectContainer);
+          this.enableFilter(this.klassenstufenSelectContainer);
+        } else if (value === "fach") {
+          this.enableFilter(this.fachSelectContainer);
+        } else if (value === "thema") {
+          this.enableFilter(this.themaSelectContainer);
+        } else if (value === "quizname") {
+          this.enableFilter(this.quiznameSelectContainer);
+        } else if (value === "quizID") {
+          this.enableFilter(this.quizIDSelectContainer);
+        } else if (value === "timeNeeded") {
+          this.enableFilter(this.timeNeededSelectContainer);
+        } else if (value === "result") {
+          this.enableFilter(this.resultSelectContainer);
         } else if (value == "multiple") {
-          this.enableFilter(this.usernameSelectContainer);
-          this.enableFilter(this.emailSelectContainer);
-          this.enableFilter(this.userIDSelectContainer);
-          this.enableFilter(this.groupsSelectContainer);
-          this.enableFilter(this.klassenstufeSelectContainer);
-          this.enableFilter(this.permissionsSelectContainer);
-          this.enableFilter(this.authenticatedSelectContainer);
-          this.enableFilter(this.isOnlineSelectContainer);
-          this.enableFilter(this.permissionsAllowedSelectContainer);
-          this.enableFilter(this.permissionsForbiddenSelectContainer);
-          this.enableFilter(this.rankingSelectContainer);
+          this.enableFilter(this.dateSelectContainer);
+          this.enableFilter(this.klassenstufenSelectContainer);
+          this.enableFilter(this.fachSelectContainer);
+          this.enableFilter(this.themaSelectContainer);
+          this.enableFilter(this.quiznameSelectContainer);
+          this.enableFilter(this.quizIDSelectContainer);
+          this.enableFilter(this.timeNeededSelectContainer);
+          this.enableFilter(this.resultSelectContainer);
         } else if (value == "all") {
           //Nothing to show
         }
@@ -3325,222 +3186,40 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
       async enableFilter(filter) {
         if (!filter) return false;
     
-        if (filter === this.usernameSelectContainer) {
-          let input = this.usernameSelectContainer.querySelector("#textInput");
-          Utils.listenToChanges(input, "input", 450, () => {
+        if (filter === this.dateSelectContainer) {
+          let startDateInput = this.dateSelectContainer.querySelector("#startDate");
+          startDateInput.addEventListener("change", () => {
+            console.log(new Date(startDateInput.value).getTime());
+          });
+          Utils.listenToChanges(startDateInput, "change", 450, () => {
             if (this.searchWhileTyping) {
               this.search();
             }
           });
-          this.usernameSelectContainer.classList.remove("hidden");
-        } else if (filter === this.emailSelectContainer) {
-          //Email
-          let input = this.emailSelectContainer.querySelector("#textInput");
-          Utils.listenToChanges(input, "input", 450, () => {
+          let endDateInput = this.dateSelectContainer.querySelector("#endDate");
+          endDateInput.addEventListener("change", () => {
+            console.log(new Date(endDateInput.value).getTime());
+          });
+          Utils.listenToChanges(endDateInput, "change", 450, () => {
             if (this.searchWhileTyping) {
               this.search();
             }
           });
-          this.emailSelectContainer.classList.remove("hidden");
-        } else if (filter === this.userIDSelectContainer) {
-          //UserID
-          let input = this.userIDSelectContainer.querySelector("#numberInput");
-          Utils.listenToChanges(input, "input", 450, () => {
+    
+    
+          this.dateSelectContainer.classList.remove("hidden");
+        } else if (filter === this.resultSelectContainer) {
+          let select = this.resultSelectContainer.querySelector("#selectInput");
+          Utils.listenToChanges(select, "change", 200, () => {
             if (this.searchWhileTyping) {
               this.search();
             }
           });
-          this.userIDSelectContainer.classList.remove("hidden");
-        } else if (filter === this.rankingSelectContainer) {
-          //UserID
-          let input = this.rankingSelectContainer.querySelector("#numberInput");
-          Utils.listenToChanges(input, "input", 450, () => {
-            if (this.searchWhileTyping) {
-              this.search();
-            }
-          });
-          this.rankingSelectContainer.classList.remove("hidden");
-        } else if (filter === this.groupsSelectContainer) {
-          //Groups
-          this.groupsSearchArray = new Array(); //Reset old value
-    
-          let choosenContainer =
-            this.groupsSelectContainer.querySelector("#choosen");
-    
-          let update = () => {
-            //Update Choosen
-            choosenContainer.innerHTML = "";
-            if (this.groupsSearchArray.length > 0) {
-              this.groupsSearchArray.forEach((element) => {
-                let listItem = document.createElement("li");
-                listItem.setAttribute("data-value", element);
-                listItem.innerHTML = `<span>${element}</span><button type="button" id="remove">X</button><span></span`;
-                choosenContainer.appendChild(listItem);
-    
-                let removeBtn = listItem.querySelector("#remove");
-                removeBtn.addEventListener("click", (event) => {
-                  this.groupsSearchArray = Utils.removeFromArray(
-                    this.groupsSearchArray,
-                    element
-                  );
-                  update();
-                });
-              });
-            }
-          };
-    
-          let addBtn = this.groupsSelectContainer.querySelector("#addBtn");
-          addBtn = Utils.removeAllEventlisteners(addBtn);
-          addBtn.addEventListener("click", async () => {
-            let availableGroups = await Utils.makeJSON(
-              await Utils.sendXhrREQUEST(
-                "POST",
-                "benutzerverwaltung&operation=other&type=getAvailableGroups",
-                "./includes/benutzerverwaltung.inc.php",
-                "application/x-www-form-urlencoded",
-                true,
-                true,
-                false,
-                true
-              )
-            );
-            let choosen = await Utils.chooseFromArrayWithSearch(
-              availableGroups,
-              false,
-              "Gruppen auswählen",
-              this.groupsSearchArray,
-              true
-            );
-            if (choosen && choosen.length > 0) {
-              for (const current of choosen) {
-                this.groupsSearchArray = Utils.addToArray(
-                  this.groupsSearchArray,
-                  current,
-                  false
-                );
-              }
-            }
-            update();
-          });
-    
-          this.groupsSelectContainer.classList.remove("hidden");
-        } else if (filter === this.permissionsAllowedSelectContainer) {
-          this.permissionsAllowedObject = new Object();
-          console.log(this.permissionsAllowedObject);
-          let choosenContainer =
-            this.permissionsAllowedSelectContainer.querySelector("#choosen");
-          choosenContainer.innerHTML = "";
-          let addBtn =
-            this.permissionsAllowedSelectContainer.querySelector("#addBtn");
-          addBtn = Utils.removeAllEventlisteners(addBtn);
-    
-          let add = async () => {
-            let toAdd = await addPermission([]);
-            if (toAdd && toAdd.length > 0) {
-              for (const current of toAdd) {
-                let input = await Utils.getUserInput(
-                  "Eingabe",
-                  `Welchen Wert soll die Berechtigung ${current} haben?`,
-                  false,
-                  "text",
-                  1,
-                  1,
-                  false
-                );
-                if (!Utils.isEmptyInput(input, true)) {
-                  this.permissionsAllowedObject[current] = input;
-                  if (this.searchWhileTyping) {
-                    this.search();
-                  }
-                }
-              }
-            }
-            update();
-          };
-          addBtn.addEventListener("click", add);
-          let update = () => {
-            //Update Choosen
-            choosenContainer.innerHTML = "";
-            if (Object.keys(this.permissionsAllowedObject).length > 0) {
-              for (const [key, value] of Object.entries(
-                this.permissionsAllowedObject
-              )) {
-                let listItem = document.createElement("li");
-    
-                listItem.setAttribute("data-value", key);
-                listItem.innerHTML = `<span>${key} = ${value}</span><button type="button" id="remove">X</button><span></span>`;
-                choosenContainer.appendChild(listItem);
-    
-                let removeBtn = listItem.querySelector("#remove");
-                removeBtn.addEventListener("click", (event) => {
-                  delete this.permissionsAllowedObject[key];
-                  update();
-                  console.log("After", this.permissionsAllowedObject);
-                });
-              }
-            }
-          };
-          this.permissionsAllowedSelectContainer.classList.remove("hidden");
-        } else if (filter === this.permissionsForbiddenSelectContainer) {
-          this.permissionsForbiddenArray = new Array();
-          console.log(this.permissionsAllowedObject);
-          let choosenContainer =
-            this.permissionsForbiddenSelectContainer.querySelector("#choosen");
-          choosenContainer.innerHTML = "";
-          let addBtn =
-            this.permissionsForbiddenSelectContainer.querySelector("#addBtn");
-          addBtn = Utils.removeAllEventlisteners(addBtn);
-    
-          let add = async () => {
-            let toAdd = await addPermission([]);
-            if (toAdd && toAdd.length > 0) {
-              for (const current of toAdd) {
-                this.permissionsForbiddenArray = Utils.addToArray(
-                  this.permissionsForbiddenArray,
-                  current,
-                  false
-                );
-              }
-            }
-            update();
-          };
-          addBtn.addEventListener("click", add);
-          let update = () => {
-            //Update Choosen
-            choosenContainer.innerHTML = "";
-            if (this.permissionsForbiddenArray.length > 0) {
-              for (const current of this.permissionsForbiddenArray) {
-                let listItem = document.createElement("li");
-    
-                listItem.setAttribute("data-value", current);
-                listItem.innerHTML = `<span>${current}</span><button type="button" id="remove">X</button><span></span>`;
-                choosenContainer.appendChild(listItem);
-    
-                let removeBtn = listItem.querySelector("#remove");
-                removeBtn.addEventListener("click", (event) => {
-                  this.permissionsForbiddenArray = Utils.removeFromArray(
-                    this.permissionsForbiddenArray,
-                    current
-                  );
-                  update();
-                  console.log("After", this.permissionsForbiddenArray);
-                });
-              }
-            }
-            if (this.searchWhileTyping) {
-              this.search();
-            }
-          };
-    
-          this.permissionsForbiddenSelectContainer.classList.remove("hidden");
-        } else if (filter === this.klassenstufeSelectContainer) {
-          //Klassenstufen
-    
+          this.resultSelectContainer.classList.remove("hidden");
+        } else if (filter === this.klassenstufenSelectContainer) {
           this.klassenstufenSearchArray = new Array(); //Reset old value
-    
           let choosenContainer =
-            this.klassenstufeSelectContainer.querySelector("#choosen");
-    
+            this.klassenstufenSelectContainer.querySelector("#choosen");
           let update = () => {
             //Update Choosen
             choosenContainer.innerHTML = "";
@@ -3563,14 +3242,14 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
             }
           };
     
-          let addBtn = this.klassenstufeSelectContainer.querySelector("#addBtn");
+          let addBtn = this.klassenstufenSelectContainer.querySelector("#addBtn");
           addBtn = Utils.removeAllEventlisteners(addBtn);
           addBtn.addEventListener("click", async () => {
             let availableKlassenstufen = await Utils.makeJSON(
               await Utils.sendXhrREQUEST(
                 "POST",
-                "benutzerverwaltung&operation=other&type=getAllKlassenstufen",
-                "./includes/benutzerverwaltung.inc.php",
+                "scoreverwaltung&operation=other&type=getKlassenstufen",
+                "/teacher/includes/benutzerverwaltung.inc.php",
                 "application/x-www-form-urlencoded",
                 true,
                 true,
@@ -3597,24 +3276,151 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
             update();
           });
     
-          this.klassenstufeSelectContainer.classList.remove("hidden");
-        } else if (filter === this.authenticatedSelectContainer) {
-          let select =
-            this.authenticatedSelectContainer.querySelector("#selectInput");
-          Utils.listenToChanges(select, "change", 200, () => {
+          this.klassenstufenSelectContainer.classList.remove("hidden");
+        } else if (filter === this.fachSelectContainer) {
+          this.fachSearchArray = new Array(); //Reset old value
+          let choosenContainer = this.fachSelectContainer.querySelector("#choosen");
+          let update = () => {
+            //Update Choosen
+            choosenContainer.innerHTML = "";
+            if (this.fachSearchArray.length > 0) {
+              this.fachSearchArray.forEach((element) => {
+                let listItem = document.createElement("li");
+                listItem.setAttribute("data-value", element);
+                listItem.innerHTML = `<span>${element}</span><button type="button" id="remove">X</button><span></span`;
+                choosenContainer.appendChild(listItem);
+    
+                let removeBtn = listItem.querySelector("#remove");
+                removeBtn.addEventListener("click", (event) => {
+                  this.fachSearchArray = Utils.removeFromArray(
+                    this.fachSearchArray,
+                    element
+                  );
+                  update();
+                });
+              });
+            }
+          };
+    
+          let addBtn = this.fachSelectContainer.querySelector("#addBtn");
+          addBtn = Utils.removeAllEventlisteners(addBtn);
+          addBtn.addEventListener("click", async () => {
+            let availableFaecher = await Utils.makeJSON(
+              await Utils.sendXhrREQUEST(
+                "POST",
+                "scoreverwaltung&operation=other&type=getFaecher",
+                "/teacher/includes/benutzerverwaltung.inc.php",
+                "application/x-www-form-urlencoded",
+                true,
+                true,
+                false,
+                true
+              )
+            );
+            let choosen = await Utils.chooseFromArrayWithSearch(
+              availableFaecher,
+              false,
+              "Fach auswählen",
+              this.fachSearchArray,
+              true
+            );
+            if (choosen && choosen.length > 0) {
+              for (const current of choosen) {
+                this.fachSearchArray = Utils.addToArray(
+                  this.fachSearchArray,
+                  current,
+                  false
+                );
+              }
+            }
+            update();
+          });
+    
+          this.fachSelectContainer.classList.remove("hidden");
+        } else if (filter === this.themaSelectContainer) {
+          this.themaSearchArray = new Array(); //Reset old value
+          let choosenContainer =
+            this.themaSelectContainer.querySelector("#choosen");
+          let update = () => {
+            //Update Choosen
+            choosenContainer.innerHTML = "";
+            if (this.themaSearchArray.length > 0) {
+              this.themaSearchArray.forEach((element) => {
+                let listItem = document.createElement("li");
+                listItem.setAttribute("data-value", element);
+                listItem.innerHTML = `<span>${element}</span><button type="button" id="remove">X</button><span></span`;
+                choosenContainer.appendChild(listItem);
+    
+                let removeBtn = listItem.querySelector("#remove");
+                removeBtn.addEventListener("click", (event) => {
+                  this.themaSearchArray = Utils.removeFromArray(
+                    this.themaSearchArray,
+                    element
+                  );
+                  update();
+                });
+              });
+            }
+          };
+    
+          let addBtn = this.themaSelectContainer.querySelector("#addBtn");
+          addBtn = Utils.removeAllEventlisteners(addBtn);
+          addBtn.addEventListener("click", async () => {
+            let choosen = await Utils.chooseFromArrayWithSearch(
+              [],
+              true,
+              "Thema auswählen",
+              false,
+              false,
+              true,
+              "scoreverwaltung&operation=other&type=searchThema&input=",
+              "/teacher/includes/benutzerverwaltung.inc.php"
+            );
+            if (choosen && choosen.length > 0) {
+              for (const current of choosen) {
+                this.themaSearchArray = Utils.addToArray(
+                  this.themaSearchArray,
+                  current,
+                  false
+                );
+              }
+            }
+            update();
+          });
+    
+          this.themaSelectContainer.classList.remove("hidden");
+        } else if (filter === this.quiznameSelectContainer) {
+          let input = this.quiznameSelectContainer.querySelector("#textInput");
+          Utils.listenToChanges(input, "input", 450, () => {
             if (this.searchWhileTyping) {
               this.search();
             }
           });
-          this.authenticatedSelectContainer.classList.remove("hidden");
-        } else if (filter === this.isOnlineSelectContainer) {
-          let select = this.isOnlineSelectContainer.querySelector("#selectInput");
-          Utils.listenToChanges(select, "change", 200, () => {
+          this.quiznameSelectContainer.classList.remove("hidden");
+        } else if (filter === this.quizIDSelectContainer) {
+          let input = this.quizIDSelectContainer.querySelector("#textInput");
+          Utils.listenToChanges(input, "input", 450, () => {
             if (this.searchWhileTyping) {
               this.search();
             }
           });
-          this.isOnlineSelectContainer.classList.remove("hidden");
+          this.quizIDSelectContainer.classList.remove("hidden");
+        } else if (filter === this.timeNeededSelectContainer) {
+          let fromNumberInput =
+            this.timeNeededSelectContainer.querySelector("#from");
+          let toNumberInput = this.timeNeededSelectContainer.querySelector("#to");
+    
+          Utils.listenToChanges(fromNumberInput, "input", 450, () => {
+            if (this.searchWhileTyping) {
+              this.search();
+            }
+          });
+          Utils.listenToChanges(toNumberInput, "input", 450, () => {
+            if (this.searchWhileTyping) {
+              this.search();
+            }
+          });
+          this.timeNeededSelectContainer.classList.remove("hidden");
         } else {
           return false;
         }
@@ -3622,25 +3428,22 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
     
       async search() {
         this.searchReloadBtn.disabled = true;
-        //Utils.toggleLodingAnimation(this.container)
         this.searchBtn.classList.add("loading");
         this.choosenArray = new Array();
-        this.editContainer.classList.add("hidden");
-        this.clear(this.editTableBody);
     
-        if (this.filterType === "username") {
-          let input =
-            this.usernameSelectContainer.querySelector("#textInput").value;
+        if (this.filterType === "result") {
+          let select = this.resultSelectContainer.querySelector("#selectInput");
+          let filterBy = select[select.selectedIndex].getAttribute("data-value");
           this.showResults(
             Utils.makeJSON(
               await Utils.makeJSON(
                 await Utils.sendXhrREQUEST(
                   "POST",
-                  "benutzerverwaltung&operation=search&type=username&input=" +
-                    input +
+                  "scoreverwaltung&operation=search&type=result&filterBy=" +
+                    filterBy +
                     "&limitResults=" +
-                    this.limiter.value,
-                  "./includes/benutzerverwaltung.inc.php",
+                    this.limiter.value + "&userID=" + this.userID + "&userID=" + this.userID,
+                  "/teacher/includes/benutzerverwaltung.inc.php",
                   "application/x-www-form-urlencoded",
                   true,
                   true,
@@ -3650,60 +3453,28 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
               )
             )
           );
-        } else if (this.filterType === "email") {
-          let input = this.emailSelectContainer.querySelector("#textInput").value;
+        } else if (this.filterType === "date") {
+          let startDateInput = this.dateSelectContainer.querySelector("#startDate");
+          let startDate = false;
+          if (!Utils.isEmptyInput(startDateInput.value)) {
+            startDate = new Date(startDateInput.value).getTime() / 1000; 
+          }
+          let endDateInput = this.dateSelectContainer.querySelector("#endDate");
+          let endDate = false;
+          if (!Utils.isEmptyInput(endDateInput.value)) {
+            endDate = new Date(endDateInput.value).getTime() / 1000; 
+          }
+    
           this.showResults(
             Utils.makeJSON(
               await Utils.makeJSON(
                 await Utils.sendXhrREQUEST(
                   "POST",
-                  "benutzerverwaltung&operation=search&type=email&input=" +
-                    input +
+                  "scoreverwaltung&operation=search&type=date&startDate=" +
+                    startDate + "&endDate=" + endDate + 
                     "&limitResults=" +
-                    this.limiter.value,
-                  "./includes/benutzerverwaltung.inc.php",
-                  "application/x-www-form-urlencoded",
-                  true,
-                  true,
-                  false,
-                  true
-                )
-              )
-            )
-          );
-        } else if (this.filterType === "userID") {
-          let input =
-            this.userIDSelectContainer.querySelector("#numberInput").value;
-          this.showResults(
-            Utils.makeJSON(
-              await Utils.makeJSON(
-                await Utils.sendXhrREQUEST(
-                  "POST",
-                  "benutzerverwaltung&operation=search&type=userID&input=" +
-                    input +
-                    "&limitResults=" +
-                    this.limiter.value,
-                  "./includes/benutzerverwaltung.inc.php",
-                  "application/x-www-form-urlencoded",
-                  true,
-                  true,
-                  false,
-                  true
-                )
-              )
-            )
-          );
-        } else if (this.filterType === "groups") {
-          this.showResults(
-            Utils.makeJSON(
-              await Utils.makeJSON(
-                await Utils.sendXhrREQUEST(
-                  "POST",
-                  "benutzerverwaltung&operation=search&type=groups&input=" +
-                    JSON.stringify(this.groupsSearchArray) +
-                    "&limitResults=" +
-                    this.limiter.value,
-                  "./includes/benutzerverwaltung.inc.php",
+                    this.limiter.value + "&userID=" + this.userID,
+                  "/teacher/includes/benutzerverwaltung.inc.php",
                   "application/x-www-form-urlencoded",
                   true,
                   true,
@@ -3719,11 +3490,11 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
               await Utils.makeJSON(
                 await Utils.sendXhrREQUEST(
                   "POST",
-                  "benutzerverwaltung&operation=search&type=klassenstufe&input=" +
-                    JSON.stringify(this.klassenstufenSearchArray) +
+                  "scoreverwaltung&operation=search&type=klassenstufe&klassenstufen=" +
+                    JSON.stringify(this.klassenstufenSearchArray)+
                     "&limitResults=" +
-                    this.limiter.value,
-                  "./includes/benutzerverwaltung.inc.php",
+                    this.limiter.value + "&userID=" + this.userID,
+                  "/teacher/includes/benutzerverwaltung.inc.php",
                   "application/x-www-form-urlencoded",
                   true,
                   true,
@@ -3733,17 +3504,17 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
               )
             )
           );
-        } else if (this.filterType === "permissionsAllowed") {
+        } else if (this.filterType === "fach") {
           this.showResults(
             Utils.makeJSON(
               await Utils.makeJSON(
                 await Utils.sendXhrREQUEST(
                   "POST",
-                  "benutzerverwaltung&operation=search&type=permissionsAllowed&input=" +
-                    JSON.stringify(this.permissionsAllowedObject) +
+                  "scoreverwaltung&operation=search&type=fach&faecher=" +
+                    JSON.stringify(this.fachSearchArray)+
                     "&limitResults=" +
-                    this.limiter.value,
-                  "./includes/benutzerverwaltung.inc.php",
+                    this.limiter.value + "&userID=" + this.userID,
+                  "/teacher/includes/benutzerverwaltung.inc.php",
                   "application/x-www-form-urlencoded",
                   true,
                   true,
@@ -3753,17 +3524,17 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
               )
             )
           );
-        } else if (this.filterType === "permissionsForbidden") {
+        } else if (this.filterType === "thema") {
           this.showResults(
             Utils.makeJSON(
               await Utils.makeJSON(
                 await Utils.sendXhrREQUEST(
                   "POST",
-                  "benutzerverwaltung&operation=search&type=permissionsForbidden&input=" +
-                    JSON.stringify(this.permissionsForbiddenArray) +
+                  "scoreverwaltung&operation=search&type=thema&themen=" +
+                    JSON.stringify(this.themaSearchArray)+
                     "&limitResults=" +
-                    this.limiter.value,
-                  "./includes/benutzerverwaltung.inc.php",
+                    this.limiter.value + "&userID=" + this.userID,
+                  "/teacher/includes/benutzerverwaltung.inc.php",
                   "application/x-www-form-urlencoded",
                   true,
                   true,
@@ -3773,19 +3544,18 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
               )
             )
           );
-        } else if (this.filterType === "ranking") {
-          let input =
-            this.rankingSelectContainer.querySelector("#numberInput").value;
+        } else if (this.filterType === "quizname") {
+          let input = this.quiznameSelectContainer.querySelector("#textInput").value;
           this.showResults(
             Utils.makeJSON(
               await Utils.makeJSON(
                 await Utils.sendXhrREQUEST(
                   "POST",
-                  "benutzerverwaltung&operation=search&type=ranking&input=" +
-                    input +
+                  "scoreverwaltung&operation=search&type=quizname&input=" +
+                    JSON.stringify({input}) +
                     "&limitResults=" +
-                    this.limiter.value,
-                  "./includes/benutzerverwaltung.inc.php",
+                    this.limiter.value + "&userID=" + this.userID,
+                  "/teacher/includes/benutzerverwaltung.inc.php",
                   "application/x-www-form-urlencoded",
                   true,
                   true,
@@ -3795,20 +3565,18 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
               )
             )
           );
-        } else if (this.filterType == "authenticated") {
-          let select =
-            this.authenticatedSelectContainer.querySelector("#selectInput");
-          let input = select[select.selectedIndex].getAttribute("data-value");
+        } else if (this.filterType === "quizID") {
+          let input = this.quizIDSelectContainer.querySelector("#textInput").value;
           this.showResults(
             Utils.makeJSON(
               await Utils.makeJSON(
                 await Utils.sendXhrREQUEST(
                   "POST",
-                  "benutzerverwaltung&operation=search&type=authenticated&input=" +
-                    input +
+                  "scoreverwaltung&operation=search&type=quizID&input=" +
+                    JSON.stringify({input}) +
                     "&limitResults=" +
-                    this.limiter.value,
-                  "./includes/benutzerverwaltung.inc.php",
+                    this.limiter.value + "&userID=" + this.userID,
+                  "/teacher/includes/benutzerverwaltung.inc.php",
                   "application/x-www-form-urlencoded",
                   true,
                   true,
@@ -3818,19 +3586,21 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
               )
             )
           );
-        } else if (this.filterType === "isOnline") {
-          let select = this.isOnlineSelectContainer.querySelector("#selectInput");
-          let input = select[select.selectedIndex].getAttribute("data-value");
+        }  else if (this.filterType === "timeNeeded") {
+          let minTime =
+            this.timeNeededSelectContainer.querySelector("#from").value;
+          let maxTime = this.timeNeededSelectContainer.querySelector("#to").value;
+    
           this.showResults(
             Utils.makeJSON(
               await Utils.makeJSON(
                 await Utils.sendXhrREQUEST(
                   "POST",
-                  "benutzerverwaltung&operation=search&type=isOnline&input=" +
-                    input +
+                  "scoreverwaltung&operation=search&type=timeNeeded&minTime=" +
+                    Number(minTime) + "&maxTime=" + Number(maxTime) + 
                     "&limitResults=" +
-                    this.limiter.value,
-                  "./includes/benutzerverwaltung.inc.php",
+                    this.limiter.value + "&userID=" + this.userID,
+                  "/teacher/includes/benutzerverwaltung.inc.php",
                   "application/x-www-form-urlencoded",
                   true,
                   true,
@@ -3846,9 +3616,9 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
               await Utils.makeJSON(
                 await Utils.sendXhrREQUEST(
                   "POST",
-                  "benutzerverwaltung&operation=search&type=all&limitResults=" +
-                    this.limiter.value,
-                  "./includes/benutzerverwaltung.inc.php",
+                  "scoreverwaltung&operation=search&type=all&limitResults=" +
+                    this.limiter.value + "&userID=" + this.userID,
+                  "/teacher/includes/benutzerverwaltung.inc.php",
                   "application/x-www-form-urlencoded",
                   true,
                   true,
@@ -3859,88 +3629,50 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
             )
           );
         } else if (this.filterType == "multiple") {
-          //Username
-          let username =
-            this.usernameSelectContainer.querySelector("#textInput").value;
-          if (Utils.isEmptyInput(username, true)) {
-            username = false;
+          //result
+          let resultSelect =
+            this.resultSelectContainer.querySelector("#selectInput");
+          let result =
+          resultSelect[resultSelect.selectedIndex].getAttribute("data-value");
+          if (Utils.isEmptyInput(result)) {
+            result = false;
           }
     
-          //Email
-          let email = this.emailSelectContainer.querySelector("#textInput").value;
-          if (Utils.isEmptyInput(email, true)) {
-            email = false;
+          //date
+          let startDateInput = this.dateSelectContainer.querySelector("#startDate");
+          let startDate = false;
+          if (!Utils.isEmptyInput(startDateInput.value)) {
+            startDate = new Date(startDateInput.value).getTime() / 1000; 
           }
-    
-          //userID
-          let userID =
-            this.userIDSelectContainer.querySelector("#numberInput").value;
-          if (Utils.isEmptyInput(userID, true)) {
-            userID = false;
+          let endDateInput = this.dateSelectContainer.querySelector("#endDate");
+          let endDate = false;
+          if (!Utils.isEmptyInput(endDateInput.value)) {
+            endDate = new Date(endDateInput.value).getTime() / 1000; 
           }
-    
-          //ranking
-          let ranking =
-            this.rankingSelectContainer.querySelector("#numberInput").value;
-          if (Utils.isEmptyInput(ranking, true)) {
-            ranking = false;
-          }
-    
-          //Groups
-          let groups = this.groupsSearchArray;
-          if (!groups.length > 0) {
-            groups = false;
-          }
-    
-          //Klassenstufe
+          //klassenstufe
           let klassenstufen = this.klassenstufenSearchArray;
-          if (!klassenstufen.length > 0) {
-            klassenstufen = false;
-          }
-    
-          //isOnline
-          let isOnlineSelect =
-            this.isOnlineSelectContainer.querySelector("#selectInput");
-          let isOnline =
-            isOnlineSelect[isOnlineSelect.selectedIndex].getAttribute("data-value");
-          if (Utils.isEmptyInput(isOnline, true)) {
-            isOnline = false;
-          }
-    
-          //authenticated
-          let authenticatedSelect =
-            this.authenticatedSelectContainer.querySelector("#selectInput");
-          let authenticated =
-            authenticatedSelect[authenticatedSelect.selectedIndex].getAttribute(
-              "data-value"
-            );
-          if (Utils.isEmptyInput(authenticated, true)) {
-            authenticated = false;
-          }
-    
-          //permissionsAllowed
-          let permissionsAllowed = this.permissionsAllowedObject;
-          if (!Object.keys(permissionsAllowed).length) {
-            permissionsAllowed = false;
-          }
-    
-          //permissionsForbidden
-          let permissionsForbidden = this.permissionsForbiddenArray;
-          if (!permissionsForbidden.length > 0) {
-            permissionsForbidden = false;
-          }
+          if (!klassenstufen.length > 0) klassenstufen = false;
+          //fach
+          let faecher = this.fachSearchArray;
+          if (!faecher.length > 0) faecher = false;
+          //thema
+          let themen = this.themaSearchArray;
+          if (!themen.length > 0) themen = false;
+          //quizname
+          let quizname = this.quiznameSelectContainer.querySelector("#textInput").value;
+          if (Utils.isEmptyInput(quizname)) quizname = false;
+          //quizID
+          let quizID = this.quizIDSelectContainer.querySelector("#textInput").value;
+          if (Utils.isEmptyInput(quizID)) quizID = false;
+          //timeNeeded
+          let minTime =
+          this.timeNeededSelectContainer.querySelector("#from").value;
+          if (Utils.isEmptyInput(minTime)) minTime = false;
+          let maxTime = this.timeNeededSelectContainer.querySelector("#to").value;
+          if (Utils.isEmptyInput(maxTime)) maxTime = false;
     
           console.log(
-            username,
-            email,
-            userID,
-            ranking,
-            groups,
-            klassenstufen,
-            isOnline,
-            authenticated,
-            permissionsAllowed,
-            permissionsForbidden
+            {result, startDate, endDate, klassenstufen, faecher, themen, quizname, quizID, minTime, maxTime}
           );
     
           this.showResults(
@@ -3948,29 +3680,29 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
               await Utils.makeJSON(
                 await Utils.sendXhrREQUEST(
                   "POST",
-                  "benutzerverwaltung&operation=search&type=multiple&username=" +
-                    username +
-                    "&email=" +
-                    email +
-                    "&userID=" +
-                    userID +
-                    "&ranking=" +
-                    ranking +
-                    "&groups=" +
-                    JSON.stringify(groups) +
+                  "scoreverwaltung&operation=search&type=multiple&result=" +
+                    result +
+                    "&startDate=" +
+                    startDate +
+                    "&endDate=" +
+                    endDate +
                     "&klassenstufen=" +
-                    klassenstufen +
-                    "&isOnline=" +
-                    isOnline +
-                    "&authenticated=" +
-                    authenticated +
-                    "&permissionsAllowed=" +
-                    JSON.stringify(permissionsAllowed) +
-                    "&permissionsForbidden=" +
-                    JSON.stringify(permissionsForbidden) +
+                    JSON.stringify(klassenstufen) +
+                    "&faecher=" +
+                    JSON.stringify(faecher) +
+                    "&themen=" +
+                    JSON.stringify(themen) +
+                    "&quizname=" +
+                    JSON.stringify({quizname}) +
+                    "&quizID=" +
+                    JSON.stringify({quizID}) +
+                    "&minTime=" +
+                    minTime +
+                    "&maxTime=" +
+                    maxTime +
                     "&limitResults=" +
-                    this.limiter.value,
-                  "./includes/benutzerverwaltung.inc.php",
+                    this.limiter.value + "&userID=" + this.userID,
+                  "/teacher/includes/benutzerverwaltung.inc.php",
                   "application/x-www-form-urlencoded",
                   true,
                   true,
@@ -3988,14 +3720,18 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
     
       showResults(results) {
         this.searchBtn.classList.remove("loading");
-        this.clear(this.tableBody);
         this.resultDescriptionContainer.classList.remove("hidden");
+    
+        let tableBody = this.resultTable.querySelector("tbody");
+        if (!tableBody) return false;
+        this.tableBody = tableBody;
+        this.clear(this.tableBody);
+    
         if (!results) {
           this.resultTable.classList.add("hidden");
           this.resultDescriptionContainer.innerHTML = "Keine Ergebnisse...";
           return true;
         }
-        results = Utils.makeJSON(results);
     
         if (!results.length > 0) {
           this.resultTable.classList.add("hidden");
@@ -4004,104 +3740,126 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
         }
         this.resultDescriptionContainer.innerHTML = `${results.length} Ergebnisse`;
     
-        let tableBody = this.resultTable.querySelector("tbody");
-        if (!tableBody) return false;
-        this.tableBody = tableBody;
-    
-        results = Utils.sortItems(results, "username"); //Just sort it to better overview
-    
         for (const result of results) {
-          if (this.hideUsersIDS && this.hideUsersIDS.length) {
-            if (result[typeToHide] == result) {
-              continue;
-            }
-          }
           //console.log(user);
           let tableRow = document.createElement("tr");
           tableRow.classList.add("result");
-          tableRow.setAttribute("data-value", result["userID"]);
-    
-          let showPublicText = "Nein";
-          if (Boolean(Utils.makeJSON(result["showPublic"]))) {
-            showPublicText = "Ja";
-          }
+          tableRow.setAttribute("data-quizID", result["quizID"]);
     
           tableRow.innerHTML = `
-          <td class="select"><input type="checkbox" id="select"><button id="chooseOnly"><img src="../../images/icons/stift.svg" alt="Auswahl"></button></td>
-          <td id="username">${result["username"]}</td>
-          <td id="email">${result["email"]}</td>
-          <td id="klassenstufe">${result["klassenstufe"]}</td>
-          <td id="authenticated">${result["authenticated"]}</td>
-          <td id="isOnline">${result["isOnline"]}</td>
-          <td id="lastActivity"><span class="first">Vor ${result["lastActivityString"]} </span><span class="second">(${result["lastActivity"]})</span></td>
-          <td id="lastQuiz">${result["lastQuiz"]}</td>
-          <td id="lastLogin"><span class="first">Vor ${result["lastLoginString"]} </span><span class="second">(${result["lastLogin"]})</span></td>
-          <td id="groups">${result["groups"]}</td>
-          <td id="permissionsAllowed">${result["permissionsAllowed"]}</td>
-          <td id="permissionsForbidden">${result["permissionsForbidden"]}</td>
-          <td id="created"><span class="first">Vor ${result["createdString"]} </span><span class="second">(${result["created"]})</span></td>
-          <td id="lastPwdChange"><span class="first">Vor ${result["lastPwdChangeString"]} </span><span class="second">(${result["lastPwdChange"]})</span></td>
-          <td id="userID">${result["userID"]}</td>
-          <td id="nextMessages">${result["nextMessages"]}</td>
-          <td id="ranking">${result["ranking"]}</td>
-          <td id="showPublic">${showPublicText}</td>
+          <td id="date" style="min-width: 150px;">${result["date"]}</td>
+          <td id="results" style="min-width: 190px;"></td>
+          <td id="klassenstufe">${result["klassenstufe"] ?? "nicht zugewiesen"}</td>
+          <td id="fach">${result["fach"] ?? "nicht zugewiesen"}</td>
+          <td id="thema">${result["thema"] ?? "nicht zugewiesen"}</td>
+          <td id="quizname">${result["quizname"] ?? "nicht zugewiesen"}</td>
+          <td id="quizID">
+            
+          </td>
+          <td id="actions"></td>
+          <td id="information"></td>
           `;
           this.tableBody.append(tableRow);
     
-          let groupsInner = tableRow.querySelector("#groups");
-          let usersGroups = Utils.makeJSON(result["groups"]);
-          Utils.listOfArrayToHTML(groupsInner, usersGroups, "Keine Gruppen");
+          let information = tableRow.querySelector("#information");
+          if (!result["exists"]) {
+            information.innerHTML = "<b>Quiz existiert nicht mehr</b>";
+            continue;
+          }
     
-          //Allowed Permissions
-          let permissionsInner = tableRow.querySelector("#permissionsAllowed");
-          Utils.objectKEYVALUEToHTML(
-            permissionsInner,
-            result["permissionsAllowed"],
-            "Keine zusätzlichen"
+          let quizIDContainer = tableRow.querySelector("#quizID");
+          quizIDContainer.innerHTML = `<div class="content">${
+            result["quizID"] ?? "nicht zugewiesen"
+          }</div>
+          <span class="loading-btn-wrapper copyQuizID-wrapper">
+              <button class="loading-btn copyQuizID">
+                <span class="loading-btn__text">
+                  QuizID kopieren
+                </span>
+              </button>
+            </span>
+          </span>`;
+          //Copy quizID
+          let copyQuizIDBtn = tableRow.querySelector(
+            "#quizID .copyQuizID-wrapper .copyQuizID"
           );
-    
-          //Forbidden Permissions
-          let forbiddenPermissionsInner = tableRow.querySelector(
-            "#permissionsForbidden"
-          );
-          Utils.listOfArrayToHTML(
-            forbiddenPermissionsInner,
-            result["permissionsForbidden"],
-            "Keine zusätzlichen"
-          );
-    
-          //Next Messages
-          let nextMessagesInner = tableRow.querySelector("#nextMessages");
-          Utils.listOfArrayToHTML(nextMessagesInner, result["nextMessages"]);
-    
-          let checkBox = tableRow.querySelector(".select #select");
-          checkBox.addEventListener("change", (event) => {
-            if (event.target.checked) {
-              this.choosenArray = Utils.addToArray(
-                this.choosenArray,
-                result["userID"],
-                false
-              );
+          copyQuizIDBtn.addEventListener("click", () => {
+            copyQuizIDBtn.classList.add("loading-btn--pending");
+            if (Utils.copyTextToClipboard(result["quizID"])) {
+              copyQuizIDBtn.classList.remove("loading-btn--pending");
+              copyQuizIDBtn.classList.add("loading-btn--success");
+              window.setTimeout(() => {
+                copyQuizIDBtn.classList.remove("loading-btn--success");
+              }, 1300);
             } else {
-              this.choosenArray = Utils.removeFromArray(
-                this.choosenArray,
-                result["userID"]
-              );
+              copyQuizIDBtn.classList.remove("loading-btn--pending");
+              copyQuizIDBtn.classList.add("loading-btn--failed");
+              window.setTimeout(() => {
+                copyQuizIDBtn.classList.remove("loading-btn--failed");
+              }, 1300);
             }
-            this.updateEditBtn();
           });
     
-          let chooseThis = tableRow.querySelector(".select #chooseOnly");
-          if (!chooseThis) continue;
-    
-          chooseThis.addEventListener("click", (event) => {
-            this.choosenArray = Utils.addToArray(
-              this.choosenArray,
-              result["userID"],
-              false
-            );
-           goBackWithValue();
+          //Actions
+          let actions = tableRow.querySelector("#actions");
+          actions.innerHTML = `
+          <ul>
+            <li><a href="/quiz.php?quizId=${result["quizID"]}">Zum Quiz</a></li>
+            <li><button type="button" class="btn btn-danger btn-sm" id="delete">löschen</button></li>
+            <li><button type="button" class="btn btn-info btn-sm" id="showData">JSON-Daten anzeigen</button></li>
+          </ul>
+          `;
+
+          let deleteThisScoreBtn = actions.querySelector("#delete");
+          deleteThisScoreBtn.addEventListener("click", async() => {
+            if (!Utils.userHasPermissions(["benutzerverwaltungDeleteEntries"])) {
+              return false;
+            }
+
+            if (await Utils.askUser("Score-Eintrag löschen", "Bist du dir sicher, dass du diesen Score-Eintrag löschen möchtest?", false)) {
+              await Utils.makeJSON(
+                await Utils.makeJSON(
+                  await Utils.sendXhrREQUEST(
+                    "POST",
+                    "scoreverwaltung&operation=removeScore&scoreID=" + result["id"] + "&userID=" + this.userID,
+                    "/teacher/includes/benutzerverwaltung.inc.php",
+                    "application/x-www-form-urlencoded",
+                    true,
+                    true,
+                    false,
+                    true
+                  )
+                )
+              )
+              this.search();
+            }
           });
+
+          let showJSONDataBtn = actions.querySelector("#showData");
+          showJSONDataBtn.addEventListener("click", () => {
+            Utils.getUserInput("Quizdaten", "Hier sind genauere Informationen über die Antworten des Nutzers", false, "textArea", "", JSON.stringify(result["results"], null, 3), true, false, false, true);
+          });
+    
+          //information
+    
+          //Result data
+          let results = result["results"];
+          let resultContainer = tableRow.querySelector("#results");
+          if (results) {
+            resultContainer.innerHTML = 
+            `
+            <ul>
+              <li id="mark"><b>Note</b>:${results["mark"]}</li>
+              <li id="points"><b>Punkte</b>: ${results["scoredPoints"]} / ${results["totalPoints"]}</li>
+              <li id="timeNeeded"><b>Zeit benötigt</b>: ${Utils.secondsToArrayOrString(results["timeNeeded"], "String")}</li>
+            </ul>
+            `;
+          } else {
+            resultContainer.innerHTML `Keine Daten`;
+          }
+          
+    
+          this.resultTable.classList.remove("hidden");
         }
         this.searchReloadBtn.disabled = false;
         this.resultTable.classList.remove("hidden");
@@ -4112,46 +3870,11 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
       }
     }
     
-
-    var myModal = new bootstrap.Modal(modal);
-    myModal.show();
-
-    let close = modal.querySelector("#close");
-    let yes = modal.querySelector("#yes");
-    let no = modal.querySelector("#no");
-
-    yes.addEventListener("click", (target) => {
-      goBackWithValue();
-    });
-
-    function goBackWithValue() {
-      let array = benutzerverwaltung.choosenArray;
-      myModal.hide();
-      modalOuter.remove();
-      Utils.hideAllModals(false);
-      resolve(array);
-    }
-
-    no.addEventListener("click", (target) => {
-      myModal.hide();
-      modalOuter.remove();
-      Utils.hideAllModals(false);
-      resolve(false);
-    });
-
-    close.addEventListener("click", (target) => {
-      myModal.hide();
-      modalOuter.remove();
-      Utils.hideAllModals(false);
-      resolve(false);
-    });
-
-    //Create UserSearch
-    let benutzerververwaltungContainer = modal.querySelector(
-      "#benutzerverwaltung"
-    );
-    let benutzerverwaltung = new Benutzerverwaltung(benutzerververwaltungContainer);
-    console.log(benutzerverwaltung.prepareSearch());
-    benutzerverwaltung.hideUsersIDS = hideUsersIDS;
+    let editScoresContainer = modalBody.querySelector("#scoreVerwaltung");
+    let editScores = new EditScores(editScoresContainer, userID);
+    console.log(await editScores.prepareSearch());
+    console.log(editScores.setFilterMode("all"));
+    editScores.search();
   });
 }
+

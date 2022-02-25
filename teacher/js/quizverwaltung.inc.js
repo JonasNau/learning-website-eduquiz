@@ -506,6 +506,11 @@ export async function editQuizdata(uniqueID) {
         console.log("Original Data:", this.originalData);
       }
 
+      copyCard(card) {
+        this.quizJSON["quizCards"] = Utils.addToArray(this.quizJSON["quizCards"], Utils.makeJSON(JSON.stringify(card)), true);
+        return true;
+      }
+
       moveCards(action, id) {
         if (action === "upwards") {
           //Previous
@@ -755,7 +760,8 @@ export async function editQuizdata(uniqueID) {
 
             let copyCardBtn = itemHeader.querySelector("#copyCard");
             copyCardBtn.addEventListener("click", () => {
-              this.copyCard(id);
+              this.copyCard(currentCard);
+              this.refreshCards(true);
             });
             let deleteCardBtn = itemHeader.querySelector("#deleteCard");
             deleteCardBtn.addEventListener("click", () => {
@@ -1250,7 +1256,8 @@ showTimePassedCheckbox.addEventListener("click", () => {
 
             let copyCardBtn = itemHeader.querySelector("#copyCard");
             copyCardBtn.addEventListener("click", () => {
-              this.copyCard(id);
+              this.copyCard(currentCard);
+              this.refreshCards(true);
             });
             let deleteCardBtn = itemHeader.querySelector("#deleteCard");
             deleteCardBtn.addEventListener("click", () => {
@@ -1825,7 +1832,8 @@ showTimePassedCheckbox.addEventListener("click", () => {
 
             let copyCardBtn = itemHeader.querySelector("#copyCard");
             copyCardBtn.addEventListener("click", () => {
-              this.copyCard(id);
+              this.copyCard(currentCard);
+              this.refreshCards(true);
             });
             let deleteCardBtn = itemHeader.querySelector("#deleteCard");
             deleteCardBtn.addEventListener("click", () => {

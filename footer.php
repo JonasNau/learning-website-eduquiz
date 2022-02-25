@@ -14,7 +14,7 @@
             <li><a href="/changes.php">Letzte Veränderungen</a></li>
         </ul>
         <div id="fullscreenContainer" class="fullscreenToggle"><span style="font-size: 1.3rem;">Zeit verbleibend bis zur Abgabe:</span><span id="timeLeft" style="font-size: 2rem; color: white;"> <?php echo $inWords; ?></span></div>
-        <div class="notice">Diese Webseite kann noch nicht prodiktiv eingesetzt werden, da einige Datenschutz und Sicherheitsbestimmungen noch nicht vollständig umgesetzt sind und umgesetzt werden können, daher ist beispielsweise im Impressum Max Mustermann angegeben.</div>
+        <div class="notice">Diese Webseite kann noch nicht produktiv eingesetzt werden, da einige Datenschutz und Sicherheitsbestimmungen noch nicht vollständig umgesetzt sind und umgesetzt werden können, daher ist beispielsweise im Impressum Max Mustermann angegeben.</div>
         <div class="version"><strong>Ver. 1.0</strong></div>
     </div>
 </section>

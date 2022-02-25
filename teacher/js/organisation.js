@@ -574,8 +574,12 @@ class Overview {
           this.dropDownLinkContainerQuizze.appendChild(link);
 
           link.addEventListener("click", () => {
-            window.location.href = "/teacher/?route=/quizverwaltung&uniqueID=" + element["uniqueID"] + "&quizId=" + element["quizId"];
-          })
+            window.location.href =
+              "/teacher/?route=/quizverwaltung&uniqueID=" +
+              element["uniqueID"] +
+              "&quizId=" +
+              element["quizId"];
+          });
         });
         resolve("Quizze gesetzt");
       }
@@ -669,9 +673,9 @@ class Klassenstufenverwaltung {
     changeAllShowQuizauswahl.addEventListener("click", async () => {
       //Change All Show Quizauswahl
       if (
-       !(await Utils.userHasPermissions(
-          ["klassenstufenverwaltungChangeValues"]
-        ))
+        !(await Utils.userHasPermissions([
+          "klassenstufenverwaltungChangeValues",
+        ]))
       ) {
         return false;
       }
@@ -708,9 +712,9 @@ class Klassenstufenverwaltung {
     changeAlluserCanBe.addEventListener("click", async () => {
       //Change All userCanBe
       if (
-       !(await Utils.userHasPermissions(
-          ["klassenstufenverwaltungChangeValues"]
-        ))
+        !(await Utils.userHasPermissions([
+          "klassenstufenverwaltungChangeValues",
+        ]))
       ) {
         return false;
       }
@@ -747,9 +751,9 @@ class Klassenstufenverwaltung {
     changeAllquizCanBeCreated.addEventListener("click", async () => {
       //Change All userCanBe
       if (
-       !(await Utils.userHasPermissions(
-          ["klassenstufenverwaltungChangeValues"]
-        ))
+        !(await Utils.userHasPermissions([
+          "klassenstufenverwaltungChangeValues",
+        ]))
       ) {
         return false;
       }
@@ -786,9 +790,9 @@ class Klassenstufenverwaltung {
     removeAllBtn.addEventListener("click", async () => {
       //Change All authenticated
       if (
-       !(await Utils.userHasPermissions(
-          ["klassenstufenverwaltungADDandREMOVE"]
-        ))
+        !(await Utils.userHasPermissions([
+          "klassenstufenverwaltungADDandREMOVE",
+        ]))
       ) {
         return false;
       }
@@ -1036,9 +1040,9 @@ class Klassenstufenverwaltung {
     if (!addBtn) return "no addBtn";
     addBtn.addEventListener("click", async () => {
       if (
-       !(await Utils.userHasPermissions(
-          ["klassenstufenverwaltungADDandREMOVE"]
-        ))
+        !(await Utils.userHasPermissions([
+          "klassenstufenverwaltungADDandREMOVE",
+        ]))
       ) {
         return false;
       }
@@ -1460,9 +1464,9 @@ class Klassenstufenverwaltung {
 
         changeNameBtn.addEventListener("click", async () => {
           if (
-           !(await Utils.userHasPermissions(
-              ["klassenstufenverwaltungChangeValues"]
-            ))
+            !(await Utils.userHasPermissions([
+              "klassenstufenverwaltungChangeValues",
+            ]))
           ) {
             Utils.permissionDENIED();
             return false;
@@ -1509,16 +1513,18 @@ class Klassenstufenverwaltung {
 
         changeShowQuizAuswahl.addEventListener("click", async () => {
           if (
-           !(await Utils.userHasPermissions(
-              ["klassenstufenverwaltungChangeValues"]
-            ))
+            !(await Utils.userHasPermissions([
+              "klassenstufenverwaltungChangeValues",
+            ]))
           ) {
             Utils.permissionDENIED();
             return false;
           }
           let userInput = await Utils.getUserInput(
             "Eingabefeld",
-            "Diese Klassenstufe bei der Quizauswahl anzeigen " + current["klassenstufe"] + "?",
+            "Diese Klassenstufe bei der Quizauswahl anzeigen " +
+              current["klassenstufe"] +
+              "?",
             false,
             "yes/no"
           );
@@ -1546,15 +1552,17 @@ class Klassenstufenverwaltung {
 
         changeUserCanBe.addEventListener("click", async () => {
           if (
-           !(await Utils.userHasPermissions(
-              ["klassenstufenverwaltungChangeValues"]
-            ))
+            !(await Utils.userHasPermissions([
+              "klassenstufenverwaltungChangeValues",
+            ]))
           ) {
             return false;
           }
           let userInput = await Utils.getUserInput(
             "Eingabefeld",
-            "Nutzer können diese Klassenstufe annehmen " + current["klassenstufe"] + "?",
+            "Nutzer können diese Klassenstufe annehmen " +
+              current["klassenstufe"] +
+              "?",
             false,
             "yes/no"
           );
@@ -1582,15 +1590,17 @@ class Klassenstufenverwaltung {
 
         changeQuizCanBeCreated.addEventListener("click", async () => {
           if (
-           !(await Utils.userHasPermissions(
-              ["klassenstufenverwaltungChangeValues"]
-            ))
+            !(await Utils.userHasPermissions([
+              "klassenstufenverwaltungChangeValues",
+            ]))
           ) {
             return false;
           }
           let userInput = await Utils.getUserInput(
             "Eingabefeld",
-            "Ein Quiz mit der Klassenstufe kann erstellt werden " + current["klassenstufe"] + "?",
+            "Ein Quiz mit der Klassenstufe kann erstellt werden " +
+              current["klassenstufe"] +
+              "?",
             false,
             "yes/no"
           );
@@ -1620,9 +1630,9 @@ class Klassenstufenverwaltung {
         removeBtn.addEventListener("click", async () => {
           //Ask User
           if (
-           !(await Utils.userHasPermissions(
-              ["klassenstufenverwaltungADDandREMOVE"]
-            ))
+            !(await Utils.userHasPermissions([
+              "klassenstufenverwaltungADDandREMOVE",
+            ]))
           ) {
             return false;
           }
@@ -1730,9 +1740,9 @@ class KlassenstufenBackupverwaltung {
     removeAllBtn.addEventListener("click", async () => {
       //Change All authenticated
       if (
-       !(await Utils.userHasPermissions(
-          ["klassenstufenverwaltungADDandREMOVE"]
-        ))
+        !(await Utils.userHasPermissions([
+          "klassenstufenverwaltungADDandREMOVE",
+        ]))
       ) {
         return false;
       }
@@ -2291,9 +2301,9 @@ class KlassenstufenBackupverwaltung {
         let changeNameBtn = tableRow.querySelector("#name #change");
         changeNameBtn.addEventListener("click", async () => {
           if (
-           !(await Utils.userHasPermissions(
-              ["klassenstufenverwaltungChangeValues"]
-            ))
+            !(await Utils.userHasPermissions([
+              "klassenstufenverwaltungChangeValues",
+            ]))
           ) {
             return false;
           }
@@ -2341,9 +2351,9 @@ class KlassenstufenBackupverwaltung {
 
         recoverBtn.addEventListener("click", async () => {
           if (
-           !(await Utils.userHasPermissions(
-              ["klassenstufenverwaltungChangeValues"]
-            ))
+            !(await Utils.userHasPermissions([
+              "klassenstufenverwaltungChangeValues",
+            ]))
           ) {
             return false;
           }
@@ -2379,9 +2389,9 @@ class KlassenstufenBackupverwaltung {
         removeBtn.addEventListener("click", async () => {
           //Ask User
           if (
-           !(await Utils.userHasPermissions(
-              ["klassenstufenverwaltungADDandREMOVE"]
-            ))
+            !(await Utils.userHasPermissions([
+              "klassenstufenverwaltungADDandREMOVE",
+            ]))
           ) {
             return false;
           }
@@ -2497,9 +2507,7 @@ class Faecherverwaltung {
     changeAllShowQuizauswahl.addEventListener("click", async () => {
       //Change All Show Quizauswahl
       if (
-       !(await Utils.userHasPermissions(
-          ["faecherverwaltungChangeValues"]
-        ))
+        !(await Utils.userHasPermissions(["faecherverwaltungChangeValues"]))
       ) {
         return false;
       }
@@ -2536,9 +2544,9 @@ class Faecherverwaltung {
     changeAllquizCanBeCreated.addEventListener("click", async () => {
       //Change All userCanBe
       if (
-       !(await Utils.userHasPermissions(
-          ["klassenstufenverwaltungChangeValues"]
-        ))
+        !(await Utils.userHasPermissions([
+          "klassenstufenverwaltungChangeValues",
+        ]))
       ) {
         return false;
       }
@@ -2575,9 +2583,7 @@ class Faecherverwaltung {
     removeAllBtn.addEventListener("click", async () => {
       //Change All authenticated
       if (
-       !(await Utils.userHasPermissions(
-          ["faecherverwaltungADDandREMOVE"]
-        ))
+        !(await Utils.userHasPermissions(["faecherverwaltungADDandREMOVE"]))
       ) {
         return false;
       }
@@ -2812,9 +2818,7 @@ class Faecherverwaltung {
     if (!addBtn) return "no addBtn";
     addBtn.addEventListener("click", async () => {
       if (
-       !(await Utils.userHasPermissions(
-          ["faecherverwaltungADDandREMOVE"]
-        ))
+        !(await Utils.userHasPermissions(["faecherverwaltungADDandREMOVE"]))
       ) {
         return false;
       }
@@ -3189,9 +3193,7 @@ class Faecherverwaltung {
 
         changeNameBtn.addEventListener("click", async () => {
           if (
-           !(await Utils.userHasPermissions(
-              ["faecherverwaltungChangeValues"]
-            ))
+            !(await Utils.userHasPermissions(["faecherverwaltungChangeValues"]))
           ) {
             Utils.permissionDENIED();
             return false;
@@ -3238,9 +3240,7 @@ class Faecherverwaltung {
 
         changeShowQuizAuswahl.addEventListener("click", async () => {
           if (
-           !(await Utils.userHasPermissions(
-              ["faecherverwaltungChangeValues"]
-            ))
+            !(await Utils.userHasPermissions(["faecherverwaltungChangeValues"]))
           ) {
             Utils.permissionDENIED();
             return false;
@@ -3275,9 +3275,7 @@ class Faecherverwaltung {
 
         changeQuizCanBeCreated.addEventListener("click", async () => {
           if (
-           !(await Utils.userHasPermissions(
-              ["faecherverwaltungChangeValues"]
-            ))
+            !(await Utils.userHasPermissions(["faecherverwaltungChangeValues"]))
           ) {
             return false;
           }
@@ -3313,9 +3311,7 @@ class Faecherverwaltung {
         removeBtn.addEventListener("click", async () => {
           //Ask User
           if (
-           !(await Utils.userHasPermissions(
-              ["faecherverwaltungADDandREMOVE"]
-            ))
+            !(await Utils.userHasPermissions(["faecherverwaltungADDandREMOVE"]))
           ) {
             return false;
           }
@@ -3421,9 +3417,7 @@ class FaecherBackupverwaltung {
     removeAllBtn.addEventListener("click", async () => {
       //Change All authenticated
       if (
-       !(await Utils.userHasPermissions(
-          ["faecherverwaltungADDandREMOVE"]
-        ))
+        !(await Utils.userHasPermissions(["faecherverwaltungADDandREMOVE"]))
       ) {
         return false;
       }
@@ -3977,9 +3971,7 @@ class FaecherBackupverwaltung {
         let changeNameBtn = tableRow.querySelector("#name #change");
         changeNameBtn.addEventListener("click", async () => {
           if (
-           !(await Utils.userHasPermissions(
-              ["faecherverwaltungChangeValues"]
-            ))
+            !(await Utils.userHasPermissions(["faecherverwaltungChangeValues"]))
           ) {
             return false;
           }
@@ -4027,9 +4019,7 @@ class FaecherBackupverwaltung {
 
         recoverBtn.addEventListener("click", async () => {
           if (
-           !(await Utils.userHasPermissions(
-              ["faecherverwaltungChangeValues"]
-            ))
+            !(await Utils.userHasPermissions(["faecherverwaltungChangeValues"]))
           ) {
             return false;
           }
@@ -4065,9 +4055,7 @@ class FaecherBackupverwaltung {
         removeBtn.addEventListener("click", async () => {
           //Ask User
           if (
-           !(await Utils.userHasPermissions(
-              ["faecherverwaltungADDandREMOVE"]
-            ))
+            !(await Utils.userHasPermissions(["faecherverwaltungADDandREMOVE"]))
           ) {
             return false;
           }
@@ -4090,7 +4078,7 @@ class FaecherBackupverwaltung {
           let res = await Utils.makeJSON(
             await Utils.sendXhrREQUEST(
               "POST",
-              "backupFaecherverwaltung&operation=changeValue&type=deleteBackupKlassenstufe&fach=" +
+              "backupFaecherverwaltung&operation=changeValue&type=deleteBackupFach&fach=" +
                 current["name"],
               "./includes/organisation.inc.php",
               "application/x-www-form-urlencoded",
@@ -4101,7 +4089,6 @@ class FaecherBackupverwaltung {
             )
           );
           if (res["status"]) {
-
             this.choosenArray = Utils.removeFromArray(
               this.choosenArray,
               current["name"]
@@ -4181,11 +4168,7 @@ class Themenverwaltung {
 
     changeAllShowQuizauswahl.addEventListener("click", async () => {
       //Change All Show Quizauswahl
-      if (
-       !(await Utils.userHasPermissions(
-          ["themenverwaltungChangeValues"]
-        ))
-      ) {
+      if (!(await Utils.userHasPermissions(["themenverwaltungChangeValues"]))) {
         return false;
       }
       let userInput = await Utils.getUserInput(
@@ -4220,11 +4203,7 @@ class Themenverwaltung {
 
     changeAllquizCanBeCreated.addEventListener("click", async () => {
       //Change All userCanBe
-      if (
-       !(await Utils.userHasPermissions(
-          ["themenverwaltungChangeValues"]
-        ))
-      ) {
+      if (!(await Utils.userHasPermissions(["themenverwaltungChangeValues"]))) {
         return false;
       }
       let userInput = await Utils.getUserInput(
@@ -4259,11 +4238,7 @@ class Themenverwaltung {
 
     removeAllBtn.addEventListener("click", async () => {
       //Change All authenticated
-      if (
-       !(await Utils.userHasPermissions(
-          ["themenverwaltungADDandRemove"]
-        ))
-      ) {
+      if (!(await Utils.userHasPermissions(["themenverwaltungADDandRemove"]))) {
         return false;
       }
       let userInput = await Utils.askUser(
@@ -4496,11 +4471,7 @@ class Themenverwaltung {
     let addBtn = this.container.querySelector("#addBtn");
     if (!addBtn) return "no addBtn";
     addBtn.addEventListener("click", async () => {
-      if (
-       !(await Utils.userHasPermissions(
-          ["themenverwaltungADDandRemove"]
-        ))
-      ) {
+      if (!(await Utils.userHasPermissions(["themenverwaltungADDandRemove"]))) {
         return false;
       }
       let userInput = await Utils.getUserInput(
@@ -4805,7 +4776,6 @@ class Themenverwaltung {
       this.clear(this.editTableBody);
     }
 
-
     for (const currentRaw of choosen) {
       //Get Data
       let current = await Utils.makeJSON(
@@ -4875,9 +4845,7 @@ class Themenverwaltung {
 
         changeNameBtn.addEventListener("click", async () => {
           if (
-           !(await Utils.userHasPermissions(
-              ["themenverwaltungChangeValues"]
-            ))
+            !(await Utils.userHasPermissions(["themenverwaltungChangeValues"]))
           ) {
             Utils.permissionDENIED();
             return false;
@@ -4924,9 +4892,7 @@ class Themenverwaltung {
 
         changeShowQuizAuswahl.addEventListener("click", async () => {
           if (
-           !(await Utils.userHasPermissions(
-              ["themenverwaltungChangeValues"]
-            ))
+            !(await Utils.userHasPermissions(["themenverwaltungChangeValues"]))
           ) {
             Utils.permissionDENIED();
             return false;
@@ -4961,9 +4927,7 @@ class Themenverwaltung {
 
         changeQuizCanBeCreated.addEventListener("click", async () => {
           if (
-           !(await Utils.userHasPermissions(
-              ["themenverwaltungChangeValues"]
-            ))
+            !(await Utils.userHasPermissions(["themenverwaltungChangeValues"]))
           ) {
             return false;
           }
@@ -4998,11 +4962,7 @@ class Themenverwaltung {
         let removeBtn = tableRow.querySelector("#remove #delete");
         removeBtn.addEventListener("click", async () => {
           //Ask User
-          if (
-           !(await Utils.userHasPermissions(
-              ["themenverwaltungADDandREMOVE"]
-            ))
-          ) {
+          if (!(await Utils.userHasPermissions(["themenverwaltungADDandRemove"]))) {
             return false;
           }
           let userInput = await Utils.askUser(
@@ -5106,11 +5066,7 @@ class ThemenBackupverwaltung {
 
     removeAllBtn.addEventListener("click", async () => {
       //Change All authenticated
-      if (
-       !(await Utils.userHasPermissions(
-          ["themenverwaltungADDandREMOVE"]
-        ))
-      ) {
+      if (!(await Utils.userHasPermissions(["themenverwaltungADDandREMOVE"]))) {
         return false;
       }
       let userInput = await Utils.askUser(
@@ -5663,9 +5619,7 @@ class ThemenBackupverwaltung {
         let changeNameBtn = tableRow.querySelector("#name #change");
         changeNameBtn.addEventListener("click", async () => {
           if (
-           !(await Utils.userHasPermissions(
-              ["themenverwaltungChangeValues"]
-            ))
+            !(await Utils.userHasPermissions(["themenverwaltungChangeValues"]))
           ) {
             return false;
           }
@@ -5713,9 +5667,7 @@ class ThemenBackupverwaltung {
 
         recoverBtn.addEventListener("click", async () => {
           if (
-           !(await Utils.userHasPermissions(
-              ["themenverwaltungChangeValues"]
-            ))
+            !(await Utils.userHasPermissions(["themenverwaltungChangeValues"]))
           ) {
             return false;
           }
@@ -5751,9 +5703,7 @@ class ThemenBackupverwaltung {
         removeBtn.addEventListener("click", async () => {
           //Ask User
           if (
-           !(await Utils.userHasPermissions(
-              ["faecherverwaltungADDandREMOVE"]
-            ))
+            !(await Utils.userHasPermissions(["faecherverwaltungADDandREMOVE"]))
           ) {
             return false;
           }
@@ -5817,7 +5767,7 @@ if (!organisationContainer) {
   console.log(reloadOverviewBtn.onclick);
   reloadOverviewBtn.addEventListener("click", () => {
     overwiew.getKlassenstufen();
-  })
+  });
   //Klassenstufenverwaltung
   let klassenstufenverwaltungContainer = organisationContainer.querySelector(
     "#klassenstufenVerwaltung"

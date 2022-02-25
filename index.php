@@ -59,6 +59,12 @@ logWrite($conn, "general", "Jemand hat die Webseite betreten! Connected Clients 
     ?>
 
     <script type="module" src="./includes/index.js" defer></script>
+    <!-- <script type="module" defer>
+        import * as Utils from "/includes/utils.js";
+
+        let string= "20 + 20 = 40";
+        Utils.escapeSpecialCharsInStringToUnicode(string);
+    </script> -->
 </body>
 
 </html>

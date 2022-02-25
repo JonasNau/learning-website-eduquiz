@@ -234,7 +234,7 @@ if (userHasPermissions($conn, $userID, ["accessMediaVerwaltung" => gnVP($conn, "
                                     <th id="thumbnailIsBlob">Miniaturansicht - Ist BLOB</th>
                                     <th id="thumbnailPath">Miniaturansicht - Pfad / URL</th>
                                     <th id="thumbnailInMediaFolder">Miniaturansicht - Pfad / URL</th>
-                                    <th id="fileSize">Dateigröße</th>
+                                    <th id="fileSize">Dateigröße (MB)</th>
                                     <th id="uploadedBy">Hochgeladen von</th>
                                     <th id="changedBy">Geändert von</th>
                                 </tr>
@@ -307,7 +307,7 @@ if (userHasPermissions($conn, $userID, ["accessMediaVerwaltung" => gnVP($conn, "
                                         <th id="thumbnailIsBlob">Miniaturansicht - Ist BLOB</th>
                                         <th id="thumbnailPath"><span>Miniaturansicht - Pfad / URL</span><button type="button" id="changeAll">alle ändern</button></th>
                                         <th id="thumbnailInMediaFolder"><span>Miniaturansicht - Im Media-Ordner</span><button type="button" id="changeAll">alle ändern</button></th>
-                                        <th id="fileSize">Dateigröße</th>
+                                        <th id="fileSize">Dateigröße (MB)</th>
                                         <th id="remove"><span>Entfernen</span><button type="button" id="removeAll">alle
                                                 Entfernen</button></th>
 

@@ -4,6 +4,7 @@ import {
   changeGroups,
   changePermissions,
   addPermission,
+  editScores
 } from "./benutzerverwaltung.inc.js";
 
 class Benutzerverwaltung {
@@ -2459,7 +2460,9 @@ class Benutzerverwaltung {
               "Bestimmte Nachricht löschen": "removeSpecificComeBackmessage",
               "Alle Nachrichten löschen": "removeAllComeBackMessages",
               "Der Öffentlichkeit anzeigen": "showPublic",
-              "Passwort ändern": "changePassword"
+              "Passwort ändern": "changePassword",
+              "Scores bearbeiten / löschen": "editScores",
+              "Alle Scores löschen / Scores zurücksetzen": "removeAllScores"
             },
             true
           );
@@ -2756,7 +2759,39 @@ class Benutzerverwaltung {
                 false
               )
             );
-          }
+          } else if (type === "editScores") {
+            if (
+              !(await Utils.userHasPermissions([
+                "benutzerverwaltungEditScores",
+              ]))
+            ) {
+              return false;
+            }
+
+            await editScores(current["userID"]);
+            this.edit([current["userID"]], true);
+          } else if (type === "removeAllScores") {
+            if (!Utils.userHasPermissions(["benutzerverwaltungDeleteEntries"])) {
+              return false;
+            }
+            if (await Utils.askUser("Scores zurücksetzen / löschen", "Bist du dir sicher, dass alle Score-Einträge dieses Nutzers löschen möchtest?")) {
+              await Utils.makeJSON(
+                await Utils.makeJSON(
+                  await Utils.sendXhrREQUEST(
+                    "POST",
+                    "scoreverwaltung&operation=removeAllScores&userID=" + current["userID"],
+                    "/teacher/includes/benutzerverwaltung.inc.php",
+                    "application/x-www-form-urlencoded",
+                    true,
+                    true,
+                    false,
+                    true
+                  )
+                )
+              )
+              this.edit([current["userID"]], true);
+            }
+          } 
         });
       }
       this.editContainer.classList.remove("hidden");
