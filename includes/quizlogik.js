@@ -567,6 +567,7 @@ class Quiz {
       if (Utils.emptyVariable(answers) || !answers.length > 0) {
         console.error("The current card doesn't have any answers.");
         //Logic for making the mark beeing fair calculated if there is no data
+        this.preventScoreUpload = true;
         this.loadNextQuestion();
         return false;
       }
@@ -1582,20 +1583,11 @@ class Quiz {
         }
         container.appendChild(div);
       };
-
-      let correctOrWrongToRichtigOrFalsch = (input) => {
-        if (input === "correct") {
-          return "Richtig";
-        } else {
-          return "Falsch";
-        }
-      };
-
       if (type == "mchoice") {
         item.innerHTML = `
             <div id="id"><span class="description">id:</span> ${id}</div>
-            <div id="status">Status: ${correctOrWrongToRichtigOrFalsch(
-              status
+            <div id="status"><span class="description">Status:</span> ${Utils.valueToString(
+              status, {"correct": "richtig &#10004;", "wrong": "falsch &#10060;"}
             )}</div>
             <div id="task"><span class="description">Aufgabe:</span> ${
               quizCard["task"]
@@ -1655,18 +1647,20 @@ class Quiz {
       } else if (type == "mchoice-multi") {
         item.innerHTML = `
         <div id="id"><span class="description">id:</span> ${id}</div>
-        <div id="status"><span class="description">Status:</span> ${status}</div>
+        <div id="status"><span class="description">Status:</span> ${Utils.valueToString(
+          status, {"correct": "richtig &#10004;", "wrong": "falsch &#10060;"}
+        )}</div>
         <div id="task"><span class="description">Aufgabe:</span> ${
           quizCard["task"]
         }</div>
         <div id="question"><span class="description">Frage:</span> ${
           quizCard["question"]
         }</div>
-        <div id="answers"><span class="description">Antworten:</span> <span class="content"></span></div>
+        <div id="answers"><span class="description">Mögliche Antworten:</span> <span class="content"></span></div>
         <div id="usersAnswers">
-          <div class="description" id="correct">Korrekt:<span class="content"></span></div>
-          <div class="description" id="wrong">Falsch:<span class="content"></span></div>
-          <div class="description" id="notChoosen">Nicht ausgewählt:<span class="content"></span></div>
+          <div><span class="description">Korrekt ausgewählt:</span><span id="correct"></span></div>
+          <div><span class="description">Falsch ausgewählt:</span><span id="wrong"></span></div>
+          <div><span class="description">Nicht ausgewählt:</span><span id="notChoosen"></span></div>
         </div>
         <div id="correctAnswers"><span class="description">Richtige Antwort(en):</span> <span class="content"></span></div>
         <div id="timeNeeded"><span class="description">Zeit benötigt:</span> ${getTimeNeededCard(
@@ -1677,13 +1671,13 @@ class Quiz {
 
         let answersContainer = item.querySelector("#answers .content");
         let usersCorrectAnswersContainer = item.querySelector(
-          "#usersAnswers #correct .content"
+          "#usersAnswers #correct"
         );
         let usersWrongAnswersContainer = item.querySelector(
-          "#usersAnswers #wrong .content"
+          "#usersAnswers #wrong"
         );
         let usersNotChoosenAnswersContainer = item.querySelector(
-          "#usersAnswers #notChoosen .content"
+          "#usersAnswers #notChoosen"
         );
         let correctAnswersContainer = item.querySelector(
           "#correctAnswers .content"
@@ -1710,6 +1704,8 @@ class Quiz {
         }
         answersContainer.appendChild(ul);
 
+
+        console.log(currentUsersChoice);
         //Fill choosen
         let choosenAnswerIDs = currentUsersChoice["usersAnswersIDs"];
         let usersCorrectAnswerIDs = choosenAnswerIDs["correct"];
@@ -1735,7 +1731,7 @@ class Quiz {
           usersWrongAnswersContainer.appendChild(ul);
         }
 
-        if (usersWrongAnswerIDs && usersWrongAnswerIDs.length > 0) {
+        if (usersNotChoosenAnswerIDs && usersNotChoosenAnswerIDs.length > 0) {
           let ul = document.createElement("ul");
           for (const current of usersNotChoosenAnswerIDs) {
             let li = document.createElement("li");
@@ -1757,9 +1753,9 @@ class Quiz {
         }
       } else if (type == "textInput") {
         item.innerHTML = `
-        <div id="id">id: ${id}</div>
-        <div id="status"><span class="description">Status:</span> ${correctOrWrongToRichtigOrFalsch(
-          status
+        <div id="id"><span class="description">id:</span> ${id}</div>
+        <div id="status"><span class="description">Status:</span> ${Utils.valueToString(
+          status, {"correct": "richtig &#10004;", "wrong": "falsch &#10060;"}
         )}</div>
         <div id="caseSensitive"><span class="description">Groß und Kleinschreibung beachten:</span> ${Utils.boolToString(
           quizCard["options"]["caseSensitive"]
@@ -1820,6 +1816,10 @@ class Quiz {
 
     //Insert result into database if logged in
     if (Utils.makeJSON(window.sessionStorage.getItem("loggedIn"))) {
+      if (this.preventScoreUpload) {
+        await Utils.alertUser("Hochladen fehlgeschlagen", "Dein Ergebnis konnte nicht in die Datenbank eingetragen werden, da das Quiz nicht korrekt abgeschlossen wurde. Dies liegt wahrscheinlch an fehlenden Quizdaten. Informiere einen Administrator.", fasle);
+        return;
+      }
       console.log("INSERT result into database:", this.resultObject);
 
       let response = await Utils.makeJSON(

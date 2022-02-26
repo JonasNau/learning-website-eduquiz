@@ -461,6 +461,7 @@
 /* Styling Description Text in Result Boxes */
 #mainContainer .resultContainer #viewAnswers #choosenAnswers #content .item .description{
   color: white;
+  font-size: 1.5rem;
 }
 
 #mainContainer .resultContainer #viewAnswers #choosenAnswers #content .item .answer{

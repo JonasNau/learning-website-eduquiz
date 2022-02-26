@@ -1,7 +1,0 @@
-Select * From temp where mydate > STR_TO_DATE('2009-06-29 04:00:44', '%Y-%m-%d %H:%i:%s');
-
-03-11-2021 02:27:26 cra@
-
-03-11-2021 07:31:51 jon@
-
-Select * From confirmAccount where STR_TO_DATE(expires, '%d-%m-%Y %H:%i:%s') > STR_TO_DATE('03-11-2021 02:27:26', '%d-%m-%Y %H:%i:%s'); //Final Shape

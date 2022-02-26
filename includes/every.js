@@ -95,14 +95,7 @@ soundManager.setup({
     });
 
     //Leherpanel
-    soundManager.createSound({
-      url: '/audio/lehrerpanel/wii_shop_channel_background_music_hd_4602924654614711096.mp3',
-      id: "wiiMusic",
-      volume: 20,
-      onfinish: function () {
-        soundManager.play("wiiMusic");
-      }
-    });
+   
   },
   ontimeout: function() {
     console.log('SM2 init failed!');

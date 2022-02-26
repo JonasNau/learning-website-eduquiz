@@ -824,7 +824,6 @@ class Medienverwaltung {
     );
     if (!limiter) return "no limiter";
     this.limiter = limiter;
-    limiter.value = 20;
 
     //Search While Typing
     let searchWhileTypingContainer = selectionFiltersContainer.querySelector(
@@ -3768,6 +3767,8 @@ if (!medienverwaltungsContainer) {
   let medienverwaltung = new Medienverwaltung(medienverwaltungCon);
   console.log(medienverwaltung.prepareSearch());
   console.log(medienverwaltung.prepareEdit());
+  medienverwaltung.limiter.value = 20;
+  medienverwaltung.setFilterMode("all");
 
   let urlParams = Utils.getUrlParams();
   if (urlParams.has("action")) {
