@@ -818,18 +818,23 @@ export function createModal(
    `;
   modalOuter.innerHTML = modalHTML;
   let modal = modalOuter.querySelector(".modal");
-  let myModal = new bootstrap.Modal(modal);
-  return [modal, myModal, modal.querySelector(".modal-body"), modalOuter];
+  let bootstrapModal = new bootstrap.Modal(modal);
+  return {modal, bootstrapModal: bootstrapModal, modalBody: modal.querySelector(".modal-body"), modalOuter};
 }
 
 export function alertUser(title, text, closeOthers) {
   return new Promise(async(resolve, reject) => {
-    const [modal, bootstrapModal, modalBody, modalOuter] = createModal({
+    const createdModal = createModal({
       title: title,
       fullscreen: false,
       verticallyCentered: false,
       modalType: "ok",
     });
+    const modal = createdModal.modal;
+    const bootstrapModal = createdModal.bootstrapModal;
+    const modalBody = createdModal.modalBody;
+    const modalOuter = createdModal.modalOuter;
+
     modalBody.innerHTML = text;
     bootstrapModal.show();
     popUpStatus(true);
@@ -896,7 +901,17 @@ export function editObject(
   editKey = false
 ) {
   return new Promise((resolve, reject) => {
-    const [modal, bootstrapModal, modalBody, modalOuter] = createModal(options);
+    const createdModal = createModal({
+      title: title,
+      fullscreen: false,
+      verticallyCentered: false,
+      modalType: "ok",
+    });
+    const modal = createdModal.modal;
+    const bootstrapModal = createdModal.bootstrapModal;
+    const modalBody = createdModal.modalBody;
+    const modalOuter = createdModal.modalOuter;
+
     bootstrapModal.show();
 
     modalBody.innerHTML = `
@@ -1905,64 +1920,35 @@ export async function chooseFromArrayWithSearch(
   searchAtStart = true,
   liveServerContact = false,
   AJAXRequest = false,
-  AJAXpath = false
+  AJAXpath = false,
+  options = {limitResults: 30},
+  customHTML = false,
+  customModal = false
 ) {
   return new Promise(async function (resolve, reject) {
-    let modalContainer = document.querySelector("#modalContainer");
+   
+    let modal;
+    let bootstrapModal = null;
+    let modalBody;
+    let modalOuter;
 
-    if (modalContainer == null) {
-      modalContainer = document.createElement("div");
-      modalContainer.setAttribute("id", "modalContainer");
-      document.body.appendChild(modalContainer);
-    }
+    
 
-    if (document.querySelector("#modalContainer") == null) {
-      alert("no modal container found");
-      reject();
-    }
-    let number = 1;
-    let modals = modalContainer.querySelectorAll(".modal");
-    console.log(modals);
-    if (modals.length > 0) {
-      number = modals.length + 1;
-    }
-    console.log("Number of Modals", number);
+    if (!customHTML) {
+      const createdModal = createModal({
+        title: title,
+        fullscreen: fullscreen,
+        verticallyCentered: false,
+        modalType: "yes/no",
+      });
+      console.log({createdModal});
+      modal = createdModal.modal;
+      bootstrapModal = createdModal.bootstrapModal;
+      modalBody = createdModal.modalBody;
+      modalOuter = createdModal.modalOuter;
+  
 
-    let modalOuter = document.createElement("div");
-    modalOuter.classList.add("modal-div");
-    modalOuter.setAttribute("id", number);
-    modalContainer.appendChild(modalOuter);
-
-    if (fullscreen) {
-      fullscreen = "modal-fullscreen";
-    }
-
-    let modalHTML = `
-    <!-- Modal -->
-    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="true" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog ${fullscreen}">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="staticBackdropLabel">${title}</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close"></button>
-        </div>
-        <div class="modal-body">
-         
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-danger" id="no">Nein</button>
-          <button type="button" class="btn btn-success" id="yes">Ja</button>
-        </div>
-      </div>
-    </div>
-    </div>
-                 `;
-
-    modalOuter.innerHTML = modalHTML;
-    let modal = modalOuter.querySelector(".modal");
-    let modalBody = modal.querySelector(".modal-body");
-
-    modalBody.innerHTML = `
+      modalBody.innerHTML = `
     <div id="programContainer">
         <button class="btn btn-secondary" id="filterToggle">Filtern</button>
         <div class="filter">
@@ -2014,8 +2000,19 @@ export async function chooseFromArrayWithSearch(
 
     `;
 
-    var myModal = new bootstrap.Modal(modal);
-    myModal.show();
+    console.log(modalOuter.querySelector(".modal-body"));
+    } else {
+      console.log("customModal", customModal);
+      console.log("modal", customModal.modal);
+      modal = customModal.modal;
+      bootstrapModal = customModal.bootstrapModal;
+      modalBody = customModal.modalBody;
+      modalOuter = customModal.modalOuter;
+    }
+    if (typeof customFunction === 'function') customFunction();
+   
+
+    bootstrapModal.show();
 
     class SearchPopUp {
       constructor(container) {
@@ -2324,7 +2321,8 @@ export async function chooseFromArrayWithSearch(
       }
     }
 
-    let outerContainer = modal.querySelector("#programContainer");
+    let outerContainer = modalBody.querySelector("#programContainer");
+    console.log("program container", outerContainer);
 
     let searchPopUp = new SearchPopUp(outerContainer);
     searchPopUp.chooseFromArray = array || new Array();
@@ -2333,6 +2331,9 @@ export async function chooseFromArrayWithSearch(
     console.log(searchPopUp.prepareSearch());
     searchPopUp.listenToInput();
 
+    if (options?.limitResults) {
+      searchPopUp.limiter.value = options.limitResults;
+    }
     if (searchAtStart) {
       searchPopUp.search();
     }
@@ -2347,21 +2348,21 @@ export async function chooseFromArrayWithSearch(
 
     function goBackWithValue() {
       let array = searchPopUp.returnResultArray();
-      myModal.hide();
+      bootstrapModal.hide();
       hideAllModals(false);
       modalOuter.remove();
       resolve(array);
     }
 
     no.addEventListener("click", (target) => {
-      myModal.hide();
+      bootstrapModal.hide();
       hideAllModals(false);
       modalOuter.remove();
       resolve(false);
     });
 
     close.addEventListener("click", (target) => {
-      myModal.hide();
+      bootstrapModal.hide();
       hideAllModals(false);
       modalOuter.remove();
       resolve(false);

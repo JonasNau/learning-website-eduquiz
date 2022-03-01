@@ -4,7 +4,6 @@ require_once("./generalFunctions.php");
 require_once("./getSettings.php");
 require_once("./userSystem/functions/generalFunctions.php");
 require_once("./organisationFunctions.inc.php");
-require_once("./quizlogic.inc.php");
 require_once("./userSystem/autologin.php");
 require_once("../global.php");
 

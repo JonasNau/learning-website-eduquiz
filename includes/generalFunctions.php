@@ -874,7 +874,7 @@ function getAllValuesFromDatabase($conn, $table, $column, $limit, $returnAsArray
                             $resultArray[] = $current["Data"];
                         }
                         if ($distinct) {
-                            return array_unique(array_values(array_unique($resultArray, SORT_REGULAR)));
+                            return array_unique(array_values($resultArray), SORT_REGULAR);
                         }
                         return $resultArray;
                     } else {
@@ -885,6 +885,7 @@ function getAllValuesFromDatabase($conn, $table, $column, $limit, $returnAsArray
                 }
             }
         } catch (Exception $e) {
+            logWrite($conn, "general", $e);
             return false;
         }
     }

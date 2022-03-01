@@ -1,5 +1,5 @@
 import * as Utils from "../../../includes/utils.js";
-import { editQuizdata } from "./quizverwaltung.inc.js";
+import { editQuizdata, getThemaFromUser } from "./quizverwaltung.inc.js";
 
 class Quizverwaltung {
   constructor(container) {
@@ -78,11 +78,7 @@ class Quizverwaltung {
 
     let changeNameAll = thead.querySelector("#name #changeAll");
     changeNameAll.addEventListener("click", async () => {
-      if (
-       !(await Utils.userHasPermissions(
-          ["quizverwaltungEditQuizzes"]
-        ))
-      ) {
+      if (!(await Utils.userHasPermissions(["quizverwaltungEditQuizzes"]))) {
         return false;
       }
       let userInput = await Utils.getUserInput(
@@ -131,11 +127,7 @@ class Quizverwaltung {
 
     let changeAllKlassenstufe = thead.querySelector("#klassenstufe #changeAll");
     changeAllKlassenstufe.addEventListener("click", async () => {
-      if (
-       !(await Utils.userHasPermissions(
-          ["quizverwaltungEditQuizzes"]
-        ))
-      ) {
+      if (!(await Utils.userHasPermissions(["quizverwaltungEditQuizzes"]))) {
         return false;
       }
       let availableKlassenstufen = Utils.sortItems(
@@ -187,11 +179,7 @@ class Quizverwaltung {
 
     let changeAllFach = thead.querySelector("#fach #changeAll");
     changeAllFach.addEventListener("click", async () => {
-      if (
-       !(await Utils.userHasPermissions(
-          ["quizverwaltungEditQuizzes"]
-        ))
-      ) {
+      if (!(await Utils.userHasPermissions(["quizverwaltungEditQuizzes"]))) {
         return false;
       }
       let availableFaecher = Utils.sortItems(
@@ -242,18 +230,10 @@ class Quizverwaltung {
 
     let changeAllThema = thead.querySelector("#thema #changeAll");
     changeAllThema.addEventListener("click", async () => {
-      if (
-       !(await Utils.userHasPermissions(
-          ["quizverwaltungEditQuizzes"]
-        ))
-      ) {
+      if (!(await Utils.userHasPermissions(["quizverwaltungEditQuizzes"]))) {
         return false;
       }
-      let choosen = await Utils.chooseFromArrayWithSearch(
-        [],
-        true,
-        "Thema auswählen", false, false, true, "quizverwaltung&operation=other&type=searchThema&input=", "./includes/quizverwaltung.inc.php"
-      );
+      let choosen = await getThemaFromUser();
       if (choosen && choosen.length > 0) {
         choosen = choosen[0];
       } else {
@@ -283,11 +263,7 @@ class Quizverwaltung {
 
     let changeAllDescription = thead.querySelector("#description #changeAll");
     changeAllDescription.addEventListener("click", async () => {
-      if (
-       !(await Utils.userHasPermissions(
-          ["quizverwaltungEditQuizzes"]
-        ))
-      ) {
+      if (!(await Utils.userHasPermissions(["quizverwaltungEditQuizzes"]))) {
         return false;
       }
       let userInput = await Utils.getUserInput(
@@ -609,26 +585,7 @@ class Quizverwaltung {
           );
         }
       } else {
-        let availableThemen = Utils.sortItems(
-          await Utils.makeJSON(
-            await Utils.sendXhrREQUEST(
-              "POST",
-              "quizverwaltung&operation=other&type=getAllThemen",
-              "./includes/quizverwaltung.inc.php",
-              "application/x-www-form-urlencoded",
-              true,
-              true,
-              false,
-              true
-            )
-          )
-        );
-        let choosen = await Utils.chooseFromArrayWithSearch(
-          availableThemen,
-          true,
-          "Thema auswählen",
-          false
-        );
+        let choosen = await getThemaFromUser();
         if (choosen && choosen.length > 0) {
           choosen = choosen[0];
         } else {
@@ -660,7 +617,7 @@ class Quizverwaltung {
     });
 
     let changeAllrequireName = thead.querySelector("#requireName");
-    changeAllrequireName.addEventListener("click", async()=> {
+    changeAllrequireName.addEventListener("click", async () => {
       let state = await Utils.getUserInput(
         "Ändern",
         "Sollen alle ausgewählten Quizze über ein Thema verfügen?",
@@ -706,32 +663,34 @@ class Quizverwaltung {
           Utils.alertUser("Nachricht", "Keine Aktion unternommen", false);
           return false;
         }
-  
+
         let counter = 1;
-  
+
         for (const current of this.choosenArray) {
           let name = userInput;
           if (counter > 1 && userInput !== false) {
             name = `${name} ${counter}`;
           }
-          if (await Utils.makeJSON(
-            await Utils.sendXhrREQUEST(
-              "POST",
-              "quizverwaltung&operation=changeValue&type=requireName&uniqueID=" +
-                current +
-                "&state=" +
-                Number(state).toString() +
-                "&name=" +
-                name,
-              "./includes/quizverwaltung.inc.php",
-              "application/x-www-form-urlencoded",
-              true,
-              false,
-              false,
-              true,
-              false
-            )
-          )["status"] === "success") {
+          if (
+            (await Utils.makeJSON(
+              await Utils.sendXhrREQUEST(
+                "POST",
+                "quizverwaltung&operation=changeValue&type=requireName&uniqueID=" +
+                  current +
+                  "&state=" +
+                  Number(state).toString() +
+                  "&name=" +
+                  name,
+                "./includes/quizverwaltung.inc.php",
+                "application/x-www-form-urlencoded",
+                true,
+                false,
+                false,
+                true,
+                false
+              )
+            )["status"]) === "success"
+          ) {
             counter++;
           }
         }
@@ -742,11 +701,7 @@ class Quizverwaltung {
 
     let deleteAllQuizBtn = thead.querySelector("#remove #changeAll");
     deleteAllQuizBtn.addEventListener("click", async () => {
-      if (
-       !(await Utils.userHasPermissions(
-          ["quizverwaltungADDandRemove"]
-        ))
-      ) {
+      if (!(await Utils.userHasPermissions(["quizverwaltungADDandRemove"]))) {
         return false;
       }
       if (
@@ -762,8 +717,7 @@ class Quizverwaltung {
         let response = await Utils.makeJSON(
           await Utils.sendXhrREQUEST(
             "POST",
-            "quizverwaltung&operation=deleteQuiz&uniqueID=" +
-              current,
+            "quizverwaltung&operation=deleteQuiz&uniqueID=" + current,
             "./includes/quizverwaltung.inc.php",
             "application/x-www-form-urlencoded",
             true,
@@ -774,10 +728,7 @@ class Quizverwaltung {
           )
         );
         if (response["status"] === "success") {
-          this.choosenArray = Utils.removeFromArray(
-            this.choosenArray,
-            current
-          );
+          this.choosenArray = Utils.removeFromArray(this.choosenArray, current);
         }
       }
 
@@ -797,7 +748,6 @@ class Quizverwaltung {
     let filterContainer = this.container.querySelector(".filter");
     if (!filterContainer) return "No filter container";
     this.filterContainer = filterContainer;
-
 
     //Filter Type Select (init)
     let chooseFilterTypeSelect = filterContainer.querySelector(
@@ -926,7 +876,7 @@ class Quizverwaltung {
     this.limiter = limiter;
     this.filterType = "all";
     this.limiter.value = 20;
-    
+
     //Search While Typing
     let searchWhileTypingContainer = selectionFiltersContainer.querySelector(
       "#other #searchWhileTyping"
@@ -1060,11 +1010,7 @@ class Quizverwaltung {
     let addBtn = this.container.querySelector("#addBtn");
     if (!addBtn) return "no addBtn";
     addBtn.addEventListener("click", async () => {
-      if (
-       !(await Utils.userHasPermissions(
-          ["quizverwaltungADDandRemove"]
-        ))
-      ) {
+      if (!(await Utils.userHasPermissions(["quizverwaltungADDandRemove"]))) {
         return false;
       }
       if (
@@ -1318,7 +1264,6 @@ class Quizverwaltung {
       let addBtn = this.themaSelectContainer.querySelector("#addBtn");
       addBtn = Utils.removeAllEventlisteners(addBtn);
       addBtn.addEventListener("click", async () => {
-
         let remove = () => {
           this.themaSelect = false;
           this.themaSelectContainer.querySelector("#choosen").innerHTML = ``;
@@ -1327,7 +1272,12 @@ class Quizverwaltung {
         let choosen = await Utils.chooseFromArrayWithSearch(
           [],
           true,
-          "Thema auswählen", false, false, true, "quizverwaltung&operation=other&type=searchThema&input=", "./includes/quizverwaltung.inc.php"
+          "Thema auswählen",
+          false,
+          false,
+          true,
+          "quizverwaltung&operation=other&type=searchThema&input=",
+          "./includes/quizverwaltung.inc.php"
         );
         if (choosen) {
           this.themaSelect = choosen[0];
@@ -1493,7 +1443,7 @@ class Quizverwaltung {
       //AddBtn
       let addBtn = this.createdBySelectContainer.querySelector("#addBtn");
       addBtn = Utils.removeAllEventlisteners(addBtn);
-      addBtn.addEventListener("click", async()=> {
+      addBtn.addEventListener("click", async () => {
         let choosenUser = await Utils.pickUsers();
         if (choosenUser && choosenUser.length > 0) {
           choosenUser = choosenUser[0];
@@ -1506,7 +1456,7 @@ class Quizverwaltung {
       });
       //Remove
       let removeBtn = this.createdBySelectContainer.querySelector("#removeBtn");
-      removeBtn.addEventListener("click", async ()=> {
+      removeBtn.addEventListener("click", async () => {
         this.createdByString = false;
         choosen.innerText = "";
       });
@@ -1534,22 +1484,29 @@ class Quizverwaltung {
             ul.appendChild(li);
 
             let removeBtn = li.querySelector("#remove");
-            removeBtn.addEventListener("click", async() => {
-              this.changedBySelectArray = Utils.removeFromArray(this.changedBySelectArray, current);
+            removeBtn.addEventListener("click", async () => {
+              this.changedBySelectArray = Utils.removeFromArray(
+                this.changedBySelectArray,
+                current
+              );
               update();
             });
           }
         }
-      }
+      };
 
       //AddBtn
       let addBtn = this.changedBySelectContainer.querySelector("#addBtn");
       addBtn = Utils.removeAllEventlisteners(addBtn);
-      addBtn.addEventListener("click", async()=> {
+      addBtn.addEventListener("click", async () => {
         let choosenUsers = await Utils.pickUsers();
         if (choosenUsers && choosenUsers.length > 0) {
           for (const current of choosenUsers) {
-            this.changedBySelectArray = Utils.addToArray(this.changedBySelectArray, current, false);
+            this.changedBySelectArray = Utils.addToArray(
+              this.changedBySelectArray,
+              current,
+              false
+            );
           }
           update();
         } else {
@@ -1559,9 +1516,9 @@ class Quizverwaltung {
       });
       //Remove
       let removeBtn = this.changedBySelectContainer.querySelector("#removeBtn");
-      removeBtn.addEventListener("click", async ()=> {
+      removeBtn.addEventListener("click", async () => {
         this.changedBySelectArray = new Array();
-          choosen.innerHTML = "";
+        choosen.innerHTML = "";
       });
 
       this.changedBySelectContainer.classList.remove("hidden");
@@ -1569,7 +1526,6 @@ class Quizverwaltung {
       //Nothing to activate
     }
   }
-
 
   clear(element) {
     element.innerHTML = "";
@@ -2254,22 +2210,47 @@ class Quizverwaltung {
       tableRow.classList.add("result");
       tableRow.setAttribute("data-value", result["uniqueID"]);
 
-
       tableRow.innerHTML = `
       <td class="select"><input type="checkbox" id="select"><button id="chooseOnly"><img src="../../images/icons/stift.svg" alt="Auswahl"></button></td>
-      <td id="name" style="min-width: 400px;">${result["name"]}</td>
+      <td id="name" style="min-width: 400px;"><a href="/quiz.php?quizId=${result["quizId"]}">${result["name"]}</a></td>
       <td id="klassenstufe">${result["klassenstufe"]}</td>
       <td id="fach">${result["fach"]}</td>
       <td id="thema" style="min-width: 400px;">${result["thema"]}</td>
-      <td id="description" style="min-width: 400px;">${result["description"]}</td>
+      <td id="description" style="min-width: 400px;">${
+        result["description"]
+      }</td>
       <td id="quizId">${result["quizId"]}</td>
       <td id="id">${result["uniqueID"]}</td>
-      <td id="showQuizAuswahl" class="${Utils.boolToString(result["showQuizAuswahl"], {true: "angezeigt", false: "ausgeblendet"})}">${Utils.boolToString(result["showQuizAuswahl"], {"true": "angezeigt", "false": "ausgeblendet"})}</td>
-      <td id="visibility" class="${Utils.boolToString(result["visibility"], {true: "angezeigt", false: "ausgeblendet"})}">${Utils.boolToString(result["visibility"], {"true": "angezeigt", "false": "ausgeblendet"})}</td>
-      <td id="requireKlassenstufe">${Utils.boolToString(result["requireKlassenstufe"], {true: "benötigt", false: "nicht benötigt"})}</td>
-      <td id="requireFach">${Utils.boolToString(result["requireFach"], {true: "benötigt", false: "nicht benötigt"})}</td>
-      <td id="requireThema">${Utils.boolToString(result["requireThema"], {true: "benötigt", false: "nicht benötigt"})}</td>
-      <td id="requireName">${Utils.boolToString(result["requireName"], {true: "benötigt", false: "nicht benötigt"})}</td>
+      <td id="showQuizAuswahl" class="${Utils.boolToString(
+        result["showQuizAuswahl"],
+        { true: "angezeigt", false: "ausgeblendet" }
+      )}">${Utils.boolToString(result["showQuizAuswahl"], {
+        true: "angezeigt",
+        false: "ausgeblendet",
+      })}</td>
+      <td id="visibility" class="${Utils.boolToString(result["visibility"], {
+        true: "angezeigt",
+        false: "ausgeblendet",
+      })}">${Utils.boolToString(result["visibility"], {
+        true: "angezeigt",
+        false: "ausgeblendet",
+      })}</td>
+      <td id="requireKlassenstufe">${Utils.boolToString(
+        result["requireKlassenstufe"],
+        { true: "benötigt", false: "nicht benötigt" }
+      )}</td>
+      <td id="requireFach">${Utils.boolToString(result["requireFach"], {
+        true: "benötigt",
+        false: "nicht benötigt",
+      })}</td>
+      <td id="requireThema">${Utils.boolToString(result["requireThema"], {
+        true: "benötigt",
+        false: "nicht benötigt",
+      })}</td>
+      <td id="requireName">${Utils.boolToString(result["requireName"], {
+        true: "benötigt",
+        false: "nicht benötigt",
+      })}</td>
       <td id="questions" style="min-width: 500px;"></td>
       <td id="lastUsed">${result["lastUsed"]}</td>
       <td id="created">${result["created"]}</td>
@@ -2391,9 +2372,7 @@ class Quizverwaltung {
         tableRow.setAttribute("data-value", current["uniqueID"]);
 
         tableRow.innerHTML = `
-        <td id="name" style="min-width: 400px;"><span>${
-          current["name"]
-        }</span><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></td>
+        <td id="name" style="min-width: 400px;"><a href="/quiz.php?quizId=${current["quizId"]}">${current["name"]}</a><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></td>
         <td id="quizData"><span>Quiz bearbeiten</span><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></td>
         <td id="klassenstufe" style="min-width: 400px;"><span>${
           current["klassenstufe"]
@@ -2411,37 +2390,61 @@ class Quizverwaltung {
           current["quizId"]
         }</span><button class="changeBtn" id="change"><img src="../../images/icons/stift.svg" alt="ändern" class="changeIcon"></button><button class="btn btn-sm btn-warning" style="margin: 5px;" id="generateRandomQuizId">Zufall</button></td>
         <td id="id">${current["uniqueID"]}</td>
-        <td id="showQuizAuswahl" class="${Utils.boolToString(current["showQuizAuswahl"], {true: "angezeigt", false: "ausgeblendet"})}"><span>${Utils.boolToString(current["showQuizAuswahl"], {true: "angezeigt", false: "ausgeblendet"})}</span>
+        <td id="showQuizAuswahl" class="${Utils.boolToString(
+          current["showQuizAuswahl"],
+          { true: "angezeigt", false: "ausgeblendet" }
+        )}"><span>${Utils.boolToString(current["showQuizAuswahl"], {
+          true: "angezeigt",
+          false: "ausgeblendet",
+        })}</span>
         <label class="switch">
               <input type="checkbox" id="checkbox">
               <span class="slider round"></span>
         </label>
         </td>
-        <td id="visibility" class="${Utils.boolToString(current["visibility"], {true: "angezeigt", false: "ausgeblendet"})}"><span>${Utils.boolToString(current["visibility"], {true: "angezeigt", false: "ausgeblendet"})}</span>
+        <td id="visibility" class="${Utils.boolToString(current["visibility"], {
+          true: "angezeigt",
+          false: "ausgeblendet",
+        })}"><span>${Utils.boolToString(current["visibility"], {
+          true: "angezeigt",
+          false: "ausgeblendet",
+        })}</span>
         <label class="switch">
               <input type="checkbox" id="checkbox">
               <span class="slider round"></span>
         </label>
         </td>
-        <td id="requireKlassenstufe"><span>${Utils.boolToString(current["requireKlassenstufe"], {true: "benötigt", false: "nicht benötigt"})}</span>
+        <td id="requireKlassenstufe"><span>${Utils.boolToString(
+          current["requireKlassenstufe"],
+          { true: "benötigt", false: "nicht benötigt" }
+        )}</span>
         <label class="switch">
               <input type="checkbox" id="checkbox">
               <span class="slider round"></span>
         </label>
         </td>
-        <td id="requireFach"><span>${Utils.boolToString(current["requireFach"], {true: "benötigt", false: "nicht benötigt"})}</span>
+        <td id="requireFach"><span>${Utils.boolToString(
+          current["requireFach"],
+          { true: "benötigt", false: "nicht benötigt" }
+        )}</span>
         <label class="switch">
               <input type="checkbox" id="checkbox">
               <span class="slider round"></span>
         </label>
         </td>
-        <td id="requireThema"><span>${Utils.boolToString(current["requireThema"], {true: "benötigt", false: "nicht benötigt"})}</span>
+        <td id="requireThema"><span>${Utils.boolToString(
+          current["requireThema"],
+          { true: "benötigt", false: "nicht benötigt" }
+        )}</span>
         <label class="switch">
               <input type="checkbox" id="checkbox">
               <span class="slider round"></span>
         </label>
         </td>
-        <td id="requireName"><span>${Utils.boolToString(current["requireName"], {true: "benötigt", false: "nicht benötigt"})}</span>
+        <td id="requireName"><span>${Utils.boolToString(
+          current["requireName"],
+          { true: "benötigt", false: "nicht benötigt" }
+        )}</span>
         <label class="switch">
               <input type="checkbox" id="checkbox">
               <span class="slider round"><true
@@ -2464,9 +2467,7 @@ class Quizverwaltung {
         let changeNameBtn = tableRow.querySelector("#name #change");
         changeNameBtn.addEventListener("click", async () => {
           if (
-           !(await Utils.userHasPermissions(
-              ["quizverwaltungEditQuizzes"]
-            ))
+            !(await Utils.userHasPermissions(["quizverwaltungEditQuizzes"]))
           ) {
             return false;
           }
@@ -2506,9 +2507,7 @@ class Quizverwaltung {
         let changeQuizdataBtn = tableRow.querySelector("#quizData #change");
         changeQuizdataBtn.addEventListener("click", async () => {
           if (
-           !(await Utils.userHasPermissions(
-              ["quizverwaltungEditQuizzes"]
-            ))
+            !(await Utils.userHasPermissions(["quizverwaltungEditQuizzes"]))
           ) {
             return false;
           }
@@ -2525,9 +2524,7 @@ class Quizverwaltung {
         );
         changeKlassenstufeBtn.addEventListener("click", async () => {
           if (
-           !(await Utils.userHasPermissions(
-              ["quizverwaltungEditQuizzes"]
-            ))
+            !(await Utils.userHasPermissions(["quizverwaltungEditQuizzes"]))
           ) {
             return false;
           }
@@ -2579,9 +2576,7 @@ class Quizverwaltung {
         let changeFachBtn = tableRow.querySelector("#fach #change");
         changeFachBtn.addEventListener("click", async () => {
           if (
-           !(await Utils.userHasPermissions(
-              ["quizverwaltungEditQuizzes"]
-            ))
+            !(await Utils.userHasPermissions(["quizverwaltungEditQuizzes"]))
           ) {
             return false;
           }
@@ -2633,17 +2628,11 @@ class Quizverwaltung {
         let changeThemaBtn = tableRow.querySelector("#thema #change");
         changeThemaBtn.addEventListener("click", async () => {
           if (
-           !(await Utils.userHasPermissions(
-              ["quizverwaltungEditQuizzes"]
-            ))
+            !(await Utils.userHasPermissions(["quizverwaltungEditQuizzes"]))
           ) {
             return false;
           }
-          let choosen = await Utils.chooseFromArrayWithSearch(
-            [],
-            true,
-            "Thema auswählen", false, false, true, "quizverwaltung&operation=other&type=searchThema&input=", "./includes/quizverwaltung.inc.php"
-          );
+          let choosen = await getThemaFromUser();
           if (choosen && choosen.length > 0) {
             choosen = choosen[0];
           } else {
@@ -2674,9 +2663,7 @@ class Quizverwaltung {
         );
         changeDescriptionBtn.addEventListener("click", async () => {
           if (
-           !(await Utils.userHasPermissions(
-              ["quizverwaltungEditQuizzes"]
-            ))
+            !(await Utils.userHasPermissions(["quizverwaltungEditQuizzes"]))
           ) {
             return false;
           }
@@ -2716,9 +2703,7 @@ class Quizverwaltung {
         let changeQuizIdBtn = tableRow.querySelector("#quizId #change");
         changeQuizIdBtn.addEventListener("click", async () => {
           if (
-           !(await Utils.userHasPermissions(
-              ["quizverwaltungEditQuizzes"]
-            ))
+            !(await Utils.userHasPermissions(["quizverwaltungEditQuizzes"]))
           ) {
             return false;
           }
@@ -2760,9 +2745,7 @@ class Quizverwaltung {
         );
         changeQuizIdRandomBtn.addEventListener("click", async () => {
           if (
-           !(await Utils.userHasPermissions(
-              ["quizverwaltungEditQuizzes"]
-            ))
+            !(await Utils.userHasPermissions(["quizverwaltungEditQuizzes"]))
           ) {
             return false;
           }
@@ -3027,11 +3010,7 @@ class Quizverwaltung {
               )
             );
           } else {
-            let choosen = await Utils.chooseFromArrayWithSearch(
-              [],
-              true,
-              "Thema auswählen", false, false, true, "quizverwaltung&operation=other&type=searchThema&input=", "./includes/quizverwaltung.inc.php"
-            );
+            let choosen = await getThemaFromUser();
             if (choosen && choosen.length > 0) {
               choosen = choosen[0];
             } else {
@@ -3128,9 +3107,7 @@ class Quizverwaltung {
         let deleteQuizBtn = tableRow.querySelector("#remove .delete-btn");
         deleteQuizBtn.addEventListener("click", async () => {
           if (
-           !(await Utils.userHasPermissions(
-              ["quizverwaltungADDandRemove"]
-            ))
+            !(await Utils.userHasPermissions(["quizverwaltungADDandRemove"]))
           ) {
             return false;
           }

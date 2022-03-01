@@ -598,7 +598,11 @@ class Berechtigungsverwaltung {
     if (filter === this.nameSelectContainer) {
       //name
       let textInput = this.nameSelectContainer.querySelector("#textInput");
-      Utils.listenToChanges(textInput, "input", 650, this.search);
+      Utils.listenToChanges(textInput, "input", 650, () => {
+        if (this.searchWhileTyping) {
+          this.search();
+        }
+      });
       this.nameSelectContainer.classList.remove("hidden");
     } else if (filter === this.typeSelectContainer) {
       //type select
@@ -617,25 +621,41 @@ class Berechtigungsverwaltung {
         )
       );
       Utils.fillListWithValues(select, types, true);
-      Utils.listenToChanges(select, 650, "change", this.search());
+      Utils.listenToChanges(select, "change", 650, () => {
+        if (this.searchWhileTyping) {
+          this.search();
+        }
+      });
       this.typeSelectContainer.classList.remove("hidden");
     } else if (filter === this.descriptionSelectContainer) {
       //description
       let textInput =
         this.descriptionSelectContainer.querySelector("#textInput");
-      Utils.listenToChanges(textInput, "input", 650, this.search());
+        Utils.listenToChanges(textInput, "input", 650, () => {
+          if (this.searchWhileTyping) {
+            this.search();
+          }
+        });
       this.descriptionSelectContainer.classList.remove("hidden");
     } else if (filter === this.rankingSelectContainer) {
       //Ranking
       let numberInput =
         this.rankingSelectContainer.querySelector("#numberInput");
-      Utils.listenToChanges(numberInput, 200, "input", this.search());
+        Utils.listenToChanges(numberInput, "input", 650, () => {
+          if (this.searchWhileTyping) {
+            this.search();
+          }
+        });
       this.rankingSelectContainer.classList.remove("hidden");
     } else if (filter === this.normalValueSelectContainer) {
       //Normal Value
       let textInput =
         this.normalValueSelectContainer.querySelector("#textInput");
-      Utils.listenToChanges(textInput, "input", 650, this.search());
+        Utils.listenToChanges(textInput, "input", 650, () => {
+          if (this.searchWhileTyping) {
+            this.search();
+          }
+        });
       this.normalValueSelectContainer.classList.remove("hidden");
     } else if (filter === this.usedAtSelectContainer) {
       //Used At
@@ -688,6 +708,9 @@ class Berechtigungsverwaltung {
             });
           });
         }
+        if (this.searchWhileTyping) {
+          this.search();
+        }
       };
 
       select.addEventListener("change", () => {
@@ -701,17 +724,29 @@ class Berechtigungsverwaltung {
     } else if (filter === this.hinweisSelectContainer) {
       //Hinweis
       let textInput = this.hinweisSelectContainer.querySelector("#textInput");
-      Utils.listenToChanges(textInput, "input", 650, this.search());
+      Utils.listenToChanges(textInput, "input", 650, () => {
+        if (this.searchWhileTyping) {
+          this.search();
+        }
+      });
       this.hinweisSelectContainer.classList.remove("hidden");
     } else if (filter === this.idSelectContainer) {
       //id
       let numberInput = this.idSelectContainer.querySelector("#numberInput");
-      Utils.listenToChanges(numberInput, 200, "input", this.search());
+      Utils.listenToChanges(numberInput, "input", 650, () => {
+        if (this.searchWhileTyping) {
+          this.search();
+        }
+      });
       this.idSelectContainer.classList.remove("hidden");
     } else if (filter === this.customIDSelectContainer) {
       //customID
       let textInput = this.customIDSelectContainer.querySelector("#textInput");
-      Utils.listenToChanges(textInput, "input", 650, this.search());
+      Utils.listenToChanges(textInput, "input", 650, () => {
+        if (this.searchWhileTyping) {
+          this.search();
+        }
+      });
       this.customIDSelectContainer.classList.remove("hidden");
     }
   }
@@ -1703,7 +1738,6 @@ class Gruppenverwaltung {
             }
           }
         } else if (method === "removeAll") {
-          this.choosenUsersArray.forEach(async (user) => {
             for (const currentGroup of this.choosenArray) {
               await Utils.makeJSON(
                 await Utils.sendXhrREQUEST(
@@ -1720,7 +1754,6 @@ class Gruppenverwaltung {
                 )
               );
             }
-          });
         }
       } else if (art === "forbidden") {
         if (method === "add") {

@@ -299,7 +299,11 @@ class SETTINGS {
     if (filter === this.nameSelectContainer) {
       //name
       let textInput = this.nameSelectContainer.querySelector("#textInput");
-      Utils.listenToChanges(textInput, "input", 650, this.search);
+      Utils.listenToChanges(textInput, "input", 650, () => {
+        if (this.searchWhileTyping) {
+          this.search();
+        }
+      });
       this.nameSelectContainer.classList.remove("hidden");
     } else if (filter === this.typeSelectContainer) {
       //type select
@@ -318,19 +322,31 @@ class SETTINGS {
         )
       );
       Utils.fillListWithValues(select, types, true);
-      Utils.listenToChanges(select, 650, "change", this.search);
+      Utils.listenToChanges(select, "change", 650, () => {
+        if (this.searchWhileTyping) {
+          this.search();
+        }
+      });
       this.typeSelectContainer.classList.remove("hidden");
     } else if (filter === this.descriptionSelectContainer) {
       //description
       let textInput =
         this.descriptionSelectContainer.querySelector("#textInput");
-      Utils.listenToChanges(textInput, "input", 650, this.search);
+        Utils.listenToChanges(textInput, "input", 650, () => {
+          if (this.searchWhileTyping) {
+            this.search();
+          }
+        });
       this.descriptionSelectContainer.classList.remove("hidden");
     } else if (filter === this.normalValueSelectContainer) {
       //Normal Value
       let textInput =
         this.normalValueSelectContainer.querySelector("#textInput");
-      Utils.listenToChanges(textInput, "input", 650, this.search);
+        Utils.listenToChanges(textInput, "input", 650, () => {
+          if (this.searchWhileTyping) {
+            this.search();
+          }
+        });
       this.normalValueSelectContainer.classList.remove("hidden");
     } else if (filter === this.usedAtSelectContainer) {
       //Used At
@@ -383,6 +399,9 @@ class SETTINGS {
             });
           });
         }
+        if (this.searchWhileTyping) {
+          this.search();
+        }
       };
 
       select.addEventListener("change", () => {
@@ -396,7 +415,11 @@ class SETTINGS {
     } else if (filter === this.idSelectContainer) {
       //id
       let numberInput = this.idSelectContainer.querySelector("#numberInput");
-      Utils.listenToChanges(numberInput, 200, "input", this.search);
+      Utils.listenToChanges(numberInput, "input", 650, () => {
+        if (this.searchWhileTyping) {
+          this.search();
+        }
+      });
       this.idSelectContainer.classList.remove("hidden");
     } else if (filter === this.permissionNeededSelectContainer) {
       let addPermissionBtn =
@@ -416,7 +439,11 @@ class SETTINGS {
     } else if (filter === this.settingSelectContainer) {
       //setting
       let textInput = this.settingSelectContainer.querySelector("#textInput");
-      Utils.listenToChanges(textInput, "input", 650, this.search);
+      Utils.listenToChanges(textInput, "input", 650, () => {
+        if (this.searchWhileTyping) {
+          this.search();
+        }
+      });
       this.settingSelectContainer.classList.remove("hidden");
     }
   }
@@ -619,6 +646,8 @@ class SETTINGS {
   }
 
   async edit(choosen, reloadOnlyOne = false) {
+    this.searchReloadBtn.disabled = false;
+    this.searchBtn.classList.remove("loading");
     if (!choosen || !choosen.length > 0) {
       this.editContainer.classList.add("hidden");
       this.clear(this.editTableBody);

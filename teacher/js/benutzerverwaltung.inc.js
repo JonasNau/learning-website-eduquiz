@@ -2804,12 +2804,18 @@ export async function addPermission(hidePermissions) {
 
 export async function editScores(userID) {
   return new Promise(async(resolve, reject) => {
-    const [modal, bootstrapModal, modalBody, modalOuter] = Utils.createModal({
+
+    const createdModal = Utils.createModal({
       title: "Scores bearbeiten",
       fullscreen: true,
       verticallyCentered: false,
       modalType: "yes/no",
     });
+    let modal = createdModal.modal;
+    let bootstrapModal = createdModal.bootstrapModal;
+    let modalBody = createdModal.modalBody;
+    let modalOuter = createdModal.modalOuter;
+
     modalBody.innerHTML = 
     `
     <div class="container" id="scoreVerwaltung">

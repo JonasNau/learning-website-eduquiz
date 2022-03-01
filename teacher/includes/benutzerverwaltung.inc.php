@@ -70,6 +70,7 @@ if (isset($_POST["benutzerverwaltung"])) {
                 $isOnline = getValueFromDatabase($conn, "users", "isOnline", "userID", $user, 1, false);
                 $authenticated = getValueFromDatabase($conn, "users", "authenticated", "userID", $user, 1, false);
                 $groups = json_validate(getValueFromDatabase($conn, "users", "groups", "userID", $user, 1, false));
+                $lastQuiz = getValueFromDatabase($conn, "users", "lastQuiz", "userID", $user, 1, false);
 
                 //Create Readable feedback like lastLogin etc
                 $now = new DateTime(getCurrentDateAndTime(1));
@@ -114,7 +115,7 @@ if (isset($_POST["benutzerverwaltung"])) {
                 $showPublic = getValueFromDatabase($conn, "users", "showPublic", "userID", $user, 1, false);
                 //Insert new Group and Permissions and deniedPermissions if these values are null in DB set it to valid json
 
-                array_push($resultArray, array("userID" => $user, "username" => $username, "email" => $email, "klassenstufe" => $klassenstufe, "created" => $createdRaw, "lastLogin" => $lastLoginRaw, "lastPwdChange" => $lastPwdChange, "authenticated" => $authenticated, "groups" => $groups, "permissionsAllowed" => $permissionsAllowed, "permissionsForbidden" => $permissionsForbidden, "lastActivity" => $lastActivityRaw, "isOnline" => $isOnline, "lastLoginString" => $lastLoginString, "createdString" => $createdString, "lastPwdChangeString" => $lastPwdChangeString, "lastActivityString" => $lastActivityString, "nextMessages" => $usersnextMessages, "ranking" => $ranking, "showPublic" => $showPublic));
+                array_push($resultArray, array("userID" => $user, "username" => $username, "email" => $email, "klassenstufe" => $klassenstufe, "created" => $createdRaw, "lastLogin" => $lastLoginRaw, "lastPwdChange" => $lastPwdChange, "authenticated" => $authenticated, "groups" => $groups, "permissionsAllowed" => $permissionsAllowed, "permissionsForbidden" => $permissionsForbidden, "lastActivity" => $lastActivityRaw, "isOnline" => $isOnline, "lastLoginString" => $lastLoginString, "createdString" => $createdString, "lastPwdChangeString" => $lastPwdChangeString, "lastActivityString" => $lastActivityString, "nextMessages" => $usersnextMessages, "ranking" => $ranking, "showPublic" => $showPublic, "lastQuiz" => $lastQuiz));
             }
             echo json_encode($resultArray);
             return true;
@@ -1218,7 +1219,7 @@ if (isset($_POST["benutzerverwaltung"])) {
             die();
         }
         $username = $_POST["username"];
-        $password = json_validate($_POST["password"])?->{"password"};
+        $password = json_validate($_POST["password"])?->password;
         $email = $_POST["email"];
 
         if (empty($username)) {
@@ -1245,21 +1246,33 @@ if (isset($_POST["benutzerverwaltung"])) {
                 die();
             }
             $email = formatEmail($email);
-        }
-        if (emailAlreadyExists($conn, $email)) {
-            returnMessage("failed", "Es existiert bereits ein Nutzer mit der E-Mail <b>$email</b>");
-            die();
-        }
 
-        if (createUserWithoutEmail($conn, $username, false, password_hash($password, PASSWORD_DEFAULT))) {
-            $usersUserID = getParameterFromUser($conn, $username, "userID", "username");
-            if ($email) {
-                setValueFromDatabase($conn, "users", "email", "userID", $usersUserID, $email);
-                setValueFromDatabase($conn, "users", "authenticated", "userID", $usersUserID, 1);
+            if (emailAlreadyExists($conn, $email)) {
+                returnMessage("failed", "Es existiert bereits ein Nutzer mit der E-Mail <b>$email</b>");
+                die();
             }
-            returnMessage("success", "Benutzer <b>$username</b> erfolgreich erstellt.", false, array("createduserID" => $usersUserID));
-            die();
+    
+            if (createUserWithoutEmail($conn, $username, false, $password)) {
+                $usersUserID = getParameterFromUser($conn, $username, "userID", "username");
+                if ($email) {
+                    setValueFromDatabase($conn, "users", "email", "userID", $usersUserID, $email);
+                    setValueFromDatabase($conn, "users", "authenticated", "userID", $usersUserID, 1);
+                }
+                returnMessage("success", "Benutzer <b>$username</b> erfolgreich erstellt.", false, array("createduserID" => $usersUserID));
+                die();
+            }
+        } else {
+            if (createUserWithEmail($conn, $username, $email, false, $password)) {
+                $usersUserID = getParameterFromUser($conn, $username, "userID", "username");
+                if ($email) {
+                    setValueFromDatabase($conn, "users", "email", "userID", $usersUserID, $email);
+                    setValueFromDatabase($conn, "users", "authenticated", "userID", $usersUserID, 1);
+                }
+                returnMessage("success", "Benutzer <b>$username</b> erfolgreich erstellt.", false, array("createduserID" => $usersUserID));
+                die();
+            }
         }
+       
 
         returnMessage("failed", "Benutzer <b>$username</b> konnte nicht erstellt werden.");
         die();

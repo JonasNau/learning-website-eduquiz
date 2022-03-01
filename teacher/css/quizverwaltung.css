@@ -179,20 +179,12 @@ td.select #chooseOnly img {
   margin: 2px;
 }
 
-.editQuizdata .editCards .options {
-  background-color: gray;
-}
-
-.editQuizdata .editCards .options #toolbar {
-  background-color: green;
+.editQuizdata button {
+  margin-bottom: 5px;
 }
 
 .editQuizdata .editCards .options #toolbar > button {
   margin: 2px;
-}
-
-.editQuizdata .editCards .options #furtherOptions {
-  background-color: red;
 }
 
 .editQuizdata .editCards .options #furtherOptions {

@@ -776,7 +776,7 @@ class Benutzerverwaltung {
           if (response["status"] == "success") {
             this.choosenArray = Utils.removeFromArray(
               this.choosenArray,
-              current["userID"]
+              current
             );
           }
         }
@@ -2543,7 +2543,7 @@ class Benutzerverwaltung {
                 current["userID"]
               );
             }
-            this.edit([current["userID"]], true);
+            this.edit(this.choosenArray);
           } else if (type === "logoutFromAlldevices") {
             //Done
             if (

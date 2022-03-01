@@ -753,7 +753,7 @@ if (isset($_POST["gruppenverwaltung"])) {
                 }
                 die();
             } else if ($secondOperation === "removeAllPermissions") {
-                $allPermissions = getAllValuesFromDatabase($conn, "permissions", "permissionName", 0, true, true);
+                $allPermissions = getAllValuesFromDatabase($conn, "permissions", "name", 0, true, true);
                 if (!$allPermissions || !count($allPermissions) > 0) {
                   returnMessage("failed", "Benutzer hat keine erlaubten Berechtigungen");
                 }
@@ -964,7 +964,7 @@ if (isset($_POST["gruppenverwaltung"])) {
                 }
                 die();
             } else if ($secondOperation === "removeAllPermissions") {
-                $allPermissions = getAllValuesFromDatabase($conn, "permissions", "permissionName", 0, true, true);
+                $allPermissions = getAllValuesFromDatabase($conn, "permissions", "name", 0, true, true);
                 if (!$allPermissions || !count($allPermissions) > 0) {
                   returnMessage("failed", "Benutzer hat keine erlaubten Berechtigungen");
                 }

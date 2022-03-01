@@ -4313,3 +4313,130 @@ let moveObject = (action, outerArray, selectorString = "id", selectorID) => {
     console.log("next Card =>", objecta, "currentCard =>", objectb);
   }
 };
+
+export async function getThemaFromUser() {
+  return new Promise(async (resolve, reject) => {
+    let customHTML = `
+   
+  <button type="button" class="btn btn-secondary" id="addThemaBtn">Thema hinufügen</button>
+  <div id="programContainer">
+        <button class="btn btn-secondary" id="filterToggle">Filtern</button>
+        <div class="filter">
+            <div class="selectionFilters">
+                <div id="other">
+                    <div id="searchWhileTyping">
+                        <label for="allowSearchWhileTyping">Während des Tippens suchen</label>
+                        <input type="checkbox" id="allowSearchWhileTyping">
+                    </div>
+                </div>
+                <div class="mt-2" id="name">
+                                <label for="textInput" class="form-label">Filtern nach Name</label>
+                                <input type="text" id="textInput" class="form-control" autocomplete="off">
+                            </div>
+                <div class="mt-2" id="limitResults">
+                    <label for="numberInput" class="form-label">Ergebnisse Limitieren</label>
+                    <input type="number" id="numberInput" name="numberInput" min="0" autocomplete="off">
+                </div>
+
+            </div>
+            <button type="button" class="btn btn-primary" id="search"
+                style="position: relative"><span>Suchen</span></button>
+        </div>
+        <div class="resultDesciption">
+
+        </div>
+        <table class="styled-table" style="margin: auto !important;" id="results">
+            <thead>
+                <tr>
+                    <th id="select">
+                        <div class="heading">Auswählen</div>
+                        <hr>
+                        <div><input type="checkbox" id="chooseall"> Alle auswählen</div>
+                    </th>
+                    <th id="name">Auswahl</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="select"><input type="checkbox" id="select"><button id="chooseOnly"><img
+                                src="../../images/icons/zahnrad.svg" alt="Auswahl"></button></td>
+                    <td id="name">accessLeherpanel</td>
+                </tr>
+            </tbody>
+        </table>
+
+
+    </div>
+ 
+    `;
+  
+    const createdModal = Utils.createModal({
+      title: "Thema auswählen",
+      fullscreen: true,
+      verticallyCentered: false,
+      modalType: "yes/no",
+    });
+    let modal = createdModal.modal;
+    let bootstrapModal = createdModal.bootstrapModal;
+    let modalBody = createdModal.modalBody;
+    let modalOuter = createdModal.modalOuter;
+
+    modalBody.innerHTML = customHTML;
+  
+    let customFunction = function () {
+      let addBtn = modalBody.querySelector("#addThemaBtn");
+      if (!addBtn) return "no addBtn";
+      addBtn.addEventListener("click", async () => {
+        if (
+          !(await Utils.userHasPermissions([
+            "themenverwaltungADDandRemove",
+          ]))
+        ) {
+          return false;
+        }
+        let userInput = await Utils.getUserInput(
+          "Eingabefeld",
+          "Wie soll das neue Thema heißen?",
+          false,
+          "text"
+        );
+        if (
+          userInput === false ||
+          Utils.isEmptyInput(userInput, true)
+        ) {
+          Utils.alertUser(
+            "Nachricht",
+            "Keine Aktion unternommen",
+            false
+          );
+          return false;
+        }
+        await Utils.makeJSON(
+          await Utils.sendXhrREQUEST(
+            "POST",
+            "themenverwaltung&operation=createThema&thema=" + userInput,
+            "/teacher/includes/organisation.inc.php",
+            "application/x-www-form-urlencoded",
+            true,
+            true,
+            false,
+            true
+          )
+        );
+      });
+    };
+    customFunction();
+    let choosen = await Utils.chooseFromArrayWithSearch(
+      [],
+      true,
+       false,
+      false,
+      true,
+      true,
+      "quizverwaltung&operation=other&type=searchThema&input=",
+      "/teacher/includes/quizverwaltung.inc.php",
+      {limitResults: 15}, true, createdModal
+    );
+    resolve(choosen);
+  })
+}
