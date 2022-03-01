@@ -13,7 +13,7 @@ if (!isLoggedIn()) {
 $userID = $_SESSION["userID"];
 $username = getParameterFromUser($conn, $userID, "username", "userID");
 
-if (userHasPermissions($conn, $userID, ["accessBerechtigungsverwaltung" => 1])) {
+if (userHasPermissions($conn, $userID, ["accessQuizverwaltung" => 1])) {
 
 ?>
     <link rel="stylesheet" href="./css/quizverwaltung.css">

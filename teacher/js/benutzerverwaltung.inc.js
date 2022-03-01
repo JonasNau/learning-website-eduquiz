@@ -203,15 +203,6 @@ export async function changeGroups(userID) {
           });
         });
       }
-
-      addGroupList.innerHTML =
-        "<option selected='selected' data-value=''>Auswahl</option>";
-      shownGroups.forEach((currentGroup) => {
-        let optionElement = document.createElement("option");
-        optionElement.setAttribute("data-value", currentGroup);
-        addGroupList.appendChild(optionElement);
-        optionElement.innerHTML = currentGroup;
-      });
     };
     reload();
 
