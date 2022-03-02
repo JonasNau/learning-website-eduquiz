@@ -14,6 +14,7 @@ require_once("../../includes/userSystem/functions/signup-functions.php");
 require_once("../../includes/getSettings.php");
 require_once("../../includes/userSystem/functions/password-check-functions.php");
 require_once("../../includes/userSystem/functions/login-functions.php");
+require_once("../../includes/date-functions.php");
 
 require_once("./lehrerpanel.inc.php");
 
