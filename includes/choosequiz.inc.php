@@ -175,7 +175,6 @@ if (isset($_POST['getQuizze'])) {
     } else {
         echo false;
     }
-
     die();
 }
 
