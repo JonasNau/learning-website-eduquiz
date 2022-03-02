@@ -472,6 +472,7 @@
   max-width: 250px;
   position: relative;
   display: inline-block;
+  margin: 5px;
 }
 
 #mainContainer .resultContainer #viewAnswers #choosenAnswers #content .item .answer .mediaContainer > * {

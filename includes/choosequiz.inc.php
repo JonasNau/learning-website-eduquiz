@@ -21,7 +21,7 @@ if (isset($_POST["getAmountOfQuizzes"])) {
         $resultArray = array();
 
         if (getValueFromDatabase($conn, "klassenstufenVerwaltung", "showQuizauswahl", "klassenstufe", $klassenstufe, 1, false)) {
-            $availableQuizzesForThatKlassenstufe = getValueFromDatabaseMultipleWhere($conn, "selectquiz", "quizId", ["visibility" => 1, "showQuizauswahl" => 1, "klassenstufe" => $klassenstufe], true, false);
+            $availableQuizzesForThatKlassenstufe = getValueFromDatabaseMultipleWhere($conn, "selectquiz", "quizId", ["visibility" => 1, "showQuizauswahl" => 1, "klassenstufe" => $klassenstufe, "fach" => true, "thema" => true, "quizname" => true], true, false);
             if ($availableQuizzesForThatKlassenstufe && count($availableQuizzesForThatKlassenstufe) > 0)
                 foreach ($availableQuizzesForThatKlassenstufe as $currentQuiz) {
                     $resultArray = addToArray($resultArray, $currentQuiz, false);
@@ -31,7 +31,7 @@ if (isset($_POST["getAmountOfQuizzes"])) {
 
         echo count($resultArray);
     } else if ($operation === "general") {
-        echo count(getValueFromDatabaseMultipleWhere($conn, "selectquiz", "quizId", ["visibility" => 1, "showQuizauswahl" => 1], true, false));
+        echo count(getValueFromDatabaseMultipleWhere($conn, "selectquiz", "quizId", ["visibility" => 1, "showQuizauswahl" => 1, "fach" => true, "thema" => true], true, false));
     } else if ($operation === "byKlassenstufeandFach") {
         $klassenstufe = $_POST["klassenstufe"];
         $fach = $_POST["fach"];
@@ -39,7 +39,7 @@ if (isset($_POST["getAmountOfQuizzes"])) {
         $resultArray = array();
 
         if (getValueFromDatabase($conn, "klassenstufenVerwaltung", "showQuizauswahl", "klassenstufe", $klassenstufe, 1, false) && getValueFromDatabase($conn, "faecherVerwaltung", "showQuizauswahl", "fach", $fach, 1, false)) {
-            $availableQuizzesForThatKlassenstufe = getValueFromDatabaseMultipleWhere($conn, "selectquiz", "quizId", ["visibility" => 1, "showQuizauswahl" => 1, "klassenstufe" => $klassenstufe, "fach"=>$fach], true, false);
+            $availableQuizzesForThatKlassenstufe = getValueFromDatabaseMultipleWhere($conn, "selectquiz", "quizId", ["visibility" => 1, "showQuizauswahl" => 1, "klassenstufe" => $klassenstufe, "fach"=>$fach, "quizname" => true], true, false);
             if ($availableQuizzesForThatKlassenstufe && count($availableQuizzesForThatKlassenstufe) > 0)
                 foreach ($availableQuizzesForThatKlassenstufe as $currentQuiz) {
                     $resultArray = addToArray($resultArray, $currentQuiz, false);
@@ -56,7 +56,7 @@ if (isset($_POST["getAmountOfQuizzes"])) {
         $resultArray = array();
 
         if (getValueFromDatabase($conn, "klassenstufenVerwaltung", "showQuizauswahl", "klassenstufe", $klassenstufe, 1, false) && getValueFromDatabase($conn, "faecherVerwaltung", "showQuizauswahl", "fach", $fach, 1, false) && getValueFromDatabase($conn, "themenVerwaltung", "showQuizauswahl", "thema", $thema, 1, false)) {
-            $availableQuizzesForThatKlassenstufe = getValueFromDatabaseMultipleWhere($conn, "selectquiz", "quizId", ["visibility" => 1, "showQuizauswahl" => 1, "klassenstufe" => $klassenstufe, "fach"=>$fach, "thema"=>$thema], true, false);
+            $availableQuizzesForThatKlassenstufe = getValueFromDatabaseMultipleWhere($conn, "selectquiz", "quizId", ["visibility" => 1, "showQuizauswahl" => 1, "klassenstufe" => $klassenstufe, "fach"=>$fach, "thema"=>$thema, "quizname" => true], true, false);
             if ($availableQuizzesForThatKlassenstufe && count($availableQuizzesForThatKlassenstufe) > 0)
                 foreach ($availableQuizzesForThatKlassenstufe as $currentQuiz) {
                     $resultArray = addToArray($resultArray, $currentQuiz, false);
