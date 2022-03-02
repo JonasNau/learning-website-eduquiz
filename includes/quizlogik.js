@@ -1465,7 +1465,7 @@ class Quiz {
 
     let getTotalTime = () => {
       console.log(this.startTime);
-      let secondsPassed = (now - this.startTime) / 1000;
+      let secondsPassed = (now.getTime() - this.startTime.getTime()) / 1000;
       this.resultObject.timeNeeded = secondsPassed;
       this.startTime = false;
       return Utils.secondsToArrayOrString(secondsPassed, "String");
@@ -1473,7 +1473,7 @@ class Quiz {
 
     let getTimeNeededCard = (start, end) => {
       try {
-        let secondsPassed = end.getSeconds() - start.getSeconds();
+        let secondsPassed = (end.getTime() - start.getTime()) / 1000;
         return Utils.secondsToArrayOrString(secondsPassed, "String");
       } catch (e) {
         console.error(e);
