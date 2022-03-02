@@ -901,12 +901,7 @@ export function editObject(
   editKey = false
 ) {
   return new Promise((resolve, reject) => {
-    const createdModal = createModal({
-      title: title,
-      fullscreen: false,
-      verticallyCentered: false,
-      modalType: "ok",
-    });
+    const createdModal = createModal(options);
     const modal = createdModal.modal;
     const bootstrapModal = createdModal.bootstrapModal;
     const modalBody = createdModal.modalBody;
@@ -3447,7 +3442,7 @@ export async function pickUsers(hideUsersIDS = false, typeToHide = false) {
     <div class="modal-dialog modal-fullscreen">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="staticBackdropLabel">Berechtigungen ändern</h5>
+          <h5 class="modal-title" id="staticBackdropLabel">Benutzer auswählen</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close"></button>
         </div>
         <div class="modal-body">

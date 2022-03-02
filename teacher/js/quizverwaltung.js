@@ -1461,7 +1461,7 @@ class Quizverwaltung {
         choosen.innerText = "";
       });
 
-      this.changedBySelectContainer.classList.remove("hidden");
+      this.createdBySelectContainer.classList.remove("hidden");
     } else if (filter === this.changedSelectContainer) {
       let input = this.changedSelectContainer.querySelector("#textInput");
       Utils.listenToChanges(input, "input", 450, () => {
@@ -1469,7 +1469,7 @@ class Quizverwaltung {
           this.search();
         }
       });
-      this.changedBySelectContainer.classList.remove("hidden");
+      this.changedSelectContainer.classList.remove("hidden");
     } else if (filter === this.changedBySelectContainer) {
       let choosen = this.changedBySelectContainer.querySelector("#choosen");
 
