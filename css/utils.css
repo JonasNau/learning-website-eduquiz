@@ -457,3 +457,10 @@ input:checked + .slider:before {
 .loading-btn-wrapper + .loading-btn-wrapper {
   margin-left: 8px;
 }
+
+
+
+
+.hideScrollbars::-webkit-scrollbar {
+  display: none;
+}

@@ -43,15 +43,12 @@ min-height: 100vh;
   height: 100%;
   padding: 30px 0 150px 0;
   overflow: auto;
+  width: inherit;
 }
 .sidebar.close .nav-links {
   overflow: visible;
 }
 
-/* This entry causes that horizontal scrollbar hides*/
-/* .sidebar .nav-links::-webkit-scrollbar {
-  display: none;
-} */
 .sidebar .nav-links li {
   position: relative;
   list-style: none;
@@ -74,15 +71,7 @@ min-height: 100vh;
 .sidebar.close .nav-links li .iocn-link {
   display: block;
 }
-.sidebar .nav-links li i{
-  min-width: 78px;
-  text-align: center;
-  line-height: 50px;
-  color: #fff;
-  font-size: 20px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
+
 
 .sidebar-link{
   display: flex;
@@ -114,6 +103,17 @@ min-height: 100vh;
   color: #fff;
   transition: all 0.4s ease;
 }
+
+.sidebar .nav-links li i{
+  min-width: 78px;
+  text-align: center;
+  line-height: 50px;
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
 .sidebar.close .nav-links li a .link_name {
   opacity: 0;
   pointer-events: none;
@@ -178,7 +178,7 @@ min-height: 100vh;
 .sidebar .profile-details {
   position: fixed;
   bottom: 0;
-  width: 310px;
+  width: inherit;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -390,4 +390,15 @@ min-height: 100vh;
 
 .profile.li:hover {
   background-color: yellow;
+}
+
+.nav-links .profile-li {
+  overflow: hidden;
+  width: inherit;
+}
+
+.nav-links .profile-li .name-job {
+  position: relative;
+  display: block;
+  overflow: auto;
 }

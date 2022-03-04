@@ -20,7 +20,7 @@ h6 {
 
 .showDotsIfTooLong {
   display: inline-block;
-  width: 150px;
+  width: 100%;
   white-space: nowrap;
   overflow: hidden !important;
   text-overflow: ellipsis;

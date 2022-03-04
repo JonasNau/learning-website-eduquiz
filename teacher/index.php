@@ -193,8 +193,8 @@ logWrite($conn, "general", "$username hat das Lehrerpanel betreten -> " . PHP_EO
       }
       ?>
 
-      <li>
-        <a href="/" class="sidebar-link leave">
+      <li class="navigationsLink settingsLink">
+        <a href="/" class="sidebar-link">
           <img src="../images/icons/goBack.svg" class="navImage invertWhite" alt="Pfeil">
           <span class="link_name">Verlassen</span>
         </a>
@@ -207,9 +207,9 @@ logWrite($conn, "general", "$username hat das Lehrerpanel betreten -> " . PHP_EO
           <div class="profile-content">
             <img src="../images/icons/user.svg">
           </div>
-          <div class="name-job">
-            <div class="profile_name showDotsIfTooLong"><?php echo $username ?></div>
-            <div class="job showDotsIfTooLong"><?php
+          <div class="name-job hideScrollbars">
+            <div class="profile_name"><?php echo $username ?></div>
+            <div class="job"><?php
                                                 $gruppen = getAllGroupsFromUser($conn, $userID);
                                                 $gruppenText = "";
                                                 if (count($gruppen) > 0) {
@@ -218,7 +218,7 @@ logWrite($conn, "general", "$username hat das Lehrerpanel betreten -> " . PHP_EO
                                                 echo $gruppenText;
                                                 ?></div>
           </div>
-          <a href="../includes/userSystem/logout.inc.php"><img src="../images/icons/logout.svg" class="logoutIcon" alt="Pfeil" data-bs-toggle="tooltip" data-bs-placement="right" title="Abmelden"></a>
+          <a href="../includes/userSystem/logout.inc.php"><img src="../images/icons/logout.svg" class="logoutIcon" alt="Pfeil" data-trigger="hover" data-bs-toggle="tooltip" data-bs-placement="right" title="Abmelden"></a>
         </div>
       </li>
     </ul>
@@ -244,9 +244,9 @@ logWrite($conn, "general", "$username hat das Lehrerpanel betreten -> " . PHP_EO
 
   <!--Libraries-->
   <!-- Bootstrap and Popper -- Local hosted -->
-  <script src="https://eduquiz.ddns.net/includes/frameworks/bootstrapAndpopper/bootstrap.bundle.min.js"></script>
+  <script src="https://eduquiz.ddns.net/includes/frameworks/bootstrapAndpopper/bootstrap.bundle.min.js" defer></script>
   <!-- Sund manager -->
-  <script src="/includes/frameworks/soundManager/soundmanager2.js" defer type="module"></script>
+  <script src="/includes/frameworks/soundManager/soundmanager2.js" defer type="module" defer></script>
 
   <script src="./js/lehrerpanel.js?v=<?php echo  getNewestVersion(); ?>" type="module" defer></script>
 

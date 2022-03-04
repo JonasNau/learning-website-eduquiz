@@ -1244,7 +1244,6 @@ class Medienverwaltung {
       this.enableFilter(this.thumbnailInMediaFolderSelectContainer);
       this.enableFilter(this.uploadedBySelectContainer);
       this.enableFilter(this.changedBySelectContainer);
-    } else if (value === "multiple") {
     } else if (value === "all") {
       //Nothing to show
     } else {
@@ -1557,14 +1556,15 @@ class Medienverwaltung {
       this.uploadedBySelectContainer.classList.remove("hidden");
     } else if (filter === this.changedSelectContainer) {
       //uploaded
-      let textInput = this.uploadedSelectContainer.querySelector("#textInput");
+      let textInput = this.changedSelectContainer.querySelector("#textInput");
       Utils.listenToChanges(textInput, "input", 450, () => {
         if (this.searchWhileTyping) {
           this.search();
         }
       });
-      this.uploadedSelectContainer.classList.remove("hidden");
+      this.changedSelectContainer.classList.remove("hidden");
     } else if (filter === this.changedBySelectContainer) {
+      this.changedBySelectArray = new Array();
       let choosen = this.changedBySelectContainer.querySelector("#choosen");
 
       let update = async () => {
@@ -1993,7 +1993,7 @@ class Medienverwaltung {
         )
       );
     } else if (this.filterType === "uploadedBy") {
-      console.log(this.keyWordsSearchArray);
+      console.log(this.uploadedBySelected);
       this.showResults(
         await Utils.makeJSON(
           await Utils.sendXhrREQUEST(
@@ -2031,7 +2031,7 @@ class Medienverwaltung {
         )
       );
     } else if (this.filterType === "changedBy") {
-      console.log(this.keyWordsSearchArray);
+      console.log(this.changedBySelectArray);
       this.showResults(
         await Utils.makeJSON(
           await Utils.sendXhrREQUEST(
