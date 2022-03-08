@@ -35,14 +35,14 @@ if (isLoggedIn()) {
                 <form action="includes/userSystem/signup.inc.php" method="post" id="signupform">
                     <div class="form-group">
                         <div class="mb-3">
-                            <label for="uid" class="form-label">Benutzername</label required>
-                            <input type="text" class="form-control" id="uid" name="username">
+                            <label for="uid" class="form-label">Benutzername</label>
+                            <input type="text" class="form-control" id="uid" name="username" required>
                         </div>
                     </div>
                     <div class="form-group">
                         <div class="mb-3">
-                            <label for="password" class="form-label">Passwort</label required>
-                            <input type="password" class="form-control showPasswordField" id="password" name="password" oncopy="return false;" oncut="return false;" onpaste="return false;">
+                            <label for="password" class="form-label">Passwort</label>
+                            <input type="password" class="form-control showPasswordField" id="password" name="password" oncopy="return false;" oncut="return false;" onpaste="return false;" required>
                             <label for="showPassword" class="form-label">Passwort anzeigen</label>
                             <input type="checkbox" class="form-check-input" id="showPassword">
                         </div>
@@ -53,7 +53,7 @@ if (isLoggedIn()) {
                     <div class="form-group">
                         <div class="mb-3">
                             <label for="passwordRepeat" class="form-label" required>Passwort wiederholen</label>
-                            <input type="password" class="form-control showPasswordField" id="passwordRepeat" name="passwordRepeat" oncopy="return false;" oncut="return false;" onpaste="return false;">
+                            <input type="password" class="form-control showPasswordField" id="passwordRepeat" name="passwordRepeat" oncopy="return false;" oncut="return false;" onpaste="return false;" required>
                             <label for="showPassword" class="form-label">Passwort anzeigen</label>
                             <input type="checkbox" class="form-check-input" id="showPassword">
                         </div>

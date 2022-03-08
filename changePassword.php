@@ -42,20 +42,25 @@ accountExists($conn, $userID);
         <div class="row d-flex">
             <div class="col-12 col-sm-10 col-md-9 col-lg-7 mb-4">
                 <form action="includes/userSystem/changePassword.inc.php" method="post">
-                    <h4>Dein altes Passwort</h4>
-                    <div class="mb-3">
-                        <input type="password" class="form-control" id="oldPassword" name="oldPassword" aria-describedby="passwordHelp" placeholder="Altes Passwort" required>
-                    </div>
-                    <h4>Dein neues Passwort</h4>
-                    <div class="mb-3">
-                        <input type="password" class="form-control" id="newPassword" name="newPassword" aria-describedby="passwordHelp" placeholder="Altes Passwort" required>
-                    </div>
-                    <div class="form-group">
-                        <p>Du bist dir nicht sicher, ob dein Passwort gut genug ist? <a href="https://checkdeinpasswort.de/">Bei checkdeinpasswort.de siehst du, wie lange ein Hacker zum Erraten brauchen würde</a></p>
-                    </div>
-                    <div class="mb-3">
-                        <input type="password" class="form-control" id="newPasswordRepeat" name="newPasswordRepeat" aria-describedby="passwordHelp" placeholder="Altes Passwort" required>
-                    </div>
+                    
+                    <section class="mb-3">
+                        <h4>Dein altes Passwort</h4>
+                        <input type="password" class="form-control showPasswordField" id="oldPassword" name="oldPassword" aria-describedby="passwordHelp" placeholder="Altes Passwort" required oncopy="return false;" oncut="return false;" onpaste="return false;">
+                        <label for="showPassword" class="form-label">Passwort anzeigen</label>
+                        <input type="checkbox" class="form-check-input" id="showPassword">
+                    </section>
+                   
+                    <section class="mb-3">
+                        <h4>Dein neues Passwort</h4>
+                        <input type="password" class="form-control showPasswordField" id="newPassword" name="newPassword" aria-describedby="passwordHelp" placeholder="Neues Passwort" required oncopy="return false;" oncut="return false;" onpaste="return false;">
+                        <label for="showPassword" class="form-label">Passwort anzeigen</label>
+                        <input type="checkbox" class="form-check-input" id="showPassword">
+                        <p>Du bist dir nicht sicher, ob dein Passwort gut genug ist? <a href="https://checkdeinpasswort.de/" target="_blank">Bei checkdeinpasswort.de siehst du, wie lange ein Hacker zum Erraten brauchen würde</a></p>
+
+                        <input type="password" class="form-control showPasswordField" id="newPasswordRepeat" name="newPasswordRepeat" aria-describedby="passwordHelp" placeholder="Neues Passwort wiederholen" required oncopy="return false;" oncut="return false;" onpaste="return false;">
+                        <label for="showPassword" class="form-label">Passwort anzeigen</label>
+                        <input type="checkbox" class="form-check-input" id="showPassword">
+                    </section>
                     <button type="submit" class="btn btn-primary" name="submitchangePassword">Passwort ändern</button>
                 </form>
             </div>

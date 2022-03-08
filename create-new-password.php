@@ -21,13 +21,13 @@ require_once("./global.php");
         
         <?php
             if (!isset($_GET["selector"]) || isset($_GET["valitator"])){
-                header("location: ../index.php");
+                header("location: index.php");
             }
 
             $selector = $_GET["selector"];
             $validator = $_GET["validator"];
             if (empty($selector) || empty($validator)){
-                echo "Could not validate your request, sorry!";
+                header("location: index.php");
             } else {
 
             if (!ctype_xdigit($selector) !== false && ctype_xdigit($validator) !== false){
@@ -42,6 +42,7 @@ require_once("./global.php");
                     <input type="hidden" name="selector" value="<?php echo $selector; ?>">
                     <input type="hidden" name="validator" value="<?php echo $validator; ?>">
                     <div class="mb-3">
+                        <label for="password" class="form-label">Neues Passwort</label>
                         <label for="pwd" class="form-label">Gib ein neues Passwort ein</label>
                         <input type="password" class="form-control" id="pwd" name="pwd">
                     </div>

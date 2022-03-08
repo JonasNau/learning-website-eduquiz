@@ -464,3 +464,23 @@ input:checked + .slider:before {
 .hideScrollbars::-webkit-scrollbar {
   display: none;
 }
+
+
+.lessTimeLeftWarning {
+  animation: flashYellowRed 3000ms infinite ease;
+}
+
+@keyframes flashYellowRed {
+
+  0% {
+    color: white;
+  }
+
+  50% {
+    color: red;
+  }
+
+  100% {
+    color: white;
+  }
+}

@@ -63,7 +63,10 @@ logWrite($conn, "general", "Jemand hat die Webseite betreten! Connected Clients 
         import * as Utils from "/includes/utils.js";
 
         let string= "20 + 20 = 40";
-        Utils.escapeSpecialCharsInStringToUnicode(string);
+        let uri = encodeURI(string);
+        console.log({uri});
+        let decodedURI = decodeURI(string);
+        console.log({decodedURI})
     </script> -->
 </body>
 

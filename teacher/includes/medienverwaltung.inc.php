@@ -44,9 +44,9 @@ function generateFileName($conn, $pathToFolder, $filename, $extension)
     while (valueInDatabaseExists($conn, "medienVerwaltung", "filename", "filename", $fileName) || file_exists($pathToFolder . "/" . $fileName)) {
         $counter++;
         $fileName = $filename . "_" . $counter . "." . $extension;
-        logWrite($conn, "general", "FileName:" . $fileName);
+        logWrite($conn, "general", "FileName created:" . $fileName);
     }
-    logWrite($conn, "general", "FileName:" . $fileName);
+    logWrite($conn, "general", "FileName final:" . $fileName);
     return $fileName;
 }
 
@@ -59,7 +59,7 @@ function generateFileNameBLOB($conn, $filename, $extension)
         $fileName = $filename . "_" . $counter . "." . $extension;
         logWrite($conn, "general", "FileName:" . $fileName);
     }
-    logWrite($conn, "general", "FileName:" . $fileName);
+    logWrite($conn, "general", "FileName final:" . $fileName);
     return $fileName;
 }
 
@@ -98,6 +98,7 @@ function removeFileOrLinkToFile($conn, $id)
         setValueFromDatabase($conn, "medienVerwaltung", "type", "id", $id, null);
         setValueFromDatabase($conn, "medienVerwaltung", "changed", "id", $id, getCurrentDateAndTime(1));
         setChangedAndChangedBy($conn, $id, $_SESSION["userID"]);
+        logWrite($conn, "medienVerwaltung", "Link to file from id = '$id' has been successfully removed", true, false, "green");
         return true;
     }
     if ($isBlob) {
@@ -113,6 +114,7 @@ function removeFileOrLinkToFile($conn, $id)
         setValueFromDatabase($conn, "medienVerwaltung", "type", "id", $id, null);
         setValueFromDatabase($conn, "medienVerwaltung", "changed", "id", $id, getCurrentDateAndTime(1));
         setChangedAndChangedBy($conn, $id, $_SESSION["userID"]);
+        logWrite($conn, "medienVerwaltung", "Link to file from id = '$id' has been successfully removed", true, false, "green");
         return true;
     }
     $filename = getValueFromDatabase($conn, "medienVerwaltung", "filename", "id", $id, 1, false);
@@ -147,10 +149,12 @@ function removeFileOrLinkToFile($conn, $id)
         setValueFromDatabase($conn, "medienVerwaltung", "type", "id", $id, null);
         setValueFromDatabase($conn, "medienVerwaltung", "changed", "id", $id, getCurrentDateAndTime(1));
         setChangedAndChangedBy($conn, $id, $_SESSION["userID"]);
+        logWrite($conn, "medienVerwaltung", "Link to file from id = '$id' has been successfully removed", true, false, "green");
         return true;
     } else {
         logWrite($conn, "medienVerwaltung", "Die Datei '$finalPath' konnte nicht gelöscht werden.", true, true);
     }
+    logWrite($conn, "medienVerwaltung", "Link to file from id = '$id' couldn't been removed", true, true);
     return false;
 }
 
@@ -233,6 +237,7 @@ function setChangedAndChangedBy($conn, $id, $userID)
     setValueFromDatabase($conn, "medienVerwaltung", "changed", "id", $id, getCurrentDateAndTime(1));
     removeFromArrayDatabase($conn, "medienVerwaltung", "changedBy", "id", $id, $userID, true, true);
     addToArrayDatabase($conn, "medienVerwaltung", "changedBy", "id", $id, $userID, false);
+    logWrite($conn, "medienVerwaltung", "The parameters of the file has changed: id = '$id'", true, false, "light green");
     return true;
 }
 
@@ -902,10 +907,11 @@ if (isset($_POST["medienverwaltung"])) {
                         setValueFromDatabase($conn, "medienVerwaltung", "type", "id", $id, $type);
                         setValueFromDatabase($conn, "medienVerwaltung", "uploadedBy", "id", $id, $userID);
                         setValueFromDatabase($conn, "medienVerwaltung", "fileSize", "id", $id, $size);
-
+                        logWrite($conn, "medienverwaltung", "A file has successfully been uploaded to filesystem: id = '$id' finalPath = '$finalPath' mediaID = '$mediaID' " . json_encode(array("dirname" => $dirname, "basename" => $basename, "extension" => $extension, "size" => $size)), true, false, "green");
                         returnMessage("success", "Datei erfolgreich hochgeldaden.", false, array("id" => $id, "finalPath" => $finalPath));
                         die();
                     } else {
+                        logWrite($conn, "medienverwaltung", "A file has has failed to upload to filesystem: id = '$id' finalPath = '$finalPath' mediaID = '$mediaID'" . json_encode(array("dirname" => $dirname, "basename" => $basename, "extension" => $extension, "size" => $size)), true, true);
                         returnMessage("failed", "Ein Fehler beim Verschieben der Datei ist aufgetreten.");
                         die();
                     }
@@ -967,10 +973,11 @@ if (isset($_POST["medienverwaltung"])) {
                         setValueFromDatabase($conn, "medienVerwaltung", "type", "id", $id, $type);
                         setValueFromDatabase($conn, "medienVerwaltung", "uploadedBy", "id", $id, $userID);
                         setValueFromDatabase($conn, "medienVerwaltung", "fileSize", "id", $id, $size);
-
+                        logWrite($conn, "medienverwaltung", "A file has successfully been uploaded as BLOB: id = '$id' finalPath = '$finalPath' mediaID = '$mediaID'" . json_encode(array("dirname" => $dirname, "basename" => $basename, "extension" => $extension, "size" => $size)), true, false, "green");
                         returnMessage("success", "Datei erfolgreich hochgeldaden.", false, array("id" => $id));
                         die();
                     } else {
+                        logWrite($conn, "medienverwaltung", "A file has has failed to upload as BLOB: mediaID = '$mediaID' " . json_encode(array("dirname" => $dirname, "basename" => $basename, "extension" => $extension, "size" => $size)), true, true);
                         returnMessage("failed", "Ein Fehler beim Verschieben der Datei ist aufgetreten.");
                         die();
                     }
@@ -991,12 +998,15 @@ if (isset($_POST["medienverwaltung"])) {
                 setValueFromDatabase($conn, "medienVerwaltung", "isOnlineSource", "id", $id, 1);
                 setValueFromDatabase($conn, "medienVerwaltung", "path", "id", $id, $url);
                 setValueFromDatabase($conn, "medienVerwaltung", "type", "id", $id, "Onlinequelle");
+                logWrite($conn, "medienVerwaltung", "A media entry has been created (onlineeSource): id = '$id' finalPath = '$finalPath'" . json_encode(array("url" => $url, "mediaID" => $mediaID)), true, false, "green");
                 returnMessage("success", "Medieneintrag erfolgreich geändert..", false, array("id" => $id));
                 die();
             } else if ($secondOperation == "remove") {
                 if (removeFileOrLinkToFile($conn, $id)) {
+                    logWrite($conn, "medienVerwaltung", "Media entry successfully deleted: id='$id'", true, false, "orange");
                     returnMessage("success", "Datei erfolgreich entfernt.");
                 } else {
+                    logWrite($conn, "medienVerwaltung", "Media entry can't be deleted: id='$id'", true, true);
                     returnMessage("failed", "Datei konnte nicht entfernt werden.");
                 }
                 die();
@@ -1468,10 +1478,11 @@ if (isset($_POST["medienverwaltung"])) {
                     setValueFromDatabase($conn, "medienVerwaltung", "type", "id", $id, $type);
                     setValueFromDatabase($conn, "medienVerwaltung", "uploadedBy", "id", $id, $userID);
                     setValueFromDatabase($conn, "medienVerwaltung", "fileSize", "id", $id, $size);
-
+                    logWrite($conn, "medienVerwaltung", "A file has successfully been uploaded to filesystem: id = '$id' finalPath = '$finalPath' mediaID = '$mediaID' " . json_encode(array("dirname" => $dirname, "basename" => $basename, "extension" => $extension, "size" => $size)), true, false, "green");
                     returnMessage("success", "Datei erfolgreich hochgeldaden.", false, array("id" => $id, "finalPath" => $finalPath));
                     die();
                 } else {
+                    logWrite($conn, "medienVerwaltung", "A file has has failed to upload to filesystem: id = '$id' finalPath = '$finalPath' mediaID = '$mediaID'" . json_encode(array("dirname" => $dirname, "basename" => $basename, "extension" => $extension, "size" => $size)), true, true);
                     returnMessage("failed", "Ein Fehler beim Verschieben der Datei ist aufgetreten.");
                     deleteRowFromDatabase($conn, "medienVerwaltung", "id", "id", $id);
                     die();
@@ -1535,10 +1546,11 @@ if (isset($_POST["medienverwaltung"])) {
                     setValueFromDatabase($conn, "medienVerwaltung", "type", "id", $id, $type);
                     setValueFromDatabase($conn, "medienVerwaltung", "uploadedBy", "id", $id, $userID);
                     setValueFromDatabase($conn, "medienVerwaltung", "fileSize", "id", $id, $size);
-
+                    logWrite($conn, "medienVerwaltung", "A file has successfully been uploaded as BLOB: id = '$id' finalPath = '$finalPath' mediaID = '$mediaID'" . json_encode(array("dirname" => $dirname, "basename" => $basename, "extension" => $extension, "size" => $size)), true, false, "green");
                     returnMessage("success", "Datei erfolgreich hochgeldaden.", false, array("id" => $id));
                     die();
                 } else {
+                    logWrite($conn, "medienVerwaltung", "A file has has failed to upload as BLOB: mediaID = '$mediaID' " . json_encode(array("dirname" => $dirname, "basename" => $basename, "extension" => $extension, "size" => $size)), true, true);
                     returnMessage("failed", "Ein Fehler beim Verschieben der Datei ist aufgetreten.");
                     deleteRowFromDatabase($conn, "medienVerwaltung", "id", "id", $id);
                     die();
@@ -1559,7 +1571,8 @@ if (isset($_POST["medienverwaltung"])) {
             setValueFromDatabase($conn, "medienVerwaltung", "isOnlineSource", "id", $id, 1);
             setValueFromDatabase($conn, "medienVerwaltung", "path", "id", $id, $url);
             setValueFromDatabase($conn, "medienVerwaltung", "type", "id", $id, "Onlinequelle");
-            returnMessage("success", "Medieneintrag erfolgreich erstellt.", false, array("id" => $id));
+            logWrite($conn, "medienVerwaltung", "A media entry has been created (onlineeSource): id = '$id' finalPath = '$finalPath'" . json_encode(array("url" => $url, "mediaID" => $mediaID)), true, false, "green");
+            returnMessage("success", "Medieneintrag erfolgreich erstellt. (Falls der Link nicht mehr funktioniert, kann das Medium nicht mehr angezeigt werden; Besser: Als Datei ins Dateisystem hochladen)", false, array("id" => $id));
             die();
         }
     } else if ($operation === "removeMedia") {
@@ -1576,8 +1589,10 @@ if (isset($_POST["medienverwaltung"])) {
         removeFileOrLinkToFileThumbnail($conn, $id);
 
         if (deleteRowFromDatabase($conn, "medienVerwaltung", "id", "id", $id)) {
+            logWrite($conn, "medienVerwaltung", "The media entry has been successfully deleted id='$id'", true, false, "yellow");
             returnMessage("success", "Der Medieneintrag wurde erfolgreich gelöscht.");
         } else {
+            logWrite($conn, "medienVerwaltung", "The media entry couldn't be deleted id='$id'", true, true);
             returnMessage("error", "Der Medieneintrag konnte nicht vollständig gelöscht werden. Dateien wurden möglicherweise trotzdem entfernt.");
         }
         die();

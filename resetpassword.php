@@ -28,7 +28,7 @@ $conn = $database->connect();
     <?php
     require_once 'navigation-bar.php';
     ?>
-    <div class="container d-block m-auto">
+    <div class="container d-block m-auto main-content mt-3">
             <h3>Passwort vergessen?</h3>
             <p>Wenn du zu deinem Account eine E-Mail-Adresse hinzugefügt hast, kannst du hier eine Anfrage zum Zurücksetzen des Passworts stellen.</p>
             <p>Falls dein Account aber nicht aktiviert ist, tut es uns leid. Du kannst uns kontaktieren und ein neues Passwort anfordern.</p>

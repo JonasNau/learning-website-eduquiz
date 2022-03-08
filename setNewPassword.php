@@ -63,16 +63,22 @@ if (!password_verify($tokenBin, $validatorDB)) {
     <?php
     require_once 'navigation-bar.php';
     ?>
-    <div class="container d-block m-auto">
+    <div class="container d-block m-auto mt-3 main-content">
         <h3><?php echo $username ?>, lege dein neues Passwort fest</h3>
         <div class="row d-flex">
             <div class="col-12 col-sm-10 col-md-9 col-lg-7">
                 <form action="includes/userSystem/setNewPassword.inc.php?selector=<?php echo $selector ?>&validator=<?php echo bin2hex($tokenBin);?>" method="post">
                 <div class="mb-3">
-                            <input type="password" class="form-control" id="newPassword" name="newPassword" aria-describedby="passwordHelp" placeholder="Neues Passwort" required>
+                            <label for="password" class="form-label">Neues Passwort</label>
+                            <input type="password" class="form-control showPasswordField" id="newPassword" name="newPassword" aria-describedby="passwordHelp" placeholder="Neues Passwort" required oncopy="return false;" oncut="return false;" onpaste="return false;">
+                            <label for="showPassword" class="form-label">Passwort anzeigen</label>
+                            <input type="checkbox" class="form-check-input" id="showPassword">
                         </div>
                         <div class="mb-3">
-                            <input type="password" class="form-control" id="newPasswordRepeat" name="newPasswordRepeat" aria-describedby="passwordHelp" placeholder="Neues Passwort wiederholen" required>
+                            <label for="password" class="form-label">Neues Passwort wiederholen</label>
+                            <input type="password" class="form-control showPasswordField" id="newPasswordRepeat" name="newPasswordRepeat" aria-describedby="passwordHelp" placeholder="Neues Passwort wiederholen" required oncopy="return false;" oncut="return false;" onpaste="return false;">
+                            <label for="showPassword" class="form-label">Passwort anzeigen</label>
+                            <input type="checkbox" class="form-check-input" id="showPassword">
                         </div>
                         <button type="submit" class="btn btn-primary" name="submitchangePassword">Bestätigen</button>
                 </form>

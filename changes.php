@@ -15,18 +15,18 @@ require_once 'header-start.php';
 
 ?>
 <style>
-    img {
+    .container section img {
         border: 2px solid gray;
         margin: 10px;
         display: block;
         max-height: 450px;
-        max-width: min(8000px, 95vw);
+        max-width: 95vw;
         width: auto;
         height: auto;
     }
 
     @media screen and (max-width: 600px) {
-        img {
+        .container section img {
             max-height: 500px;
             border: 2px solid gray;
         }
@@ -85,6 +85,12 @@ require_once 'header-start.php';
                 <p> Erste Fortschritte in der Quizverwaltung</p>
                 <img src="/images/changes/SettingsFinished01.png">
                 <p class="description">Ab diesem Tage ist es möglich Quizze zu erstellen und zu löschen, sowie einige Einstellungen der Quizdaten aus der Tabelle "selectquiz" zu bearbeiten. Es fehlt noch die Bearebeitung von allen Ausgewählten Quizzen, das ändern der Fragen und Antworten und das Suchen nach Nutzern. Um das Suchen der Nutzer zu implementieren muss fast der gesamte Code für eine Optimierung geändert werden.</p>
+            </section>
+            <section id="fullscreenContainer" class="fullscreenToggle">
+                <h3>07.03.2022</h3>
+                <p> Fertigstellung der ersten Version von Eduquiz. (V 1.0)</p>
+                <img src="/images/changes/Screenshot 2022-03-08 142306.png">
+                <p class="description">Wir sind stolz auf die Fertigstellung des Projektes. Unsere Ideen konnten praktisch umgesetzt werden. Leider kann die Seite wegen fehlenden Datenschutzbestimmungen nicht produktiv eingesetzt werden, sondern nur im Netzwerk der Schule.</p>
             </section>
 
 

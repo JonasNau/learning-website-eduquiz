@@ -54,7 +54,7 @@ checkAccount($conn, $userID);
                         <button type="submit" class="btn btn-primary" name="submitdeleteAccount" id="deleteAccountBtn">Account löschen</button>   
                     </form>
                 </div>
-                <img src="https://assets.wprock.fr/emoji/joypixels/512/2639.png" alt="trauriger Smiley" id="sadEmoji">
+                <img src="/images/icons/sagEmoji.png" alt="trauriger Smiley" id="sadEmoji">
         </div>
         </div>
     </div>

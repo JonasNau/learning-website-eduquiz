@@ -150,8 +150,8 @@ class SelectQuizNav {
       } else {
         //Normal execution --- normal
 
-        let sorted = Utils.sortItems(data, false);
-        // console.log("Diese Klassenstufen sind sortiert verfügbar: ", sorted);
+        let sorted = Utils.sortItems(data, false) || data;
+       
 
         let allAvailable = await Utils.makeJSON(
           await Utils.sendXhrREQUEST(
@@ -297,7 +297,7 @@ class SelectQuizNav {
       } else {
         //Normal execution --- normal
 
-        let sorted = Utils.sortItems(data, false);
+        let sorted = Utils.sortItems(data, false) || data;
         // console.log("Diese Klassenstufen sind sortiert verfügbar: ", sorted);
 
 
@@ -448,7 +448,7 @@ class SelectQuizNav {
       } else {
         //Normal execution --- normal
 
-        let sorted = Utils.sortItems(data, false);
+        let sorted = Utils.sortItems(data, false) || data;
         // console.log("Diese Themen sind sortiert verfügbar: ", sorted);
 
 
@@ -601,7 +601,7 @@ class SelectQuizNav {
       } else {
         //Normal execution --- normal
 
-        let sorted = Utils.sortItems(data, "quizname");
+        let sorted = Utils.sortItems(data, "quizname") || data;
 
         this.quizzeDropdown.innerHTML = `
                <li class="nav-item dropdown">

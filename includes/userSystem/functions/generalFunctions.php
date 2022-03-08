@@ -341,7 +341,10 @@ function logout()
 
         if (isset($_COOKIE["stayLoggedInSelector"]) && isset($_COOKIE["stayLoggedInToken"])) {
             $selector = $_COOKIE["stayLoggedInSelector"];
-            deleteOldStayLoggedInToken($conn, $selector);
+            $token = isset($_COOKIE["stayLoggedInToken"]);
+            if (boolval(getValueFromDatabaseMultipleWhere($conn, "keepUserLoggedIn", "userID", ["selector" => $selector, "token" => password_hash($token, PASSWORD_DEFAULT)], false))) {
+                deleteOldStayLoggedInToken($conn, $selector);
+            }
         }
 
         #Destroy Session
@@ -358,6 +361,10 @@ function logout()
 function createNewSession()
 {
     session_regenerate_id();
+     #Destroy Session
+     session_unset();
+     session_destroy();
+     session_start();
 }
 
 function getNumOnlineUsers($conn)

@@ -1,5 +1,4 @@
 <?php
-require_once 'header-start.php';
 session_start();
 
 require_once("../generalFunctions.php");
@@ -92,8 +91,7 @@ $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
 
 if (setNewPassword($conn, $userID, $hashedPassword)) {
     deleteOldPwdEntry($conn, $userID, "userID");
-    session_unset();
-    session_destroy();
+    logout();
     session_start();
     $_SESSION["message"] = "Passwort erfolgreich gesetzt. Du kannst dich jetzt anmelden.";
     header("Location: /login.php");

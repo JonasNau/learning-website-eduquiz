@@ -378,8 +378,12 @@ function writeFileContent($file, $content)
     $fp = fopen($file, 'a');
     fwrite($fp, $content);
     fclose($fp);
-    chmod($file, 0777);  //changed to add the zero
 
+    $oldmask = umask(0);
+    if (is_readable($file) && is_writable($file)) {
+        chmod($file, 0777);  //changed to add the zero
+    }
+    umask($oldmask);
 
     return true;
 }
@@ -1024,7 +1028,7 @@ function getValueFromDatabaseMultipleWhere($conn, $table, $column, $whereArray, 
                     return false;
                 }
                 if ($distinct) {
-                    return array_unique($resultArray, SORT_REGULAR);
+                    return array_values(array_unique($resultArray, SORT_REGULAR));
                 }
                 return $resultArray;
             }
