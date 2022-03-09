@@ -1374,11 +1374,12 @@ showTimePassedCheckbox.addEventListener("click", () => {
               options["allMustBeCorrect"]
             );
             if (Boolean(options["allMustBeCorrect"])) {
-              options["allMustBeCorrect"] = false;
+              options["allMustBeCorrect"] = true;
             } else {
               maxWrongAnswersNumberInput.value = Number(
                 options["maxWrongAnswers"]
               );
+              options["allMustBeCorrect"] = false;
             }
             allMustBeCorrectCheckbox.addEventListener("input", () => {
               let status = Boolean(allMustBeCorrectCheckbox.checked);
@@ -1426,6 +1427,7 @@ showTimePassedCheckbox.addEventListener("click", () => {
                   options["maxWrongAnswers"] = value;
                 } else {
                   options["maxWrongAnswers"] = false;
+                  options["allMustBeCorrect"] = true;
                 }
                 this.logData();
               });
