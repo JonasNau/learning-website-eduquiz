@@ -544,14 +544,17 @@ class Quiz {
 
         //EventListener
         currentAnswerContainer.addEventListener("click", (event) => {
-          if (
-            event.target.closest(".answer")?.classList.contains("media") &&
-            event.target.querySelector("mediaContainer")?.contains("image")
-          ) {
-            console.log("you have clicked on a media");
+          if (!event.target) return false;
+          console.log(event.target)
+          if (event.target.closest("SETTING_lightDataUsage-warning") || event.target.closest("preventExternalMedia-warning")) {
+            console.log("Clicked to load media");
+            return false;
+          }
+          //If clicked directly on answer button
+          if (event.target.classList.contains("answer") || (event.target.classList.contains("mediaContainer") && event.target.classList.contains("image") || (event.target.closest(".mediaContainer")?.classList.contains("image")))) {
+            this.validateAnswer(cardType, answer["answerID"]);
             return;
           }
-          this.validateAnswer(cardType, answer["answerID"]);
         });
       }
 
@@ -665,13 +668,14 @@ class Quiz {
         //EventListener
         currentAnswerContainer.addEventListener("click", (event) => {
           if (!this.userCanChoose) return false;
-          if (
-            event.target.closest(".answer")?.classList.contains("media") &&
-            event.target.querySelector("mediaContainer")?.contains("image")
-          ) {
-            console.log("you have clicked on a media");
-            return;
+          if (!event.target) return false;
+          console.log(event.target)
+          if (event.target.closest("SETTING_lightDataUsage-warning") || event.target.closest("preventExternalMedia-warning")) {
+            console.log("Clicked to load media");
+            return false;
           }
+          //If clicked directly on answer button
+          if (!(event.target.classList.contains("answer") || (event.target.classList.contains("mediaContainer") && event.target.classList.contains("image") || (event.target.closest(".mediaContainer")?.classList.contains("image"))))) return
           //Toggle in array
           this.choosenAnswers = Utils.toggleValuesInArray(
             this.choosenAnswers,

@@ -140,22 +140,29 @@
 #mainContainer .quizCard .main .answerContainer .answer.media .mediaContainer > * {
   max-width: 100%;
 }
+#mainContainer .quizCard .main .answerContainer .answer.media .mediaContainer.audio > * {
+  width: 100%;
+}
+
+#mainContainer .quizCard .main .answerContainer .answer.media .mediaContainer {
+  display: block;
+  margin: auto;
+}
+
 
 #mainContainer .quizCard .main .answerContainer .answer.media[data-size='small'] .mediaContainer {
   max-width: 25%;
-  margin: auto;
-  display: block;
 }
 
-#mainContainer .quizCard .main .answerContainer .answer.media[data-size='middle'] .mediaContainer > *  {
+#mainContainer .quizCard .main .answerContainer .answer.media[data-size='middle'] .mediaContainer {
   max-width: 50%;
 }
 
-#mainContainer .quizCard .main .answerContainer .answer.media[data-size='large'] .mediaContainer > *  {
+#mainContainer .quizCard .main .answerContainer .answer.media[data-size='large'] .mediaContainer{
   max-width: 100%;
 }
 
-#mainContainer .quizCard .main .answerContainer .answer.media[data-size='large'] .mediaContainer.other > *  {
+#mainContainer .quizCard .main .answerContainer .answer.media[data-size='large'] .mediaContainer.other {
   width: 100%;
 }
 
@@ -165,14 +172,15 @@
     max-width: 30%;
   }
   
-  #mainContainer .quizCard .main .answerContainer .answer.media[data-size='middle'] .mediaContainer > *  {
+  #mainContainer .quizCard .main .answerContainer .answer.media[data-size='middle'] .mediaContainer{
     max-width: 50%;
   }
   
-  #mainContainer .quizCard .main .answerContainer .answer.media[data-size='large'] .mediaContainer > *  {
+  #mainContainer .quizCard .main .answerContainer .answer.media[data-size='large'] .mediaContainer{
     max-width: 60%;
   }
 }
+
 
 #mainContainer
   .quizCard

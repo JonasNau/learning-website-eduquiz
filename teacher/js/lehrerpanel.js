@@ -1,4 +1,4 @@
-import * as Utils from "../../includes/utils.js";
+import * as Utils from "/includes/utils.js";
 Utils.holdSererContact("../../includes/generalFunctions.php");
 
 function sidebar() {
@@ -25,3 +25,21 @@ function sidebar() {
 }
 
 sidebar();
+
+//Hotkeys
+document.addEventListener("keydown", (key) => {
+  console.log(key);
+  let keycode = key.key;
+  console.log(keycode);
+  //Open Canvas with Alt + o
+  if (keycode === "u" || keycode === "U") {
+    if (key.altKey == true) {
+      if (!Utils.userHasPermissions(["accessBenutzerverwaltung"])) {
+        Utils.permissionDENIED();
+        return false;
+      }
+      Utils.pickUsers();
+    }
+  }
+});
+

@@ -16,7 +16,6 @@ $username = getParameterFromUser($conn, $userID, "username", "userID");
 if (userHasPermissions($conn, $userID, ["accessBenutzerverwaltung" => 1])) {
 
 ?>
-    <link rel="stylesheet" href="./css/benutzerverwaltung.css">
     <div class="container" id="benutzerverwaltungContainer">
         <h2>Benutzerverwaltung</h2>
         <p>Hier ist es möglich alle Benutzereinstellungen zu ändern, sowie Benutzer zu erstellen und zu löschen.</p>

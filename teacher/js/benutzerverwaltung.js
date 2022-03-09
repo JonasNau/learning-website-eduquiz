@@ -1843,27 +1843,27 @@ class Benutzerverwaltung {
       //Username
       let username =
         this.usernameSelectContainer.querySelector("#textInput").value;
-      if (Utils.isEmptyInput(username)) {
+      if (Utils.isEmptyInput(username, true)) {
         username = false;
       }
 
       //Email
       let email = this.emailSelectContainer.querySelector("#textInput").value;
-      if (Utils.isEmptyInput(email)) {
+      if (Utils.isEmptyInput(email, true)) {
         email = false;
       }
 
       //userID
       let userID =
         this.userIDSelectContainer.querySelector("#numberInput").value;
-      if (Utils.isEmptyInput(userID)) {
+      if (Utils.isEmptyInput(userID, true)) {
         userID = false;
       }
 
       //ranking
       let ranking =
         this.rankingSelectContainer.querySelector("#numberInput").value;
-      if (Utils.isEmptyInput(ranking)) {
+      if (Utils.isEmptyInput(ranking, true)) {
         ranking = false;
       }
 
@@ -1884,7 +1884,7 @@ class Benutzerverwaltung {
         this.isOnlineSelectContainer.querySelector("#selectInput");
       let isOnline =
         isOnlineSelect[isOnlineSelect.selectedIndex].getAttribute("data-value");
-      if (Utils.isEmptyInput(isOnline)) {
+      if (Utils.isEmptyInput(isOnline, true)) {
         isOnline = false;
       }
 

@@ -61,3 +61,32 @@ $clientsConnected = getNumOnlineClients($conn);
     </div>
   </div>
 </div>
+<div class="row">
+  <h2>Hinweise</h2>
+  <h3>Erreichen verschiedener Seiten</h3>
+  <p>Über die Navigationsleiste kann durch ein Klick auf die jeweiligen Bereiche des Lehrerpanels zugegriffen werden. Es werden nur Bereiche gezeigt, wofür man Berechtigungen hat.</p>
+  <h3>Tastenkombinationen</h3>
+  <p>Über die Tastenkombinationen können verschiedene Funktionen und Bereiche erreicht werden. Funktioniert etwas nicht, so hast du dafür keine Berechtigung.</p>
+  <ul id="keyBindingsList">
+    <li><kbd class="keyBinding" data-action="pickUsers" alt="Tastenkombination - Benutzer auswählen ALT + u">ALT + u (U)</kbd> Hier kann man Benutzer suchen, z.B. mit der UserID</li>
+  </ul>
+  <script type="module" defer>
+    import * as Utils from "/includes/utils.js";
+
+    let keyBindingsList = document.querySelector("#keyBindingsList");
+    let keyBindings = keyBindingsList.querySelectorAll(".keyBinding");
+    console.log(keyBindings);
+    for (const current of keyBindings) {
+      current.addEventListener("click", async () => {
+        let action = current.getAttribute("data-action");
+        if (action === "pickUsers") {
+          if (!Utils.userHasPermissions(["accessBenutzerverwaltung"])) {
+            Utils.permissionDENIED();
+            return false;
+          }
+          Utils.pickUsers();
+        }
+      });
+    }
+  </script>
+</div>

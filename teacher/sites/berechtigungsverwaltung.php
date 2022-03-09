@@ -16,7 +16,6 @@ $username = getParameterFromUser($conn, $userID, "username", "userID");
 if (userHasPermissions($conn, $userID, ["accessBerechtigungsverwaltung" => 1])) {
 
 ?>
-    <link rel="stylesheet" href="./css/benutzerverwaltung.css">
     <div class="container" id="berechtigungsverwaltungContainer">
         <h2>Berechtigungsverwaltung</h2>
         <p>Hier ist es möglich Berechtigungen zu ändern, sowie Gruppen zu bearbeiten.</p>

@@ -310,7 +310,7 @@ if (isset($_POST["benutzerverwaltung"])) {
             if ($email !== false && count($allUsers) > 0 && $email != "false") {
                 foreach ($allUsers as $currentUser) {
                     $emailCurrent = getValueFromDatabase($conn, "users", "email", "userID", $currentUser, 1, false);
-                    if ($emailCurrent != $email) {
+                    if (!str_contains(strtolower($emailCurrent), strtolower($email)) && !str_contains(strToUpper($emailCurrent), strToUpper($email))) {
                         $allUsers = removeFromArray($allUsers, $currentUser, "value", true, true);
                     }
                 }

@@ -2352,7 +2352,7 @@ showTimePassedCheckbox.addEventListener("click", () => {
             this.quizJSON["quizCards"],
             {
               type: "mchoice-multi",
-              options: {},
+              options: {allMustBeCorrect: true},
               task: "",
               question: "",
               media: [],
