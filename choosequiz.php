@@ -21,7 +21,7 @@ require_once("./global.php");
         <div class="row mt-4">
             <div class="col-12 col-md-7">
                 <div class="search-container" data-results-container>
-                    <input type="search" class="form-control rounded" id="searchbox" placeholder="Quize suchen" aria-label="Search" aria-describedby="search-addon" autocomplete="off">
+                    <input type="search" class="form-control rounded" id="searchbox" placeholder="Quizze suchen" aria-label="Search" aria-describedby="search-addon" autocomplete="off">
                     <div class="search-results hidden" >
                         <div class="themen">
                            <!--Content get inseted by js-->

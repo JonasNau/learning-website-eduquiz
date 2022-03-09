@@ -10,6 +10,7 @@ require_once("../global.php");
 $database = new Dbh();
 $conn = $database->connect();
 
+$userID = $_SESSION["userID"];
 
 
 if (isset($_POST["quiz"])) {
@@ -58,6 +59,7 @@ if (isset($_POST["quiz"])) {
                         }
                     }
                 }
+                logWrite($conn, "quiz", "The Client ". $_SESSION["id"] . " is using the quiz quizID = '$quizId'" . "loggedIn =" . json_encode(isLoggedIn()) . " username = " . getValueFromDatabase($conn, "users", "username", "userID", $userID, 1, false));
                 echo json_encode($quizparams);
                 die();
             }
@@ -85,6 +87,7 @@ if (isset($_POST["quiz"])) {
             $stmt = $conn->prepare("INSERT INTO scores (userID, quizID, date, results) VALUES (?, ?, ?, ?);");
             if ($stmt->execute([$_SESSION["userID"], $quizID, $now, json_encode($resultObject)])) {
                 if ($stmt->rowCount()) {
+                    logWrite($conn, "quiz", "The Client ". $_SESSION["id"] . " is has finished the quiz quizID = '$quizId'" . "loggedIn =" . json_encode(isLoggedIn()) . " username = " . getValueFromDatabase($conn, "users", "username", "userID", $userID, 1, false));
                     returnMessage("success", "Daten erfolgreich in die Datenbank eingetragen.");
                     die();
                 }
