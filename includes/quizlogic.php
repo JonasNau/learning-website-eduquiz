@@ -70,6 +70,7 @@ if (isset($_POST["quiz"])) {
         mustBeLoggedIn();
         $quizID = $_POST["quizID"];
         setValueFromDatabase($conn, "users", "lastQuiz", "userID", $_SESSION["userID"], $quizID); //Set last Quiz form user
+        logWrite($conn, "quiz", "The Client ". $_SESSION["id"] . " is has finished the quiz quizID = '$quizId'" . "loggedIn =" . json_encode(isLoggedIn()) . " username = " . getValueFromDatabase($conn, "users", "username", "userID", $userID, 1, false));
         if (!boolval(getSettingVal($conn, "usersCanInsertResults"))) {
             returnMessage("failed", "Das Eintragen neuer Ergebnisse ist zur Zeit deaktiviert.");
             die();
@@ -87,7 +88,7 @@ if (isset($_POST["quiz"])) {
             $stmt = $conn->prepare("INSERT INTO scores (userID, quizID, date, results) VALUES (?, ?, ?, ?);");
             if ($stmt->execute([$_SESSION["userID"], $quizID, $now, json_encode($resultObject)])) {
                 if ($stmt->rowCount()) {
-                    logWrite($conn, "quiz", "The Client ". $_SESSION["id"] . " is has finished the quiz quizID = '$quizId'" . "loggedIn =" . json_encode(isLoggedIn()) . " username = " . getValueFromDatabase($conn, "users", "username", "userID", $userID, 1, false));
+                    logWrite($conn, "quiz", "The Client's ". $_SESSION["id"] . " result was successfully insertet into the database quizID = '$quizId'" . "loggedIn =" . json_encode(isLoggedIn()) . " username = " . getValueFromDatabase($conn, "users", "username", "userID", $userID, 1, false) . "results = " . json_encode($resultObject));
                     returnMessage("success", "Daten erfolgreich in die Datenbank eingetragen.");
                     die();
                 }
