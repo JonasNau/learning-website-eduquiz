@@ -1,13 +1,5 @@
 import * as Utils from "./utils.js";
 
-function moreThanZeroInArray(array) {
-  let result = false;
-  if (array.length > 0) {
-    result = true;
-  }
-  return result;
-}
-
 class SelectQuizNav {
   constructor(navigationsleiste) {
     this.navigationsleiste = navigationsleiste;
@@ -564,37 +556,6 @@ let searchQuiz = new SelectQuizNav(
 );
 searchQuiz.getKlassenstufen();
 
-function getQuizParameter(quizID) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let response = Utils.makeJSON(
-        await Utils.sendXhrREQUEST(
-          "POST",
-          "getAllQuizParms&quizID=" +
-            quizID +
-            "&fach=" +
-            this.ausgewaehltesFach +
-            "&thema=" +
-            this.ausgewaehltesThema,
-          "./includes/choosequiz.inc.php",
-          "application/x-www-form-urlencoded",
-          true,
-          false,
-          false
-        )
-      );
-      if (response) {
-        resolve(true);
-        return true;
-      } else {
-        reject("Error");
-        return false;
-      }
-    } catch (e) {
-      resolve(true);
-    }
-  });
-}
 
 function checkAndSetQuiz() {
   //Setzt Navigationsleiste auf quizId Parameter, wenn auf quiz.php (andernfalls redirect)

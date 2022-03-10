@@ -3349,6 +3349,10 @@ export async function changeAnswersMulitpleChoiceMulti(cardData) {
                 this.cardData["answers"],
                 currentAnswer
               );
+              this.cardData["correctAnswersIDs"] = Utils.removeFromArray(
+                this.cardData["correctAnswersIDs"],
+                currentAnswer.answerID
+              );
               this.logData();
               this.refresh(true);
             });

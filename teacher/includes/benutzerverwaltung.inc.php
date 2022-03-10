@@ -1252,8 +1252,7 @@ if (isset($_POST["benutzerverwaltung"])) {
                 returnMessage("failed", "Es existiert bereits ein Nutzer mit der E-Mail <b>$email</b>");
                 die();
             }
-    
-            if (createUserWithoutEmail($conn, $username, false, $password)) {
+            if (createUserWithEmail($conn, $username, $email, false, $password)) {
                 $usersUserID = getParameterFromUser($conn, $username, "userID", "username");
                 if ($email) {
                     setValueFromDatabase($conn, "users", "email", "userID", $usersUserID, $email);
@@ -1261,9 +1260,9 @@ if (isset($_POST["benutzerverwaltung"])) {
                 }
                 returnMessage("success", "Benutzer <b>$username</b> erfolgreich erstellt.", false, array("createduserID" => $usersUserID));
                 die();
-            }
+            }       
         } else {
-            if (createUserWithEmail($conn, $username, $email, false, $password)) {
+            if (createUserWithoutEmail($conn, $username, false, $password)) {
                 $usersUserID = getParameterFromUser($conn, $username, "userID", "username");
                 if ($email) {
                     setValueFromDatabase($conn, "users", "email", "userID", $usersUserID, $email);

@@ -59,7 +59,7 @@ if (isset($_POST["quiz"])) {
                         }
                     }
                 }
-                logWrite($conn, "quiz", "The Client ". $_SESSION["id"] . " is using the quiz quizID = '$quizId'" . "loggedIn =" . json_encode(isLoggedIn()) . " username = " . getValueFromDatabase($conn, "users", "username", "userID", $userID, 1, false));
+                logWrite($conn, "quiz", "The Client ". session_id() . " is using the quiz quizID = '$quizId'" . "loggedIn =" . json_encode(isLoggedIn()) . " username = " . getValueFromDatabase($conn, "users", "username", "userID", $userID, 1, false));
                 echo json_encode($quizparams);
                 die();
             }
@@ -70,7 +70,7 @@ if (isset($_POST["quiz"])) {
         mustBeLoggedIn();
         $quizID = $_POST["quizID"];
         setValueFromDatabase($conn, "users", "lastQuiz", "userID", $_SESSION["userID"], $quizID); //Set last Quiz form user
-        logWrite($conn, "quiz", "The Client ". $_SESSION["id"] . " is has finished the quiz quizID = '$quizId'" . "loggedIn =" . json_encode(isLoggedIn()) . " username = " . getValueFromDatabase($conn, "users", "username", "userID", $userID, 1, false));
+        logWrite($conn, "quiz", "The Client ". session_id() . " is has finished the quiz quizID = '$quizId'" . "loggedIn =" . json_encode(isLoggedIn()) . " username = " . getValueFromDatabase($conn, "users", "username", "userID", $userID, 1, false));
         if (!boolval(getSettingVal($conn, "usersCanInsertResults"))) {
             returnMessage("failed", "Das Eintragen neuer Ergebnisse ist zur Zeit deaktiviert.");
             die();

@@ -551,7 +551,7 @@ class Quiz {
             return false;
           }
           //If clicked directly on answer button
-          if (event.target.classList.contains("answer") || (event.target.classList.contains("mediaContainer") && event.target.classList.contains("image") || (event.target.closest(".mediaContainer")?.classList.contains("image")))) {
+          if (event.target.classList.contains("answer") || (event.target.classList.contains("mediaContainer") && event.target.classList.contains("image") || event.target.closest(".mediaContainer")?.classList.contains("image")) || event.target.closest(".answer")?.classList.contains("text")) {
             this.validateAnswer(cardType, answer["answerID"]);
             return;
           }
@@ -675,7 +675,7 @@ class Quiz {
             return false;
           }
           //If clicked directly on answer button
-          if (!(event.target.classList.contains("answer") || (event.target.classList.contains("mediaContainer") && event.target.classList.contains("image") || (event.target.closest(".mediaContainer")?.classList.contains("image"))))) return
+          if (!(event.target.classList.contains("answer") || (event.target.classList.contains("mediaContainer") && event.target.classList.contains("image") || event.target.closest(".mediaContainer")?.classList.contains("image")) || event.target.closest(".answer")?.classList.contains("text"))) return
           //Toggle in array
           this.choosenAnswers = Utils.toggleValuesInArray(
             this.choosenAnswers,
@@ -804,9 +804,9 @@ class Quiz {
     } / ${this.totalCards}</span></div>
     <div id="points"><span class="descrition">Punkte:</span> <span class="content">${
       this.usersPoints
-    } / ${this.totalPoints()}</span><span> Diese Karte: ${
+    } / ${this.totalPoints()}</span><span style="font-weight: lighter"> (Diese Karte: ${
       this.currentCardData["points"] ?? 0
-    }</span></div>
+    })</span></div>
     <div id="correctCards"><span class="descrition">Richtig:</span> <span class="content">${
       this.correctCardsNumber
     }</span> | <span class="descrition">Falsch:</span> <span class="content">${
@@ -1490,6 +1490,20 @@ class Quiz {
     this.resultObject.scoredPoints = this.usersPoints;
     this.resultObject.mark = this.usersMark;
 
+    let markColor = "red";
+    if (this.resultObject.mark === 1) {
+      markColor = "green";
+    } else if (this.resultObject.mark > 1 && this.resultObject.mark <= 2.5) {
+      markColor = "lightgreen";
+    } else if (this.resultObject.mark > 2.5 && this.resultObject.mark <= 3.5) {
+      markColor = "yellow";
+    } else if (this.resultObject.mark > 3.5 && this.resultObject.mark <= 4.5) {
+      markColor = "darkgoldenrod";
+    } else if (this.resultObject.mark > 4.5 && this.resultObject.mark <= 5) {
+      markColor = "lightcoral";
+    } else if (this.resultObject.mark > 5) {
+      markColor = "red";
+    }
 
 
     let resultPageHTML = `
@@ -1502,7 +1516,7 @@ class Quiz {
             <div id="result"><b>Ergebnis:</b> ${this.correctCardsNumber} / ${
       this.totalCards
     }</div>
-            <div id="mark"><b>Note:</b> ${this.usersMark}</div>
+            <div id="mark" style="background-color: ${markColor};"><b>Note:</b> ${this.usersMark}</div>
             <div class="details">
                 <div class="totalCards">Gesamtanzahl von Karten: ${
                   this.totalCards

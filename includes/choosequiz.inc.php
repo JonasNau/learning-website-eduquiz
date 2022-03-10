@@ -2,6 +2,7 @@
 
 require_once 'dbh.incPDO.php';
 require_once("./generalFunctions.php");
+require_once("./getSettings.php");
 
 $database = new Dbh();
 $conn = $database->connect();
@@ -180,37 +181,53 @@ if (isset($_POST['getQuizze'])) {
 
 //Search for Subjets
 if (isset($_POST['searchThemen'])) {
-    $input = $_POST['input'];
-    if ($data = getValueFromDatabaseMultipleWhere($conn, "themenVerwaltung", "thema", ["thema" => $input, "showQuizauswahl" => 1], false, true)) {
-        $returnArray = array();
-        foreach ($data as $current) {
-            $availableQuizzes = getValueFromDatabase($conn, "selectquiz", "uniqueID", "thema", $current, 0, true);
-            foreach ($availableQuizzes as $currentQuiz) {
-                $returnArray[] = getAllQuizParams($conn, $currentQuiz);
-            }
-        }
-        echo json_encode(limitArray($returnArray, 10));
-    } else {
-        echo 0;
+    $input = $_POST["input"];
+    $quizze =  getValueFromDatabaseMultipleWhere($conn, "selectquiz", "quizId", ["showQuizauswahl" => 1, "visibility" => 1], true);
+    if (!$quizze || !count($quizze)) {
+        echo "no quizze found";
+        die();
     }
-
+    foreach ($quizze as $currentQuiz) {
+        $thema = getValueFromDatabase($conn, "selectquiz", "thema", "quizId", $currentQuiz, 1, false);
+        if (!str_contains(strtolower($thema), strtolower($input)) && !str_contains(strtoupper($thema), strtoupper($input))) {
+            $quizze = removeFromArray($quizze, $currentQuiz, "value", true, true);
+        }
+    }
+    if (!$quizze || !count($quizze)) {
+        echo "no results";
+        die();
+    }
+    $resultArray = array();
+    foreach ($quizze as $currentQuiz) {
+      $resultArray[] = getAllQuizParams($conn, $currentQuiz);
+    }
+    echo json_encode(limitArray($resultArray, intval(getSettingVal($conn, "Choosequiz.inc.php_maxResults_searchThemen"))));
     die();
 }
 
 //Search for Quizze
 if (isset($_POST['searchQuizze'])) {
-    require_once("./generalFunctions.php");
-    $input = $_POST['input'];
-    if ($data = getValueFromDatabaseMultipleWhere($conn, "selectquiz", "uniqueID", ["quizname" => $input, "showQuizauswahl" => 1], false, true)) {
-        $returnArray = array();
-        foreach ($data as $current) {
-            $returnArray[] = getAllQuizParams($conn, $current);
-        }
-        echo json_encode(limitArray($returnArray, 10));
-    } else {
-        echo 0;
+    $input = $_POST["input"];
+    $quizze =  getValueFromDatabaseMultipleWhere($conn, "selectquiz", "quizId", ["showQuizauswahl" => 1, "visibility" => 1], true);
+    if (!$quizze || !count($quizze)) {
+        echo "no quizze found";
+        die();
     }
-
+    foreach ($quizze as $currentQuiz) {
+        $quizname = getValueFromDatabase($conn, "selectquiz", "quizname", "quizId", $currentQuiz, 1, false);
+        if (!str_contains(strtolower($quizname), strtolower($input)) && !str_contains(strtoupper($quizname), strtoupper($input))) {
+            $quizze = removeFromArray($quizze, $currentQuiz, "value", true, true);
+        }
+    }
+    if (!$quizze || !count($quizze)) {
+        echo "no results";
+        die();
+    }
+    $resultArray = array();
+    foreach ($quizze as $currentQuiz) {
+      $resultArray[] = getAllQuizParams($conn, $currentQuiz);
+    }
+    echo json_encode(limitArray($resultArray, intval(getSettingVal($conn, "Choosequiz.inc.php_maxResults_searchQuizze"))));
     die();
 }
 
@@ -228,7 +245,7 @@ function getAllQuizParams($conn, $quizID)
         return false;
     }
     try {
-        $stmt = $conn->prepare("SELECT klassenstufe, fach, thema, quizname, quizId FROM selectquiz WHERE uniqueID = ? LIMIT 1;
+        $stmt = $conn->prepare("SELECT klassenstufe, fach, thema, quizname, quizId FROM selectquiz WHERE quizId = ? LIMIT 1;
         ");
         if ($stmt->execute([$quizID])) {
             if ($stmt->rowCount()) {

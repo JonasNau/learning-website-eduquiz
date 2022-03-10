@@ -853,7 +853,7 @@ function getAllValuesFromDatabase($conn, $table, $column, $limit, $returnAsArray
                             $resultArray[] = $current["Data"];
                         }
                         if ($distinct) {
-                            return array_unique(array_values(array_unique($resultArray, SORT_REGULAR)));
+                            return array_values(array_unique($resultArray, SORT_REGULAR));
                         }
                         return $resultArray;
                     } else {
@@ -878,7 +878,7 @@ function getAllValuesFromDatabase($conn, $table, $column, $limit, $returnAsArray
                             $resultArray[] = $current["Data"];
                         }
                         if ($distinct) {
-                            return array_unique(array_values($resultArray), SORT_REGULAR);
+                            return array_values(array_unique($resultArray, SORT_REGULAR));
                         }
                         return $resultArray;
                     } else {
@@ -918,7 +918,7 @@ function getValueFromDatabase($conn, $table, $column, $where, $whereEqualTo, $li
                     } else {
                         foreach ($data as $current) {
                             if ($distinct) {
-                                return array_unique($current["Data"], SORT_REGULAR);
+                                return array_values(array_unique($current["Data"], SORT_REGULAR));
                             }
                             return $current["Data"];
                         }
@@ -940,7 +940,7 @@ function getValueFromDatabase($conn, $table, $column, $where, $whereEqualTo, $li
                             $resultArray[] = $current["Data"];
                         }
                         if ($distinct) {
-                            return array_unique($resultArray, SORT_REGULAR);
+                            return array_values(array_unique($resultArray, SORT_REGULAR));
                         }
                         return $resultArray;
                     } else {
@@ -1074,7 +1074,7 @@ function getColumsFromDatabaseMultipleWhere($conn, $table, $columns = array(), $
                     return 1;
                 }
                 if ($distinct) {
-                    return limitArray(array_unique($resultArray, SORT_REGULAR), $limitResults);
+                    return limitArray(array_values(array_unique($resultArray, SORT_REGULAR)), $limitResults);
                 }
                 return limitArray($resultArray, $limitResults);
             }
