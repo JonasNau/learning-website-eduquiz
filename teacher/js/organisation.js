@@ -1282,6 +1282,7 @@ class Klassenstufenverwaltung {
     if (!results) {
       this.resultTable.classList.add("hidden");
       this.resultDescriptionContainer.innerHTML = "Keine Ergebnisse...";
+      this.searchReloadBtn.disabled = false;
       return true;
     }
     results = Utils.makeJSON(results);
@@ -1289,6 +1290,7 @@ class Klassenstufenverwaltung {
     if (!results.length > 0) {
       this.resultTable.classList.add("hidden");
       this.resultDescriptionContainer.innerHTML = "Keine Ergebnisse...";
+      this.searchReloadBtn.disabled = false;
       return false;
     }
 
@@ -2164,6 +2166,7 @@ class KlassenstufenBackupverwaltung {
     if (!results) {
       this.resultTable.classList.add("hidden");
       this.resultDescriptionContainer.innerHTML = "Keine Ergebnisse...";
+      this.searchReloadBtn.disabled = false;
       return true;
     }
     results = Utils.makeJSON(results);
@@ -2171,6 +2174,7 @@ class KlassenstufenBackupverwaltung {
     if (!results.length > 0) {
       this.resultTable.classList.add("hidden");
       this.resultDescriptionContainer.innerHTML = "Keine Ergebnisse...";
+      this.searchReloadBtn.disabled = false;
       return false;
     }
 
@@ -3026,6 +3030,7 @@ class Faecherverwaltung {
     if (!results) {
       this.resultTable.classList.add("hidden");
       this.resultDescriptionContainer.innerHTML = "Keine Ergebnisse...";
+      this.searchReloadBtn.disabled = false;
       return true;
     }
     results = Utils.makeJSON(results);
@@ -3033,6 +3038,7 @@ class Faecherverwaltung {
     if (!results.length > 0) {
       this.resultTable.classList.add("hidden");
       this.resultDescriptionContainer.innerHTML = "Keine Ergebnisse...";
+      this.searchReloadBtn.disabled = false;
       return false;
     }
 
@@ -3834,6 +3840,7 @@ class FaecherBackupverwaltung {
     if (!results) {
       this.resultTable.classList.add("hidden");
       this.resultDescriptionContainer.innerHTML = "Keine Ergebnisse...";
+      this.searchReloadBtn.disabled = false;
       return true;
     }
     results = Utils.makeJSON(results);
@@ -3841,6 +3848,7 @@ class FaecherBackupverwaltung {
     if (!results.length > 0) {
       this.resultTable.classList.add("hidden");
       this.resultDescriptionContainer.innerHTML = "Keine Ergebnisse...";
+      this.searchReloadBtn.disabled = false;
       return false;
     }
 
@@ -4678,6 +4686,7 @@ class Themenverwaltung {
     if (!results) {
       this.resultTable.classList.add("hidden");
       this.resultDescriptionContainer.innerHTML = "Keine Ergebnisse...";
+      this.searchReloadBtn.disabled = false;
       return true;
     }
     results = Utils.makeJSON(results);
@@ -4685,6 +4694,7 @@ class Themenverwaltung {
     if (!results.length > 0) {
       this.resultTable.classList.add("hidden");
       this.resultDescriptionContainer.innerHTML = "Keine Ergebnisse...";
+      this.searchReloadBtn.disabled = false;
       return false;
     }
 
@@ -5482,6 +5492,7 @@ class ThemenBackupverwaltung {
     if (!results) {
       this.resultTable.classList.add("hidden");
       this.resultDescriptionContainer.innerHTML = "Keine Ergebnisse...";
+      this.searchReloadBtn.disabled = false;
       return true;
     }
     results = Utils.makeJSON(results);
@@ -5489,6 +5500,7 @@ class ThemenBackupverwaltung {
     if (!results.length > 0) {
       this.resultTable.classList.add("hidden");
       this.resultDescriptionContainer.innerHTML = "Keine Ergebnisse...";
+      this.searchReloadBtn.disabled = false;
       return false;
     }
 

@@ -18,8 +18,7 @@ require_once 'header-start.php';
     <?php
     require_once 'navigation-bar.php';
     ?>
-    <div class="container d-flex flex-column">
-
+    <div class="container main-content mt-4">
         <div class="row d-flex justify-content-center">
             <div class="col-12 col-sm-10 col-md-9 col-lg-7">
                 <form id="loginForm">
@@ -51,10 +50,6 @@ require_once 'header-start.php';
                 <a href="signup.php">Noch keinen Account?</a>
             </div>
         </div>
-
-        <?php
-        require_once 'body-scripts.php';
-        ?>
         <script type="module" defer>
             import * as Utils from '/includes/utils.js';
 
@@ -73,6 +68,12 @@ require_once 'header-start.php';
 
             });
         </script>
+    </div>
+
+    <?php
+    require_once 'footer.php';
+    require_once 'body-scripts.php';
+    ?>
 </body>
 
 </html>

@@ -32,8 +32,7 @@ if (!isLoggedIn()) {
 
             let cookieBanner = document.createElement("div");
             cookieBanner.setAttribute("id", "cookieConsent");
-            cookieBanner.innerHTML = `
-<div id="cookie-popup">
+            cookieBanner.innerHTML = ` <div id="cookie-popup">
 <div class="cookie-popup-inner">
 <div class="hinweis">
 <p>Wir verwenden Cookies. Durch die weitere Nutzung der Webseite stimmen Sie der Verwendung von Cookies zu.</p>
@@ -68,7 +67,3 @@ $database = new Dbh();
 $conn = $database->connect();
 
 ?>
-
-<script>
-
-</script>

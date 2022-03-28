@@ -11,7 +11,6 @@ require_once("./includes/getSettings.php");
 require_once("./global.php");
 
 require_once 'header-start.php';
-logWrite($conn, "general", "Jemand hat die Webseite betreten! Connected Clients now: ". getNumOnlineClients($conn), true, false, "yellow", ".log", true, false);
 
 ?>
 <link rel="stylesheet" href="css/index.css?v=<?php echo getNewestVersion(); ?>">
@@ -63,14 +62,22 @@ logWrite($conn, "general", "Jemand hat die Webseite betreten! Connected Clients 
 
 
     </div>
-
     <?php
     require_once 'footer.php';
     require_once 'body-scripts.php';
     require_once './cookiePopUp.php';
     ?>
 
-    <script type="module" src="./includes/index.js" defer></script>
+<script defer>
+  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+var tooltipList = tooltipTriggerList.map( function(tooltipTriggerEl) {
+  return new bootstrap.Tooltip(tooltipTriggerEl, {
+  trigger : 'hover'
+  });
+});
+</script>
+
+    <script type="module" src="./includes/index.js"></script>
 </body>
 
 </html>

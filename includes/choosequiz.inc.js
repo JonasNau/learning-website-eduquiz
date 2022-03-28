@@ -747,7 +747,7 @@ function searchBar() {
 
     if (!resutls) {
       quizResultContainer.innerHTML = `
-            <h5>Quize <span>(0)</span></h5>
+            <h5>Quizze <span>(0)</span></h5>
             <p>Keine Quizze dazu gefunden...<p>
             `;
       return;
@@ -760,7 +760,7 @@ function searchBar() {
     });
 
     let quizResultContainerInner = `
-        <h5>Quize <span>(${sorted.length})</span></h5>
+        <h5>Quizze <span>(${sorted.length})</span></h5>
                         <ul class="quize-ul">
                         ${links}
                         </ul>

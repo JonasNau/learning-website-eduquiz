@@ -482,8 +482,10 @@ class Quiz {
 
         let cardNumber = this.currentCardNumber;
         let checkTimeLimit = (endDate) => {
-          if (cardNumber != this.currentCardNumber) {
+          if (cardNumber != this.currentCardNumber || !this.userCanChoose) {
             console.log("Timer Stoped!");
+            console.log(timerBox)
+            timerBox.innerHTML = ``;
             return;
           }
           if (endDate > new Date()) {
@@ -600,8 +602,9 @@ class Quiz {
 
         let cardNumber = this.currentCardNumber;
         let checkTimeLimit = (endDate) => {
-          if (cardNumber != this.currentCardNumber) {
+          if (cardNumber != this.currentCardNumber || !this.userCanChoose) {
             console.log("Timer Stoped!");
+            timerBox.innerHTML = ``;
             return;
           }
           if (endDate > new Date()) {
@@ -713,7 +716,7 @@ class Quiz {
             <div class="media">
                
             </div>
-            <h3>Deine Antwort<h3>
+            <h3>Deine Antwort</h3>
             <div class="answerContainer">
                
             </div>
@@ -752,8 +755,9 @@ class Quiz {
 
         let cardNumber = this.currentCardNumber;
         let checkTimeLimit = (endDate) => {
-          if (cardNumber != this.currentCardNumber) {
+          if (cardNumber != this.currentCardNumber || !this.userCanChoose) {
             console.log("Timer Stoped!");
+            timerBox.innerHTML = ``;
             return;
           }
           if (endDate > new Date()) {
@@ -1620,6 +1624,7 @@ class Quiz {
               currentUsersChoice["cardStartTime"],
               currentUsersChoice["cardEndTime"]
             )}</div>
+            <div id="id"><span class="description">Punkte:</span> ${quizCard.points}</div>
             `;
         let answersContainer = item.querySelector("#answers .content");
         let usersAnswersContainer = item.querySelector(
@@ -1685,6 +1690,7 @@ class Quiz {
           currentUsersChoice["cardStartTime"],
           currentUsersChoice["cardEndTime"]
         )}</div>
+        <div id="id"><span class="description">Punkte:</span> ${quizCard.points}</div>
         `;
 
         let answersContainer = item.querySelector("#answers .content");
@@ -1793,7 +1799,7 @@ class Quiz {
           currentUsersChoice["cardStartTime"],
           currentUsersChoice["cardEndTime"]
         )}</div>
-      
+        <div id="id"><span class="description">Punkte:</span> ${quizCard.points}</div>
         `;
 
         let usersAnswersContainer = item.querySelector(

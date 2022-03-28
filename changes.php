@@ -90,7 +90,13 @@ require_once 'header-start.php';
                 <h3>07.03.2022</h3>
                 <p> Fertigstellung der ersten Version von Eduquiz. (V 1.0)</p>
                 <img src="/images/changes/Screenshot 2022-03-08 142306.png">
+                <img src="/images/changes/Screenshot 2022-03-10 192123.png">
                 <p class="description">Wir sind stolz auf die Fertigstellung des Projektes. Unsere Ideen konnten praktisch umgesetzt werden. Leider kann die Seite wegen fehlenden Datenschutzbestimmungen nicht produktiv eingesetzt werden, sondern nur im Netzwerk der Schule.</p>
+            </section>
+            <section id="fullscreenContainer" class="fullscreenToggle">
+                <h3>10.03.2022</h3>
+                <p class="description"> Nur noch wenige Stunden bis zur Abgabe der Projektarbeit.</p>
+                <img src="/images/changes/Screenshot 2022-03-10 192457.png">
             </section>
 
 

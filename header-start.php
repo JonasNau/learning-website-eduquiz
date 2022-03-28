@@ -11,7 +11,7 @@
   <!--Styles Global-->
 
   <!--Bootstrap CSS-->
-  <link href="/includes/frameworks/bootstrapAndpopper/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/includes/frameworks/bootstrapAndpopper/bootstrap.min.css">
   <!--Custom Global-->
   <link rel="stylesheet" href="css/style.css?v=?<?php echo  getNewestVersion(); ?>">
   <link rel="stylesheet" href="/css/global.css?v=?<?php echo  getNewestVersion(); ?>">

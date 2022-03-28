@@ -37,7 +37,7 @@ $conn = $database->connect();
                 <h3>Daten</h3>
                 <ul class="settingsList">
                     <li class="setting-item" id="saveData">
-                    <p class="description">Wenn aktiviert, werden Medien, wie Videos, Bilder und Audios nicht automatisch heruntergeladen.</p>
+                    <p class="description">Wenn aktiviert, werden Medien wie Videos, Bilder und Audios nicht automatisch heruntergeladen.</p>
                         <span class="name"><b>Datensparmodus:</b></span>
                         <label class="switch">
                             <input type="checkbox" id="checkbox">

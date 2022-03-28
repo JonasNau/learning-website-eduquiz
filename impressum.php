@@ -23,12 +23,41 @@ $conn = $database->connect();
 
 
     <div class="main-content container mt-4">
-        <p><strong>Impressum</strong></p>
-        <p>Anbieter:<br />Jonas Naumann<br />Jenaer Str 45<br />07549 Gera</p>
-        <p>Kontakt:<br />Telefon: 0365 20410839<br /><br />E-Mail: jonasnaumann06@gmail.com<br />Website: eduquiz.ddns.net</p>
-        <p> </p>
-        <p>Bei redaktionellen Inhalten:</p>
-        <p>Verantwortlich nach § 55 Abs.2 RStV<br />Max Mustermann<br />Musterstraße 2<br />80999 München</p>
+        <h1>Impressum</h1>
+        <h1>Anbieter</h1>
+        <p>Diese Webseite ist ein Ergebnis eines Schulprojektes. Verantwortlicher für den Souce-Code ist: <strong>Jonas Naumann</strong>
+        <br>
+        <strong>Email:</strong> jonasnaumann06@gmail.com</p>
+        <strong>Github:</strong> <a href="https://github.com/JonasNau/webseite">Github-Seite der Webseite</a></p>
+        <h2>Kontaktdaten des Datenschutzbeauftragten:</h2>
+        <p>Name, Vorname: Beauftrage/r für den Datenschutz des Staatlichen Schulamtes Ostthüringen<br>
+        <strong>Anschrift:</strong> Name und Anschrift der 4. Staatlichen Regelschule in Gera
+        <br>
+        <strong>Telefon:</strong> 0365 548 54 600
+        <br>
+        <strong>Fax:</strong>Fax: 0365 548 54 666
+        <br>
+        <strong>E-Mail:</strong> poststelle.ostthueringen@schulamt.thueringen.de
+    </p>
+
+
+
+ 
+
+
+
+ 
+
+
+
+ 
+
+
+
+ 
+
+
+        </p>
 
     </div>
 
