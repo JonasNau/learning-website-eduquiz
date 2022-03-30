@@ -496,12 +496,12 @@ class SelectQuizNav {
       if (error) {
         //Sollte nicht passieren
         this.quizzeContainer.innerHTML = `
-                <div class="quizAuswahlDescription">Keine Quizze dazu gefunden.</div>
+                <div class="quizAuswahlDescription">Keine Quiz dazu gefunden.</div>
                 <ul class="results">
                     
                 <ul>
                 `;
-        resolve("Keine Quizze gefunden.");
+        resolve("Keine Quiz gefunden.");
       } else {
         //Normal execution --- normal
 
@@ -509,7 +509,7 @@ class SelectQuizNav {
         // console.log("Diese Quizze sind sortiert verfügbar: ", sorted);
 
         this.quizzeContainer.innerHTML = `
-                    <p class="quizAuswahlDescription"><b>Quizze dazu gefunden</b> (${sorted.length})</p>
+                    <p class="quizAuswahlDescription"><b>Quiz dazu gefunden</b> (${sorted.length})</p>
                     <ul class="results">
                         
                     </ul>
@@ -748,7 +748,7 @@ function searchBar() {
     if (!resutls) {
       quizResultContainer.innerHTML = `
             <h5>Quizze <span>(0)</span></h5>
-            <p>Keine Quizze dazu gefunden...<p>
+            <p>Keine Quiz dazu gefunden...<p>
             `;
       return;
     }

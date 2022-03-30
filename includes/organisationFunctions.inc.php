@@ -172,7 +172,7 @@ function deleteKlassenstufeFromDatabase($conn, $klassenstufe)
 {
     if (!$klassenstufe) return false;
     $returnArray = array();
-    //Check if there are Quizzes linked to the klassenstufe
+    //Check if there are Quizs linked to the klassenstufe
     if (getValueFromDatabase($conn, "selectquiz", "klassenstufe", "klassenstufe", $klassenstufe, 1, false)) {
 
         $backupKlassenstue = generateBackupKlassenstueName($conn, $klassenstufe);
@@ -193,7 +193,7 @@ function deleteKlassenstufeFromDatabase($conn, $klassenstufe)
                     $zuVerschiebendeQuizze =  getValueFromDatabase($conn, "selectquiz", "uniqueID", "klassenstufe", $klassenstufe, 0, true);
                     if ($zuVerschiebendeQuizze) {
                         foreach ($zuVerschiebendeQuizze as $currentQuizUniqueID) {
-                            //Set all Quizzes that have the grade to backupGrade -> check again
+                            //Set all Quizs that have the grade to backupGrade -> check again
                             setValueFromDatabase($conn, "selectquiz", "klassenstufe", "uniqueID", $currentQuizUniqueID, $backupKlassenstue, false);
                         }
                         $verschobeneQuizze = count($zuVerschiebendeQuizze);
@@ -204,7 +204,7 @@ function deleteKlassenstufeFromDatabase($conn, $klassenstufe)
                     }
 
                     $returnArray["backupKlassenstufe"] = $backupKlassenstue;
-                    $returnArray["message"] = "Klassenstufe $klassenstufe erfolgreich gelöscht. $verschobeneQuizze Quizze wurden dabei in eine Backup-Klassenstufe ($backupKlassenstue) verschoben, um das verschieben der Quizze zu erleichtern.";
+                    $returnArray["message"] = "Klassenstufe $klassenstufe erfolgreich gelöscht. $verschobeneQuizze Quiz wurden dabei in eine Backup-Klassenstufe ($backupKlassenstue) verschoben, um das verschieben der Quiz zu erleichtern.";
                     return $returnArray;
                 }
                 return $returnArray;
@@ -217,7 +217,7 @@ function deleteKlassenstufeFromDatabase($conn, $klassenstufe)
             $stmt = $conn->prepare("DELETE FROM klassenstufenVerwaltung WHERE klassenstufe = ?");
             if ($stmt->execute([$klassenstufe])) {
                 $returnArray["verschobeneQuizze"] = 0;
-                $returnArray["message"] = "Klassenstufe erfolgreich gelöscht. Es wurde keine Backup-Klassenstufe angelegt, da keine Quizze mit der Klassenstufe verknüpft sind.";
+                $returnArray["message"] = "Klassenstufe erfolgreich gelöscht. Es wurde keine Backup-Klassenstufe angelegt, da keine Quiz mit der Klassenstufe verknüpft sind.";
                 $returnArray["status"] = true;
                 return $returnArray;
             }
@@ -234,7 +234,7 @@ function deleteFachFromDatabase($conn, $fach)
 {
     if (!$fach) return false;
     $returnArray = array();
-    //Check if there are Quizzes linked to the klassenstufe
+    //Check if there are Quizs linked to the klassenstufe
     if (getValueFromDatabase($conn, "selectquiz", "fach", "fach", $fach, 1, false)) {
 
         $backupFach = generateBackupFachName($conn, $fach);
@@ -255,7 +255,7 @@ function deleteFachFromDatabase($conn, $fach)
                     $zuVerschiebendeQuizze =  getValueFromDatabase($conn, "selectquiz", "uniqueID", "fach", $fach, 0, true);
                     if ($zuVerschiebendeQuizze) {
                         foreach ($zuVerschiebendeQuizze as $currentQuizUniqueID) {
-                            //Set all Quizzes that have the grade to backupGrade -> check again
+                            //Set all Quizs that have the grade to backupGrade -> check again
                             setValueFromDatabase($conn, "selectquiz", "fach", "uniqueID", $currentQuizUniqueID, $backupFach, false);
                         }
                         $verschobeneQuizze = count($zuVerschiebendeQuizze);
@@ -266,7 +266,7 @@ function deleteFachFromDatabase($conn, $fach)
                     }
 
                     $returnArray["backupFach"] = $backupFach;
-                    $returnArray["message"] = "Fach $fach erfolgreich gelöscht. $verschobeneQuizze Quizze wurden dabei in eine Backup-Klassenstufe ($backupFach) verschoben, um das verschieben der Quizze zu erleichtern.";
+                    $returnArray["message"] = "Fach $fach erfolgreich gelöscht. $verschobeneQuizze Quiz wurden dabei in eine Backup-Klassenstufe ($backupFach) verschoben, um das verschieben der Quiz zu erleichtern.";
                     return $returnArray;
                 }
                 return $returnArray;
@@ -279,7 +279,7 @@ function deleteFachFromDatabase($conn, $fach)
             $stmt = $conn->prepare("DELETE FROM faecherVerwaltung WHERE fach = ?");
             if ($stmt->execute([$fach])) {
                 $returnArray["verschobeneQuizze"] = 0;
-                $returnArray["message"] = "Fach erfolgreich gelöscht. Es wurde kein Backup-Fach angelegt, da keine Quizze mit dem Fach verknüpft sind.";
+                $returnArray["message"] = "Fach erfolgreich gelöscht. Es wurde kein Backup-Fach angelegt, da keine Quiz mit dem Fach verknüpft sind.";
                 $returnArray["status"] = true;
                 return $returnArray;
             }
@@ -296,7 +296,7 @@ function deleteThemaFromDatabase($conn, $thema)
 {
     if (!$thema) return false;
     $returnArray = array();
-    //Check if there are Quizzes linked to the Topic
+    //Check if there are Quizs linked to the Topic
     if (getValueFromDatabase($conn, "selectquiz", "thema", "thema", $thema, 1, false)) {
 
         $backupThema = generateBackupThemaName($conn, $thema);
@@ -317,7 +317,7 @@ function deleteThemaFromDatabase($conn, $thema)
                     $zuVerschiebendeQuizze =  getValueFromDatabase($conn, "selectquiz", "uniqueID", "thema", $thema, 0, true);
                     if ($zuVerschiebendeQuizze) {
                         foreach ($zuVerschiebendeQuizze as $currentQuizUniqueID) {
-                            //Set all Quizzes that have the topic to backupGrade
+                            //Set all Quizs that have the topic to backupGrade
                             setValueFromDatabase($conn, "selectquiz", "thema", "uniqueID", $currentQuizUniqueID, $backupThema, false);
                         }
                         $verschobeneQuizze = count($zuVerschiebendeQuizze);
@@ -327,7 +327,7 @@ function deleteThemaFromDatabase($conn, $thema)
                         $returnArray["verschobeneQuizze"] = $verschobeneQuizze;
                     }
 
-                    $returnArray["message"] = "Thema $thema erfolgreich gelöscht. $verschobeneQuizze Quizze wurden dabei in eine Backup-Thema ($backupThema) verschoben, um das verschieben der Quizze zu erleichtern.";
+                    $returnArray["message"] = "Thema $thema erfolgreich gelöscht. $verschobeneQuizze Quiz wurden dabei in eine Backup-Thema ($backupThema) verschoben, um das verschieben der Quiz zu erleichtern.";
                     return $returnArray;
                 }
                 return $returnArray;
@@ -340,7 +340,7 @@ function deleteThemaFromDatabase($conn, $thema)
             $stmt = $conn->prepare("DELETE FROM themenVerwaltung WHERE thema = ?");
             if ($stmt->execute([$thema])) {
                 $returnArray["verschobeneQuizze"] = 0;
-                $returnArray["message"] = "Thema erfolgreich gelöscht. Es wurde kein Backup-Fach angelegt, da keine Quizze mit dem Fach verknüpft sind.";
+                $returnArray["message"] = "Thema erfolgreich gelöscht. Es wurde kein Backup-Fach angelegt, da keine Quiz mit dem Fach verknüpft sind.";
                 $returnArray["status"] = true;
                 return $returnArray;
             }
@@ -359,10 +359,10 @@ function deleteBackupKlassenstufeFromDatabase($conn, $klassenstufe)
     if (!$klassenstufe) return false;
 
 
-    //Check if there are Quizzes linked to the klassenstufe
+    //Check if there are Quizs linked to the klassenstufe
     if (getValueFromDatabase($conn, "selectquiz", "klassenstufe", "klassenstufe", $klassenstufe, 1, false)) {
         $returnArray["status"] = false;
-        $returnArray["message"] = "Es <b>sind noch</b> Quizze mit der Klassenstufe <b>verknüpft</b>. Verschiebe diese erst, damit es möglich ist die Backup-Klassenstue zu löschen.";
+        $returnArray["message"] = "Es <b>sind noch</b> Quiz mit der Klassenstufe <b>verknüpft</b>. Verschiebe diese erst, damit es möglich ist die Backup-Klassenstue zu löschen.";
         return $returnArray;
     }
 
@@ -429,10 +429,10 @@ function deleteBackupFachFromDatabase($conn, $fach)
     if (!$fach) return false;
 
 
-    //Check if there are Quizzes linked to the klassenstufe
+    //Check if there are Quizs linked to the klassenstufe
     if (getValueFromDatabase($conn, "selectquiz", "klassenstufe", "fach", $fach, 1, false)) {
         $returnArray["status"] = false;
-        $returnArray["message"] = "Es <b>sind noch</b> Quizze mit dem Fach <b>verknüpft</b>. Verschiebe diese erst, damit es möglich ist das Backup-Fach zu löschen.";
+        $returnArray["message"] = "Es <b>sind noch</b> Quiz mit dem Fach <b>verknüpft</b>. Verschiebe diese erst, damit es möglich ist das Backup-Fach zu löschen.";
         return $returnArray;
     }
 
@@ -458,10 +458,10 @@ function deleteBackupThemaFromDatabase($conn, $thema)
     if (!$thema) return false;
 
 
-    //Check if there are Quizzes linked to the klassenstufe
+    //Check if there are Quizs linked to the klassenstufe
     if (getValueFromDatabase($conn, "selectquiz", "uniqueID", "thema", $thema, 1, false)) {
         $returnArray["status"] = false;
-        $returnArray["message"] = "Es <b>sind noch</b> Quizze mit dem Backup-Thema $thema <b>verknüpft</b>. Verschiebe diese erst, damit es möglich ist das Backup-Thema zu löschen.";
+        $returnArray["message"] = "Es <b>sind noch</b> Quiz mit dem Backup-Thema $thema <b>verknüpft</b>. Verschiebe diese erst, damit es möglich ist das Backup-Thema zu löschen.";
         return $returnArray;
     }
 
@@ -589,10 +589,10 @@ function renameKlassenstueInDatabase($conn, $klassenstufe, $newName)
         //Get All QuizIDs where the klassenstufe is the same as we want to change
         $zuVerschiebendeQuizze =  getValueFromDatabase($conn, "selectquiz", "uniqueID", "klassenstufe", $klassenstufe, 0, true);
 
-        logWrite($conn, "organisationLOG", "Zu verschiebende Quizze (Klassenstufe) von $klassenstufe zu $newName: " . json_encode($zuVerschiebendeQuizze), true);
+        logWrite($conn, "organisationLOG", "Zu verschiebende Quiz (Klassenstufe) von $klassenstufe zu $newName: " . json_encode($zuVerschiebendeQuizze), true);
         if ($zuVerschiebendeQuizze) {
             foreach ($zuVerschiebendeQuizze as $currentQuizUniqueID) {
-                //Set all Quizzes that have the grade to backupGrade -> check again
+                //Set all Quizs that have the grade to backupGrade -> check again
                 logWrite($conn, "organisationLOG", "Aktuelles Quiz von $klassenstufe zu $newName verschieben: " . $currentQuizUniqueID, true);
                 if (!setValueFromDatabase($conn, "selectquiz", "klassenstufe", "uniqueID", $currentQuizUniqueID, $newName, false)) {
                     logWrite($conn, "organisationLOG", "Quiz (Id: $currentQuizUniqueID) konnte nicht verschoben werden.", true);
@@ -608,7 +608,7 @@ function renameKlassenstueInDatabase($conn, $klassenstufe, $newName)
             $verschobeneQuizze = 0;
             $returnArray["verschobeneQuizze"] = $verschobeneQuizze;
             $returnArray["status"] = true;
-            $returnArray["message"] = "Klassenstufe umbenannt Keine Quizze verschoben. (bereit zum löschen)";
+            $returnArray["message"] = "Klassenstufe umbenannt Keine Quiz verschoben. (bereit zum löschen)";
         }
     } else {
         $returnArray["message"] = "Backup-Klassenstufe konnte nicht erstellt werden";
@@ -637,10 +637,10 @@ function renameFachInDatabase($conn, $fach, $newName)
         //Get All QuizIDs where the fach is the same as we want to change
         $zuVerschiebendeQuizze =  getValueFromDatabase($conn, "selectquiz", "uniqueID", "fach", $fach, 0, true);
 
-        logWrite($conn, "organisationLOG", "Zu verschiebende Quizze (Fach) von $fach zu $newName: " . json_encode($zuVerschiebendeQuizze), true);
+        logWrite($conn, "organisationLOG", "Zu verschiebende Quiz (Fach) von $fach zu $newName: " . json_encode($zuVerschiebendeQuizze), true);
         if ($zuVerschiebendeQuizze) {
             foreach ($zuVerschiebendeQuizze as $currentQuizUniqueID) {
-                //Set all Quizzes that have the fach to backupGrade -> check again
+                //Set all Quizs that have the fach to backupGrade -> check again
                 logWrite($conn, "organisationLOG", "Aktuelles Quiz von (Fach) $fach zu $newName verschieben: " . $currentQuizUniqueID, true);
                 if (!setValueFromDatabase($conn, "selectquiz", "fach", "uniqueID", $currentQuizUniqueID, $newName, false)) {
                     logWrite($conn, "organisationLOG", "Quiz (Id: $currentQuizUniqueID) konnte nicht verschoben werden.", true);
@@ -656,7 +656,7 @@ function renameFachInDatabase($conn, $fach, $newName)
             $verschobeneQuizze = 0;
             $returnArray["verschobeneQuizze"] = $verschobeneQuizze;
             $returnArray["status"] = true;
-            $returnArray["message"] = "Thema umbenannt Keine Quizze verschoben. (bereit zum löschen)";
+            $returnArray["message"] = "Thema umbenannt Keine Quiz verschoben. (bereit zum löschen)";
         }
     } else {
         $returnArray["message"] = "Fach konnte nicht erstellt werden";
@@ -685,10 +685,10 @@ function renameThemaInDatabase($conn, $thema, $newName)
         //Get All QuizIDs where the fach is the same as we want to change
         $zuVerschiebendeQuizze =  getValueFromDatabase($conn, "selectquiz", "uniqueID", "thema", $thema, 0, true);
 
-        logWrite($conn, "organisationLOG", "Zu verschiebende Quizze (Thema) von $thema zu $newName: " . json_encode($zuVerschiebendeQuizze), true);
+        logWrite($conn, "organisationLOG", "Zu verschiebende Quiz (Thema) von $thema zu $newName: " . json_encode($zuVerschiebendeQuizze), true);
         if ($zuVerschiebendeQuizze) {
             foreach ($zuVerschiebendeQuizze as $currentQuizUniqueID) {
-                //Set all Quizzes that have the fach to backupGrade -> check again
+                //Set all Quizs that have the fach to backupGrade -> check again
                 logWrite($conn, "organisationLOG", "Aktuelles Quiz von (Fach) $thema zu $newName verschieben: " . $currentQuizUniqueID, true);
                 if (!setValueFromDatabase($conn, "selectquiz", "thema", "uniqueID", $currentQuizUniqueID, $newName, false)) {
                     logWrite($conn, "organisationLOG", "Quiz (Id: $currentQuizUniqueID) konnte nicht verschoben werden.", true);
@@ -704,7 +704,7 @@ function renameThemaInDatabase($conn, $thema, $newName)
             $verschobeneQuizze = 0;
             $returnArray["verschobeneQuizze"] = $verschobeneQuizze;
             $returnArray["status"] = true;
-            $returnArray["message"] = "Fach umbenannt Keine Quizze verschoben. (bereit zum löschen)";
+            $returnArray["message"] = "Fach umbenannt Keine Quiz verschoben. (bereit zum löschen)";
         }
     } else {
         $returnArray["message"] = "Fach konnte nicht erstellt werden";
@@ -862,10 +862,10 @@ function renameBackupKlassenstueInDatabase($conn, $klassenstufe, $newName)
         //Get All QuizIDs where the klassenstufe is the same as we want to change
         $zuVerschiebendeQuizze =  getValueFromDatabase($conn, "selectquiz", "uniqueID", "klassenstufe", $klassenstufe, 0, true);
 
-        logWrite($conn, "organisationLOG", "Zu verschiebende Quizze von $klassenstufe zu $newName: " . json_encode($zuVerschiebendeQuizze), true);
+        logWrite($conn, "organisationLOG", "Zu verschiebende Quiz von $klassenstufe zu $newName: " . json_encode($zuVerschiebendeQuizze), true);
         if ($zuVerschiebendeQuizze) {
             foreach ($zuVerschiebendeQuizze as $currentQuizUniqueID) {
-                //Set all Quizzes that have the grade to backupGrade -> check again
+                //Set all Quizs that have the grade to backupGrade -> check again
                 logWrite($conn, "organisationLOG", "Aktuelles Quiz von $klassenstufe zu $newName verschieben: " . $currentQuizUniqueID, true);
                 if (!setValueFromDatabase($conn, "selectquiz", "klassenstufe", "uniqueID", $currentQuizUniqueID, $newName, false)) {
                     logWrite($conn, "organisationLOG", "Quiz (Id: $currentQuizUniqueID) konnte nicht verschoben werden.", true);
@@ -881,7 +881,7 @@ function renameBackupKlassenstueInDatabase($conn, $klassenstufe, $newName)
             $verschobeneQuizze = 0;
             $returnArray["verschobeneQuizze"] = $verschobeneQuizze;
             $returnArray["status"] = true;
-            $returnArray["message"] = "Backup-Klassenstufe umbenannt Keine Quizze verschoben. (bereit zum löschen)";
+            $returnArray["message"] = "Backup-Klassenstufe umbenannt Keine Quiz verschoben. (bereit zum löschen)";
         }
     } else {
         $returnArray["message"] = "Backup-Klassenstufe konnte nicht erstellt werden";
@@ -908,10 +908,10 @@ function renameBackupFachInDatabase($conn, $fach, $newName)
         //Get All QuizIDs where the klassenstufe is the same as we want to change
         $zuVerschiebendeQuizze =  getValueFromDatabase($conn, "selectquiz", "uniqueID", "fach", $fach, 0, true);
 
-        logWrite($conn, "organisationLOG", "Zu verschiebende Quizze von $fach zu $newName: " . json_encode($zuVerschiebendeQuizze), true);
+        logWrite($conn, "organisationLOG", "Zu verschiebende Quiz von $fach zu $newName: " . json_encode($zuVerschiebendeQuizze), true);
         if ($zuVerschiebendeQuizze) {
             foreach ($zuVerschiebendeQuizze as $currentQuizUniqueID) {
-                //Set all Quizzes that have the grade to backupGrade -> check again
+                //Set all Quizs that have the grade to backupGrade -> check again
                 logWrite($conn, "organisationLOG", "Aktuelles Quiz von $fach zu $newName verschieben: " . $currentQuizUniqueID, true);
                 if (!setValueFromDatabase($conn, "selectquiz", "fach", "uniqueID", $currentQuizUniqueID, $newName, false)) {
                     logWrite($conn, "organisationLOG", "Quiz (Id: $currentQuizUniqueID) konnte nicht verschoben werden.", true);
@@ -927,7 +927,7 @@ function renameBackupFachInDatabase($conn, $fach, $newName)
             $verschobeneQuizze = 0;
             $returnArray["verschobeneQuizze"] = $verschobeneQuizze;
             $returnArray["status"] = true;
-            $returnArray["message"] = "Backup-Fach umbenannt Keine Quizze verschoben. (bereit zum löschen)";
+            $returnArray["message"] = "Backup-Fach umbenannt Keine Quiz verschoben. (bereit zum löschen)";
         }
     } else {
         $returnArray["message"] = "Backup-Fach konnte nicht erstellt werden";
@@ -954,10 +954,10 @@ function renameBackupThemaInDatabase($conn, $thema, $newName)
         //Get All QuizIDs where the thema is the same as we want to change
         $zuVerschiebendeQuizze =  getValueFromDatabase($conn, "selectquiz", "uniqueID", "thema", $thema, 0, true);
 
-        logWrite($conn, "organisationLOG", "Zu verschiebende Quizze von $thema zu $newName: " . json_encode($zuVerschiebendeQuizze), true);
+        logWrite($conn, "organisationLOG", "Zu verschiebende Quiz von $thema zu $newName: " . json_encode($zuVerschiebendeQuizze), true);
         if ($zuVerschiebendeQuizze) {
             foreach ($zuVerschiebendeQuizze as $currentQuizUniqueID) {
-                //Set all Quizzes that have the grade to backupGrade -> check again
+                //Set all Quizs that have the grade to backupGrade -> check again
                 logWrite($conn, "organisationLOG", "Aktuelles Quiz von $thema zu $newName verschieben: " . $currentQuizUniqueID, true);
                 if (!setValueFromDatabase($conn, "selectquiz", "thema", "uniqueID", $currentQuizUniqueID, $newName, false)) {
                     logWrite($conn, "organisationLOG", "Quiz (Id: $currentQuizUniqueID) konnte nicht verschoben werden.", true);
@@ -973,7 +973,7 @@ function renameBackupThemaInDatabase($conn, $thema, $newName)
             $verschobeneQuizze = 0;
             $returnArray["verschobeneQuizze"] = $verschobeneQuizze;
             $returnArray["status"] = true;
-            $returnArray["message"] = "Backup-Thema umbenannt Keine Quizze verschoben. (bereit zum löschen)";
+            $returnArray["message"] = "Backup-Thema umbenannt Keine Quiz verschoben. (bereit zum löschen)";
         }
     } else {
         $returnArray["message"] = "Backup-Thema konnte nicht erstellt werden";
@@ -1067,7 +1067,7 @@ function repairDatabaseValues($conn, $klassenstufen = true, $faecher = true, $th
     logWrite($conn, "organisationLOG", "NEW REPAIR ******************************************** NEW REPAIR", false, false, "white");
 
     $quizUniqueIDs = getAllValuesFromDatabase($conn, "selectquiz", "uniqueID", 0, true, false);
-    if ($quizUniqueIDs == false) return false; //If there are no quizzes no repair needed
+    if ($quizUniqueIDs == false) return false; //If there are no quizs no repair needed
 
     //Repair for Klassenstufe
     function repairKlassenstufen($conn, $quizUniqueIDs)
@@ -1096,12 +1096,12 @@ function repairDatabaseValues($conn, $klassenstufen = true, $faecher = true, $th
         }
 
         if (count($quizzesToRepair) > 0) {
-            logWrite($conn, "organisationLOG", "REPAIR_PROCESS: Klassenstufen | Folgende Quizze müssen repariert werden:" . json_encode($quizzesToRepair), true, false, "white");
+            logWrite($conn, "organisationLOG", "REPAIR_PROCESS: Klassenstufen | Folgende Quiz müssen repariert werden:" . json_encode($quizzesToRepair), true, false, "white");
             $backupKlassenstue = generateBackupKlassenstueName($conn, "automatisch");
             if (createBackupKlassenstufeInDatabase($conn, $backupKlassenstue, "automatisch", getCurrentDateAndTime(1))["status"]) {
                 logWrite($conn, "organisationLOG", "REPAIR_PROCESS: Klassenstufen | Backup-Klassenstufe $backupKlassenstue erfolgreich erstellt.", true, false, "green");
                 foreach ($quizzesToRepair as $currentQuizUniqueID) {
-                    //Set all Quizzes that have the grade to backupGrade -> check again
+                    //Set all Quizs that have the grade to backupGrade -> check again
                     $klassenstufe = getValueFromDatabase($conn, "selectquiz", "klassenstufe", "uniqueID", $currentQuizUniqueID, 1, false);
                     if (!setValueFromDatabase($conn, "selectquiz", "klassenstufe", "uniqueID", $currentQuizUniqueID, $backupKlassenstue, false)) {
                         logWrite($conn, "organisationLOG", "REPAIR_PROCESS: Klassenstufen | Quiz (uniqueID: $currentQuizUniqueID) konnte nicht in $backupKlassenstue verschoben werden.", true, true);
@@ -1114,7 +1114,7 @@ function repairDatabaseValues($conn, $klassenstufen = true, $faecher = true, $th
                 logWrite($conn, "organisationLOG", "REPAIR_PROCESS: Klassenstufen | Backup-Klassenstufe $backupKlassenstue konnte nicht erstellt werden.", true, true);
             }
         } else {
-            logWrite($conn, "organisationLOG", "REPAIR_PROCESS: Klassenstufen | Keine Quizze müssen repariert werden. Alles in Ordnung. Array: " . json_encode($quizzesToRepair), true, false, "white");
+            logWrite($conn, "organisationLOG", "REPAIR_PROCESS: Klassenstufen | Keine Quiz müssen repariert werden. Alles in Ordnung. Array: " . json_encode($quizzesToRepair), true, false, "white");
         }
         logWrite($conn, "organisationLOG", "REPAIR_PROCESS: Klassenstufen | Fertig", true);
     }
@@ -1150,7 +1150,7 @@ function repairDatabaseValues($conn, $klassenstufen = true, $faecher = true, $th
         }
 
         if (count($quizzesToRepair) > 0) {
-            logWrite($conn, "organisationLOG", "REPAIR_PROCESS: Fächer | Folgende Quizze müssen repariert werden:" . json_encode($quizzesToRepair), true, false, "white");
+            logWrite($conn, "organisationLOG", "REPAIR_PROCESS: Fächer | Folgende Quiz müssen repariert werden:" . json_encode($quizzesToRepair), true, false, "white");
             $backupFach = generateBackupFachName($conn, "automatisch");
             if (createBackupFachInDatabase($conn, $backupFach, "automatisch", getCurrentDateAndTime(1))["status"]) {
                 logWrite($conn, "organisationLOG", "REPAIR_PROCESS: Fächer | Backup-Fach $backupFach erfolgreich erstellt.", true, false, "green");
@@ -1167,7 +1167,7 @@ function repairDatabaseValues($conn, $klassenstufen = true, $faecher = true, $th
                 logWrite($conn, "organisationLOG", "REPAIR_PROCESS: Fächer | Backup-Fach $backupFach konnte nicht erstellt werden.", true, true);
             }
         } else {
-            logWrite($conn, "organisationLOG", "REPAIR_PROCESS: Fächer | Keine Quizze müssen repariert werden. Alles in Ordnung. Array: " . json_encode($quizzesToRepair), true, false, "white");
+            logWrite($conn, "organisationLOG", "REPAIR_PROCESS: Fächer | Keine Quiz müssen repariert werden. Alles in Ordnung. Array: " . json_encode($quizzesToRepair), true, false, "white");
         }
         logWrite($conn, "organisationLOG", "REPAIR_PROCESS: Fächer| Fertig", true, false, "green");
     }
@@ -1203,7 +1203,7 @@ function repairDatabaseValues($conn, $klassenstufen = true, $faecher = true, $th
         }
 
         if (count($quizzesToRepair) > 0) {
-            logWrite($conn, "organisationLOG", "REPAIR_PROCESS: Thema | Folgende Quizze müssen repariert werden:" . json_encode($quizzesToRepair), true, false , "white");
+            logWrite($conn, "organisationLOG", "REPAIR_PROCESS: Thema | Folgende Quiz müssen repariert werden:" . json_encode($quizzesToRepair), true, false , "white");
             $backupThema = generateBackupThemaName($conn, "automatisch");
             if (createBackupThemaInDatabase($conn, $backupThema, "automatisch", getCurrentDateAndTime(1))["status"]) {
                 logWrite($conn, "organisationLOG", "REPAIR_PROCESS: Thema | Backup-Thema $backupThema erfolgreich erstellt.", true, false, "green");
@@ -1220,7 +1220,7 @@ function repairDatabaseValues($conn, $klassenstufen = true, $faecher = true, $th
                 logWrite($conn, "organisationLOG", "REPAIR_PROCESS: Thema | Backup-Thema $backupThema konnte nicht erstellt werden.", true, true);
             }
         } else {
-            logWrite($conn, "organisationLOG", "REPAIR_PROCESS: Thema | Keine Quizze müssen repariert werden. Alles in Ordnung. Array: " . json_encode($quizzesToRepair), true, false, "white");
+            logWrite($conn, "organisationLOG", "REPAIR_PROCESS: Thema | Keine Quiz müssen repariert werden. Alles in Ordnung. Array: " . json_encode($quizzesToRepair), true, false, "white");
         }
         logWrite($conn, "organisationLOG", "REPAIR_PROCESS: Thema| Fertig", true, false, "green");
     }
@@ -1258,7 +1258,7 @@ function repairDatabaseValues($conn, $klassenstufen = true, $faecher = true, $th
                 }
             }
         }
-        logWrite($conn, "organisationLOG", "REPAIR_PROCESS: Quizze| Fertig", true, false, "green");
+        logWrite($conn, "organisationLOG", "REPAIR_PROCESS: Quiz| Fertig", true, false, "green");
     }
     if ($quiznames) {
         repairQuiznames($conn, $quizUniqueIDs);
@@ -1293,7 +1293,7 @@ function repairDatabaseValues($conn, $klassenstufen = true, $faecher = true, $th
                 }
             }
         }
-        logWrite($conn, "organisationLOG", "REPAIR_PROCESS: QuizzeIDs | Fertig", true, false, "green");
+        logWrite($conn, "organisationLOG", "REPAIR_PROCESS: QuizIDs | Fertig", true, false, "green");
     }
     if ($quizIDs) {
         repairQuizIDs($conn, $quizUniqueIDs);

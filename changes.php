@@ -53,7 +53,7 @@ require_once 'header-start.php';
             </section>
             <section id="fullscreenContainer">
                 <h3>22.12.2021</h3>
-                <p>Startseite, Verbesserung des Systems, um Quizze auszuwählen</p>
+                <p>Startseite, Verbesserung des Systems, um Quiz auszuwählen</p>
             </section>
             <section id="fullscreenContainer" class="fullscreenToggle">
                 <h3>29.12.2021</h3>
@@ -78,13 +78,13 @@ require_once 'header-start.php';
             <section id="fullscreenContainer" class="fullscreenToggle">
                 <h3>15.01.2021</h3>
                 <p>Einbindung SoundManager2 als Framework zum Abspielen von Sounds.</p>
-                <p class="description">Diese Sounds werden bei den Quizzen eingesetzt werden.</p>
+                <p class="description">Diese Sounds werden bei den Quiz eingesetzt werden.</p>
             </section>
             <section id="fullscreenContainer" class="fullscreenToggle">
                 <h3>04.01.2021</h3>
                 <p> Erste Fortschritte in der Quizverwaltung</p>
                 <img src="/images/changes/SettingsFinished01.png">
-                <p class="description">Ab diesem Tage ist es möglich Quizze zu erstellen und zu löschen, sowie einige Einstellungen der Quizdaten aus der Tabelle "selectquiz" zu bearbeiten. Es fehlt noch die Bearebeitung von allen Ausgewählten Quizzen, das ändern der Fragen und Antworten und das Suchen nach Nutzern. Um das Suchen der Nutzer zu implementieren muss fast der gesamte Code für eine Optimierung geändert werden.</p>
+                <p class="description">Ab diesem Tage ist es möglich Quiz zu erstellen und zu löschen, sowie einige Einstellungen der Quizdaten aus der Tabelle "selectquiz" zu bearbeiten. Es fehlt noch die Bearebeitung von allen Ausgewählten Quiz, das ändern der Fragen und Antworten und das Suchen nach Nutzern. Um das Suchen der Nutzer zu implementieren muss fast der gesamte Code für eine Optimierung geändert werden.</p>
             </section>
             <section id="fullscreenContainer" class="fullscreenToggle">
                 <h3>07.03.2022</h3>

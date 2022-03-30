@@ -463,12 +463,12 @@ class SelectQuizNav {
       if (error) {
         //Sollte nicht passieren
         this.quizzeContainer.innerHTML = `
-                <div class="quizAuswahlDescription">Keine Quizze dazu gefunden.</div>
+                <div class="quizAuswahlDescription">Keine Quiz dazu gefunden.</div>
                 <ul class="results">
                     
                 <ul>
                 `;
-        resolve("Keine Quizze gefunden.");
+        resolve("Keine Quiz gefunden.");
       } else {
         //Normal execution --- normal
 
