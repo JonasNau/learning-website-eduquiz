@@ -246,7 +246,7 @@ function shouldLogOut($conn, $userID)
 
                 if ($difference > 0) {
                     logout();
-                    $_SESSION["message"] = "Du wurdest duch eine Nutzerfunktion abgemeldet. Warte noch $difference Sekunden.";
+                    $_SESSION["message"] = "Du wurdest duch eine Nutzerfunktion abgemeldet. Warte noch " . secondsToArrayOrString($difference, "String");
                     returnMessage("success", $_SESSION["message"], "/");
                     die();
                 } else {
@@ -323,7 +323,7 @@ function checkExpired($conn)
         $username = getValueFromDatabase($conn, "users", "username", "userID", $_SESSION["userID"], 1, false);
         logWrite($conn, "onlineUsers", "$username is now offline");
         logout();
-        setSessionData("success", "Du wars zu lange inaktiv $difference Sekunden und wurdest automatisch abgemeldet.", "/login.php");
+        setSessionData("success", "Du wars zu lange inaktiv $difference Sekunden und wurdest automatisch abgemeldet (" . secondsToArrayOrString($difference, "String") . ").", "/login.php");
         die();
     }
 }
@@ -361,10 +361,10 @@ function logout()
 function createNewSession()
 {
     session_regenerate_id();
-     #Destroy Session
-     session_unset();
-     session_destroy();
-     session_start();
+    #Destroy Session
+    session_unset();
+    session_destroy();
+    session_start();
 }
 
 function getNumOnlineUsers($conn)
@@ -456,8 +456,12 @@ function updateOnlineStatus($conn)
             if ($difference > $expireTime) {
                 # Offline
                 setValueFromDatabase($conn, "users", "isOnline", "userID", $user, 0,);
+
+                $lastLogin = getValueFromDatabase($conn, "users", "lastLogin", "userID", $user, 1, false) ?? getCurrentDateAndTime(1);
+                $loginTime = differenceOfTime(new DateTime($lastLogin), new DateTime(getCurrentDateAndTime(1)));
+
                 if ($oldOnline == 1) {
-                    logWrite($conn, "onlineUsers", "User $username is now offline", true, false, "yellow");
+                    logWrite($conn, "onlineUsers", "User $username is now offline, online time = " . secondsToArrayOrString($loginTime, "String"), true, false, "yellow");
                 }
             } else {
                 # Online
@@ -538,16 +542,22 @@ function connectedClientsUpdateOnlineStatus($conn)
             $lastActivity = new DateTime($lastActivity);
 
 
-            $difference = differenceOfTime($lastActivity, $timeNow);
+            $difference = differenceOfTime($timeNow, $lastActivity);
+
+            $sessionStarted = getValueFromDatabase($conn, "onlineClients", "sessionStarted", "sessionID", $sessID, 1, false) ?? getCurrentDateAndTime(1);
+            $connectionTime = differenceOfTime(new DateTime($sessionStarted), new DateTime(getCurrentDateAndTime(1)));
 
             if ($difference > $expireTime) {
                 # Offline
-                logWrite($conn, "onlineClients", "sessionID is offline: $sessID", true, false, "yellow");
+
+
+
+                logWrite($conn, "onlineClients", "sessionID is offline: $sessID connection time = " . secondsToArrayOrString($connectionTime, "String"), true, false, "yellow");
                 setParameterFromOnlineClients($conn, "isOnline", 0, $sessID);
                 deleteClientFromOnline($conn, $sessID);
             } else {
                 # Online
-                logWrite($conn, "onlineClients", "sessionID is still online: $sessID.", true, false, "green");
+                logWrite($conn, "onlineClients", "sessionID is still online: $sessID. connection time: " . secondsToArrayOrString($connectionTime, "String"), true, false, "green");
                 setParameterFromOnlineClients($conn, "isOnline", 1, $sessID);
             }
         } else {
@@ -564,9 +574,24 @@ function setParameterFromOnlineClients($conn, $parameter, $value, $sessionID)
     #Check if entry is set
     if (!valueExists($conn, "onlineClients", "sessionID", $sessionID)) {
         try {
-            $stmt = $conn->prepare("INSERT INTO onlineClients (sessionID, isOnline) VALUES (?, 1);");
-            if ($stmt->execute([$sessionID])) {
+            $stmt = $conn->prepare("INSERT INTO onlineClients (sessionID, isOnline, sessionStarted) VALUES (?, 1, ?);");
+            if ($stmt->execute([$sessionID, getCurrentDateAndTime(1)])) {
                 if ($stmt->rowCount()) {
+                    if (setParameterFromOnlineClients($conn, "lastActivity", getCurrentDateAndTime(2), $sessionID)) {
+                        $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? null;
+                        $ip = $_SERVER['REMOTE_ADDR'];
+                        $browser = new Browser;
+                        $browser->Browser($userAgent);
+                        $browserType = $browser->getBrowser();
+                        $platform = $browser->getPlatform();
+                        $version = $browser->getVersion();
+
+                        setParameterFromOnlineClients($conn, "userAgent", $userAgent, $sessionID);
+                        setParameterFromOnlineClients($conn, "ip", $ip, $sessionID);
+                        setParameterFromOnlineClients($conn, "browser", $browserType, $sessionID);
+                        setParameterFromOnlineClients($conn, "platform", $platform, $sessionID);
+                        setParameterFromOnlineClients($conn, "version", $version, $sessionID);
+                    }
                 } else {
                     try {
                         $stmt = $conn->prepare("DELETE FROM onlineClients WHERE sessionID = ?");
@@ -596,31 +621,14 @@ function setParameterFromOnlineClients($conn, $parameter, $value, $sessionID)
 
 function setLastActivityOnlineClient($conn, $sessID)
 {
-
-    $now = DateTime::createFromFormat('U.u', microtime(true));
-    $timeNow = $now->format("d-m-Y H:i:s.u e");
     if (valueExists($conn, "onlineClients", "sessionID", $sessID)) {
         if (checkOnlineClientExpired($conn, $sessID)) {
             return true;
         }
     }
-    if (setParameterFromOnlineClients($conn, "sessionID", $sessID, $sessID)) {
-        if (setParameterFromOnlineClients($conn, "lastActivity", $timeNow, $sessID)) {
-            $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? null;
-            $ip = $_SERVER['REMOTE_ADDR'];
-            $browser = new Browser;
-            $browser->Browser($userAgent);
-            $browserType = $browser->getBrowser();
-            $platform = $browser->getPlatform();
-            $version = $browser->getVersion();
+    #Client doesn't exitst in database yet
+    setParameterFromOnlineClients($conn, "sessionID", $sessID, $sessID); #Create Client
 
-            setParameterFromOnlineClients($conn, "userAgent", $userAgent, $sessID);
-            setParameterFromOnlineClients($conn, "ip", $ip, $sessID);
-            setParameterFromOnlineClients($conn, "browser", $browserType, $sessID);
-            setParameterFromOnlineClients($conn, "platform", $platform, $sessID);
-            setParameterFromOnlineClients($conn, "version", $version, $sessID);
-        }
-    }
 }
 
 function onlineClientExpired($conn, $sessID)
@@ -648,11 +656,14 @@ function onlineClientExpired($conn, $sessID)
                     $lastActivity = new DateTime($lastActivity);
                     $sessID = $user["sessionID"];
 
-                    $difference = differenceOfTime($lastActivity, $timeNow);
+                    $difference = differenceOfTime($now, $lastActivity);
+
+                    $sessionStarted = getValueFromDatabase($conn, "onlineClients", "sessionStarted", "sessionID", $sessID, 1, false) ?? getCurrentDateAndTime(1);
+                    $connectionTime = differenceOfTime(new DateTime($sessionStarted), new DateTime(getCurrentDateAndTime(1)));
 
                     if ($difference > $expireTime) {
                         # Offline
-                        logWrite($conn, "onlineClients", "sessionID is offline: $sessID.", true, false, "yellow");
+                        logWrite($conn, "onlineClients", "sessionID is expired and will be new created: $sessID. expire time = $expireTime difference = $difference connection time:" . secondsToArrayOrString($connectionTime, "String"), true, false, "yellow");
                         deleteClientFromOnline($conn, $sessID);
                         createNewSession();
                         return true;

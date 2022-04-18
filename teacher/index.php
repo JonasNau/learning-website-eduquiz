@@ -37,6 +37,7 @@ if (!secureConnection()) {
   GoToNow("/");
   die();
 }
+
 logWrite($conn, "general", "$username hat das Lehrerpanel betreten -> " . PHP_EOL . $_SERVER["REMOTE_ADDR"] . " | SESSION_ID: ". session_id(), true, false, "white");
 
 
@@ -244,7 +245,7 @@ logWrite($conn, "general", "$username hat das Lehrerpanel betreten -> " . PHP_EO
 
   <!--Libraries-->
   <!-- Bootstrap and Popper -- Local hosted -->
-  <script src="https://eduquiz.ddns.net/includes/frameworks/bootstrapAndpopper/bootstrap.bundle.min.js" defer></script>
+  <script src="/includes/frameworks/bootstrapAndpopper/bootstrap.bundle.min.js" defer></script>
   <!-- Sund manager -->
   <script src="/includes/frameworks/soundManager/soundmanager2.js" defer type="module" defer></script>
 

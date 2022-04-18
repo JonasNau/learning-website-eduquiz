@@ -872,7 +872,7 @@ if (isset($_POST["quizverwaltung"])) {
             } else {
                 $name = $_POST["name"];
                 if (empty($name)) {
-                    returnMessage("failed", "Der Name des Quizes darf nicht leer sein.");
+                    returnMessage("failed", "Der Name des Quiz darf nicht leer sein.");
                     die();
                 }
                 if (setValueFromDatabase($conn, "selectquiz", "requireQuizname", "uniqueID", $uniqueID, $input, false) && setValueFromDatabase($conn, "selectquiz", "quizname", "uniqueID", $uniqueID, $name, false)) {
@@ -1009,7 +1009,7 @@ if (isset($_POST["quizverwaltung"])) {
                 }
             }
         } catch (Exception $e) {
-            returnMessage("failed", "Ein Fehler ist beim Erstellen des Quizes in der Datenbank aufgetreten: $e");
+            returnMessage("failed", "Ein Fehler ist beim Erstellen des Quiz in der Datenbank aufgetreten: $e");
             die();
         }
 

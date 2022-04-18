@@ -24,7 +24,7 @@ $conn = $database->connect();
 
     <div class="main-content container mt-4">
         <h1>Impressum</h1>
-        <h1>Anbieter</h1>
+        <h2>Anbieter</h2>
         <p>Diese Webseite ist ein Ergebnis eines Schulprojektes. Verantwortlicher für den Souce-Code ist: <strong>Jonas Naumann</strong>
         <br>
         <strong>Email:</strong> jonasnaumann06@gmail.com</p>

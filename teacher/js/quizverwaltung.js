@@ -3070,7 +3070,7 @@ class Quizverwaltung {
           } else {
             let name = await Utils.getUserInput(
               "Name hinzufügen",
-              "Gebe den Namen des Quizes ein.",
+              "Gebe den Namen des Quiz ein.",
               false,
               "text"
             );

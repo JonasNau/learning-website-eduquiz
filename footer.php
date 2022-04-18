@@ -13,10 +13,9 @@
             <li><a href="/faq.php">Fragen? FAQ</a></li>
             <li><a href="/changes.php">Letzte Veränderungen</a></li>
         </ul>
-        <div id="fullscreenContainer" class="fullscreenToggle"><span style="font-size: 1.3rem;">Zeit verbleibend bis zur Präsentation (27.04):</span><span id="timeLeftToPresentation" style="font-size: 2rem; color: white;"> <?php echo $inWords; ?></span></div>
+        <div id="fullscreenContainer" class="fullscreenToggle"><span style="font-size: 1.3rem;">Zeit verbleibend bis zur Präsentation (04.05):</span><span id="timeLeftToPresentation" style="font-size: 2rem; color: white;"> <?php echo $inWords; ?></span></div>
         <div id="fullscreenContainer" class="fullscreenToggle"><span style="font-size: 1.3rem;">Zeit verbleibend bis zur Deutsch Prüfung:</span><span id="timeLeftToExams" style="font-size: 2rem; color: white;"></span></div>
-        <div class="notice">Diese Webseite kann noch nicht produktiv eingesetzt werden, da einige Datenschutz und Sicherheitsbestimmungen noch nicht vollständig umgesetzt sind und umgesetzt werden können, daher ist beispielsweise im Impressum Max Mustermann angegeben.</div>
-        <div class="version"><strong>Ver. 1.0</strong></div>
+        <div class="version"><strong>Ver. 1.1</strong></div>
     </div>
 </section>
 
@@ -26,7 +25,7 @@
         let timeElement = document.getElementById("timeLeftToPresentation");
 
         let now = new Date();
-        let enddate = new Date("Apr 27 2022 08:00:00 GMT+0100");
+        let enddate = new Date("May 4 2022 08:00:00 GMT+0100");
         let timeLeft  = (enddate - now) / 1000; //in seconds
         let timeLeftString = Utils.secondsToArrayOrString(timeLeft, "String");
         timeElement.innerHTML = timeLeftString;

@@ -1385,6 +1385,10 @@ function getCurrentDateAndTime($type = 1)
     if ($type === 1) {
         $now = date("d-m-Y H:i:s e");
         return $now;
+    } else if ($type === 2) {
+        $now = DateTime::createFromFormat('U.u', microtime(true));
+        $timeNow = $now->format("d-m-Y H:i:s.u e");
+        return $timeNow;
     }
     return false;
 }
