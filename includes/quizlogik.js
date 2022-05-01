@@ -293,7 +293,7 @@ class Quiz {
       let seconds = Number(options?.["timeLimit"]);
       let endTime = new Date();
       endTime.setSeconds(endTime.getSeconds() + seconds);
-      console.log("Ende des Quizzes:", endTime, "Sekunden", seconds);
+      console.log("Ende des Quiz:", endTime, "Sekunden", seconds);
 
       let checkTimeLimit = (endDate) => {
         if (this.currentCardNumber >= this.totalCards) {

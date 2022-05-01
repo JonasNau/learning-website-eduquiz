@@ -126,10 +126,10 @@ logWrite($conn, "general", "$username hat das Lehrerpanel betreten -> " . PHP_EO
         <li class="navigationsLink">
           <a href="?route=/quizverwaltung">
             <img src="../images/icons/quizIcon.svg" class="navImage invertWhite" alt="Users">
-            <span class="link_name">Quizze Verwalten</span>
+            <span class="link_name">Quiz Verwalten</span>
           </a>
           <ul class="sub-menu blank">
-            <li><a class="link_name" href="?route=/quizverwaltung">Quizze Verwalten</a></li>
+            <li><a class="link_name" href="?route=/quizverwaltung">Quiz Verwalten</a></li>
           </ul>
         </li>
       <?php

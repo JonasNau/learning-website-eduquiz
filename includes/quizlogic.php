@@ -1,5 +1,5 @@
 <?php
-require_once ("./dbh.incPDO.php");
+require_once("./dbh.incPDO.php");
 require_once("./generalFunctions.php");
 require_once("./getSettings.php");
 require_once("./userSystem/functions/generalFunctions.php");
@@ -10,8 +10,11 @@ require_once("../global.php");
 $database = new Dbh();
 $conn = $database->connect();
 
-$userID = $_SESSION["userID"];
+$userID = null;
 
+if (isLoggedIn()) {
+    $userID = $_SESSION["userID"];
+}
 
 if (isset($_POST["quiz"])) {
     $operation = false;
@@ -43,7 +46,7 @@ if (isset($_POST["quiz"])) {
             $secondOperation = $_POST["secondOperation"];
 
             if ($secondOperation === "getAllQuizInformation") {
-                $quizparams = getColumsFromDatabaseMultipleWhere($conn , "selectquiz", ["uniqueID", "showQuizauswahl", "klassenstufe", "fach", "thema", "quizname", "quizId", "created", "createdBy", "changed", "quizdata", "description"], ["quizId"=>$quizId], 1, false, false);
+                $quizparams = getColumsFromDatabaseMultipleWhere($conn, "selectquiz", ["uniqueID", "showQuizauswahl", "klassenstufe", "fach", "thema", "quizname", "quizId", "created", "createdBy", "changed", "quizdata", "description"], ["quizId" => $quizId], 1, false, false);
                 $quizparams["changedBy"] = json_validate(getValueFromDatabase($conn, "selectquiz", "changedBy", "quizID", $quizId, 1, false, false));
                 if (!$quizparams) {
                     returnMessage("failed", "Keine Quizparameter vorhanden");
@@ -59,23 +62,22 @@ if (isset($_POST["quiz"])) {
                         }
                     }
                 }
-                logWrite($conn, "quiz", "The Client ". session_id() . " is using the quiz quizID = '$quizId'" . "loggedIn =" . json_encode(isLoggedIn()) . " username = " . getValueFromDatabase($conn, "users", "username", "userID", $userID, 1, false));
+                logWrite($conn, "quiz", "The Client " . session_id() . " is using the quiz quizID = '$quizId'" . "loggedIn =" . json_encode(isLoggedIn()) . " username = " . getValueFromDatabase($conn, "users", "username", "userID", $userID, 1, false));
                 echo json_encode($quizparams);
                 die();
             }
         } else if ($type === "getMark") {
-            
         }
     } else if ($operation === "insertNewResult") {
         mustBeLoggedIn();
         $quizID = $_POST["quizID"];
         setValueFromDatabase($conn, "users", "lastQuiz", "userID", $_SESSION["userID"], $quizID); //Set last Quiz form user
-        logWrite($conn, "quiz", "The Client ". session_id() . " is has finished the quiz quizID = '$quizId'" . "loggedIn =" . json_encode(isLoggedIn()) . " username = " . getValueFromDatabase($conn, "users", "username", "userID", $userID, 1, false));
+        logWrite($conn, "quiz", "The Client " . session_id() . " is has finished the quiz quizID = '$quizId'" . "loggedIn =" . json_encode(isLoggedIn()) . " username = " . getValueFromDatabase($conn, "users", "username", "userID", $userID, 1, false));
         if (!boolval(getSettingVal($conn, "usersCanInsertResults"))) {
             returnMessage("failed", "Das Eintragen neuer Ergebnisse ist zur Zeit deaktiviert.");
             die();
         }
-        
+
         $resultObject = json_validate($_POST["resultObject"]);
 
         if (!$quizID || empty($quizID) || !$resultObject) {
@@ -88,7 +90,7 @@ if (isset($_POST["quiz"])) {
             $stmt = $conn->prepare("INSERT INTO scores (userID, quizID, date, results) VALUES (?, ?, ?, ?);");
             if ($stmt->execute([$_SESSION["userID"], $quizID, $now, json_encode($resultObject)])) {
                 if ($stmt->rowCount()) {
-                    logWrite($conn, "quiz", "The Client's ". $_SESSION["id"] . " result was successfully insertet into the database quizID = '$quizId'" . "loggedIn =" . json_encode(isLoggedIn()) . " username = " . getValueFromDatabase($conn, "users", "username", "userID", $userID, 1, false) . "results = " . json_encode($resultObject));
+                    logWrite($conn, "quiz", "The Client's " . $_SESSION["id"] . " result was successfully insertet into the database quizID = '$quizId'" . "loggedIn =" . json_encode(isLoggedIn()) . " username = " . getValueFromDatabase($conn, "users", "username", "userID", $userID, 1, false) . "results = " . json_encode($resultObject));
                     returnMessage("success", "Daten erfolgreich in die Datenbank eingetragen.");
                     die();
                 }

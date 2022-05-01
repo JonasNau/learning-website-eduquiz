@@ -602,9 +602,9 @@ if (isset($_POST["quizverwaltung"])) {
             }
             $oldValue =  getValueFromDatabase($conn, "selectquiz", "quizname", "uniqueID", $uniqueID, 1, false);
             if (setValueFromDatabase($conn, "selectquiz", "quizname", "uniqueID", $uniqueID, $input, false)) {
-                returnMessage("success", "Der Name des Quizzes wurde <b>erfolgreich</b> von $oldValue zu $input geändert.");
+                returnMessage("success", "Der Name des Quiz wurde <b>erfolgreich</b> von $oldValue zu $input geändert.");
             } else {
-                returnMessage("success", "Der Name des Quizzes konnte <b>nicht<b/> von $oldValue zu $input geändert werden.");
+                returnMessage("success", "Der Name des Quiz konnte <b>nicht<b/> von $oldValue zu $input geändert werden.");
             }
             die();
         } else  if ($type === "klassenstufe") {
@@ -637,9 +637,9 @@ if (isset($_POST["quizverwaltung"])) {
 
             $oldValue =  getValueFromDatabase($conn, "selectquiz", "klassenstufe", "uniqueID", $uniqueID, 1, false);
             if (setValueFromDatabase($conn, "selectquiz", "klassenstufe", "uniqueID", $uniqueID, $input, false)) {
-                returnMessage("success", "Die Klassenstufe des Quizzes wurde <b>erfolgreich</b> von $oldValue zu $input geändert.");
+                returnMessage("success", "Die Klassenstufe des Quiz wurde <b>erfolgreich</b> von $oldValue zu $input geändert.");
             } else {
-                returnMessage("success", "Die Klassenstufe des Quizzes konnte <b>nicht<b/> von $oldValue zu $input geändert werden.");
+                returnMessage("success", "Die Klassenstufe des Quiz konnte <b>nicht<b/> von $oldValue zu $input geändert werden.");
             }
             die();
         } else  if ($type === "fach") {
@@ -667,9 +667,9 @@ if (isset($_POST["quizverwaltung"])) {
 
             $oldValue =  getValueFromDatabase($conn, "selectquiz", "fach", "uniqueID", $uniqueID, 1, false);
             if (setValueFromDatabase($conn, "selectquiz", "fach", "uniqueID", $uniqueID, $input, false)) {
-                returnMessage("success", "Das Fach des Quizzes wurde <b>erfolgreich</b> von $oldValue zu $input geändert.");
+                returnMessage("success", "Das Fach des Quiz wurde <b>erfolgreich</b> von $oldValue zu $input geändert.");
             } else {
-                returnMessage("success", "Das Fach des Quizzes konnte <b>nicht<b/> von $oldValue zu $input geändert werden.");
+                returnMessage("success", "Das Fach des Quiz konnte <b>nicht<b/> von $oldValue zu $input geändert werden.");
             }
             die();
         } else  if ($type === "thema") {
@@ -697,9 +697,9 @@ if (isset($_POST["quizverwaltung"])) {
 
             $oldValue =  getValueFromDatabase($conn, "selectquiz", "thema", "uniqueID", $uniqueID, 1, false);
             if (setValueFromDatabase($conn, "selectquiz", "thema", "uniqueID", $uniqueID, $input, false)) {
-                returnMessage("success", "Das Thema des Quizzes wurde <b>erfolgreich</b> von $oldValue zu $input geändert.");
+                returnMessage("success", "Das Thema des Quiz wurde <b>erfolgreich</b> von $oldValue zu $input geändert.");
             } else {
-                returnMessage("success", "Das Thema des Quizzes konnte <b>nicht<b/> von $oldValue zu $input geändert werden.");
+                returnMessage("success", "Das Thema des Quiz konnte <b>nicht<b/> von $oldValue zu $input geändert werden.");
             }
             die();
         } else if ($type === "description") {

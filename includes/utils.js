@@ -247,7 +247,7 @@ export function getUserInput(
   <!-- Modal -->
   <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
   <div class="modal-dialog ${boolToString(fullscreen, {
-    true: "modal-fullscreens",
+    true: "modal-fullscreen",
     false: "",
   })}">
     <div class="modal-content">
@@ -757,7 +757,7 @@ export function createModal(
   }
 
   if (document.querySelector("#modalContainer") == null) {
-    alert("no modal cóntainer found");
+    alert("no modal container found");
     reject();
   }
   let number = 1;

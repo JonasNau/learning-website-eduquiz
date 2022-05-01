@@ -536,12 +536,12 @@ class Overview {
                   </ul>
               </div>
               `;
-        resolve("Keine Quizze gefunden.");
+        resolve("Keine Quiz gefunden.");
       } else {
         //Normal execution --- normal
         let sorted = Utils.sortItems(data, "quizname");
 
-        // console.log("Diese Quizze sind sortiert verfügbar: ", sorted);
+        // console.log("Diese Quiz sind sortiert verfügbar: ", sorted);
 
         this.quizzeDropdown.innerHTML = `
         <h4>Quiz auswählen</h4>
@@ -3287,7 +3287,7 @@ class Faecherverwaltung {
           }
           let userInput = await Utils.getUserInput(
             "Eingabefeld",
-            "Sollen Quizze mit dem Fach erstellt werden können?",
+            "Sollen Quiz mit dem Fach erstellt werden können?",
             false,
             "yes/no"
           );
@@ -4943,7 +4943,7 @@ class Themenverwaltung {
           }
           let userInput = await Utils.getUserInput(
             "Eingabefeld",
-            "Sollen Quizze mit dem Thema erstellt werden können?",
+            "Sollen Quiz mit dem Thema erstellt werden können?",
             false,
             "yes/no"
           );

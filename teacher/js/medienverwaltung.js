@@ -3719,7 +3719,7 @@ class Medienverwaltung {
           if (
             (await Utils.askUser(
               "Medieneintrag löschen",
-              "Möchtest du den Medieneintrag wirklich löschen? Alle verknüpften Dateien werden gelöscht. In Quizzen verknüpfte Inhalte funktionieren dann nicht mehr und müssen geändert werden."
+              "Möchtest du den Medieneintrag wirklich löschen? Alle verknüpften Dateien werden gelöscht. In Quiz verknüpfte Inhalte funktionieren dann nicht mehr und müssen geändert werden."
             )) !== false
           ) {
             let response = await Utils.makeJSON(

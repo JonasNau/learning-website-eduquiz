@@ -975,7 +975,7 @@ class ShowScores {
       let information = tableRow.querySelector("#information");
       if (!result["exists"]) {
         information.innerHTML = "<b>Quiz existiert nicht mehr</b>";
-        continue;
+        // continue;
       }
 
       let quizIDContainer = tableRow.querySelector("#quizID");
