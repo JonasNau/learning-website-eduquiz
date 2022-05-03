@@ -1518,10 +1518,11 @@ class Quiz {
 
     setTimeout(() => {
       //Continue if Enter or Spacebar
-      this.container.addEventListener(
+      this.answerContainer.addEventListener(
         "keydown",
         (action) => {
           let key = action.key;
+          alert("here")
           if (key == "Enter" || key == "Space") {
             action.preventDefault();
             this.cardFooter.classList.remove("wrong");
@@ -1531,7 +1532,7 @@ class Quiz {
         },
         { once: true }
       );
-    }, 100);
+    }, 300);
   }
 
   async showResults() {
