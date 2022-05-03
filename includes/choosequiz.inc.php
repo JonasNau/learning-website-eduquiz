@@ -10,7 +10,7 @@ $conn = $database->connect();
 //Get Klassen verfügbar
 if (isset($_POST['getKlassen'])) {
     require_once("./generalFunctions.php");
-    echo json_encode(getValueFromDatabaseMultipleWhere($conn, "selectquiz", "klassenstufe", ["visibility" => 1, "showQuizauswahl" => 1, "klassenstufe" => true, "fach" => true, "thema" => true, "quizname" => true], true, false));
+    echo json_encode(getValueFromDatabase($conn, "klassenstufenVerwaltung", "klassenstufe", "showQuizauswahl", 1, 0, true, true));
     die();
 }
 
