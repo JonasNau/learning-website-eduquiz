@@ -1328,18 +1328,21 @@ class Quiz {
         { once: true }
       );
     } else if (type === "textInput") {
+      let textBox = this.answerContainer.querySelector("#textInput");
       if (Utils.isEmptyInput(choosen, true)) {
         console.log("Your choice is empty");
         Utils.alertUser("Nachricht", "Die Eingabe darf nicht leer sein.");
         this.answerContainer.classList.add("userCanChoose");
         this.userCanChoose = true;
         this.addSubmitListener_Textbox(
-          this.answerContainer.querySelector("#textInput"),
+          textBox,
           type
         );
 
         return false;
       }
+
+      Utils.removeAllEventlisteners(textBox);
 
       let options = this.currentCardData["options"];
       let caseSensitive = options["caseSensitive"];
