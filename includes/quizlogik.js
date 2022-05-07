@@ -1522,7 +1522,6 @@ class Quiz {
         "keydown",
         (action) => {
           let key = action.key;
-          alert("here")
           if (key == "Enter" || key == "Space") {
             action.preventDefault();
             this.cardFooter.classList.remove("wrong");
