@@ -19,11 +19,11 @@ if (userHasPermissions($conn, $userID, ["accessQuizverwaltung" => 1])) {
     <link rel="stylesheet" href="./css/quizverwaltung.css">
     <div class="container" id="quizverwaltungsContainer">
         <h2>Quizverwaltung</h2>
-        <p>Hier ist es möglich Quizze zu suchen und zu bearbeiten, sie zu bearbeiten und auch gegebenenfalls zu löschen. Das wird der meist genutzte Bereich des Lehrerpanels sein.</p>
+        <p>Hier ist es möglich Quiz zu suchen und zu bearbeiten, sie zu bearbeiten und auch gegebenenfalls zu löschen. Das wird der meist genutzte Bereich des Lehrerpanels sein.</p>
         <section>
             <div class="row">
                 <div id="quizverwaltung">
-                    <h3>Quizze verwalten</h3>
+                    <h3>Quiz verwalten</h3>
                     <button class="btn btn-secondary" id="addBtn">Quiz erstellen</button>
                     <button class="btn btn-secondary" id="filterToggle">Filtern</button>
                     <button class="btn btn-secondary" id="edit">Bearbeiten</button>

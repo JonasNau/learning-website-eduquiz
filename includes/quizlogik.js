@@ -293,7 +293,7 @@ class Quiz {
       let seconds = Number(options?.["timeLimit"]);
       let endTime = new Date();
       endTime.setSeconds(endTime.getSeconds() + seconds);
-      console.log("Ende des Quizzes:", endTime, "Sekunden", seconds);
+      console.log("Ende des Quiz:", endTime, "Sekunden", seconds);
 
       let checkTimeLimit = (endDate) => {
         if (this.currentCardNumber >= this.totalCards) {
@@ -484,7 +484,7 @@ class Quiz {
         let checkTimeLimit = (endDate) => {
           if (cardNumber != this.currentCardNumber || !this.userCanChoose) {
             console.log("Timer Stoped!");
-            console.log(timerBox)
+            console.log(timerBox);
             timerBox.innerHTML = ``;
             return;
           }
@@ -547,13 +547,24 @@ class Quiz {
         //EventListener
         currentAnswerContainer.addEventListener("click", (event) => {
           if (!event.target) return false;
-          console.log(event.target)
-          if (event.target.closest("SETTING_lightDataUsage-warning") || event.target.closest("preventExternalMedia-warning")) {
+          console.log(event.target);
+          if (
+            event.target.closest("SETTING_lightDataUsage-warning") ||
+            event.target.closest("preventExternalMedia-warning")
+          ) {
             console.log("Clicked to load media");
             return false;
           }
           //If clicked directly on answer button
-          if (event.target.classList.contains("answer") || (event.target.classList.contains("mediaContainer") && event.target.classList.contains("image") || event.target.closest(".mediaContainer")?.classList.contains("image")) || event.target.closest(".answer")?.classList.contains("text")) {
+          if (
+            event.target.classList.contains("answer") ||
+            (event.target.classList.contains("mediaContainer") &&
+              event.target.classList.contains("image")) ||
+            event.target
+              .closest(".mediaContainer")
+              ?.classList.contains("image") ||
+            event.target.closest(".answer")?.classList.contains("text")
+          ) {
             this.validateAnswer(cardType, answer["answerID"]);
             return;
           }
@@ -672,13 +683,27 @@ class Quiz {
         currentAnswerContainer.addEventListener("click", (event) => {
           if (!this.userCanChoose) return false;
           if (!event.target) return false;
-          console.log(event.target)
-          if (event.target.closest("SETTING_lightDataUsage-warning") || event.target.closest("preventExternalMedia-warning")) {
+          console.log(event.target);
+          if (
+            event.target.closest("SETTING_lightDataUsage-warning") ||
+            event.target.closest("preventExternalMedia-warning")
+          ) {
             console.log("Clicked to load media");
             return false;
           }
           //If clicked directly on answer button
-          if (!(event.target.classList.contains("answer") || (event.target.classList.contains("mediaContainer") && event.target.classList.contains("image") || event.target.closest(".mediaContainer")?.classList.contains("image")) || event.target.closest(".answer")?.classList.contains("text"))) return
+          if (
+            !(
+              event.target.classList.contains("answer") ||
+              (event.target.classList.contains("mediaContainer") &&
+                event.target.classList.contains("image")) ||
+              event.target
+                .closest(".mediaContainer")
+                ?.classList.contains("image") ||
+              event.target.closest(".answer")?.classList.contains("text")
+            )
+          )
+            return;
           //Toggle in array
           this.choosenAnswers = Utils.toggleValuesInArray(
             this.choosenAnswers,
@@ -742,6 +767,9 @@ class Quiz {
         `;
       }
 
+      let textBox = this.answerContainer.querySelector("#textInput");
+      textBox.focus();
+
       let timerBox = this.container.querySelector(".timeLimit .cardTime");
       timerBox.innerHTML = "";
       //Time Limit
@@ -773,8 +801,7 @@ class Quiz {
             return;
           }
           this.preventScoreUpload = true;
-          let textInput =
-            this.answerContainer.querySelector("#textInput").value;
+          let textInput = textBox.value;
           this.validateAnswer(cardType, textInput);
         };
         checkTimeLimit(endTime);
@@ -790,9 +817,11 @@ class Quiz {
 
       let submitBtn = this.cardFooter.querySelector("#submitBtn");
       submitBtn.addEventListener("click", () => {
-        let textInput = this.answerContainer.querySelector("#textInput").value;
+        let textInput = textBox.value;
         this.validateAnswer(cardType, textInput);
       });
+
+      this.addSubmitListener_Textbox(textBox, cardType);
 
       this.userCanChoose = true;
       this.answerContainer.classList.add("userCanChoose"); //For making hover effects work
@@ -868,6 +897,20 @@ class Quiz {
     //Add Points
     let points = Number(this.currentCardData["points"]) ?? 0;
     this.usersPoints += points;
+  }
+
+  addSubmitListener_Textbox(textBox, cardType) {
+    if (!textBox) console.error("no textbox found", { textBox });
+    textBox.addEventListener("keydown", (action) => {
+      let key = action.key;
+
+      if (key == "Enter") {
+        action.preventDefault();
+        Utils.removeAllEventlisteners(textBox);
+        let textInput = textBox.value;
+        this.validateAnswer(cardType, textInput);
+      }
+    });
   }
 
   validateAnswer(type, choosen) {
@@ -1285,13 +1328,21 @@ class Quiz {
         { once: true }
       );
     } else if (type === "textInput") {
+      let textBox = this.answerContainer.querySelector("#textInput");
       if (Utils.isEmptyInput(choosen, true)) {
         console.log("Your choice is empty");
         Utils.alertUser("Nachricht", "Die Eingabe darf nicht leer sein.");
         this.answerContainer.classList.add("userCanChoose");
         this.userCanChoose = true;
+        this.addSubmitListener_Textbox(
+          textBox,
+          type
+        );
+
         return false;
       }
+
+      Utils.removeAllEventlisteners(textBox);
 
       let options = this.currentCardData["options"];
       let caseSensitive = options["caseSensitive"];
@@ -1464,6 +1515,23 @@ class Quiz {
     this.updateScore();
     this.updateHeader();
     this.cardStartTime = false;
+
+    setTimeout(() => {
+      //Continue if Enter or Spacebar
+      this.answerContainer.addEventListener(
+        "keydown",
+        (action) => {
+          let key = action.key;
+          if (key == "Enter" || key == "Space") {
+            action.preventDefault();
+            this.cardFooter.classList.remove("wrong");
+            this.cardFooter.classList.remove("correct");
+            this.loadNextQuestion();
+          }
+        },
+        { once: true }
+      );
+    }, 300);
   }
 
   async showResults() {
@@ -1509,7 +1577,6 @@ class Quiz {
       markColor = "red";
     }
 
-
     let resultPageHTML = `
     <h1 style="text-decoration: underline;">Dein Ergebnis</h1>
     <div class="resultContainer container">
@@ -1520,7 +1587,9 @@ class Quiz {
             <div id="result"><b>Ergebnis:</b> ${this.correctCardsNumber} / ${
       this.totalCards
     }</div>
-            <div id="mark" style="background-color: ${markColor};"><b>Note:</b> ${this.usersMark}</div>
+            <div id="mark" style="background-color: ${markColor};"><b>Note:</b> ${
+      this.usersMark
+    }</div>
             <div class="details">
                 <div class="totalCards">Gesamtanzahl von Karten: ${
                   this.totalCards
@@ -1609,7 +1678,8 @@ class Quiz {
         item.innerHTML = `
             <div id="id"><span class="description">id:</span> ${id}</div>
             <div id="status"><span class="description">Status:</span> ${Utils.valueToString(
-              status, {"correct": "richtig &#10004;", "wrong": "falsch &#10060;"}
+              status,
+              { correct: "richtig &#10004;", wrong: "falsch &#10060;" }
             )}</div>
             <div id="task"><span class="description">Aufgabe:</span> ${
               quizCard["task"]
@@ -1624,7 +1694,9 @@ class Quiz {
               currentUsersChoice["cardStartTime"],
               currentUsersChoice["cardEndTime"]
             )}</div>
-            <div id="id"><span class="description">Punkte:</span> ${quizCard.points}</div>
+            <div id="id"><span class="description">Punkte:</span> ${
+              quizCard.points
+            }</div>
             `;
         let answersContainer = item.querySelector("#answers .content");
         let usersAnswersContainer = item.querySelector(
@@ -1671,7 +1743,8 @@ class Quiz {
         item.innerHTML = `
         <div id="id"><span class="description">id:</span> ${id}</div>
         <div id="status"><span class="description">Status:</span> ${Utils.valueToString(
-          status, {"correct": "richtig &#10004;", "wrong": "falsch &#10060;"}
+          status,
+          { correct: "richtig &#10004;", wrong: "falsch &#10060;" }
         )}</div>
         <div id="task"><span class="description">Aufgabe:</span> ${
           quizCard["task"]
@@ -1690,7 +1763,9 @@ class Quiz {
           currentUsersChoice["cardStartTime"],
           currentUsersChoice["cardEndTime"]
         )}</div>
-        <div id="id"><span class="description">Punkte:</span> ${quizCard.points}</div>
+        <div id="id"><span class="description">Punkte:</span> ${
+          quizCard.points
+        }</div>
         `;
 
         let answersContainer = item.querySelector("#answers .content");
@@ -1727,7 +1802,6 @@ class Quiz {
           ul.appendChild(li);
         }
         answersContainer.appendChild(ul);
-
 
         console.log(currentUsersChoice);
         //Fill choosen
@@ -1779,7 +1853,8 @@ class Quiz {
         item.innerHTML = `
         <div id="id"><span class="description">id:</span> ${id}</div>
         <div id="status"><span class="description">Status:</span> ${Utils.valueToString(
-          status, {"correct": "richtig &#10004;", "wrong": "falsch &#10060;"}
+          status,
+          { correct: "richtig &#10004;", wrong: "falsch &#10060;" }
         )}</div>
         <div id="caseSensitive"><span class="description">Groß und Kleinschreibung beachten:</span> ${Utils.boolToString(
           quizCard["options"]["caseSensitive"]
@@ -1799,7 +1874,9 @@ class Quiz {
           currentUsersChoice["cardStartTime"],
           currentUsersChoice["cardEndTime"]
         )}</div>
-        <div id="id"><span class="description">Punkte:</span> ${quizCard.points}</div>
+        <div id="id"><span class="description">Punkte:</span> ${
+          quizCard.points
+        }</div>
         `;
 
         let usersAnswersContainer = item.querySelector(
@@ -1841,7 +1918,11 @@ class Quiz {
     //Insert result into database if logged in
     if (Utils.makeJSON(window.sessionStorage.getItem("loggedIn"))) {
       if (this.preventScoreUpload) {
-        await Utils.alertUser("Hochladen fehlgeschlagen", "Dein Ergebnis konnte nicht in die Datenbank eingetragen werden, da das Quiz nicht korrekt abgeschlossen wurde. Dies liegt wahrscheinlch an fehlenden Quizdaten. Informiere einen Administrator.", fasle);
+        await Utils.alertUser(
+          "Hochladen fehlgeschlagen",
+          "Dein Ergebnis konnte nicht in die Datenbank eingetragen werden, da das Quiz nicht korrekt abgeschlossen wurde. Dies liegt wahrscheinlch an fehlenden Quizdaten. Informiere einen Administrator.",
+          fasle
+        );
         return;
       }
       console.log("INSERT result into database:", this.resultObject);
@@ -1849,7 +1930,10 @@ class Quiz {
       let response = await Utils.makeJSON(
         await Utils.sendXhrREQUEST(
           "POST",
-          "quiz&operation=insertNewResult&quizID=" + this.quizId + "&resultObject=" + JSON.stringify(this.resultObject),
+          "quiz&operation=insertNewResult&quizID=" +
+            this.quizId +
+            "&resultObject=" +
+            JSON.stringify(this.resultObject),
           "/includes/quizlogic.php",
           "application/x-www-form-urlencoded",
           true,

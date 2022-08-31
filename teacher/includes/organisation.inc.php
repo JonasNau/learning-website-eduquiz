@@ -147,7 +147,7 @@ if (isset($_POST["klassenstufenverwaltung"])) {
                 $success = $returnArray["success"];
                 if ($success) {
                     $returnArray = array();
-                    $returnArray["message"] = "Der Name der Klassenstufe wurde von $klassenstufe zu $newName umbenannt. Alle Quizze ($changedQuizzes), die die Klassenstufe hatten wurden automatisch mit verschoben.";
+                    $returnArray["message"] = "Der Name der Klassenstufe wurde von $klassenstufe zu $newName umbenannt. Alle Quiz ($changedQuizzes), die die Klassenstufe hatten wurden automatisch mit verschoben.";
                     echo json_encode($returnArray);
                     die();
                 } else {
@@ -448,7 +448,7 @@ if (isset($_POST["backupKlassenstufenverwaltung"])) {
                 //Move quizzes
                 $zuVerschiebendeQuizze =  getValueFromDatabase($conn, "selectquiz", "uniqueID", "klassenstufe", $klassenstufe, 0, true);
 
-                logWrite($conn, "organisationLOG", "Zu verschiebende Quizze von $klassenstufe zu $newName: " . json_encode($zuVerschiebendeQuizze), true);
+                logWrite($conn, "organisationLOG", "Zu verschiebende Quiz von $klassenstufe zu $newName: " . json_encode($zuVerschiebendeQuizze), true);
                 $verschobeneQuizze = 0;
                 if ($zuVerschiebendeQuizze) {
                     foreach ($zuVerschiebendeQuizze as $currentQuizUniqueID) {
@@ -468,13 +468,13 @@ if (isset($_POST["backupKlassenstufenverwaltung"])) {
                     $verschobeneQuizze = 0;
                     $returnArray["verschobeneQuizze"] = $verschobeneQuizze;
                     $returnArray["status"] = true;
-                    $returnArray["message"] = "Backup-Klassenstufe umbenannt Keine Quizze verschoben. (bereit zum löschen)";
+                    $returnArray["message"] = "Backup-Klassenstufe umbenannt Keine Quiz verschoben. (bereit zum löschen)";
                 }
 
                 //Delete Old form backupklassenstufe
                 if ($returnArray = deleteBackupKlassenstufeFromDatabase($conn, $klassenstufe)) {
                     if ($returnArray["status"]) {
-                        $returnArray["message"] = "Klassenstufe $klassenstufe wurde erfolgreich wiederhergestellt. Der Name ist $newName. Es wurden darurch $verschobeneQuizze verschoben.";
+                        $returnArray["message"] = "Klassenstufe $klassenstufe wurde erfolgreich wiederhergestellt. Der Name ist $newName. Es wurden darurch $verschobeneQuizze Quiz verschoben.";
                         echo json_encode($returnArray);
                     } else {
                         echo json_encode($returnArray);
@@ -615,7 +615,7 @@ if (isset($_POST["faecherverwaltung"])) {
                 $success = $returnArray["success"];
                 if ($success) {
                     $returnArray = array();
-                    $returnArray["message"] = "Der Name des Faches wurde von $fach zu $newName umbenannt. Alle Quizze ($changedQuizzes), die die Klassenstufe hatten wurden automatisch mit verschoben.";
+                    $returnArray["message"] = "Der Name des Faches wurde von $fach zu $newName umbenannt. Alle Quiz ($changedQuizzes), die die Klassenstufe hatten wurden automatisch mit verschoben.";
                     echo json_encode($returnArray);
                     die();
                 } else {
@@ -895,7 +895,7 @@ if (isset($_POST["backupFaecherverwaltung"])) {
                 //Move quizzes
                 $zuVerschiebendeQuizze =  getValueFromDatabase($conn, "selectquiz", "uniqueID", "fach", $fach, 0, true);
 
-                logWrite($conn, "organisationLOG", "Zu verschiebende Quizze von $fach zu $newName: " . json_encode($zuVerschiebendeQuizze), true);
+                logWrite($conn, "organisationLOG", "Zu verschiebende Quiz von $fach zu $newName: " . json_encode($zuVerschiebendeQuizze), true);
                 $verschobeneQuizze = 0;
                 if ($zuVerschiebendeQuizze) {
                     foreach ($zuVerschiebendeQuizze as $currentQuizUniqueID) {
@@ -915,7 +915,7 @@ if (isset($_POST["backupFaecherverwaltung"])) {
                     $verschobeneQuizze = 0;
                     $returnArray["verschobeneQuizze"] = $verschobeneQuizze;
                     $returnArray["status"] = true;
-                    $returnArray["message"] = "Backup-Fach erfolgreich wiederhergestellt. Keine Quizze wurden verschoben.";
+                    $returnArray["message"] = "Backup-Fach erfolgreich wiederhergestellt. Keine Quiz wurden verschoben.";
                 }
 
                 //Delete Old form backupklassenstufe
@@ -1323,7 +1323,7 @@ if (isset($_POST["backupThemenverwaltung"])) {
                 //Move quizzes
                 $zuVerschiebendeQuizze =  getValueFromDatabase($conn, "selectquiz", "uniqueID", "thema", $thema, 0, true);
 
-                logWrite($conn, "organisationLOG", "Zu verschiebende Quizze von $fach zu $newName: " . json_encode($zuVerschiebendeQuizze), true);
+                logWrite($conn, "organisationLOG", "Zu verschiebende Quiz von $fach zu $newName: " . json_encode($zuVerschiebendeQuizze), true);
                 $verschobeneQuizze = 0;
                 if ($zuVerschiebendeQuizze) {
                     foreach ($zuVerschiebendeQuizze as $currentQuizUniqueID) {
@@ -1343,13 +1343,13 @@ if (isset($_POST["backupThemenverwaltung"])) {
                     $verschobeneQuizze = 0;
                     $returnArray["verschobeneQuizze"] = $verschobeneQuizze;
                     $returnArray["status"] = true;
-                    $returnArray["message"] = "Fach erfolgreich wiederhergestellt. Keine Quizze wurden verschoben.";
+                    $returnArray["message"] = "Fach erfolgreich wiederhergestellt. Keine Quiz wurden verschoben.";
                 }
 
                 //Delete Old form backupklassenstufe
                 if ($returnArray = deleteBackupThemaFromDatabase($conn, $thema)) {
                     if ($returnArray["status"]) {
-                        $returnArray["message"] = "Thema $thema wurde erfolgreich wiederhergestellt. Der Name ist $newName. Es wurden darurch $verschobeneQuizze Quizze verschoben.";
+                        $returnArray["message"] = "Thema $thema wurde erfolgreich wiederhergestellt. Der Name ist $newName. Es wurden darurch $verschobeneQuizze Quiz verschoben.";
                         echo json_encode($returnArray);
                     } else {
                         echo json_encode($returnArray);

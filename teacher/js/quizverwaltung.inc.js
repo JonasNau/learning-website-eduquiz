@@ -4,38 +4,20 @@ import { pickMedia } from "/includes/chooseMedia.inc.js";
 export async function editQuizdata(uniqueID) {
   return new Promise(async (resolve, reject) => {
     //Create Modal container if doesnt exist
-    let modalContainer = document.querySelector("#modalContainer");
+    const createdModal = Utils.createModal({title: "Quizdaten bearbeiten", fullscreen: true, scrollable: true});
+    let modal = null;
+    let bootstrapModal = null;
+    let modalBody = null;
+    const modalOuter = createdModal.modalOuter;
 
-    if (modalContainer == null) {
-      modalContainer = document.createElement("div");
-      modalContainer.setAttribute("id", "modalContainer");
-      document.body.appendChild(modalContainer);
-    }
-    if (document.querySelector("#modalContainer") == null) {
-      alert("no modal cóntainer found");
-      reject();
-    }
-    let number = 1;
-    let modals = modalContainer.querySelectorAll(".modal");
-    console.log(modals);
-    if (modals.length > 0) {
-      number = modals.length + 1;
-    }
-    console.log("Number of Modals", number);
-
-    let modalOuter = document.createElement("div");
-    modalOuter.classList.add("modal-div");
-    modalOuter.setAttribute("id", number);
-    modalContainer.appendChild(modalOuter);
-
-    let modalHTML = `
+    modalOuter.innerHTML = `
     <!-- Modal -->
     <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-fullscreen">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="staticBackdropLabel">Quizdaten bearbeiten</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close"></button>
+          <button type="button" class="btn-close" aria-label="Close" id="close"></button>
         </div>
         <div class="modal-body">
           <div class="editQuizdata">
@@ -76,9 +58,12 @@ export async function editQuizdata(uniqueID) {
     </div>
     </div>
      `;
+    
+    modal = modalOuter.querySelector(".modal");
+    bootstrapModal = new bootstrap.Modal(modal);
+    modalBody = modal.querySelector(".modal-body");
 
-    modalOuter.innerHTML = modalHTML;
-    let modal = modalOuter.querySelector(".modal");
+
 
     class EditQuizdata {
       constructor(container, uniqueID) {
@@ -464,7 +449,7 @@ export async function editQuizdata(uniqueID) {
               let usersJSON = Utils.makeJSON(
                 await Utils.getUserInput(
                   "Daten einfügen",
-                  "Hier kannst du im JSON Format den Text des Quizzes einfügen.",
+                  "Hier kannst du im JSON Format den Text des Quiz einfügen.",
                   false,
                   "textArea",
                   JSON.stringify(this.quizJSON, null, 3),
@@ -507,7 +492,11 @@ export async function editQuizdata(uniqueID) {
       }
 
       copyCard(card) {
-        this.quizJSON["quizCards"] = Utils.addToArray(this.quizJSON["quizCards"], Utils.makeJSON(JSON.stringify(card)), true);
+        this.quizJSON["quizCards"] = Utils.addToArray(
+          this.quizJSON["quizCards"],
+          Utils.makeJSON(JSON.stringify(card)),
+          true
+        );
         return true;
       }
 
@@ -792,15 +781,15 @@ export async function editQuizdata(uniqueID) {
               options["shuffle"] = shuffleCardsCheckbox.checked;
               this.logData();
             });
-//showTimePassed
-let showTimePassedCheckbox = optionsContainer.querySelector(
-  "#showTimePassed #checkBox"
-);
-showTimePassedCheckbox.checked = options["showTimePassed"];
-showTimePassedCheckbox.addEventListener("click", () => {
-  options["showTimePassed"] = showTimePassedCheckbox.checked;
-  this.logData();
-});
+            //showTimePassed
+            let showTimePassedCheckbox = optionsContainer.querySelector(
+              "#showTimePassed #checkBox"
+            );
+            showTimePassedCheckbox.checked = options["showTimePassed"];
+            showTimePassedCheckbox.addEventListener("click", () => {
+              options["showTimePassed"] = showTimePassedCheckbox.checked;
+              this.logData();
+            });
 
             //Timelimit
             let timeLimitContainer =
@@ -1946,7 +1935,7 @@ showTimePassedCheckbox.addEventListener("click", () => {
               "data-value",
               currentCard["size"]
             );
-            
+
             textSizeSelect.addEventListener("change", () => {
               currentCard["size"] =
                 textSizeSelect[textSizeSelect.selectedIndex].getAttribute(
@@ -2354,7 +2343,7 @@ showTimePassedCheckbox.addEventListener("click", () => {
             this.quizJSON["quizCards"],
             {
               type: "mchoice-multi",
-              options: {allMustBeCorrect: true},
+              options: { allMustBeCorrect: true },
               task: "",
               question: "",
               media: [],
@@ -2381,9 +2370,9 @@ showTimePassedCheckbox.addEventListener("click", () => {
         this.refresh(true);
       }
 
-      async submitData() {
+     async submitData() {
         console.log("Submit:", this.quizJSON);
-        await Utils.makeJSON(
+        let result = await Utils.makeJSON(
           await Utils.sendXhrREQUEST(
             "POST",
             "quizverwaltung&operation=editQuizdata&uniqueID=" +
@@ -2398,29 +2387,74 @@ showTimePassedCheckbox.addEventListener("click", () => {
             true
           )
         );
+
+        if (result["status"] == "success") {
+          await this.prepare();
+          this.refresh();
+          return true;
+        }
         await this.prepare();
         this.refresh();
+        return false;
       }
     }
 
-    let container = modal.querySelector(".editQuizdata");
+    let container = modalBody.querySelector(".editQuizdata");
     let editQuizdata = new EditQuizdata(container, uniqueID);
     console.log(await editQuizdata.prepare());
     console.log(await editQuizdata.refresh());
 
     let ok = modal.querySelector("#ok");
-    var myModal = new bootstrap.Modal(modal);
-    myModal.show();
+    bootstrapModal.show();
+
+    let checkEditedData = () => {
+      let oldData = editQuizdata.originalData;
+      let currentData = editQuizdata.quizJSON;
+
+      if (JSON.stringify(oldData) != JSON.stringify(currentData)) {
+        return true;
+      }
+      return false;
+    };
+
+    let userWantToClose = async () => {
+      console.log("Data edidet:", checkEditedData());
+      if (!checkEditedData()) return true;
+      if (
+        await Utils.askUser(
+          "Warnung",
+          "Möchtest du <b>ohne Speichern</b> die Bearbeitung beenden?",
+          false
+        )
+      ) {
+        return true;
+      }
+
+      if (
+        await Utils.askUser(
+          "Warnung",
+          "Sollen die aktuellen Änderungen hochgeladen werden?",
+          false
+        )
+      ) {
+        if (await editQuizdata.submitData()) {
+          return true;
+        }
+        return false;
+      }
+    };
 
     ok.addEventListener("click", async (target) => {
-      await myModal.hide();
+      if (!await userWantToClose()) return false;
+      await bootstrapModal.hide();
       modalOuter.remove();
       resolve(true);
     });
 
     let close = modal.querySelector("#close");
     close.addEventListener("click", async (target) => {
-      await myModal.hide();
+      if (!await userWantToClose()) return false;
+      await bootstrapModal.hide();
       modalOuter.remove();
       resolve(false);
     });
@@ -4375,7 +4409,7 @@ export async function getThemaFromUser() {
     </div>
  
     `;
-  
+
     const createdModal = Utils.createModal({
       title: "Thema auswählen",
       fullscreen: true,
@@ -4388,15 +4422,13 @@ export async function getThemaFromUser() {
     let modalOuter = createdModal.modalOuter;
 
     modalBody.innerHTML = customHTML;
-  
+
     let customFunction = function () {
       let addBtn = modalBody.querySelector("#addThemaBtn");
       if (!addBtn) return "no addBtn";
       addBtn.addEventListener("click", async () => {
         if (
-          !(await Utils.userHasPermissions([
-            "themenverwaltungADDandRemove",
-          ]))
+          !(await Utils.userHasPermissions(["themenverwaltungADDandRemove"]))
         ) {
           return false;
         }
@@ -4406,15 +4438,8 @@ export async function getThemaFromUser() {
           false,
           "text"
         );
-        if (
-          userInput === false ||
-          Utils.isEmptyInput(userInput, true)
-        ) {
-          Utils.alertUser(
-            "Nachricht",
-            "Keine Aktion unternommen",
-            false
-          );
+        if (userInput === false || Utils.isEmptyInput(userInput, true)) {
+          Utils.alertUser("Nachricht", "Keine Aktion unternommen", false);
           return false;
         }
         await Utils.makeJSON(
@@ -4435,14 +4460,16 @@ export async function getThemaFromUser() {
     let choosen = await Utils.chooseFromArrayWithSearch(
       [],
       true,
-       false,
+      false,
       false,
       true,
       true,
       "quizverwaltung&operation=other&type=searchThema&input=",
       "/teacher/includes/quizverwaltung.inc.php",
-      {limitResults: 15}, true, createdModal
+      { limitResults: 15 },
+      true,
+      createdModal
     );
     resolve(choosen);
-  })
+  });
 }

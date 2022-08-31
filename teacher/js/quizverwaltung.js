@@ -307,7 +307,7 @@ class Quizverwaltung {
     changeAllShowQuizAuswahl.addEventListener("click", async () => {
       let state = await Utils.getUserInput(
         "Anzeigestatus für alle ändern",
-        "Sollen alle ausgewählten Quizze bei der Quizauswahl angezeigt werden?",
+        "Sollen alle ausgewählten Quiz bei der Quizauswahl angezeigt werden?",
         false,
         "select",
         false,
@@ -346,7 +346,7 @@ class Quizverwaltung {
     changeAllVisibility.addEventListener("click", async () => {
       let state = await Utils.getUserInput(
         "Verfügbarkeitsstatus für alle ändern",
-        "Sollen alle ausgewählten Quizze verfügbar sein?",
+        "Sollen alle ausgewählten Quiz verfügbar sein?",
         false,
         "select",
         false,
@@ -387,7 +387,7 @@ class Quizverwaltung {
     changeAllrequireKlassenstufe.addEventListener("click", async () => {
       let state = await Utils.getUserInput(
         "Ändern",
-        "Sollen alle ausgewählten Quizze über eine Klassenstufe verfügen?",
+        "Sollen alle ausgewählten Quiz über eine Klassenstufe verfügen?",
         false,
         "select",
         false,
@@ -471,7 +471,7 @@ class Quizverwaltung {
     changeAllrequireFach.addEventListener("click", async () => {
       let state = await Utils.getUserInput(
         "Ändern",
-        "Sollen alle ausgewählten Quizze über ein Fach verfügen?",
+        "Sollen alle ausgewählten Quiz über ein Fach verfügen?",
         false,
         "select",
         false,
@@ -555,7 +555,7 @@ class Quizverwaltung {
     changeAllrequireThema.addEventListener("click", async () => {
       let state = await Utils.getUserInput(
         "Ändern",
-        "Sollen alle ausgewählten Quizze über ein Thema verfügen?",
+        "Sollen alle ausgewählten Quiz über ein Thema verfügen?",
         false,
         "select",
         false,
@@ -620,7 +620,7 @@ class Quizverwaltung {
     changeAllrequireName.addEventListener("click", async () => {
       let state = await Utils.getUserInput(
         "Ändern",
-        "Sollen alle ausgewählten Quizze über ein Thema verfügen?",
+        "Sollen alle ausgewählten Quiz über ein Thema verfügen?",
         false,
         "select",
         false,
