@@ -1116,13 +1116,20 @@ export async function holdSererContact(fileGeneralFunctions) {
 
   sessionStorage.setItem("sessionMessageOPEN", false);
   sessionStorage.setItem("comebackMessageOPEN", false);
-  getMessage();
-  connectToServer();
 
-  setInterval(() => {
-    connectToServer();
-    getMessage();
-  }, parseInt(await getSettingVal("serverConnectTime")) * 1000);
+  let serverConnectTime = parseInt(await getSettingVal("serverConnectTime")) * 1000;
+  if (serverConnectTime == null || isNaN(serverConnectTime)) serverConnectTime = 5 * 1000;
+  console.log("serverConnectTime: " + serverConnectTime + "ms");
+
+
+  async function serverConnectLoop() {
+    await connectToServer();
+    await getMessage();
+    setTimeout(async() => {
+      serverConnectLoop();
+    }, serverConnectTime) 
+  }
+  serverConnectLoop();
 }
 
 export function makeJSON(string) {

@@ -839,7 +839,6 @@ function checkKlassenstufe($conn, $type, $eaqualTo, $currentKlassenstufe)
 function getAllValuesFromDatabase($conn, $table, $column, $limit, $returnAsArray = true, $distinct = false)
 {
     $limit = intval($limit);
-
     if ($limit > 0) {
         try {
             $stmt = $conn->prepare("SELECT $column as Data FROM $table LIMIT :limit;");
