@@ -1303,13 +1303,13 @@ function repairDatabaseValues($conn, $klassenstufen = true, $faecher = true, $th
     //TODO:Repair permssions that are not there
     function repairPermissions($conn)
     {
-        $allPermissions = json_validate(getAllValuesFromDatabase($conn, "permissions", "name", 0, true));
+        $allPermissions = custom_json_validate(getAllValuesFromDatabase($conn, "permissions", "name", 0, true));
         //Groups
         $allGroups = getAllValuesFromDatabase($conn, "groupPermissions", "groupName", 0, true);
         if ($allGroups) {
             foreach ($allGroups as $currentGroup) {
                 //check for allowed 
-                $allAllowedPermissions = json_validate(getValueFromDatabase($conn, "groupPermissions", "permissions", "groupName", $currentGroup, 1, false));
+                $allAllowedPermissions = custom_json_validate(getValueFromDatabase($conn, "groupPermissions", "permissions", "groupName", $currentGroup, 1, false));
                 if ($allAllowedPermissions) {
                     foreach ($allAllowedPermissions as $currentPermissionKey => $currentPermissionValue) {
                         if (!in_array($currentPermissionKey, $allPermissions)) {
@@ -1321,7 +1321,7 @@ function repairDatabaseValues($conn, $klassenstufen = true, $faecher = true, $th
                         }
                     }
                 }
-                $allForbiddenPermissions = json_validate(getValueFromDatabase($conn, "groupPermissions", "isForbiddenTo", "groupName", $currentGroup, 1, false));
+                $allForbiddenPermissions = custom_json_validate(getValueFromDatabase($conn, "groupPermissions", "isForbiddenTo", "groupName", $currentGroup, 1, false));
                 if ($allForbiddenPermissions) {
                     foreach ($allForbiddenPermissions as $currentPermission) {
                         if (!in_array($currentPermission, $allPermissions)) {
@@ -1343,7 +1343,7 @@ function repairDatabaseValues($conn, $klassenstufen = true, $faecher = true, $th
         if ($allUsers) {
             foreach ($allUsers as $currentUser) {
                 //check for allowed 
-                $allAllowedPermissions = json_validate(getValueFromDatabase($conn, "users", "permissions", "userID", $currentUser, 1, false));
+                $allAllowedPermissions = custom_json_validate(getValueFromDatabase($conn, "users", "permissions", "userID", $currentUser, 1, false));
                 if ($allAllowedPermissions) {
                     foreach ($allAllowedPermissions as $currentPermissionKey => $currentPermissionValue) {
                         if (!in_array($currentPermissionKey, $allPermissions)) {
@@ -1355,7 +1355,7 @@ function repairDatabaseValues($conn, $klassenstufen = true, $faecher = true, $th
                         }
                     }
                 }
-                $allForbiddenPermissions = json_validate(getValueFromDatabase($conn, "users", "isForbiddenTo", "userID", $currentUser, 1, false));
+                $allForbiddenPermissions = custom_json_validate(getValueFromDatabase($conn, "users", "isForbiddenTo", "userID", $currentUser, 1, false));
                 if ($allForbiddenPermissions) {
                     foreach ($allForbiddenPermissions as $currentPermission) {
                         if (!in_array($currentPermission, $allPermissions)) {
@@ -1383,12 +1383,12 @@ function repairDatabaseValues($conn, $klassenstufen = true, $faecher = true, $th
     {
         //Users
         $allUsers = getAllValuesFromDatabase($conn, "users", "userID", 0, true);
-        $allAvailableGroups = json_validate(getAllValuesFromDatabase($conn, "groupPermissions", "groupName", 0, true));
+        $allAvailableGroups = custom_json_validate(getAllValuesFromDatabase($conn, "groupPermissions", "groupName", 0, true));
         if ($allUsers) {
             if ($allAvailableGroups) {
                 foreach ($allUsers as $currentUser) {
                     //check for groups 
-                    $allGroupsFromUser = json_validate(getValueFromDatabase($conn, "users", "groups", "userID", $currentUser, 1, false));
+                    $allGroupsFromUser = custom_json_validate(getValueFromDatabase($conn, "users", "groups", "userID", $currentUser, 1, false));
                     if ($allGroupsFromUser) {
                         foreach ($allGroupsFromUser as $currentGroup) {
                             if (!in_array($currentGroup, $allAvailableGroups)) {

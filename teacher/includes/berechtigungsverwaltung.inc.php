@@ -149,7 +149,7 @@ if (isset($_POST["berechtigungsverwaltung"])) {
             returnResults($conn, $resultArray, $limitResults);
             die();
         } else if ($filter === "filterByUsedAt") {
-            $input = json_validate($_POST["input"]);
+            $input = custom_json_validate($_POST["input"]);
             if (!$input) {
                 echo 0;
                 die();
@@ -158,7 +158,7 @@ if (isset($_POST["berechtigungsverwaltung"])) {
             if (!$permissions) returnResults($conn, false, $limitResults);
             $resultArray = array();
             foreach ($permissions as $permission) {
-                $usedAt = json_validate(getValueFromDatabase($conn, "permissions", "usedAt", "id", $permission, 1, false));
+                $usedAt = custom_json_validate(getValueFromDatabase($conn, "permissions", "usedAt", "id", $permission, 1, false));
                 if (!$usedAt) {
                     continue;
                 }
@@ -198,7 +198,7 @@ if (isset($_POST["berechtigungsverwaltung"])) {
             }
             $usedAtList = array();
             foreach ($allPermissions as $currentPermission) {
-                $usedAt = json_validate(getValueFromDatabase($conn, "permissions", "usedAt", "id", $currentPermission, 1, false));
+                $usedAt = custom_json_validate(getValueFromDatabase($conn, "permissions", "usedAt", "id", $currentPermission, 1, false));
                 if (!$usedAt) {
                     continue;
                 }
@@ -422,7 +422,7 @@ if (isset($_POST["berechtigungsverwaltung"])) {
             echo getValueFromDatabase($conn, "permissions", "type", "id", $id, 1, false);
             die();
         } else if ($type === "getCurrentUsed") {
-            echo json_encode(json_validate(getValueFromDatabase($conn, "permissions", "usedAt", "id", $id, 1, false)));
+            echo json_encode(custom_json_validate(getValueFromDatabase($conn, "permissions", "usedAt", "id", $id, 1, false)));
             die();
         }
     } else if ($operation === "createPermission") {
@@ -471,8 +471,8 @@ if (isset($_POST["gruppenverwaltung"])) {
 
             foreach ($results as $result) {
                 $name = getValueFromDatabase($conn, "groupPermissions", "groupName", "id", $result, 1, false);
-                $permissionsAllowed = json_validate(getValueFromDatabase($conn, "groupPermissions", "permissions", "id", $result, 1, false));
-                $permissionsForbidden = json_validate(getValueFromDatabase($conn, "groupPermissions", "isForbiddenTo", "id", $result, 1, false));
+                $permissionsAllowed = custom_json_validate(getValueFromDatabase($conn, "groupPermissions", "permissions", "id", $result, 1, false));
+                $permissionsForbidden = custom_json_validate(getValueFromDatabase($conn, "groupPermissions", "isForbiddenTo", "id", $result, 1, false));
                 $description = getValueFromDatabase($conn, "groupPermissions", "description", "id", $result, 1, false);
                 $ranking =  getPermissionRankingGroup($conn, getValueFromDatabase($conn, "groupPermissions", "groupName", "id", $result, 1, false));
 
@@ -535,7 +535,7 @@ if (isset($_POST["gruppenverwaltung"])) {
             returnResults($conn, $resultArray, $limitResults);
             die();
         } else if ($filter === "filterByPermissionsAllowed") {
-            $input = json_validate($_POST["input"]);
+            $input = custom_json_validate($_POST["input"]);
             $groups = getAllValuesFromDatabase($conn, "groupPermissions", "id", 0, true, true);
             if (!$groups) {
                 returnResults($conn, false, $limitResults);
@@ -543,7 +543,7 @@ if (isset($_POST["gruppenverwaltung"])) {
             }
             $resultArray = array();
             foreach ($groups as $group) {
-                $allPermissionsFromGroup = json_validate(getValueFromDatabase($conn, "groupPermissions", "permissions", "id", $group, 1, false));
+                $allPermissionsFromGroup = custom_json_validate(getValueFromDatabase($conn, "groupPermissions", "permissions", "id", $group, 1, false));
                    if (hasAllContidions($conn, $input, $allPermissionsFromGroup, false)) {
                         $resultArray[] = $group;
                    }
@@ -551,7 +551,7 @@ if (isset($_POST["gruppenverwaltung"])) {
             returnResults($conn, $resultArray, $limitResults);
             die();
         } else if ($filter === "filterByPermissionsForbidden") {
-            $input = json_validate($_POST["input"]);
+            $input = custom_json_validate($_POST["input"]);
             $groups = getAllValuesFromDatabase($conn, "groupPermissions", "id", 0, true, true);
             if (!$groups) {
                 returnResults($conn, false, $limitResults);
@@ -559,7 +559,7 @@ if (isset($_POST["gruppenverwaltung"])) {
             }
             $resultArray = array();
             foreach ($groups as $group) {
-                $allPermissionsFromGroup = json_validate(getValueFromDatabase($conn, "groupPermissions", "isForbiddenTo", "id", $group, 1, false));
+                $allPermissionsFromGroup = custom_json_validate(getValueFromDatabase($conn, "groupPermissions", "isForbiddenTo", "id", $group, 1, false));
                    if (array_contains_all_values($allPermissionsFromGroup, $input, true)) {
                         $resultArray[] = $group;
                    }
@@ -595,7 +595,7 @@ if (isset($_POST["gruppenverwaltung"])) {
         //     }
         //     $usedAtList = array();
         //     foreach ($allPermissions as $currentPermission) {
-        //         $usedAt = json_validate(getValueFromDatabase($conn, "permissions", "usedAt", "id", $currentPermission, 1, false));
+        //         $usedAt = custom_json_validate(getValueFromDatabase($conn, "permissions", "usedAt", "id", $currentPermission, 1, false));
         //         if (!$usedAt) {
         //             continue;
         //         }
@@ -664,8 +664,8 @@ if (isset($_POST["gruppenverwaltung"])) {
         }
 
         $name = getValueFromDatabase($conn, "groupPermissions", "groupName", "id", $id, 1, false);
-        $permissionsAllowed = json_validate(getValueFromDatabase($conn, "groupPermissions", "permissions", "id", $id, 1, false));
-        $permissionsForbidden = json_validate(getValueFromDatabase($conn, "groupPermissions", "isForbiddenTo", "id", $id, 1, false));
+        $permissionsAllowed = custom_json_validate(getValueFromDatabase($conn, "groupPermissions", "permissions", "id", $id, 1, false));
+        $permissionsForbidden = custom_json_validate(getValueFromDatabase($conn, "groupPermissions", "isForbiddenTo", "id", $id, 1, false));
         $description = getValueFromDatabase($conn, "groupPermissions", "description", "id", $id, 1, false);
         $ranking =  getPermissionRankingGroup($conn, getValueFromDatabase($conn, "groupPermissions", "groupName", "id", $id, 1, false));
 
@@ -708,7 +708,7 @@ if (isset($_POST["gruppenverwaltung"])) {
             $secondOperation = $_POST["secondOperation"];
 
             if ($secondOperation === "getAllAllowedPermissionNamesGroupHas") {
-                $allPermissions = json_validate(getValueFromDatabase($conn, "groupPermissions", "permissions", "id", $id, 1, false));
+                $allPermissions = custom_json_validate(getValueFromDatabase($conn, "groupPermissions", "permissions", "id", $id, 1, false));
                 $resultArray = array();
                 if ($allPermissions) {
                     foreach ($allPermissions as $currentPermissionKey => $currentPermissionValue) {
@@ -795,7 +795,7 @@ if (isset($_POST["gruppenverwaltung"])) {
 
                     $resultArray = array();
 
-                    $groupPermissions = json_validate(getValueFromDatabase($conn, "groupPermissions", "permissions", "id", $id, 1, false));
+                    $groupPermissions = custom_json_validate(getValueFromDatabase($conn, "groupPermissions", "permissions", "id", $id, 1, false));
                     if (!$groupPermissions) {
                         returnFoundAllowedPermissions($conn, $id, false);
                         die();
@@ -812,7 +812,7 @@ if (isset($_POST["gruppenverwaltung"])) {
 
                     $resultArray = array();
 
-                    $groupPermissions = json_validate(getValueFromDatabase($conn, "groupPermissions", "permissions", "id", $id, 1, false));
+                    $groupPermissions = custom_json_validate(getValueFromDatabase($conn, "groupPermissions", "permissions", "id", $id, 1, false));
                     if (!$groupPermissions) {
                         returnFoundAllowedPermissions($conn, $id, false);
                         die();
@@ -830,7 +830,7 @@ if (isset($_POST["gruppenverwaltung"])) {
 
                     $resultArray = array();
 
-                    $groupPermissions = json_validate(getValueFromDatabase($conn, "groupPermissions", "permissions", "id", $id, 1, false));
+                    $groupPermissions = custom_json_validate(getValueFromDatabase($conn, "groupPermissions", "permissions", "id", $id, 1, false));
                     if (!$groupPermissions) {
                         returnFoundAllowedPermissions($conn, $id, false);
                         die();
@@ -848,7 +848,7 @@ if (isset($_POST["gruppenverwaltung"])) {
 
                     $resultArray = array();
 
-                    $groupPermissions = json_validate(getValueFromDatabase($conn, "groupPermissions", "permissions", "id", $id, 1, false));
+                    $groupPermissions = custom_json_validate(getValueFromDatabase($conn, "groupPermissions", "permissions", "id", $id, 1, false));
                     if (!$groupPermissions) {
                         returnFoundAllowedPermissions($conn, $id, false);
                         die();
@@ -863,7 +863,7 @@ if (isset($_POST["gruppenverwaltung"])) {
                     die();
                 } else if ($searchBy === "all") {
                     $resultArray = array();
-                    $groupPermissions = json_validate(getValueFromDatabase($conn, "groupPermissions", "permissions", "id", $id, 1, false));
+                    $groupPermissions = custom_json_validate(getValueFromDatabase($conn, "groupPermissions", "permissions", "id", $id, 1, false));
                     if (!$groupPermissions) {
                         returnFoundAllowedPermissions($conn, $id, false);
                         die();
@@ -920,7 +920,7 @@ if (isset($_POST["gruppenverwaltung"])) {
             $secondOperation = $_POST["secondOperation"];
 
             if ($secondOperation === "getAllForbiddenPermissionNamesGroupHas") {
-                $allPermissions = json_validate(getValueFromDatabase($conn, "groupPermissions", "isForbiddenTo", "id", $id, 1, false));
+                $allPermissions = custom_json_validate(getValueFromDatabase($conn, "groupPermissions", "isForbiddenTo", "id", $id, 1, false));
                 $resultArray = array();
                 if ($allPermissions) {
                     foreach ($allPermissions as $currentPermission) {
@@ -1005,7 +1005,7 @@ if (isset($_POST["gruppenverwaltung"])) {
 
                     $resultArray = array();
 
-                    $groupPermissions = json_validate(getValueFromDatabase($conn, "groupPermissions", "isForbiddenTo", "id", $id, 1, false));
+                    $groupPermissions = custom_json_validate(getValueFromDatabase($conn, "groupPermissions", "isForbiddenTo", "id", $id, 1, false));
                     if (!$groupPermissions) {
                         returnFoundAllowedPermissions($conn, $id, false);
                         die();
@@ -1022,7 +1022,7 @@ if (isset($_POST["gruppenverwaltung"])) {
 
                     $resultArray = array();
 
-                    $groupPermissions = json_validate(getValueFromDatabase($conn, "groupPermissions", "isForbiddenTo", "id", $id, 1, false));
+                    $groupPermissions = custom_json_validate(getValueFromDatabase($conn, "groupPermissions", "isForbiddenTo", "id", $id, 1, false));
                     if (!$groupPermissions) {
                         returnFoundAllowedPermissions($conn, $id, false);
                         die();
@@ -1040,7 +1040,7 @@ if (isset($_POST["gruppenverwaltung"])) {
 
                     $resultArray = array();
 
-                    $groupPermissions = json_validate(getValueFromDatabase($conn, "groupPermissions", "isForbiddenTo", "id", $id, 1, false));
+                    $groupPermissions = custom_json_validate(getValueFromDatabase($conn, "groupPermissions", "isForbiddenTo", "id", $id, 1, false));
                     if (!$groupPermissions) {
                         returnFoundAllowedPermissions($conn, $id, false);
                         die();
@@ -1055,7 +1055,7 @@ if (isset($_POST["gruppenverwaltung"])) {
                     die();
                 } else if ($searchBy === "all") {
                     $resultArray = array();
-                    returnFoundAllowedPermissions($conn, $groupName, json_validate(getValueFromDatabase($conn, "groupPermissions", "isForbiddenTo", "id", $id, 1, false)));
+                    returnFoundAllowedPermissions($conn, $groupName, custom_json_validate(getValueFromDatabase($conn, "groupPermissions", "isForbiddenTo", "id", $id, 1, false)));
                     die();
                 }
             } else if ($secondOperation === "getFullInformationForEdit") {

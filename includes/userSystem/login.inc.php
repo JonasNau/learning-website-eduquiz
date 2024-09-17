@@ -25,10 +25,10 @@ if (getSettingVal($conn, "")) {
 }
 
 $userInput = $_POST["username"];
-$password = json_validate($_POST["password"])?->{"password"};
+$password = custom_json_validate($_POST["password"])?->{"password"};
 $stayLoggedIn = false;
 if (isset($_POST["stayloggedIn"])) {
-    $stayLoggedIn = json_validate($_POST["stayloggedIn"]);
+    $stayLoggedIn = custom_json_validate($_POST["stayloggedIn"]);
 }
 
 if (empty($userInput)) {

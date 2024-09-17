@@ -918,7 +918,7 @@ function userHasComeBackMessage($conn, $userID)
             if ($stmt->rowCount()) {
                 $results = $stmt->fetch(PDO::FETCH_ASSOC);
                 $data = $results["messageForComeBack"];
-                if (json_validate($data)) {
+                if (custom_json_validate($data)) {
                     $messageArray = json_decode($data);
                     if (gettype($messageArray) != gettype(array())) {
                         setComebackmessages($conn, $userID, []);

@@ -65,7 +65,7 @@ if (isset($_POST["quizverwaltung"])) {
                 $created = getValueFromDatabase($conn, "selectquiz", "created", "uniqueID", $currentQuizUniqueID, 1, false);
                 $createdBy = getValueFromDatabase($conn, "selectquiz", "createdBy", "uniqueID", $currentQuizUniqueID, 1, false);
                 $changed = getValueFromDatabase($conn, "selectquiz", "changed", "uniqueID", $currentQuizUniqueID, 1, false);
-                $changedBy = json_validate(getValueFromDatabase($conn, "selectquiz", "changedBy", "uniqueID", $currentQuizUniqueID, 1, false));
+                $changedBy = custom_json_validate(getValueFromDatabase($conn, "selectquiz", "changedBy", "uniqueID", $currentQuizUniqueID, 1, false));
 
                 $resultArray[] = array("uniqueID" => $currentQuizUniqueID, "name" => $name, "klassenstufe" => $klassenstufe, "fach" => $fach, "thema" => $thema, "description" => $description, "quizId" => $quizId, "showQuizAuswahl" => $showQuizAuswahl, "visibility" => $visibility, "requireKlassenstufe" => $requireKlassenstufe, "requireFach" => $requireFach, "requireThema" => $requireThema, "requireName" => $requireName, "questions" => $questions, "lastUsed" => $lastUsed, "created" => $created, "createdBy" => $createdBy, "changed" => $changed, "changedBy" => $changedBy);
             }
@@ -281,7 +281,7 @@ if (isset($_POST["quizverwaltung"])) {
             returnFoundQuizzes($conn, $resultArray, $limitResults);
             die();
         } else  if ($type === "questions") {
-            $input = json_validate($_POST["input"]);
+            $input = custom_json_validate($_POST["input"]);
             $resultArray = array();
             $allQuizzes = getAllValuesFromDatabase($conn, "selectquiz", "uniqueID", 0, true);
             if (!$allQuizzes) {
@@ -365,7 +365,7 @@ if (isset($_POST["quizverwaltung"])) {
             returnFoundQuizzes($conn, $resultArray, $limitResults);
             die();
         } else if ($type === "changedBy") {
-            $input = json_validate($_POST["input"]);
+            $input = custom_json_validate($_POST["input"]);
             $resultArray = array();
             $allQuizzes = getAllValuesFromDatabase($conn, "selectquiz", "uniqueID", 0, true);
             if (!$allQuizzes) {
@@ -373,7 +373,7 @@ if (isset($_POST["quizverwaltung"])) {
                 die();
             }
             foreach ($allQuizzes as $currentQuizUniqueID) {
-                $changedBy = json_validate(getValueFromDatabase($conn, "selectquiz", "changedBy", "uniqueID", $currentQuizUniqueID, 1, false));
+                $changedBy = custom_json_validate(getValueFromDatabase($conn, "selectquiz", "changedBy", "uniqueID", $currentQuizUniqueID, 1, false));
                 if (array_contains_all_values($changedBy, $input, true)) {
                     $resultArray[] = $currentQuizUniqueID;
                 }
@@ -394,12 +394,12 @@ if (isset($_POST["quizverwaltung"])) {
             $requireFach = $_POST["requireFach"];
             $requireThema = $_POST["requireThema"];
             $requireName = $_POST["requireName"];
-            $questions = json_validate($_POST["questions"]);
+            $questions = custom_json_validate($_POST["questions"]);
             $numberOfQuizCards = $_POST["numberOfQuizCards"];
             $created = $_POST["created"];
             $createdBy = $_POST["createdBy"];
             $changed = $_POST["changed"];
-            $changedBy = json_validate($_POST["changedBy"]);
+            $changedBy = custom_json_validate($_POST["changedBy"]);
 
             $allQuizzes = getAllValuesFromDatabase($conn, "selectquiz", "uniqueID", 0, true);
             if (!$allQuizzes || !count($allQuizzes) > 0) {
@@ -555,7 +555,7 @@ if (isset($_POST["quizverwaltung"])) {
             }
             if ($changedBy !== false && count($allQuizzes) > 0 && $changedBy != "false") {
                 foreach ($allQuizzes as $currentQuizUniqueID) {
-                    $changedByCurrent = json_validate(getValueFromDatabase($conn, "selectquiz", "changedBy", "uniqueID", $currentQuizUniqueID, 1, false));
+                    $changedByCurrent = custom_json_validate(getValueFromDatabase($conn, "selectquiz", "changedBy", "uniqueID", $currentQuizUniqueID, 1, false));
                     if (!array_contains_all_values($changedByCurrent, $changedBy, true)) {
                         $allQuizzes = removeFromArray($allQuizzes, $currentQuizUniqueID, "value", true, true);
                     }
@@ -982,7 +982,7 @@ if (isset($_POST["quizverwaltung"])) {
         $created = getValueFromDatabase($conn, "selectquiz", "created", "uniqueID", $id, 1, false);
         $createdBy = getValueFromDatabase($conn, "selectquiz", "createdBy", "uniqueID", $id, 1, false);
         $changed = getValueFromDatabase($conn, "selectquiz", "changed", "uniqueID", $id, 1, false);
-        $changedBy = json_validate(getValueFromDatabase($conn, "selectquiz", "changedBy", "uniqueID", $id, 1, false));
+        $changedBy = custom_json_validate(getValueFromDatabase($conn, "selectquiz", "changedBy", "uniqueID", $id, 1, false));
 
         echo json_encode(array("uniqueID" => $id, "name" => $name, "klassenstufe" => $klassenstufe, "fach" => $fach, "thema" => $thema, "description" => $description, "quizId" => $quizId, "showQuizAuswahl" => $showQuizAuswahl, "visibility" => $visibility, "requireKlassenstufe" => $requireKlassenstufe, "requireFach" => $requireFach, "requireThema" => $requireThema, "requireName" => $requireName, "questions" => $questions, "lastUsed" => $lastUsed, "created" => $created, "createdBy" => $createdBy, "changed" => $changed, "changedBy" => $changedBy));
         die();
@@ -1030,7 +1030,7 @@ if (isset($_POST["quizverwaltung"])) {
         $quizdata = getValueFromDatabase($conn, "selectquiz", "quizdata", "uniqueID", $uniqueID, 1, false);
         logWrite($conn, "quizverwaltung", "Der Nutzer mit der userId $userID möchte das Quiz mit der uniqueID '$uniqueID' löschen.", true, false, "yellow");
         if (deleteRowFromDatabase($conn, "selectquiz", "uniqueID", "uniqueID", $uniqueID)) {
-            logWrite($conn, "quizverwaltung", "Der Nutzer mit der userId $userID (username: $username) hat das Quiz mit der uniqueID '$uniqueID' erfolgrich gelöscht. Quiz-Daten:". PHP_EOL . json_encode(json_validate($quizdata)), true, false, "yellow");
+            logWrite($conn, "quizverwaltung", "Der Nutzer mit der userId $userID (username: $username) hat das Quiz mit der uniqueID '$uniqueID' erfolgrich gelöscht. Quiz-Daten:". PHP_EOL . json_encode(custom_json_validate($quizdata)), true, false, "yellow");
             returnMessage("success", "Quiz erfolgreich gelöscht");
         }
         die();
@@ -1045,7 +1045,7 @@ if (isset($_POST["quizverwaltung"])) {
             die();
         }
         $oldQuizdata = getValueFromDatabase($conn, "selectquiz", "quizdata", "uniqueID", $uniqueID, 1, false);
-        $quizdata = json_validate($_POST["quizdata"]);
+        $quizdata = custom_json_validate($_POST["quizdata"]);
         if ($quizdata) {
             if (setValueFromDatabase($conn, "selectquiz", "quizdata", "uniqueID", $uniqueID, json_encode($quizdata))) {
                 
@@ -1055,14 +1055,14 @@ if (isset($_POST["quizverwaltung"])) {
                 addToArrayDatabase($conn, "selectquiz", "changedBy", "uniqueID", $uniqueID, $userID, false);
                
                 setValueFromDatabase($conn, "selectquiz", "changed", "uniqueID", $uniqueID, getCurrentDateAndTime(1));
-                logWrite($conn, "quizverwaltung", "Die Quizdaten von dem Quiz mit der uniqueID '$uniqueID' wurden geändert. OLD: " . PHP_EOL . json_encode(json_validate($oldQuizdata)) . PHP_EOL . "NEW: " . PHP_EOL . json_encode(json_validate($quizdata)), true, false, "green");
+                logWrite($conn, "quizverwaltung", "Die Quizdaten von dem Quiz mit der uniqueID '$uniqueID' wurden geändert. OLD: " . PHP_EOL . json_encode(custom_json_validate($oldQuizdata)) . PHP_EOL . "NEW: " . PHP_EOL . json_encode(custom_json_validate($quizdata)), true, false, "green");
                
             } else {
                 returnMessage("success", "Die Quizdaten wurden nicht geändert.");
             }
         } else {
             returnMessage("failed", "Die Quizdaten sind nicht gültig");
-            logWrite($conn, "quizverwaltung", "Die Quizdaten von dem Quiz mit der uniqueID '$uniqueID' sind nicht gültig und wurden zurückgesetzt. Alte Daten: " . json_encode(json_validate($oldQuizdata)), true, true);
+            logWrite($conn, "quizverwaltung", "Die Quizdaten von dem Quiz mit der uniqueID '$uniqueID' sind nicht gültig und wurden zurückgesetzt. Alte Daten: " . json_encode(custom_json_validate($oldQuizdata)), true, true);
             setValueFromDatabase($conn, "selectquiz", "quizdata", "uniqueID", $uniqueID, null);
         }
         die();

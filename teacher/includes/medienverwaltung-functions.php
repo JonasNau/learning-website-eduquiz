@@ -6,7 +6,7 @@ function getAllKeywords($conn) {
     if (!$allMediaIDs || !count($allMediaIDs) > 0) return array();
     $allKeywords = array();
     foreach ($allMediaIDs as $currentMediaID) {
-        $keywords = json_validate(getValueFromDatabase($conn, "medienVerwaltung", "keywords", "id", $currentMediaID, 1, false));
+        $keywords = custom_json_validate(getValueFromDatabase($conn, "medienVerwaltung", "keywords", "id", $currentMediaID, 1, false));
         if (!$keywords || !count($keywords) > 0) continue;
         foreach ($keywords as $keyword) {
             $allKeywords = addToArray($allKeywords, $keyword, false);

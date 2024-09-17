@@ -62,7 +62,7 @@ if (isset($_POST["getAttribute"])) {
             $thumbnailPath = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailPath", "mediaID", $mediaID, 1, false);
             
             $description = getValueFromDatabase($conn, "medienVerwaltung", "description", "mediaID", $mediaID, 1, false);
-            $keywords = json_validate(getValueFromDatabase($conn, "medienVerwaltung", "description", "mediaID", $mediaID, 1, false));
+            $keywords = custom_json_validate(getValueFromDatabase($conn, "medienVerwaltung", "description", "mediaID", $mediaID, 1, false));
             $fileSize = getValueFromDatabase($conn, "medienVerwaltung", "fileSize", "mediaID", $mediaID, 1, false);
     
             echo json_encode(array("mediaID" => $mediaID, "thumbnailIsBlob" => $thumbnailIsBlob, "thumbnailIsOnlineSource" => $thumbnailIsOnlineSource, "thumbnail" => $thumbnail, "isBlob" => $isBlob, "isOnlineSource" => $isOnlineSource, "inMediaFolder" => $inMediaFolder, "uploaded" => $uploaded, "filename" => $filename, "mimeType" => $mimeType, "type" => $type, "path" => $path, "thumbnailFileName" => $thumbnailFileName, "thumbnailMimeType" => $thumbnailMimeType, "thumbnailPath" => $thumbnailPath, "description" => $description, "keywords" => $keywords, "fileSize" => $fileSize, "mediaFolderPath" => $mediaFolderPath, "thumbnailInMediaFolder" => $thumbnailInMediaFolder));

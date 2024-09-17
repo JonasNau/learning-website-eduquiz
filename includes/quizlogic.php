@@ -47,14 +47,14 @@ if (isset($_POST["quiz"])) {
 
             if ($secondOperation === "getAllQuizInformation") {
                 $quizparams = getColumsFromDatabaseMultipleWhere($conn, "selectquiz", ["uniqueID", "showQuizauswahl", "klassenstufe", "fach", "thema", "quizname", "quizId", "created", "createdBy", "changed", "quizdata", "description"], ["quizId" => $quizId], 1, false, false);
-                $quizparams["changedBy"] = json_validate(getValueFromDatabase($conn, "selectquiz", "changedBy", "quizID", $quizId, 1, false, false));
+                $quizparams["changedBy"] = custom_json_validate(getValueFromDatabase($conn, "selectquiz", "changedBy", "quizID", $quizId, 1, false, false));
                 if (!$quizparams) {
                     returnMessage("failed", "Keine Quizparameter vorhanden");
                     die();
                 }
                 //Make json from everything that is just a string - FORMAT RESPONSE
                 if (isset($quizparams["quizdata"])) {
-                    $quizparams["quizdata"] = json_validate($quizparams["quizdata"]);
+                    $quizparams["quizdata"] = custom_json_validate($quizparams["quizdata"]);
                     //if no quizCards just make it false
                     if ($quizparams["quizdata"]) {
                         if (isset($quizparams["quizdata"]->{"quizCards"}) && (count($quizparams["quizdata"]->{"quizCards"}) > 0) == false) {
@@ -78,7 +78,7 @@ if (isset($_POST["quiz"])) {
             die();
         }
 
-        $resultObject = json_validate($_POST["resultObject"]);
+        $resultObject = custom_json_validate($_POST["resultObject"]);
 
         if (!$quizID || empty($quizID) || !$resultObject) {
             returnMessage("failed", "Ergebnis konnte nicht eingetragen werden, da die Daten unvollständig sind.");

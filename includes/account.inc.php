@@ -52,7 +52,7 @@ if (isset($_POST["scoreverwaltung"])) {
                 $quizID = getValueFromDatabase($conn, "scores", "quizID", "id", $id, 1, false);
                 $exists = boolval(valueInDatabaseExists($conn, "selectquiz", "uniqueID", "quizID", $quizID));
                 $date = getValueFromDatabase($conn, "scores", "date", "id", $id, 1, false);
-                $usersResults = json_validate(getValueFromDatabase($conn, "scores", "results", "id", $id, 1, false));
+                $usersResults = custom_json_validate(getValueFromDatabase($conn, "scores", "results", "id", $id, 1, false));
                 $klassenstufe = getValueFromDatabase($conn, "selectquiz", "klassenstufe", "quizID", $quizID, 1, false);
                 $fach = getValueFromDatabase($conn, "selectquiz", "fach", "quizID", $quizID, 1, false);
                 $thema = getValueFromDatabase($conn, "selectquiz", "thema", "quizID", $quizID, 1, false);
@@ -82,7 +82,7 @@ if (isset($_POST["scoreverwaltung"])) {
                 $quizID = getValueFromDatabase($conn, "scores", "quizID", "id", $id, 1, false);
                 $exists = boolval(valueInDatabaseExists($conn, "selectquiz", "uniqueID", "quizID", $quizID));
                 $date = getValueFromDatabase($conn, "scores", "date", "id", $id, 1, false);
-                $usersResults = json_validate(getValueFromDatabase($conn, "scores", "results", "id", $id, 1, false));
+                $usersResults = custom_json_validate(getValueFromDatabase($conn, "scores", "results", "id", $id, 1, false));
                 $klassenstufe = getValueFromDatabase($conn, "selectquiz", "klassenstufe", "quizID", $quizID, 1, false);
                 $fach = getValueFromDatabase($conn, "selectquiz", "fach", "quizID", $quizID, 1, false);
                 $thema = getValueFromDatabase($conn, "selectquiz", "thema", "quizID", $quizID, 1, false);
@@ -113,8 +113,8 @@ if (isset($_POST["scoreverwaltung"])) {
             $endDate = getUnixTimestampFromStartOfTheDay($_POST["endDate"]);
             $allScores = customDatabaseCall($conn, "SELECT id, userID, quizID, date, results FROM scores WHERE userID = ? ORDER BY id DESC", [$searchForUserID]);
             foreach ($allScores as $currentScore) {
-                if (json_validate($currentScore->{"results"})) {
-                    $currentScore->{"results"} = json_validate($currentScore->{"results"});
+                if (custom_json_validate($currentScore->{"results"})) {
+                    $currentScore->{"results"} = custom_json_validate($currentScore->{"results"});
                 }
 
                 $unixTimestampScore = getUnixTimestampFromStartOfTheDay(getUnixTimestampFromDate($currentScore->{"date"}));
@@ -135,7 +135,7 @@ if (isset($_POST["scoreverwaltung"])) {
             returnResults($conn, $allScores, $limitResults);
             die();
         } else if ($type === "klassenstufe") {
-            $filterKlassenstufen = json_validate($_POST["klassenstufen"]);
+            $filterKlassenstufen = custom_json_validate($_POST["klassenstufen"]);
             $allScores = getFullData($conn, customDatabaseCall($conn, "SELECT id FROM scores WHERE userID = ? ORDER BY id DESC", [$searchForUserID]));
             foreach ($allScores as $currentScore) {
                 $quizID = $currentScore["quizID"] ?? false;
@@ -147,7 +147,7 @@ if (isset($_POST["scoreverwaltung"])) {
             returnResults($conn, $allScores, $limitResults);
             die();
         } else if ($type === "fach") {
-            $filterFaecher = json_validate($_POST["faecher"]);
+            $filterFaecher = custom_json_validate($_POST["faecher"]);
             $allScores = getFullData($conn, customDatabaseCall($conn, "SELECT id FROM scores WHERE userID = ? ORDER BY id DESC", [$searchForUserID]));
             foreach ($allScores as $currentScore) {
                 $quizID = $currentScore["quizID"] ?? false;
@@ -159,7 +159,7 @@ if (isset($_POST["scoreverwaltung"])) {
             returnResults($conn, $allScores, $limitResults);
             die();
         } else if ($type === "thema") {
-            $filterThemen = json_validate($_POST["themen"]);
+            $filterThemen = custom_json_validate($_POST["themen"]);
             $allScores = getFullData($conn, customDatabaseCall($conn, "SELECT id FROM scores WHERE userID = ? ORDER BY id DESC", [$searchForUserID]));
             foreach ($allScores as $currentScore) {
                 $quizID = $currentScore["quizID"] ?? false;
@@ -171,7 +171,7 @@ if (isset($_POST["scoreverwaltung"])) {
             returnResults($conn, $allScores, $limitResults);
             die();
         } else if ($type === "quizname") {
-            $input = json_validate($_POST["input"])?->input;
+            $input = custom_json_validate($_POST["input"])?->input;
             $allScores = getFullData($conn, customDatabaseCall($conn, "SELECT id FROM scores WHERE userID = ? ORDER BY id DESC", [$searchForUserID]));
             foreach ($allScores as $currentScore) {
                 $quizID = $currentScore["quizID"] ?? false;
@@ -183,7 +183,7 @@ if (isset($_POST["scoreverwaltung"])) {
             returnResults($conn, $allScores, $limitResults);
             die();
         } else if ($type === "quizID") {
-            $input = json_validate($_POST["input"])?->input;
+            $input = custom_json_validate($_POST["input"])?->input;
             $allScores = getFullData($conn, customDatabaseCall($conn, "SELECT id FROM scores WHERE userID = ? ORDER BY id DESC", [$searchForUserID]));
             foreach ($allScores as $currentScore) {
                 $quizID = $currentScore["quizID"] ?? false;
@@ -199,8 +199,8 @@ if (isset($_POST["scoreverwaltung"])) {
 
             $allScores = customDatabaseCall($conn, "SELECT id, userID, quizID, date, results FROM scores WHERE userID = ? ORDER BY id DESC", [$searchForUserID]);
             foreach ($allScores as $currentScore) {
-                if (json_validate($currentScore->{"results"})) {
-                    $currentScore->{"results"} = json_validate($currentScore->{"results"});
+                if (custom_json_validate($currentScore->{"results"})) {
+                    $currentScore->{"results"} = custom_json_validate($currentScore->{"results"});
                 }
 
                 $timeNeeded = intval($currentScore->{"results"}->timeNeeded);
@@ -223,11 +223,11 @@ if (isset($_POST["scoreverwaltung"])) {
             $result = $_POST["result"];
             $startDate = $_POST["startDate"];
             $endDate = $_POST["endDate"];
-            $klassenstufen = json_validate($_POST["klassenstufen"]);
-            $faecher = json_validate($_POST["faecher"]);
-            $themen = json_validate($_POST["themen"]);
-            $quizname = json_validate($_POST["quizname"])?->quizname;
-            $quizID = json_validate($_POST["quizID"])?->quizID;
+            $klassenstufen = custom_json_validate($_POST["klassenstufen"]);
+            $faecher = custom_json_validate($_POST["faecher"]);
+            $themen = custom_json_validate($_POST["themen"]);
+            $quizname = custom_json_validate($_POST["quizname"])?->quizname;
+            $quizID = custom_json_validate($_POST["quizID"])?->quizID;
             $minTime = $_POST["minTime"];
             $maxTime = $_POST["maxTime"];
 
@@ -250,8 +250,8 @@ if (isset($_POST["scoreverwaltung"])) {
                 $startDate = getUnixTimestampFromStartOfTheDay($startDate);
                 $endDate = getUnixTimestampFromStartOfTheDay($endDate);
                 foreach ($allScores as $currentScore) {
-                    if (json_validate($currentScore->{"results"})) {
-                        $currentScore->{"results"} = json_validate($currentScore->{"results"});
+                    if (custom_json_validate($currentScore->{"results"})) {
+                        $currentScore->{"results"} = custom_json_validate($currentScore->{"results"});
                     }
                     $unixTimestampScore = getUnixTimestampFromStartOfTheDay(getUnixTimestampFromDate($currentScore["date"]));
                     //Remove all what is smaller than start date

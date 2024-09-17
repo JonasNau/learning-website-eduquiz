@@ -209,7 +209,7 @@ function makeValidJSON($conn, $table, $column, $value, $conditionKey, $condition
     return false;
 }
 
-function json_validate($string, $conn = false)
+function custom_json_validate($string, $conn = false)
 {
     // decode the JSON data
     $result = json_encode($string);
@@ -310,8 +310,9 @@ function checkAccount($conn, $userID)
 
 function logWrite($conn, $fileName, $log, $includeTime = true, $error = true, $formatPrint = "white", $fileType = ".log", $lineBrak = true, $colourTime = false)
 {
+    // Check for a valid database connection
     if (!$conn) {
-        require_once("/var/www/webseite/includes/dbh.incPDO.php");
+        require_once("/var/www/html/includes/dbh.incPDO.php");
         $database = new dbh();
         $conn = $database->connect();
     }
@@ -319,74 +320,91 @@ function logWrite($conn, $fileName, $log, $includeTime = true, $error = true, $f
     $now = date("d.m.Y");
     $path = getSettingVal($conn, "logFolder");
     $cli = new CLI();
+
+    // Log folder path validation
     if (!$path) {
         error_log("Can't log custom, because path is missing.");
         error_log($log);
         return false;
     }
-    //Customize log with color
+
+    // Customize log with color
     if ($error) {
         $log = $cli->cout_color($log, "red");
-    } else if ($formatPrint) {
-        //color via class color id
+    } elseif ($formatPrint) {
         $log = $cli->cout_color($log, $formatPrint);
     }
+
+    // Add time if needed
     if ($includeTime) {
         $time = getCurrentDateAndTime(1);
         if ($colourTime) {
             $time = $cli->cout_color($time, $colourTime);
-            $log = "[" . $time . "]: " . $log;
-        } else {
-            $log = "[" . $time . "]: " . $log;
         }
+        $log = "[" . $time . "]: " . $log;
     }
+
+    // Add line break if needed
     if ($lineBrak) {
-        $log = $log . PHP_EOL;
-    }
-
-    //Create Folder if not exists
-    if (!file_exists("$path/" . $now)) {
-        $oldmask = umask(0);
-        mkdir("$path/" . $now, 0777, true);
-        umask($oldmask);
+        $log .= PHP_EOL;
     }
 
 
-    //Write to file and create if not exists
-    $file = $path . "/" . $now . "/" . $fileName . $fileType;
-    writeFileContent($file, $log);
 
+    // Define the folder paths for daily and live logs
+    $dailyLogPath = "$path/$now";
+    $liveLogPath = "$path/live";
 
-    //Write to today Folder
-    //Create Folder if not exists
-    if (!file_exists("$path/live")) {
-        $oldmask = umask(0);
-        mkdir("$path/" . "live", 0777, true);
-        umask($oldmask);
+    // Create folders if they don't exist
+    if (!createDirectoryIfNotExists($dailyLogPath) || !createDirectoryIfNotExists($liveLogPath)) {
+        return false; // Return false if folder creation fails
     }
 
+    
 
-    //Write to file and create if not exists
-    $file = $path . "/" . "live" . "/" . $fileName . $fileType;
-    writeFileContent($file, $log);
+    // Write log to the daily log file
+    $dailyLogFile = "$dailyLogPath/$fileName$fileType";
+    if (!writeFileContent($dailyLogFile, $log)) {
+        return false; // Return false if file write fails
+    }
+
+    // Write log to the live log file
+    $liveLogFile = "$liveLogPath/$fileName$fileType";
+    if (!writeFileContent($liveLogFile, $log)) {
+        return false; // Return false if file write fails
+    }
 
     return true;
 }
 
-function writeFileContent($file, $content)
+
+// Helper function to write content to a file
+function writeFileContent($filePath, $content)
 {
-    $fp = fopen($file, 'a');
-    fwrite($fp, $content);
-    fclose($fp);
-
-    $oldmask = umask(0);
-    if (is_readable($file) && is_writable($file)) {
-        chmod($file, 0777);  //changed to add the zero
+    if ($fileHandle = fopen($filePath, 'a')) {  // Open file in append mode
+        fwrite($fileHandle, $content);
+        fclose($fileHandle);
+    } else {
+        error_log("Failed to open or create file: $filePath");
+        return false;
     }
-    umask($oldmask);
-
     return true;
 }
+
+
+    // Helper function to create directories recursively and set permissions
+    function createDirectoryIfNotExists($directory)
+    {
+        if (!is_dir($directory)) {
+            $oldmask = umask(0); // Temporarily set umask to allow 0777 permissions
+            if (!mkdir($directory, 0777, true)) {
+                error_log("Failed to create directory: $directory");
+                return false;
+            }
+            umask($oldmask);
+        }
+        return true;
+    }
 
 
 class CLI
@@ -752,7 +770,7 @@ function debug_to_console($data)
     echo "<script>console.log('Debug Objects: " . $output . "' );</script>";
 }
 
-function returnMessage($status = "success", $message, $redirectTo = false, $data = false)
+function returnMessage($status, $message, $redirectTo = false, $data = false)
 {
     $returnArray = array();
     $returnArray["status"] = $status;
@@ -956,7 +974,7 @@ function getValueFromDatabase($conn, $table, $column, $where, $whereEqualTo, $li
     return false;
 }
 
-function hasAllContidions($conn = false, $needle, $haystack, $searchMode = false)
+function hasAllContidions($conn, $needle, $haystack, $searchMode = false)
 {
     foreach ($needle as $currentWhereKey => $currentWhereValue) {
         if (isset($haystack->$currentWhereKey)) {
@@ -1016,7 +1034,7 @@ function getValueFromDatabaseMultipleWhere($conn, $table, $column, $whereArray, 
 
                 $count = 0;
                 //While because otherwhise there will be too much traffic (data) if there are more quizzes than 50
-                while ($currentResult = json_validate($stmt->fetch(PDO::FETCH_ASSOC))) {
+                while ($currentResult = custom_json_validate($stmt->fetch(PDO::FETCH_ASSOC))) {
                     $count++;
                     if (hasAllContidions($conn, $whereArray, $currentResult, $searchMode)) {
                         //Add
@@ -1039,7 +1057,7 @@ function getValueFromDatabaseMultipleWhere($conn, $table, $column, $whereArray, 
     return false;
 }
 
-function getColumsFromDatabaseMultipleWhere($conn, $table, $columns = array(), $whereArray, $limitResults = false, $distinct = false, $returnArray = false, $searchMode = false)
+function getColumsFromDatabaseMultipleWhere($conn, $table, $columns, $whereArray, $limitResults = false, $distinct = false, $returnArray = false, $searchMode = false)
 {
     $resultArray = array();
 
@@ -1050,7 +1068,7 @@ function getColumsFromDatabaseMultipleWhere($conn, $table, $columns = array(), $
 
                 $count = 0;
                 //While because otherwhise there will be too much traffic (data) if there are more quizzes than 50
-                while ($currentResult = json_validate($stmt->fetch(PDO::FETCH_ASSOC))) {
+                while ($currentResult = custom_json_validate($stmt->fetch(PDO::FETCH_ASSOC))) {
                     if (hasAllContidions($conn, $whereArray, $currentResult, $searchMode)) {
                         //Add
                         $currentResultArray = array();
@@ -1097,7 +1115,7 @@ function customDatabaseCall($conn, $SQL, $VALUEARRAY, $fetchResults = true)
                     return true;
                 }
                 //While because otherwhise there will be too much traffic (data) if there are more quizzes than 50
-                while ($currentResult = json_validate($stmt->fetch(PDO::FETCH_ASSOC))) {
+                while ($currentResult = custom_json_validate($stmt->fetch(PDO::FETCH_ASSOC))) {
                    $resultArray[] = $currentResult;
                 }
                return $resultArray;
@@ -1182,7 +1200,7 @@ function valueInDatabaseExists($conn, $table, $column, $where, $whereEqualTo)
 function repairObjectOrArrayInDatabase($conn, $table, $column, $where, $whereEqualTo, $newValue)
 {
     $arrayORObjectFromDatabaseSTRING = getValueFromDatabase($conn, $table, $column, $where, $whereEqualTo, 1);
-    if (json_validate($arrayORObjectFromDatabaseSTRING)) {
+    if (custom_json_validate($arrayORObjectFromDatabaseSTRING)) {
         return true;
     } else {
         if (setValueFromDatabase($conn, $table, $column, $where, $whereEqualTo, $newValue, true)) {
@@ -1207,7 +1225,7 @@ function removeFromArrayDatabase($conn, $table, $column, $where, $whereEqualTo, 
         }
     } else {
         //Check if Valid Array
-        if (json_validate($arrayFromDatabaseSTRING)) {
+        if (custom_json_validate($arrayFromDatabaseSTRING)) {
            
             $arrayFromDatabase = json_decode($arrayFromDatabaseSTRING);
 
@@ -1257,7 +1275,7 @@ function addToArrayDatabase($conn, $table, $column, $where, $whereEqualTo, $newV
         }
     } else {
         //Check if Valid Array
-        if ($arrayFromDatabase = json_validate($arrayFromDatabaseSTRING)) {
+        if ($arrayFromDatabase = custom_json_validate($arrayFromDatabaseSTRING)) {
 
             if ($ContainTwice) {
                 $arrayFromDatabase[] = $newValue;
@@ -1313,7 +1331,7 @@ function removeFromObjectDatabase($conn, $table, $column, $where, $whereEqualTo,
         }
     } else {
         //Check if Valid Array
-        if ($objectFromDatabase = json_validate($objectFromDatabaseSTRING)) {
+        if ($objectFromDatabase = custom_json_validate($objectFromDatabaseSTRING)) {
 
             $objectFromDatabase = removeFromObject($objectFromDatabase, $toRemove, $keyOrValue, $removeAll, $reindexArray);
             if (insertObjectDatabase($conn, $table, $column, $where, $whereEqualTo, $objectFromDatabase)) {
@@ -1350,7 +1368,7 @@ function setObjectKeyAndValueDatabase($conn, $table, $column, $where, $whereEqua
         }
     } else {
         //Check if Valid Array
-        if ($objectFromDatabase = json_validate($objectFromDatabaseSTRING)) {
+        if ($objectFromDatabase = custom_json_validate($objectFromDatabaseSTRING)) {
             $objectFromDatabase->$newValueKey = $newValue;
             if (insertObjectDatabase($conn, $table, $column, $where, $whereEqualTo, $objectFromDatabase)) {
                 return true;

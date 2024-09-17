@@ -7,7 +7,7 @@ function searchQuestionsAll($conn, $searchFor)
 
     if ($allquizze) {
         foreach ($allquizze as $currentQuiz) {
-            $quizData = json_validate(getValueFromDatabase($conn, "selectquiz", "quizdata", "uniqueID", $currentQuiz, 1, false));
+            $quizData = custom_json_validate(getValueFromDatabase($conn, "selectquiz", "quizdata", "uniqueID", $currentQuiz, 1, false));
 
             if (!$quizData) continue;
             $quizCards = $quizData?->{"quizCards"} ?? false;
@@ -31,7 +31,7 @@ function searchQuestionsOneQuiz($conn, $searchFor, $quizUniqueID)
 {
     if ($quizUniqueID) {
         $resultArray = array();
-        $quizData = json_validate(getValueFromDatabase($conn, "selectquiz", "quizdata", "uniqueID", $quizUniqueID, 1, false));
+        $quizData = custom_json_validate(getValueFromDatabase($conn, "selectquiz", "quizdata", "uniqueID", $quizUniqueID, 1, false));
 
         if (!$quizData) return array();
         $quizCards = $quizData?->{"quizCards"} ?? false;
@@ -57,7 +57,7 @@ function searchTasksAll($conn, $searchFor, $questionType = false)
 
     if ($allquizze) {
         foreach ($allquizze as $currentQuiz) {
-            $quizData = json_validate(getValueFromDatabase($conn, "selectquiz", "quizdata", "uniqueID", $currentQuiz, 1, false));
+            $quizData = custom_json_validate(getValueFromDatabase($conn, "selectquiz", "quizdata", "uniqueID", $currentQuiz, 1, false));
             if (!$quizData) continue;
             $quizCards = $quizData?->{"quizCards"} ?? false;
             if (!$quizCards) continue;

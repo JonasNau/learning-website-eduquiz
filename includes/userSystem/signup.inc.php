@@ -35,14 +35,14 @@ if (getSettingVal($conn, "usersCanSignUp") != 1) {
 if (isset($_POST["submitSignup"])) {
 
     $username = $_POST["username"];
-    $password = json_validate($_POST["password"])?->{"password"};
-    $passwordRepeat = json_validate($_POST["passwordRepeat"])?->{"passwordRepeat"};
+    $password = custom_json_validate($_POST["password"])?->{"password"};
+    $passwordRepeat = custom_json_validate($_POST["passwordRepeat"])?->{"passwordRepeat"};
 
     #Optional
     $email = $_POST["email"];
     $grade = $_POST["klasse"];
 
-    $stayLoggedIn = json_validate($_POST["stayLoggedIn"]);
+    $stayLoggedIn = custom_json_validate($_POST["stayLoggedIn"]);
 
     if ($stayLoggedIn) {
         $stayLoggedIn = true;
@@ -50,7 +50,7 @@ if (isset($_POST["submitSignup"])) {
         $stayLoggedIn = false;
     }
 
-    $datenschutzOK = json_validate($_POST["datenschutzOK"]);
+    $datenschutzOK = custom_json_validate($_POST["datenschutzOK"]);
 
     if (!$datenschutzOK) {
         returnMessage("failed", "Um dich zu registieren musst du der <b>Datenschutzerklärung</b> zustimmen.");

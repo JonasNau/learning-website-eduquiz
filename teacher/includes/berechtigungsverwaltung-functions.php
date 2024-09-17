@@ -214,7 +214,7 @@ function changeGroupNameFromUsers($conn, $groupName, $newName)
     if ($allUsers) {
         foreach ($allUsers as $currentUser) {
             $username = getValueFromDatabase($conn, "users", "username", "userID", $currentUser, 1, false);
-            $usersGroups = json_validate(getValueFromDatabase($conn, "users", "groups", "userID", $currentUser, 1, false));
+            $usersGroups = custom_json_validate(getValueFromDatabase($conn, "users", "groups", "userID", $currentUser, 1, false));
             if (!$usersGroups || !count($usersGroups) > 0) {continue;}
             foreach ($usersGroups as $currentGroup) {
                 if ($currentGroup == $groupName) {

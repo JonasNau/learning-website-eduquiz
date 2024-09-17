@@ -77,7 +77,7 @@ if (isset($_POST["settings"])) {
                 $description = getValueFromDatabase($conn, "settings", "description", "id", $result, 1, false);
                 $setting = getValueFromDatabase($conn, "settings", "setting", "id", $result, 1, false);
                 $description = getValueFromDatabase($conn, "settings", "description", "id", $result, 1, false);
-                $usedAt = json_validate(getValueFromDatabase($conn, "settings", "usedAt", "id", $result, 1, false));
+                $usedAt = custom_json_validate(getValueFromDatabase($conn, "settings", "usedAt", "id", $result, 1, false));
                 $normalValue = getValueFromDatabase($conn, "settings", "normalValue", "id", $result, 1, false);
                 $permissionNeeded = getValueFromDatabase($conn, "settings", "permissionNeeded", "id", $result, 1, false);
 
@@ -85,8 +85,8 @@ if (isset($_POST["settings"])) {
                 $min = getValueFromDatabase($conn, "settings", "min", "id", $result, 1, false);
                 $max = getValueFromDatabase($conn, "settings", "max", "id", $result, 1, false);
 
-                if (json_validate($setting)) {
-                    $setting = json_validate($setting);
+                if (custom_json_validate($setting)) {
+                    $setting = custom_json_validate($setting);
                 }
 
                 $resultArray[] = array("id" => intval($result), "name" => $name, "type" => $type, "description" => $description, "normalValue" => $normalValue, "usedAt" => $usedAt, "usedAt" => $usedAt, "permissionNeeded" => $permissionNeeded, "userIsAllowed" => $userIsAllowed, "min" => $min, "max" => $max, "setting" => $setting);
@@ -197,7 +197,7 @@ if (isset($_POST["settings"])) {
             if (!$settings) returnResults($conn, false, $limitResults);
             $resultArray = array();
             foreach ($settings as $currentSetting) {
-                $usedAt = json_validate(getValueFromDatabase($conn, "settings", "usedAt", "id", $currentSetting, 1, false));
+                $usedAt = custom_json_validate(getValueFromDatabase($conn, "settings", "usedAt", "id", $currentSetting, 1, false));
                 if (!$usedAt) {
                     continue;
                 }
@@ -224,7 +224,7 @@ if (isset($_POST["settings"])) {
             }
             $usedAtList = array();
             foreach ($allSettings as $currentSetting) {
-                $usedAt = json_validate(getValueFromDatabase($conn, "settings", "usedAt", "id", $currentSetting, 1, false));
+                $usedAt = custom_json_validate(getValueFromDatabase($conn, "settings", "usedAt", "id", $currentSetting, 1, false));
                 if (!$usedAt) {
                     continue;
                 }
@@ -307,7 +307,7 @@ if (isset($_POST["settings"])) {
             returnMessage("success", "Erfolgreich alle User ausgeloggt, für die du Berechtigungen hast. Du selbst wurdest nicht ausgeloggt.");
             die();
         } else if ($type === "json") {
-            $newValue = json_validate($_POST["newValue"]);
+            $newValue = custom_json_validate($_POST["newValue"]);
             if (setValueFromDatabase($conn, "settings", "setting", "id", $id, json_encode($newValue))) {
                 returnMessage("success", "Wert erfolgreich geändert.");
                 die();
@@ -475,7 +475,7 @@ if (isset($_POST["settings"])) {
             echo getValueFromDatabase($conn, "settings", "type", "id", $id, 1, false);
             die();
         } else if ($type === "getCurrentUsed") {
-            echo json_encode(json_validate(getValueFromDatabase($conn, "settings", "usedAt", "id", $id, 1, false)));
+            echo json_encode(custom_json_validate(getValueFromDatabase($conn, "settings", "usedAt", "id", $id, 1, false)));
             die();
         }
     } else if ($operation === "createSetting") {

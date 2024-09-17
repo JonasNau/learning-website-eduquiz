@@ -5,7 +5,7 @@ use function PHPSTORM_META\type;
 
 function getPermissionUser($conn, $userID, $permission)
 {
-    $usersPermissions = json_validate(getValueFromDatabase($conn, "users", "permissions", "userID", $userID, 1, false));
+    $usersPermissions = custom_json_validate(getValueFromDatabase($conn, "users", "permissions", "userID", $userID, 1, false));
     if ($usersPermissions == false) {
         repairObjectOrArrayInDatabase($conn, "users", "permissions", "userID", $userID, "{}");
         return false;
@@ -17,7 +17,7 @@ function getPermissionUser($conn, $userID, $permission)
 }
 function setPermissionUser($conn, $userID, $permission, $value)
 {
-    $usersPermissions = json_validate(getValueFromDatabase($conn, "users", "permissions", "userID", $userID, 1, false));
+    $usersPermissions = custom_json_validate(getValueFromDatabase($conn, "users", "permissions", "userID", $userID, 1, false));
     if ($usersPermissions == false) {
         repairObjectOrArrayInDatabase($conn, "users", "permissions", "userID", $userID, "{}");
     }
@@ -30,7 +30,7 @@ function setPermissionUser($conn, $userID, $permission, $value)
 
 function removePermissionUser($conn, $userID, $permission)
 {
-    $usersPermissions = json_validate(getValueFromDatabase($conn, "users", "permissions", "userID", $userID, 1, false));
+    $usersPermissions = custom_json_validate(getValueFromDatabase($conn, "users", "permissions", "userID", $userID, 1, false));
     if ($usersPermissions == false) {
         repairObjectOrArrayInDatabase($conn, "users", "permissions", "userID", $userID, "{}");
         return false;
@@ -114,7 +114,7 @@ function groupExists($conn, $groupName)
 
 function getGroupPermissions($conn, $groupName)
 {
-    $groupPermissions = json_validate(getValueFromDatabase($conn, "groupPermissions", "permissions", "groupName", $groupName, 1, false));
+    $groupPermissions = custom_json_validate(getValueFromDatabase($conn, "groupPermissions", "permissions", "groupName", $groupName, 1, false));
     if ($groupPermissions == false) {
         repairObjectOrArrayInDatabase($conn, "groupPermissions", "permissions", "groupName", $groupName, "{}");
         return false;
@@ -124,7 +124,7 @@ function getGroupPermissions($conn, $groupName)
 
 function getPermissionGroup($conn, $groupName, $permission)
 {
-    $groupPermissions = json_validate(getValueFromDatabase($conn, "groupPermissions", "permissions", "groupName", $groupName, 1, false));
+    $groupPermissions = custom_json_validate(getValueFromDatabase($conn, "groupPermissions", "permissions", "groupName", $groupName, 1, false));
     if ($groupPermissions === false) {
         repairObjectOrArrayInDatabase($conn, "groupPermissions", "permissions", "groupName", $groupName, "{}");
         return false;
@@ -139,10 +139,10 @@ function getPermissionGroup($conn, $groupName, $permission)
 
 function setPermissionsGroup($conn, $groupName, $permissions)
 {
-    if (!json_validate($permissions)) {
+    if (!custom_json_validate($permissions)) {
         return false;
     }
-    if (json_validate($permissions) == false) {
+    if (custom_json_validate($permissions) == false) {
         return false;
     }
     if (insertObjectDatabase($conn, "groupPermissions", "permissions", "groupName", $groupName, $permissions)) {
@@ -165,7 +165,7 @@ function setPermissionGroup($conn, $groupName, $permission, $value)
 
 function removePermissionGroup($conn, $groupName, $permission)
 {
-    $groupPermissions = json_validate(getValueFromDatabase($conn, "groupPermissions", "permissions", "groupName", $groupName, 1, false));
+    $groupPermissions = custom_json_validate(getValueFromDatabase($conn, "groupPermissions", "permissions", "groupName", $groupName, 1, false));
     if ($groupPermissions == false) {
         repairObjectOrArrayInDatabase($conn, "groupPermissions", "permissions", "groupName", $groupName, "{}");
         return false;
@@ -192,7 +192,7 @@ function userHasGroup($conn, $userID, $groupName)
 
 function getAllGroupsFromUser($conn, $userID)
 {
-    $usersGroups = json_validate(getValueFromDatabase($conn, "users", "groups", "userID", $userID, 1, false));
+    $usersGroups = custom_json_validate(getValueFromDatabase($conn, "users", "groups", "userID", $userID, 1, false));
     if ($usersGroups == false) {
         repairObjectOrArrayInDatabase($conn, "users", "groups", "userID", $userID, "[]");
         return false;
@@ -202,7 +202,7 @@ function getAllGroupsFromUser($conn, $userID)
 
 function addGroupUser($conn, $userID, $groupName)
 {
-    $usersGroups = json_validate(getValueFromDatabase($conn, "users", "groups", "userID", $userID, 1, false));
+    $usersGroups = custom_json_validate(getValueFromDatabase($conn, "users", "groups", "userID", $userID, 1, false));
     if ($usersGroups == false) {
         repairObjectOrArrayInDatabase($conn, "users", "groups", "userID", $userID, "[]");
     }
@@ -214,7 +214,7 @@ function addGroupUser($conn, $userID, $groupName)
 
 function removeGroupUser($conn, $userID, $groupName)
 {
-    $usersGroups = json_validate(getValueFromDatabase($conn, "users", "groups", "userID", $userID, 1, false));
+    $usersGroups = custom_json_validate(getValueFromDatabase($conn, "users", "groups", "userID", $userID, 1, false));
     if ($usersGroups == false) {
         repairObjectOrArrayInDatabase($conn, "users", "groups", "userID", $userID, "[]");
         return false;
@@ -228,10 +228,10 @@ function removeGroupUser($conn, $userID, $groupName)
 
 function setGroupsUser($conn, $userID, $groups)
 {
-    if (!json_validate($groups)) {
+    if (!custom_json_validate($groups)) {
         return false;
     }
-    $usersGroups = json_validate(getValueFromDatabase($conn, "users", "groups", "userID", $userID, 1, false));
+    $usersGroups = custom_json_validate(getValueFromDatabase($conn, "users", "groups", "userID", $userID, 1, false));
     if ($usersGroups == false) {
         repairObjectOrArrayInDatabase($conn, "users", "groups", "userID", $userID, "[]");
     }
@@ -323,7 +323,7 @@ function userHasPermissionRanking($conn, $userID, $numberNeeded)
 
 function getPermissionRanking($conn, $userID)
 {
-    $groupsFromUser = json_validate(getValueFromDatabase($conn, "users", "groups", "userID", $userID, 1, false));
+    $groupsFromUser = custom_json_validate(getValueFromDatabase($conn, "users", "groups", "userID", $userID, 1, false));
     $number = 0;
 
     //Get it from groups
@@ -360,7 +360,7 @@ function getPermissionRankingGroup($conn, $group)
 {
     if (!$group && !count($group) > 0) return false;
     $number = 0;
-    $groupPermissions = json_validate(getValueFromDatabase($conn, "groupPermissions", "permissions", "groupName", $group, 1, false));
+    $groupPermissions = custom_json_validate(getValueFromDatabase($conn, "groupPermissions", "permissions", "groupName", $group, 1, false));
     if (!$groupPermissions) return false;
     foreach ($groupPermissions as $currentPermissionKey => $currentPermissionValue) {
         if (!groupIsForbiddenTo($conn, $group, [$currentPermissionKey])) {
@@ -508,7 +508,7 @@ function groupIsForbiddenTo($conn, $groupName, $forbidden = array())
 
 function getAllForbiddenPermissionsFromGroup($conn, $groupName)
 {
-    $forbiddenPermissions = json_validate(getValueFromDatabase($conn, "groupPermissions", "isForbiddenTo", "groupName", $groupName, 1, false));
+    $forbiddenPermissions = custom_json_validate(getValueFromDatabase($conn, "groupPermissions", "isForbiddenTo", "groupName", $groupName, 1, false));
     if ($forbiddenPermissions === false) {
         repairObjectOrArrayInDatabase($conn, "groupPermissions", "isForbiddenTo", "groupName", $groupName, "[]");
     }
@@ -583,7 +583,7 @@ function returnFullPermission($conn, $permissionName)
 
 function addForbiddenPermissionUser($conn, $userID, $toAdd)
 {
-    $usersForbiddenPermissions = json_validate(getValueFromDatabase($conn, "users", "isForbiddenTo", "userID", $userID, 1, false));
+    $usersForbiddenPermissions = custom_json_validate(getValueFromDatabase($conn, "users", "isForbiddenTo", "userID", $userID, 1, false));
     if ($usersForbiddenPermissions === false) {
         repairObjectOrArrayInDatabase($conn, "users", "isForbiddenTo", "userID", $userID, "[]");
     }
@@ -595,7 +595,7 @@ function addForbiddenPermissionUser($conn, $userID, $toAdd)
 
 function removeForbiddenPermissionUser($conn, $userID, $toRemove)
 {
-    $usersForbiddenPermissions = json_validate(getValueFromDatabase($conn, "users", "isForbiddenTo", "userID", $userID, 1, false));
+    $usersForbiddenPermissions = custom_json_validate(getValueFromDatabase($conn, "users", "isForbiddenTo", "userID", $userID, 1, false));
     if ($usersForbiddenPermissions == false) {
         repairObjectOrArrayInDatabase($conn, "users", "isForbiddenTo", "userID", $userID, "[]");
         return false;
@@ -609,10 +609,10 @@ function removeForbiddenPermissionUser($conn, $userID, $toRemove)
 
 function setForbiddenPermissionUser($conn, $userID, $forbiddenPermissions)
 {
-    if (!json_validate($forbiddenPermissions)) {
+    if (!custom_json_validate($forbiddenPermissions)) {
         return false;
     }
-    $UsersforbiddenPermissions = json_validate(getValueFromDatabase($conn, "users", "isForbiddenTo", "userID", $userID, 1, false));
+    $UsersforbiddenPermissions = custom_json_validate(getValueFromDatabase($conn, "users", "isForbiddenTo", "userID", $userID, 1, false));
     if ($UsersforbiddenPermissions == false) {
         repairObjectOrArrayInDatabase($conn, "users", "isForbiddenTo", "userID", $userID, "[]");
     }

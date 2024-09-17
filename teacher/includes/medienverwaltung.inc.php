@@ -301,12 +301,12 @@ if (isset($_POST["medienverwaltung"])) {
                 $thumbnailMimeType = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailMimeType", "id", $result, 1, false);
                 $thumbnailPath = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailPath", "id", $result, 1, false);
                 $description = getValueFromDatabase($conn, "medienVerwaltung", "description", "id", $result, 1, false);
-                $keywords = json_validate(getValueFromDatabase($conn, "medienVerwaltung", "keywords", "id", $result, 1, false));
+                $keywords = custom_json_validate(getValueFromDatabase($conn, "medienVerwaltung", "keywords", "id", $result, 1, false));
                 $fileSize = getValueFromDatabase($conn, "medienVerwaltung", "fileSize", "id", $result, 1, false);
                 $changed = getValueFromDatabase($conn, "medienVerwaltung", "changed", "id", $result, 1, false);
                 $uploaded = getValueFromDatabase($conn, "medienVerwaltung", "uploaded", "id", $result, 1, false);
                 $uploadedBy = getValueFromDatabase($conn, "medienVerwaltung", "uploadedBy", "id", $result, 1, false);
-                $changedBy = json_validate(getValueFromDatabase($conn, "medienVerwaltung", "changedBy", "id", $result, 1, false));
+                $changedBy = custom_json_validate(getValueFromDatabase($conn, "medienVerwaltung", "changedBy", "id", $result, 1, false));
 
                 $resultArray[] = array("id" => $result, "mediaID" => $mediaID, "uploadedBy" => $uploadedBy, "changedBy" => $changedBy, "uploaded" => $uploaded, "changed" => $changed, "thumbnailIsBlob" => $thumbnailIsBlob, "thumbnailIsOnlineSource" => $thumbnailIsOnlineSource, "thumbnail" => $thumbnail, "isBlob" => $isBlob, "isOnlineSource" => $isOnlineSource, "inMediaFolder" => $inMediaFolder, "uploaded" => $uploaded, "filename" => $filename, "mimeType" => $mimeType, "type" => $type, "path" => $path, "thumbnailFileName" => $thumbnailFileName, "thumbnailMimeType" => $thumbnailMimeType, "thumbnailPath" => $thumbnailPath, "description" => $description, "keywords" => $keywords, "fileSize" => $fileSize, "thumbnailInMediaFolder" => $thumbnailInMediaFolder);
             }
@@ -342,7 +342,7 @@ if (isset($_POST["medienverwaltung"])) {
             returnResults($conn, $resultArray, $limitResults);
             die();
         } else if ($filter === "mimeType") {
-            $input = json_validate($_POST["input"]);
+            $input = custom_json_validate($_POST["input"]);
             $allMediaIDs = getAllValuesFromDatabase($conn, "medienVerwaltung", "id", 0, true);
             if (!$allMediaIDs) returnResults($conn, false, $limitResults);
             $resultArray = array();
@@ -355,7 +355,7 @@ if (isset($_POST["medienverwaltung"])) {
             returnResults($conn, $resultArray, $limitResults);
             die();
         } else if ($filter === "type") {
-            $input = json_validate($_POST["input"]);
+            $input = custom_json_validate($_POST["input"]);
             $allMediaIDs = getAllValuesFromDatabase($conn, "medienVerwaltung", "id", 0, true);
             if (!$allMediaIDs) returnResults($conn, false, $limitResults);
             $resultArray = array();
@@ -406,12 +406,12 @@ if (isset($_POST["medienverwaltung"])) {
             returnResults($conn, $resultArray, $limitResults);
             die();
         } else if ($filter === "keyWords") {
-            $input = json_validate($_POST["input"]);
+            $input = custom_json_validate($_POST["input"]);
             $allMediaIDs = getAllValuesFromDatabase($conn, "medienVerwaltung", "id", 0, true);
             if (!$allMediaIDs) returnResults($conn, false, $limitResults);
             $resultArray = array();
             foreach ($allMediaIDs as $currentID) {
-                $keywords = json_validate(getValueFromDatabase($conn, "medienVerwaltung", "keyWords", "id", $currentID, 1, false));
+                $keywords = custom_json_validate(getValueFromDatabase($conn, "medienVerwaltung", "keyWords", "id", $currentID, 1, false));
                 if (array_contains_all_values($keywords, $input, true)) {
                     $resultArray[] = $currentID;
                 }
@@ -484,12 +484,12 @@ if (isset($_POST["medienverwaltung"])) {
             returnResults($conn, $resultArray, $limitResults);
             die();
         } else if ($filter === "changedBy") {
-            $input = json_validate($_POST["input"]);
+            $input = custom_json_validate($_POST["input"]);
             $allMediaIDs = getAllValuesFromDatabase($conn, "medienVerwaltung", "id", 0, true);
             if (!$allMediaIDs) returnResults($conn, false, $limitResults);
             $resultArray = array();
             foreach ($allMediaIDs as $currentID) {
-                $changedBy = json_validate(getValueFromDatabase($conn, "medienVerwaltung", "changedBy", "id", $currentID, 1, false));
+                $changedBy = custom_json_validate(getValueFromDatabase($conn, "medienVerwaltung", "changedBy", "id", $currentID, 1, false));
                 if (array_contains_all_values($changedBy, $input)) {
                     $resultArray[] = $currentID;
                 }
@@ -549,7 +549,7 @@ if (isset($_POST["medienverwaltung"])) {
             returnResults($conn, $resultArray, $limitResults);
             die();
         } else if ($filter === "thumbnailMimeType") {
-            $input = json_validate($_POST["input"]);
+            $input = custom_json_validate($_POST["input"]);
             $allMediaIDs = getAllValuesFromDatabase($conn, "medienVerwaltung", "id", 0, true);
             if (!$allMediaIDs) returnResults($conn, false, $limitResults);
             $resultArray = array();
@@ -606,18 +606,18 @@ if (isset($_POST["medienverwaltung"])) {
         } else if ($filter === "multiple") {
             $filename = $_POST["filename"];
             $description = $_POST["description"];
-            $type = json_validate($_POST["type"]);
-            $mimeType = json_validate($_POST["mimeType"]);
+            $type = custom_json_validate($_POST["type"]);
+            $mimeType = custom_json_validate($_POST["mimeType"]);
             $path = $_POST["path"];
             $id = $_POST["id"];
             $mediaID = $_POST["mediaID"];
-            $keyWords = json_validate($_POST["keyWords"]);
+            $keyWords = custom_json_validate($_POST["keyWords"]);
             $isOnlineSource = $_POST["isOnlineSource"];
             $inMediaFolder = $_POST["inMediaFolder"];
             $uploaded = $_POST["uploaded"];
             $uploadedBy = $_POST["uploadedBy"];
             $changed = $_POST["changed"];
-            $changedBy = json_validate($_POST["changedBy"]);
+            $changedBy = custom_json_validate($_POST["changedBy"]);
             $isBlob = $_POST["isBlob"];
             $thumbnail = $_POST["thumbnail"];
             $thumbnailIsBlob = $_POST["thumbnailIsBlob"];
@@ -687,7 +687,7 @@ if (isset($_POST["medienverwaltung"])) {
             }
             if ($keyWords !== false && count($keyWords) && count($allMediaIDs) > 0 && $keyWords != "false") {
                 foreach ($allMediaIDs as $currentID) {
-                    $keywordsCurrent = json_validate(getValueFromDatabase($conn, "medienVerwaltung", "keywords", "id", $currentID, 1, false));
+                    $keywordsCurrent = custom_json_validate(getValueFromDatabase($conn, "medienVerwaltung", "keywords", "id", $currentID, 1, false));
                     if (!array_contains_all_values($keywordsCurrent, $keyWords, true, true)) {
                         $allMediaIDs = removeFromArray($allMediaIDs, $currentID);
                     }
@@ -735,7 +735,7 @@ if (isset($_POST["medienverwaltung"])) {
             }
             if ($changedBy !== false && count($uploadedBy) && count($allMediaIDs) > 0 && $changedBy != "false") {
                 foreach ($allMediaIDs as $currentID) {
-                    $changedByCurrent = json_validate(getValueFromDatabase($conn, "medienVerwaltung", "changedBy", "id", $currentID, 1, false));
+                    $changedByCurrent = custom_json_validate(getValueFromDatabase($conn, "medienVerwaltung", "changedBy", "id", $currentID, 1, false));
                     if (!array_contains_all_values($changedByCurrent, $changedBy, true, true)) {
                         $allMediaIDs = removeFromArray($allMediaIDs, $currentID);
                     }
@@ -861,7 +861,7 @@ if (isset($_POST["medienverwaltung"])) {
                     $size = $file['size'];
                     $tmpname = $file["tmp_name"]; //Where the file is cached on the server
 
-                    if (!checkValidMimeType($mimeType, json_validate(getSettingVal($conn, "Medienverwaltung_validMimeTypes")))) {
+                    if (!checkValidMimeType($mimeType, custom_json_validate(getSettingVal($conn, "Medienverwaltung_validMimeTypes")))) {
                         returnMessage("failed", "Dieser Dateityp wird nicht unterstützt.  Eine Liste der unterstützten Dateitypen findest du Oben bei der Medienverwaltung.");
                         die();
                     }
@@ -933,7 +933,7 @@ if (isset($_POST["medienverwaltung"])) {
                     $size = $file['size'];
                     $tmpname = $file["tmp_name"]; //Where the file is cached on the server
 
-                    if (!checkValidMimeType($mimeType, json_validate(getSettingVal($conn, "Medienverwaltung_validMimeTypes")))) {
+                    if (!checkValidMimeType($mimeType, custom_json_validate(getSettingVal($conn, "Medienverwaltung_validMimeTypes")))) {
                         returnMessage("failed", "Dieser Dateityp wird nicht unterstützt.  Eine Liste der unterstützten Dateitypen findest du Oben bei der Medienverwaltung.");
                         die();
                     }
@@ -1021,7 +1021,7 @@ if (isset($_POST["medienverwaltung"])) {
             }
             die();
         } else if ($type === "keywords") {
-            $newValue = json_validate($_POST["newValue"]);
+            $newValue = custom_json_validate($_POST["newValue"]);
             if (setValueFromDatabase($conn, "medienVerwaltung", "keywords", "id", $id, json_encode($newValue))) {
                 setChangedAndChangedBy($conn, $id, $userID);
                 returnMessage("success", "Schlüsselwörter erfolgreich geändert");
@@ -1030,7 +1030,7 @@ if (isset($_POST["medienverwaltung"])) {
             }
             die();
         } else if ($type === "isOnlineSource") {
-            $newValue = intval(json_validate($_POST["newValue"]));
+            $newValue = intval(custom_json_validate($_POST["newValue"]));
             if (setValueFromDatabase($conn, "medienVerwaltung", "isOnlineSource", "id", $id, $newValue)) {
                 setChangedAndChangedBy($conn, $id, $userID);
                 returnMessage("success", "Wert erfolgreich geändert");
@@ -1039,7 +1039,7 @@ if (isset($_POST["medienverwaltung"])) {
             }
             die();
         } else if ($type === "path") {
-            $newValue = json_validate($_POST["newValue"])?->{"path"};
+            $newValue = custom_json_validate($_POST["newValue"])?->{"path"};
             if (setValueFromDatabase($conn, "medienVerwaltung", "path", "id", $id, $newValue)) {
                 setChangedAndChangedBy($conn, $id, $userID);
                 returnMessage("success", "Pfad / URL erfolgreich geändert");
@@ -1048,7 +1048,7 @@ if (isset($_POST["medienverwaltung"])) {
             }
             die();
         } else if ($type === "inMediaFolder") {
-            $newValue = intval(json_validate($_POST["newValue"]));
+            $newValue = intval(custom_json_validate($_POST["newValue"]));
             if (setValueFromDatabase($conn, "medienVerwaltung", "inMediaFolder", "id", $id, $newValue)) {
                 setChangedAndChangedBy($conn, $id, $userID);
                 returnMessage("success", "Wert erfolgreich geändert");
@@ -1057,7 +1057,7 @@ if (isset($_POST["medienverwaltung"])) {
             }
             die();
         } else if ($type === "filename") {
-            $newName = json_validate($_POST["newValue"])?->{"newValue"};
+            $newName = custom_json_validate($_POST["newValue"])?->{"newValue"};
 
             $isOnlineSource = boolval(getValueFromDatabase($conn, "medienVerwaltung", "isOnlineSource", "id", $id, 1, false));
             $isBlob = boolval(getValueFromDatabase($conn, "medienVerwaltung", "isBlob", "id", $id, 1, false));
@@ -1099,7 +1099,7 @@ if (isset($_POST["medienverwaltung"])) {
             }
             die();
         } else if ($type === "mediaID") {
-            $newValue = json_validate($_POST["newValue"])?->{"newValue"};
+            $newValue = custom_json_validate($_POST["newValue"])?->{"newValue"};
             if (valueInDatabaseExists($conn, "medienVerwaltung", "mediaID", "mediaID", $newValue)) {
                 returnMessage("failed", "Es existiert bereits ein Medienentrag mit der mediaID '$newValue'");
                 die();
@@ -1112,7 +1112,7 @@ if (isset($_POST["medienverwaltung"])) {
             }
             die();
         } else if ($type === "thumbnail") {
-            $newValue = intval(json_validate($_POST["newValue"]));
+            $newValue = intval(custom_json_validate($_POST["newValue"]));
             if (!boolval($newValue)) {
                 //Set to false -> remove thumbnail
                 if (!removeFileOrLinkToFileThumbnail($conn, $id)) {
@@ -1153,7 +1153,7 @@ if (isset($_POST["medienverwaltung"])) {
                     $size = $file['size'];
                     $tmpname = $file["tmp_name"]; //Where the file is cached on the server
 
-                    if (!checkValidMimeType($mimeType, json_validate(getSettingVal($conn, "Medienverwaltung_validMimeTypes")))) {
+                    if (!checkValidMimeType($mimeType, custom_json_validate(getSettingVal($conn, "Medienverwaltung_validMimeTypes")))) {
                         returnMessage("failed", "Dieser Dateityp wird nicht unterstützt.  Eine Liste der unterstützten Dateitypen findest du Oben bei der Medienverwaltung.");
                         die();
                     }
@@ -1217,7 +1217,7 @@ if (isset($_POST["medienverwaltung"])) {
                     $size = $file['size'];
                     $tmpname = $file["tmp_name"]; //Where the file is cached on the server
 
-                    if (!checkValidMimeType($mimeType, json_validate(getSettingVal($conn, "Medienverwaltung_validMimeTypes")))) {
+                    if (!checkValidMimeType($mimeType, custom_json_validate(getSettingVal($conn, "Medienverwaltung_validMimeTypes")))) {
                         returnMessage("failed", "Dieser Dateityp wird nicht unterstützt.  Eine Liste der unterstützten Dateitypen findest du Oben bei der Medienverwaltung.");
                         die();
                     }
@@ -1288,7 +1288,7 @@ if (isset($_POST["medienverwaltung"])) {
                 die();
             }
         } else if ($type === "thumbnailFileName") {
-            $newName = json_validate($_POST["newValue"])?->{"newValue"};
+            $newName = custom_json_validate($_POST["newValue"])?->{"newValue"};
 
             $isOnlineSource = boolval(getValueFromDatabase($conn, "medienVerwaltung", "thumbnailIsOnlineSource", "id", $id, 1, false));
             $isBlob = boolval(getValueFromDatabase($conn, "medienVerwaltung", "thumbnailIsBlob", "id", $id, 1, false));
@@ -1337,7 +1337,7 @@ if (isset($_POST["medienverwaltung"])) {
                 returnMessage("failed", "Aktiviere zuerst das Thumbail bei diesem Medieneintrag.");
                 die();
             }
-            $newValue = intval(json_validate($_POST["newValue"]));
+            $newValue = intval(custom_json_validate($_POST["newValue"]));
             if (setValueFromDatabase($conn, "medienVerwaltung", "thumbnailIsOnlineSource", "id", $id, $newValue)) {
                 setChangedAndChangedBy($conn, $id, $userID);
                 returnMessage("success", "Wert erfolgreich geändert");
@@ -1350,7 +1350,7 @@ if (isset($_POST["medienverwaltung"])) {
                 returnMessage("failed", "Aktiviere zuerst das Thumbail bei diesem Medieneintrag.");
                 die();
             }
-            $newValue = json_validate($_POST["newValue"])?->{"path"};
+            $newValue = custom_json_validate($_POST["newValue"])?->{"path"};
             if (setValueFromDatabase($conn, "medienVerwaltung", "thumbnailPath", "id", $id, $newValue)) {
                 setChangedAndChangedBy($conn, $id, $userID);
                 returnMessage("success", "Pfad / URL erfolgreich geändert");
@@ -1363,7 +1363,7 @@ if (isset($_POST["medienverwaltung"])) {
                 returnMessage("failed", "Aktiviere zuerst das Thumbail bei diesem Medieneintrag.");
                 die();
             }
-            $newValue = intval(json_validate($_POST["newValue"]));
+            $newValue = intval(custom_json_validate($_POST["newValue"]));
             if (setValueFromDatabase($conn, "medienVerwaltung", "inMediaFolder", "id", $id, $newValue)) {
                 setChangedAndChangedBy($conn, $id, $userID);
                 returnMessage("success", "Wert erfolgreich geändert");
@@ -1397,12 +1397,12 @@ if (isset($_POST["medienverwaltung"])) {
         $thumbnailMimeType = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailMimeType", "id", $id, 1, false);
         $thumbnailPath = getValueFromDatabase($conn, "medienVerwaltung", "thumbnailPath", "id", $id, 1, false);
         $description = getValueFromDatabase($conn, "medienVerwaltung", "description", "id", $id, 1, false);
-        $keywords = json_validate(getValueFromDatabase($conn, "medienVerwaltung", "keywords", "id", $id, 1, false));
+        $keywords = custom_json_validate(getValueFromDatabase($conn, "medienVerwaltung", "keywords", "id", $id, 1, false));
         $fileSize = getValueFromDatabase($conn, "medienVerwaltung", "fileSize", "id", $id, 1, false);
         $changed = getValueFromDatabase($conn, "medienVerwaltung", "changed", "id", $id, 1, false);
         $uploaded = getValueFromDatabase($conn, "medienVerwaltung", "uploaded", "id", $id, 1, false);
         $uploadedBy = getValueFromDatabase($conn, "medienVerwaltung", "uploadedBy", "id", $id, 1, false);
-        $changedBy = json_validate(getValueFromDatabase($conn, "medienVerwaltung", "changedBy", "id", $id, 1, false));
+        $changedBy = custom_json_validate(getValueFromDatabase($conn, "medienVerwaltung", "changedBy", "id", $id, 1, false));
 
         echo json_encode(array("id" => $id, "mediaID" => $mediaID, "uploadedBy" => $uploadedBy, "changedBy" => $changedBy, "uploaded" => $uploaded, "changed" => $changed, "thumbnailIsBlob" => $thumbnailIsBlob, "thumbnailIsOnlineSource" => $thumbnailIsOnlineSource, "thumbnail" => $thumbnail, "isBlob" => $isBlob, "isOnlineSource" => $isOnlineSource, "inMediaFolder" => $inMediaFolder, "uploaded" => $uploaded, "filename" => $filename, "mimeType" => $mimeType, "type" => $type, "path" => $path, "thumbnailFileName" => $thumbnailFileName, "thumbnailMimeType" => $thumbnailMimeType, "thumbnailPath" => $thumbnailPath, "description" => $description, "keywords" => $keywords, "fileSize" => $fileSize, "thumbnailInMediaFolder" => $thumbnailInMediaFolder));
         die();
@@ -1428,7 +1428,7 @@ if (isset($_POST["medienverwaltung"])) {
                 $size = $file['size'];
                 $tmpname = $file["tmp_name"]; //Where the file is cached on the server
 
-                if (!checkValidMimeType($mimeType, json_validate(getSettingVal($conn, "Medienverwaltung_validMimeTypes")))) {
+                if (!checkValidMimeType($mimeType, custom_json_validate(getSettingVal($conn, "Medienverwaltung_validMimeTypes")))) {
                     returnMessage("failed", "Dieser Dateityp wird nicht unterstützt.  Eine Liste der unterstützten Dateitypen findest du Oben bei der Medienverwaltung.");
                     die();
                 }
@@ -1505,7 +1505,7 @@ if (isset($_POST["medienverwaltung"])) {
                 $size = $file['size'];
                 $tmpname = $file["tmp_name"]; //Where the file is cached on the server
 
-                if (!checkValidMimeType($mimeType, json_validate(getSettingVal($conn, "Medienverwaltung_validMimeTypes")))) {
+                if (!checkValidMimeType($mimeType, custom_json_validate(getSettingVal($conn, "Medienverwaltung_validMimeTypes")))) {
                     returnMessage("failed", "Dieser Dateityp wird nicht unterstützt.  Eine Liste der unterstützten Dateitypen findest du Oben bei der Medienverwaltung.");
                     die();
                 }

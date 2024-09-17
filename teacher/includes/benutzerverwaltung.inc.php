@@ -70,7 +70,7 @@ if (isset($_POST["benutzerverwaltung"])) {
                 $klassenstufe = getValueFromDatabase($conn, "users", "klassenstufe", "userID", $user, 1, false);
                 $isOnline = getValueFromDatabase($conn, "users", "isOnline", "userID", $user, 1, false);
                 $authenticated = getValueFromDatabase($conn, "users", "authenticated", "userID", $user, 1, false);
-                $groups = json_validate(getValueFromDatabase($conn, "users", "groups", "userID", $user, 1, false));
+                $groups = custom_json_validate(getValueFromDatabase($conn, "users", "groups", "userID", $user, 1, false));
                 $lastQuiz = getValueFromDatabase($conn, "users", "lastQuiz", "userID", $user, 1, false);
 
                 //Create Readable feedback like lastLogin etc
@@ -109,10 +109,10 @@ if (isset($_POST["benutzerverwaltung"])) {
                     $lastActivityString = secondsToArrayOrString($lastActivity, "String", $wordspellingOptions);
                 }
 
-                $permissionsAllowed = json_validate(getValueFromDatabase($conn, "users", "permissions", "userID", $user, 1, false));
-                $permissionsForbidden = json_validate(getValueFromDatabase($conn, "users", "isForbiddenTo", "userID", $user, 1, false));
+                $permissionsAllowed = custom_json_validate(getValueFromDatabase($conn, "users", "permissions", "userID", $user, 1, false));
+                $permissionsForbidden = custom_json_validate(getValueFromDatabase($conn, "users", "isForbiddenTo", "userID", $user, 1, false));
                 $ranking = getPermissionRanking($conn, $user);
-                $usersnextMessages = json_validate(getValueFromDatabase($conn, "users", "messageForComeBack", "userID", $user, 1, false));
+                $usersnextMessages = custom_json_validate(getValueFromDatabase($conn, "users", "messageForComeBack", "userID", $user, 1, false));
                 $showPublic = getValueFromDatabase($conn, "users", "showPublic", "userID", $user, 1, false);
                 //Insert new Group and Permissions and deniedPermissions if these values are null in DB set it to valid json
 
@@ -218,7 +218,7 @@ if (isset($_POST["benutzerverwaltung"])) {
             returnFoundUsers($conn, $resultArray, $limitResults);
             die();
         } else if ($type === "groups") {
-            $input = json_validate($_POST["input"]);
+            $input = custom_json_validate($_POST["input"]);
             $resultArray = array();
             $allUsers = getAllValuesFromDatabase($conn, "users", "userID", 0, true);
             if (!$allUsers) {
@@ -226,7 +226,7 @@ if (isset($_POST["benutzerverwaltung"])) {
                 die();
             }
             foreach ($allUsers as $currentUser) {
-                $usersGroups = json_validate(getValueFromDatabase($conn, "users", "groups", "userID", $currentUser, 1, false));
+                $usersGroups = custom_json_validate(getValueFromDatabase($conn, "users", "groups", "userID", $currentUser, 1, false));
                 if (array_contains_all_values($usersGroups, $input, true)) {
                     $resultArray[] = $currentUser;
                 }
@@ -234,7 +234,7 @@ if (isset($_POST["benutzerverwaltung"])) {
             returnFoundUsers($conn, $resultArray, $limitResults);
             die();
         } else if ($type === "klassenstufe") {
-            $input = json_validate($_POST["input"]);
+            $input = custom_json_validate($_POST["input"]);
             $resultArray = array();
             $allUsers = getAllValuesFromDatabase($conn, "users", "userID", 0, true);
             if (!$allUsers) {
@@ -250,7 +250,7 @@ if (isset($_POST["benutzerverwaltung"])) {
             returnFoundUsers($conn, $resultArray, $limitResults);
             die();
         } else if ($type === "permissionsAllowed") {
-            $input = json_validate($_POST["input"]);
+            $input = custom_json_validate($_POST["input"]);
             $resultArray = array();
             $allUsers = getAllValuesFromDatabase($conn, "users", "userID", 0, true);
             if (!$allUsers) {
@@ -258,7 +258,7 @@ if (isset($_POST["benutzerverwaltung"])) {
                 die();
             }
             foreach ($allUsers as $currentUser) {
-                $allPermissionsFromUser = json_validate(getValueFromDatabase($conn, "users", "permissions", "userID", $currentUser, 1, false));
+                $allPermissionsFromUser = custom_json_validate(getValueFromDatabase($conn, "users", "permissions", "userID", $currentUser, 1, false));
                 if (hasAllContidions($conn, $input, $allPermissionsFromUser, false)) {
                     $resultArray[] = $currentUser;
                 }
@@ -266,7 +266,7 @@ if (isset($_POST["benutzerverwaltung"])) {
             returnFoundUsers($conn, $resultArray, $limitResults);
             die();
         } else if ($type === "permissionsForbidden") {
-            $input = json_validate($_POST["input"]);
+            $input = custom_json_validate($_POST["input"]);
             $resultArray = array();
             $allUsers = getAllValuesFromDatabase($conn, "users", "userID", 0, true);
             if (!$allUsers) {
@@ -274,7 +274,7 @@ if (isset($_POST["benutzerverwaltung"])) {
                 die();
             }
             foreach ($allUsers as $currentUser) {
-                $allPermissionsFromUser = json_validate(getValueFromDatabase($conn, "users", "isForbiddenTo", "userID", $user, 1, false));
+                $allPermissionsFromUser = custom_json_validate(getValueFromDatabase($conn, "users", "isForbiddenTo", "userID", $user, 1, false));
                 if (array_contains_all_values($allPermissionsFromUser, $input, true)) {
                     $resultArray[] = $currentUser;
                 }
@@ -286,12 +286,12 @@ if (isset($_POST["benutzerverwaltung"])) {
             $email = $_POST["email"];
             $userID = $_POST["userID"];
             $ranking = $_POST["ranking"];
-            $groups = json_validate($_POST["groups"]);
-            $klassenstufen = json_validate($_POST["klassenstufen"]);
+            $groups = custom_json_validate($_POST["groups"]);
+            $klassenstufen = custom_json_validate($_POST["klassenstufen"]);
             $isOnline = $_POST["isOnline"];
             $authenticated = $_POST["authenticated"];
-            $permissionsAllowed = json_validate($_POST["permissionsAllowed"]);
-            $permissionsForbidden = json_validate($_POST["permissionsForbidden"]);
+            $permissionsAllowed = custom_json_validate($_POST["permissionsAllowed"]);
+            $permissionsForbidden = custom_json_validate($_POST["permissionsForbidden"]);
 
             $allUsers = getAllValuesFromDatabase($conn, "users", "userID", 0, true);
             if (!$allUsers || !count($allUsers) > 0) {
@@ -332,7 +332,7 @@ if (isset($_POST["benutzerverwaltung"])) {
             }
             if ($groups !== false && count($allUsers) > 0 && $groups != "false") {
                 foreach ($allUsers as $currentUser) {
-                    $usersGroups = json_validate(getValueFromDatabase($conn, "users", "groups", "userID", $currentUser, 1, false));
+                    $usersGroups = custom_json_validate(getValueFromDatabase($conn, "users", "groups", "userID", $currentUser, 1, false));
                     if (!array_contains_all_values($usersGroups, $groups, true)) {
                         $allUsers = removeFromArray($allUsers, $currentUser, "value", true, true);
                     }
@@ -365,7 +365,7 @@ if (isset($_POST["benutzerverwaltung"])) {
             }
             if ($permissionsAllowed !== false && count($allUsers) > 0 && $permissionsAllowed != "false") {
                 foreach ($allUsers as $currentUser) {
-                    $allPermissionsFromUser = json_validate(getValueFromDatabase($conn, "users", "permissions", "userID", $currentUser, 1, false));
+                    $allPermissionsFromUser = custom_json_validate(getValueFromDatabase($conn, "users", "permissions", "userID", $currentUser, 1, false));
                     if (hasAllContidions($conn, $permissionsAllowed, $allPermissionsFromUser, false)) {
                         $allUsers = removeFromArray($allUsers, $currentUser, "value", true, true);
                     }
@@ -373,7 +373,7 @@ if (isset($_POST["benutzerverwaltung"])) {
             }
             if ($permissionsForbidden !== false && count($allUsers) > 0 && $permissionsForbidden != "false") {
                 foreach ($allUsers as $currentUser) {
-                    $allPermissionsFromUser = json_validate(getValueFromDatabase($conn, "users", "isForbiddenTo", "userID", $currentUser, 1, false));
+                    $allPermissionsFromUser = custom_json_validate(getValueFromDatabase($conn, "users", "isForbiddenTo", "userID", $currentUser, 1, false));
                     if (!array_contains_all_values($allPermissionsFromUser, $permissionsForbidden, true)) {
                         $allUsers = removeFromArray($allUsers, $currentUser, "value", true, true);
                     }
@@ -524,7 +524,7 @@ if (isset($_POST["benutzerverwaltung"])) {
                     }
                 }
             } else if ($method == "removeAll") {
-                $usersGroups = json_validate(getValueFromDatabase($conn, "users", "groups", "userID", $sendUserID, 1, false));
+                $usersGroups = custom_json_validate(getValueFromDatabase($conn, "users", "groups", "userID", $sendUserID, 1, false));
                 if ($usersGroups == false || !count($usersGroups) > 0) {
                     returnMessage("success", "Alle Gruppen vom Nutzer erfolgreich entfernt. (hatte vorher auch keine).");
                     die();
@@ -546,7 +546,7 @@ if (isset($_POST["benutzerverwaltung"])) {
                 permissionDenied();
                 die();
             }
-            $newPassword = json_validate($_POST["input"])?->{"userInput"};
+            $newPassword = custom_json_validate($_POST["input"])?->{"userInput"};
 
             $errorArray = array();
             if (checkPassword($newPassword)) {
@@ -666,7 +666,7 @@ if (isset($_POST["benutzerverwaltung"])) {
             die();
         } else if ($type === "getAllAllowedPermissionNamesUser") {
             $sendUserID = $_POST["userID"];
-            $usersPermissions = json_validate(getValueFromDatabase($conn, "users", "permissions", "userID", $sendUserID, 1, false));
+            $usersPermissions = custom_json_validate(getValueFromDatabase($conn, "users", "permissions", "userID", $sendUserID, 1, false));
             if (!$usersPermissions) {
                 echo json_encode(array());
                 die();
@@ -679,7 +679,7 @@ if (isset($_POST["benutzerverwaltung"])) {
             die();
         } else if ($type === "getAllComeBackMessagesFromUser") {
             $sendUserID = $_POST["userID"];
-            $comeBackMessages = json_validate(getValueFromDatabase($conn, "users", "messageForComeBack", "userID", $sendUserID, 1, false));
+            $comeBackMessages = custom_json_validate(getValueFromDatabase($conn, "users", "messageForComeBack", "userID", $sendUserID, 1, false));
             if (!$comeBackMessages) {
                 echo json_encode(array());
                 die();
@@ -716,7 +716,7 @@ if (isset($_POST["benutzerverwaltung"])) {
         $klassenstufe = getValueFromDatabase($conn, "users", "klassenstufe", "userID", $sendUserID, 1, false);
         $isOnline = getValueFromDatabase($conn, "users", "isOnline", "userID", $sendUserID, 1, false);
         $authenticated = getValueFromDatabase($conn, "users", "authenticated", "userID", $sendUserID, 1, false);
-        $groups = json_validate(getValueFromDatabase($conn, "users", "groups", "userID", $sendUserID, 1, false));
+        $groups = custom_json_validate(getValueFromDatabase($conn, "users", "groups", "userID", $sendUserID, 1, false));
 
         //Create Readable feedback like lastLogin etc
         $now = new DateTime(getCurrentDateAndTime(1));
@@ -754,10 +754,10 @@ if (isset($_POST["benutzerverwaltung"])) {
             $lastActivityString = secondsToArrayOrString($lastActivity, "String");
         }
 
-        $permissionsAllowed = json_validate(getValueFromDatabase($conn, "users", "permissions", "userID", $sendUserID, 1, false));
-        $permissionsForbidden = json_validate(getValueFromDatabase($conn, "users", "isForbiddenTo", "userID", $sendUserID, 1, false));
+        $permissionsAllowed = custom_json_validate(getValueFromDatabase($conn, "users", "permissions", "userID", $sendUserID, 1, false));
+        $permissionsForbidden = custom_json_validate(getValueFromDatabase($conn, "users", "isForbiddenTo", "userID", $sendUserID, 1, false));
         $ranking = getPermissionRanking($conn, $sendUserID);
-        $usersnextMessages = json_validate(getValueFromDatabase($conn, "users", "messageForComeBack", "userID", $sendUserID, 1, false));
+        $usersnextMessages = custom_json_validate(getValueFromDatabase($conn, "users", "messageForComeBack", "userID", $sendUserID, 1, false));
         $showPublic = getValueFromDatabase($conn, "users", "showPublic", "userID", $user, 1, false);
         //Insert new Group and Permissions and deniedPermissions if these values are null in DB set it to valid json
 
@@ -818,7 +818,7 @@ if (isset($_POST["benutzerverwaltung"])) {
 
             if ($secondOperation === "getAllAllowedPermissionNamesUserHas") {
                 //Done
-                $allPermissions = json_validate(getValueFromDatabase($conn, "users", "permissions", "userID", $sendUserID, 1, false));
+                $allPermissions = custom_json_validate(getValueFromDatabase($conn, "users", "permissions", "userID", $sendUserID, 1, false));
                 $resultArray = array();
                 if ($allPermissions) {
                     foreach ($allPermissions as $currentPermissionKey => $currentPermissionValue) {
@@ -911,7 +911,7 @@ if (isset($_POST["benutzerverwaltung"])) {
 
                     $resultArray = array();
 
-                    $usersPermissions = json_validate(getValueFromDatabase($conn, "users", "permissions", "userID", $sendUserID, 1, false));
+                    $usersPermissions = custom_json_validate(getValueFromDatabase($conn, "users", "permissions", "userID", $sendUserID, 1, false));
                     if (!$usersPermissions) {
                         returnFoundAllowedPermissions($conn, $sendUserID, false);
                         die();
@@ -929,7 +929,7 @@ if (isset($_POST["benutzerverwaltung"])) {
 
                     $resultArray = array();
 
-                    $usersPermissions = json_validate(getValueFromDatabase($conn, "users", "permissions", "userID", $sendUserID, 1, false));
+                    $usersPermissions = custom_json_validate(getValueFromDatabase($conn, "users", "permissions", "userID", $sendUserID, 1, false));
                     if (!$usersPermissions) {
                         returnFoundAllowedPermissions($conn, $sendUserID, false);
                         die();
@@ -948,7 +948,7 @@ if (isset($_POST["benutzerverwaltung"])) {
 
                     $resultArray = array();
 
-                    $usersPermissions = json_validate(getValueFromDatabase($conn, "users", "permissions", "userID", $sendUserID, 1, false));
+                    $usersPermissions = custom_json_validate(getValueFromDatabase($conn, "users", "permissions", "userID", $sendUserID, 1, false));
                     if (!$usersPermissions) {
                         returnFoundAllowedPermissions($conn, $sendUserID, false);
                         die();
@@ -967,7 +967,7 @@ if (isset($_POST["benutzerverwaltung"])) {
 
                     $resultArray = array();
 
-                    $usersPermissions = json_validate(getValueFromDatabase($conn, "users", "permissions", "userID", $sendUserID, 1, false));
+                    $usersPermissions = custom_json_validate(getValueFromDatabase($conn, "users", "permissions", "userID", $sendUserID, 1, false));
                     if (!$usersPermissions) {
                         returnFoundAllowedPermissions($conn, $sendUserID, false);
                         die();
@@ -983,7 +983,7 @@ if (isset($_POST["benutzerverwaltung"])) {
                 } else if ($searchBy === "all") {
                     //Done
                     $resultArray = array();
-                    $usersPermissions = json_validate(getValueFromDatabase($conn, "users", "permissions", "userID", $sendUserID, 1, false));
+                    $usersPermissions = custom_json_validate(getValueFromDatabase($conn, "users", "permissions", "userID", $sendUserID, 1, false));
                     if (!$usersPermissions) {
                         returnFoundAllowedPermissions($conn, $sendUserID, false);
                         die();
@@ -1043,7 +1043,7 @@ if (isset($_POST["benutzerverwaltung"])) {
             $secondOperation = $_POST["secondOperation"];
 
             if ($secondOperation === "getAllForbiddenPermissionNamesUserHas") {
-                $allPermissions = json_validate(getValueFromDatabase($conn, "users", "isForbiddenTo", "userID", $sendUserID, 1, false));
+                $allPermissions = custom_json_validate(getValueFromDatabase($conn, "users", "isForbiddenTo", "userID", $sendUserID, 1, false));
                 $resultArray = array();
                 if ($allPermissions) {
                     foreach ($allPermissions as $currentPermission) {
@@ -1132,7 +1132,7 @@ if (isset($_POST["benutzerverwaltung"])) {
 
                     $resultArray = array();
 
-                    $usersPermissions = json_validate(getValueFromDatabase($conn, "users", "isForbiddenTo", "userID", $sendUserID, 1, false));
+                    $usersPermissions = custom_json_validate(getValueFromDatabase($conn, "users", "isForbiddenTo", "userID", $sendUserID, 1, false));
                     if (!$usersPermissions) {
                         returnFoundAllowedPermissions($conn, $sendUserID, false);
                         die();
@@ -1150,7 +1150,7 @@ if (isset($_POST["benutzerverwaltung"])) {
 
                     $resultArray = array();
 
-                    $usersPermissions = json_validate(getValueFromDatabase($conn, "users", "isForbiddenTo", "userID", $sendUserID, 1, false));
+                    $usersPermissions = custom_json_validate(getValueFromDatabase($conn, "users", "isForbiddenTo", "userID", $sendUserID, 1, false));
                     if (!$groupPermissions) {
                         returnFoundAllowedPermissions($conn, $sendUserID, false);
                         die();
@@ -1169,7 +1169,7 @@ if (isset($_POST["benutzerverwaltung"])) {
 
                     $resultArray = array();
 
-                    $usersPermissions = json_validate(getValueFromDatabase($conn, "users", "isForbiddenTo", "userID", $sendUserID, 1, false));
+                    $usersPermissions = custom_json_validate(getValueFromDatabase($conn, "users", "isForbiddenTo", "userID", $sendUserID, 1, false));
                     if (!$usersPermissions) {
                         returnFoundAllowedPermissions($conn, $sendUserID, false);
                         die();
@@ -1185,7 +1185,7 @@ if (isset($_POST["benutzerverwaltung"])) {
                 } else if ($searchBy === "all") {
                     //Done
                     $resultArray = array();
-                    returnFoundAllowedPermissions($conn, $sendUserID, json_validate(getValueFromDatabase($conn, "users", "isForbiddenTo", "userID", $sendUserID, 1, false)));
+                    returnFoundAllowedPermissions($conn, $sendUserID, custom_json_validate(getValueFromDatabase($conn, "users", "isForbiddenTo", "userID", $sendUserID, 1, false)));
                     die();
                 }
             } else if ($secondOperation === "getFullInformationForEdit") {
@@ -1220,7 +1220,7 @@ if (isset($_POST["benutzerverwaltung"])) {
             die();
         }
         $username = $_POST["username"];
-        $password = json_validate($_POST["password"])?->password;
+        $password = custom_json_validate($_POST["password"])?->password;
         $email = $_POST["email"];
 
         if (empty($username)) {
@@ -1320,7 +1320,7 @@ if (isset($_POST["scoreverwaltung"])) {
                 $quizID = getValueFromDatabase($conn, "scores", "quizID", "id", $id, 1, false);
                 $exists = boolval(valueInDatabaseExists($conn, "selectquiz", "uniqueID", "quizID", $quizID));
                 $date = getValueFromDatabase($conn, "scores", "date", "id", $id, 1, false);
-                $usersResults = json_validate(getValueFromDatabase($conn, "scores", "results", "id", $id, 1, false));
+                $usersResults = custom_json_validate(getValueFromDatabase($conn, "scores", "results", "id", $id, 1, false));
                 $klassenstufe = getValueFromDatabase($conn, "selectquiz", "klassenstufe", "quizID", $quizID, 1, false);
                 $fach = getValueFromDatabase($conn, "selectquiz", "fach", "quizID", $quizID, 1, false);
                 $thema = getValueFromDatabase($conn, "selectquiz", "thema", "quizID", $quizID, 1, false);
@@ -1350,7 +1350,7 @@ if (isset($_POST["scoreverwaltung"])) {
                 $quizID = getValueFromDatabase($conn, "scores", "quizID", "id", $id, 1, false);
                 $exists = boolval(valueInDatabaseExists($conn, "selectquiz", "uniqueID", "quizID", $quizID));
                 $date = getValueFromDatabase($conn, "scores", "date", "id", $id, 1, false);
-                $usersResults = json_validate(getValueFromDatabase($conn, "scores", "results", "id", $id, 1, false));
+                $usersResults = custom_json_validate(getValueFromDatabase($conn, "scores", "results", "id", $id, 1, false));
                 $klassenstufe = getValueFromDatabase($conn, "selectquiz", "klassenstufe", "quizID", $quizID, 1, false);
                 $fach = getValueFromDatabase($conn, "selectquiz", "fach", "quizID", $quizID, 1, false);
                 $thema = getValueFromDatabase($conn, "selectquiz", "thema", "quizID", $quizID, 1, false);
@@ -1381,8 +1381,8 @@ if (isset($_POST["scoreverwaltung"])) {
             $endDate = getUnixTimestampFromStartOfTheDay($_POST["endDate"]);
             $allScores = customDatabaseCall($conn, "SELECT id, userID, quizID, date, results FROM scores WHERE userID = ? ORDER BY id DESC", [$searchForUserID]);
             foreach ($allScores as $currentScore) {
-                if (json_validate($currentScore->{"results"})) {
-                    $currentScore->{"results"} = json_validate($currentScore->{"results"});
+                if (custom_json_validate($currentScore->{"results"})) {
+                    $currentScore->{"results"} = custom_json_validate($currentScore->{"results"});
                 }
 
                 $unixTimestampScore = getUnixTimestampFromStartOfTheDay(getUnixTimestampFromDate($currentScore->{"date"}));
@@ -1403,7 +1403,7 @@ if (isset($_POST["scoreverwaltung"])) {
             returnResults($conn, $allScores, $limitResults);
             die();
         } else if ($type === "klassenstufe") {
-            $filterKlassenstufen = json_validate($_POST["klassenstufen"]);
+            $filterKlassenstufen = custom_json_validate($_POST["klassenstufen"]);
             $allScores = getFullData($conn, customDatabaseCall($conn, "SELECT id FROM scores WHERE userID = ? ORDER BY id DESC", [$searchForUserID]));
             foreach ($allScores as $currentScore) {
                 $quizID = $currentScore["quizID"] ?? false;
@@ -1415,7 +1415,7 @@ if (isset($_POST["scoreverwaltung"])) {
             returnResults($conn, $allScores, $limitResults);
             die();
         } else if ($type === "fach") {
-            $filterFaecher = json_validate($_POST["faecher"]);
+            $filterFaecher = custom_json_validate($_POST["faecher"]);
             $allScores = getFullData($conn, customDatabaseCall($conn, "SELECT id FROM scores WHERE userID = ? ORDER BY id DESC", [$searchForUserID]));
             foreach ($allScores as $currentScore) {
                 $quizID = $currentScore["quizID"] ?? false;
@@ -1427,7 +1427,7 @@ if (isset($_POST["scoreverwaltung"])) {
             returnResults($conn, $allScores, $limitResults);
             die();
         } else if ($type === "thema") {
-            $filterThemen = json_validate($_POST["themen"]);
+            $filterThemen = custom_json_validate($_POST["themen"]);
             $allScores = getFullData($conn, customDatabaseCall($conn, "SELECT id FROM scores WHERE userID = ? ORDER BY id DESC", [$searchForUserID]));
             foreach ($allScores as $currentScore) {
                 $quizID = $currentScore["quizID"] ?? false;
@@ -1439,7 +1439,7 @@ if (isset($_POST["scoreverwaltung"])) {
             returnResults($conn, $allScores, $limitResults);
             die();
         } else if ($type === "quizname") {
-            $input = json_validate($_POST["input"])?->input;
+            $input = custom_json_validate($_POST["input"])?->input;
             $allScores = getFullData($conn, customDatabaseCall($conn, "SELECT id FROM scores WHERE userID = ? ORDER BY id DESC", [$searchForUserID]));
             foreach ($allScores as $currentScore) {
                 $quizID = $currentScore["quizID"] ?? false;
@@ -1451,7 +1451,7 @@ if (isset($_POST["scoreverwaltung"])) {
             returnResults($conn, $allScores, $limitResults);
             die();
         } else if ($type === "quizID") {
-            $input = json_validate($_POST["input"])?->input;
+            $input = custom_json_validate($_POST["input"])?->input;
             $allScores = getFullData($conn, customDatabaseCall($conn, "SELECT id FROM scores WHERE userID = ? ORDER BY id DESC", [$searchForUserID]));
             foreach ($allScores as $currentScore) {
                 $quizID = $currentScore["quizID"] ?? false;
@@ -1467,8 +1467,8 @@ if (isset($_POST["scoreverwaltung"])) {
 
             $allScores = customDatabaseCall($conn, "SELECT id, userID, quizID, date, results FROM scores WHERE userID = ? ORDER BY id DESC", [$searchForUserID]);
             foreach ($allScores as $currentScore) {
-                if (json_validate($currentScore->{"results"})) {
-                    $currentScore->{"results"} = json_validate($currentScore->{"results"});
+                if (custom_json_validate($currentScore->{"results"})) {
+                    $currentScore->{"results"} = custom_json_validate($currentScore->{"results"});
                 }
 
                 $timeNeeded = intval($currentScore->{"results"}->timeNeeded);
@@ -1491,11 +1491,11 @@ if (isset($_POST["scoreverwaltung"])) {
             $result = $_POST["result"];
             $startDate = $_POST["startDate"];
             $endDate = $_POST["endDate"];
-            $klassenstufen = json_validate($_POST["klassenstufen"]);
-            $faecher = json_validate($_POST["faecher"]);
-            $themen = json_validate($_POST["themen"]);
-            $quizname = json_validate($_POST["quizname"])?->quizname;
-            $quizID = json_validate($_POST["quizID"])?->quizID;
+            $klassenstufen = custom_json_validate($_POST["klassenstufen"]);
+            $faecher = custom_json_validate($_POST["faecher"]);
+            $themen = custom_json_validate($_POST["themen"]);
+            $quizname = custom_json_validate($_POST["quizname"])?->quizname;
+            $quizID = custom_json_validate($_POST["quizID"])?->quizID;
             $minTime = $_POST["minTime"];
             $maxTime = $_POST["maxTime"];
 
@@ -1518,8 +1518,8 @@ if (isset($_POST["scoreverwaltung"])) {
                 $startDate = getUnixTimestampFromStartOfTheDay($startDate);
                 $endDate = getUnixTimestampFromStartOfTheDay($endDate);
                 foreach ($allScores as $currentScore) {
-                    if (json_validate($currentScore->{"results"})) {
-                        $currentScore->{"results"} = json_validate($currentScore->{"results"});
+                    if (custom_json_validate($currentScore->{"results"})) {
+                        $currentScore->{"results"} = custom_json_validate($currentScore->{"results"});
                     }
                     $unixTimestampScore = getUnixTimestampFromStartOfTheDay(getUnixTimestampFromDate($currentScore["date"]));
                     //Remove all what is smaller than start date
